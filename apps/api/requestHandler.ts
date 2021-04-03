@@ -11,7 +11,8 @@ class ValidationError {
 }
 
 function getRequestParams(req: express.Request) {
-  return { ...req.query, ...req.body, ...req.params } as Record<string, unknown>
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  return { ...req.query, ...req.body, ...req.params } as {}
 }
 
 function handleRequest<R, RequestA, ResponseA, ResponseE>(
@@ -21,11 +22,9 @@ function handleRequest<R, RequestA, ResponseA, ResponseE>(
 ) {
   return (req: express.Request, res: express.Response) =>
     pipe(
-      pipe(
-        getRequestParams(req),
-        decodeRequest,
-        T.mapError((err) => new ValidationError(err))
-      ),
+      getRequestParams(req)
+        ["|>"](decodeRequest)
+        ["|>"](T.mapError((err) => new ValidationError(err))),
       T.chain(handle),
       T.chain(encodeResponse),
       T.chain((r) =>
