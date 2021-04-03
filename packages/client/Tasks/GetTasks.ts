@@ -1,11 +1,11 @@
 import { Task } from "@effect-ts-demo/todo-types"
-import * as MO from "@effect-ts/morphic"
+import { make, AType, EType, opaque } from "@effect-ts/morphic"
 
-export const Request = MO.make((F) => F.unknown())
-export type Request = MO.AType<typeof Request>
-export type RequestE = MO.EType<typeof Request>
+export const Request = make((F) => F.unknown())
+export type Request = AType<typeof Request>
+export type RequestE = EType<typeof Request>
 
-const Response_ = MO.make((F) => F.interface({ tasks: F.array(Task(F)) }))
-export interface Response extends MO.AType<typeof Response_> {}
-export interface ResponseE extends MO.EType<typeof Response_> {}
-export const Response = MO.opaque<ResponseE, Response>()(Response_)
+const Response_ = make((F) => F.interface({ tasks: F.array(Task(F)) }))
+export interface Response extends AType<typeof Response_> {}
+export interface ResponseE extends EType<typeof Response_> {}
+export const Response = opaque<ResponseE, Response>()(Response_)
