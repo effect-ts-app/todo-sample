@@ -15,19 +15,19 @@ function getRequestParams(req: express.Request) {
 }
 
 function handleRequest<R, RequestA, ResponseA, ResponseE>(
-  decode: Decode<RequestA>,
-  encode: (e: ResponseA) => T.Effect<unknown, never, ResponseE>,
+  decodeRequest: Decode<RequestA>,
+  encodeResponse: (e: ResponseA) => T.Effect<unknown, never, ResponseE>,
   handle: (r: RequestA) => T.Effect<R, never, ResponseA>
 ) {
   return (req: express.Request, res: express.Response) =>
     pipe(
       pipe(
         getRequestParams(req),
-        decode,
+        decodeRequest,
         T.mapError((err) => new ValidationError(err))
       ),
       T.chain(handle),
-      T.chain(encode),
+      T.chain(encodeResponse),
       T.chain((r) =>
         T.effectTotal(() => {
           res.status(200).send(r)
