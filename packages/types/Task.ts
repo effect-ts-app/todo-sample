@@ -3,8 +3,16 @@ import { AType, EType, make, opaque } from "@effect-ts/morphic"
 
 import { makeUuid, NonEmptyString } from "./shared"
 
-export const Step = NonEmptyString
-export type Step = AType<typeof Step>
+export const Step_ = make((F) =>
+  F.interface({ title: NonEmptyString(F), completed: F.boolean() })
+)
+export interface Step extends AType<typeof Step_> {}
+export interface StepE extends EType<typeof Step_> {}
+const StepO = opaque<StepE, Step>()(Step_)
+export const Step = Object.assign(StepO, {
+  create: (a: Omit<Step, "completed">) => Step.build({ ...a, completed: false }),
+  complete: StepO.lens["|>"](Lens.prop("completed")).set(true),
+})
 
 const Task_ = make((F) =>
   F.interface({

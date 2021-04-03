@@ -6,7 +6,7 @@ import * as T from "@effect-ts/core/Effect"
 
 import { pipe } from "@effect-ts/core"
 
-import styled from "styled-components"
+import styled, { css } from "styled-components"
 
 function useTasks() {
     const [tasks, setTasks] = useState([] as A.Array<Todo.Task>)
@@ -20,8 +20,14 @@ function useTasks() {
     return [tasks] as const
 }
 
-const Task = styled.li``
-
+const Task = styled.li<Pick<Todo.Task, "completed">>`
+    ${({ completed }) => completed && css`text-decoration: line-through`}
+`
+function makeStepCount(steps: Todo.Task["steps"]) {
+    if (steps.length === 0) { return "0" }
+    const completedSteps = steps["|>"](A.filter(x => x.completed))
+    return `${completedSteps.length}/${steps.length}`
+}
 
 function Tasks() {
     const [tasks] = useTasks()
@@ -30,7 +36,13 @@ function Tasks() {
         <div>
             <div><h1>Tasks</h1></div>
             <ul>
-                {tasks.map(t => <Task key={t.id}>{t.title}</Task>)}
+                {tasks.map(t => (
+                    <Task key={t.id} completed={t.completed}>
+                        {t.title}
+                        &nbsp;
+                        [{makeStepCount(t.steps)}]
+                    </Task>)
+                )}
             </ul>
         </div>
     )
