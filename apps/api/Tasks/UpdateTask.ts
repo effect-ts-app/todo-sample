@@ -1,11 +1,10 @@
 import { Request, Response } from "@effect-ts-demo/todo-client/Tasks/UpdateTask"
+import { Task } from "@effect-ts-demo/todo-types"
 import * as T from "@effect-ts/core/Effect"
 import * as O from "@effect-ts/core/Option"
 import { Lens } from "@effect-ts/monocle"
 
 import * as TaskContext from "./TaskContext"
-
-import { Task } from "@/../../packages/types"
 
 export const handle = (_: Request) =>
   TaskContext.find(_.id)
