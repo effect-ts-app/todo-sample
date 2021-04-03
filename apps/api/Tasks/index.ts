@@ -1,1 +1,1 @@
-export * as GetTask from "./GetTask"
+export * as GetTasks from "./GetTasks"

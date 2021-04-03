@@ -1,5 +1,11 @@
 import type { Branded } from "@effect-ts/core/Branded"
 import { make, FastCheckURI, AType } from "@effect-ts/morphic"
+import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
+import { v4 } from "uuid"
+
+export function makeUuid() {
+  return v4() as UUID
+}
 
 const MIN = 1
 

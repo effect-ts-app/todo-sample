@@ -4,17 +4,17 @@ import * as Ex from "@effect-ts/express"
 import { decoder } from "@effect-ts/morphic/Decoder"
 import { encoder } from "@effect-ts/morphic/Encoder"
 
-import { GetTask } from "./Tasks"
+import { GetTasks } from "./Tasks"
 
 const routes = T.tuple(
   Ex.get("/tasks", (req, res) => {
-    const { decode } = decoder(GetTask.Request)
-    const { encode } = encoder(GetTask.Response)
+    const { decode } = decoder(GetTasks.Request)
+    const { encode } = encoder(GetTasks.Response)
     return pipe(
       decode(req.body)["|>"](
         T.mapError((err) => ({ _tag: "Validation" as const, error: err }))
       ),
-      T.chain(GetTask.handle),
+      T.chain(GetTasks.handle),
       T.chain(encode),
       T.chain((r) =>
         T.effectTotal(() => {
