@@ -24,7 +24,7 @@ function handleRequest<R, RequestA, ResponseA, ResponseE>(
       pipe(
         getRequestParams(req),
         decode,
-        T.mapError((err: Errors) => new ValidationError(err))
+        T.mapError((err) => new ValidationError(err))
       ),
       T.chain(handle),
       T.chain(encode),
