@@ -6,7 +6,7 @@ import * as Map from "@effect-ts/core/Map"
 import * as O from "@effect-ts/core/Option"
 import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
 
-const tasks: Map.Map<UUID, Task> = [
+let tasks: Map.Map<UUID, Task> = [
   Task.create({
     title: "My first Task" as NonEmptyString,
     steps: [Step.create({ title: "first step" as NonEmptyString })],
@@ -28,3 +28,7 @@ export function find(id: UUID) {
 }
 
 export const all = T.effectTotal(() => [...tasks.values()] as const)
+
+export function add(t: Task) {
+  return T.effectTotal(() => (tasks = tasks["|>"](Map.insert(t.id, t))))
+}
