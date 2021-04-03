@@ -10,6 +10,7 @@
         "@effect-ts/express": "^0.12.0",
         "@effect-ts/monocle": "^0.25.0",
         "@effect-ts/morphic": "^0.26.0",
+        "body-parser": "^1.19.0",
         "cors": "^2.8.5",
         "express": "^4.17.1"
     },
@@ -17,6 +18,7 @@
         "start": "TSC_WATCHFILE=UseFsEventsWithFallbackDynamicPolling NODE_ENV=development nodemon --watch . --watch ../../packages --exec ts-node -r tsconfig-paths/register --transpile-only ./start-server.ts"
     },
     "devDependencies": {
+        "@types/body-parser": "^1.19.0",
         "@types/cors": "^2.8.10",
         "@types/express": "^4.17.11"
     }
