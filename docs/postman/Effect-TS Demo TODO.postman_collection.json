@@ -11,12 +11,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:6000/tasks",
+					"raw": "http://localhost:3330/tasks",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "6000",
+					"port": "3330",
 					"path": [
 						"tasks"
 					]
@@ -79,6 +79,55 @@
 					"port": "3330",
 					"path": [
 						"tasks"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Task",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3330/tasks/{{TaskId}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3330",
+					"path": [
+						"tasks",
+						"{{TaskId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Task",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"Howdy hooo\",\n    \"completed\": true,\n    \"steps\": []\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3330/tasks/{{TaskId}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3330",
+					"path": [
+						"tasks",
+						"{{TaskId}}"
 					]
 				}
 			},
