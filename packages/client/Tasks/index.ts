@@ -11,6 +11,7 @@ import fetch from "cross-fetch"
 import * as CreateTask from "./CreateTask"
 import * as GetTask from "./GetTask"
 import * as GetTasks from "./GetTasks"
+import * as UpdateTask from "./UpdateTask"
 
 export interface ApiConfig {
   apiUrl: string
@@ -74,3 +75,19 @@ export function createTask(req: CreateTask.Request) {
 
 const decodeCreateTaskRequest = decode(CreateTask.Request)
 export const createTaskE = flow(decodeCreateTaskRequest, T.chain(createTask))
+
+const encodeUpdateTaskRequest = encode(UpdateTask.Request)
+export function updateTask(req: UpdateTask.Request) {
+  return pipe(
+    encodeUpdateTaskRequest(req),
+    T.chain((res) =>
+      fetchApi(`/tasks/${req.id}`, {
+        method: "POST",
+        body: JSON.stringify(res),
+      })
+    )
+  )
+}
+
+const decodeUpdateTaskRequest = decode(UpdateTask.Request)
+export const updateTaskE = flow(decodeUpdateTaskRequest, T.chain(updateTask))
