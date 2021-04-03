@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import styled, { css } from "styled-components"
 
 import * as Todo from "@effect-ts-demo/todo-types"
@@ -12,14 +12,35 @@ import { useRun } from "../run"
 function useTasks() {
     const [tasks, setTasks] = useState([] as A.Array<Todo.Task>)
     const runEffect = useRun()
-    // TODO: loading vs error, vs fetching more state etc.
-    useEffect(() => {
-        TodoClient.Tasks.getTasks
+    const fetchLatestTasks = useCallback(() => {
+        return TodoClient.Tasks.getTasks
             ["|>"](T.map(r => setTasks(r.tasks)))
             ["|>"](runEffect)
             .catch(console.error)
     }, [runEffect])
-    return [tasks] as const
+    // TODO: loading vs error, vs fetching more state etc.
+    useEffect(() => {fetchLatestTasks()}, [fetchLatestTasks])
+    return [tasks, fetchLatestTasks] as const
+}
+
+function useNewTask() {
+    const runEffect = useRun()
+    const [newTaskTitle, setNewTaskTitle] = useState("")
+    const [newTaskProcessing, setNewTaskProcessing] = useState(false)
+
+    async function addNewTask() {
+        setNewTaskProcessing(true)
+        try {
+            await TodoClient.Tasks.createTaskE({ title: newTaskTitle })["|>"](runEffect)
+            setNewTaskTitle("")
+        } catch (err) {
+            console.error(err)
+        } finally {
+            setNewTaskProcessing(false)
+        }
+    }
+
+    return [{ newTaskTitle, newTaskProcessing}, setNewTaskTitle, addNewTask] as const
 }
 
 const Task = styled.li<Pick<Todo.Task, "completed">>`
@@ -32,7 +53,9 @@ function makeStepCount(steps: Todo.Task["steps"]) {
 }
 
 function Tasks() {
-    const [tasks] = useTasks()
+    const [tasks, fetchLatestTasks] = useTasks()
+
+    const [{ newTaskTitle, newTaskProcessing}, setNewTaskTitle, addNewTask] = useNewTask()
 
     return (
         <div>
@@ -46,6 +69,12 @@ function Tasks() {
                     </Task>)
                 )}
             </ul>
+            <div>
+                    <input value={newTaskTitle} onChange={(evt) => setNewTaskTitle(evt.target.value)} type="text" />
+                    <button onClick={() => addNewTask().then(fetchLatestTasks)} disabled={!newTaskTitle.length || newTaskProcessing}>
+                        add
+                    </button>
+            </div>
         </div>
     )
 }

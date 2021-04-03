@@ -39,8 +39,14 @@ function fetchApi(path: string, options?: RequestInit) {
   return getConfig(({ apiUrl }) =>
     T.fromPromiseWith(
       () =>
-        // unknown is better than any, as it demands to handle the unknown value
-        fetch(`${apiUrl}${path}`, options).then((r) => r.json() as Promise<unknown>),
+        fetch(`${apiUrl}${path}`, {
+          headers: { "Content-Type": "application/json", ...options?.headers },
+          ...options,
+        }).then(
+          (r) =>
+            // unknown is better than any, as it demands to handle the unknown value
+            r.json() as Promise<unknown>
+        ),
       (err) => new FetchError(err)
     )
   )
@@ -57,6 +63,14 @@ const encodeCreateTaskRequest = encode(CreateTask.Request)
 export function createTask(req: CreateTask.Request) {
   return pipe(
     encodeCreateTaskRequest(req),
-    T.chain((res) => fetchApi("tasks", { method: "POST", body: JSON.stringify(res) }))
+    T.chain((res) =>
+      fetchApi("/tasks", {
+        method: "POST",
+        body: JSON.stringify(res),
+      })
+    )
   )
 }
+
+const decodeCreateTaskRequest = decode(CreateTask.Request)
+export const createTaskE = flow(decodeCreateTaskRequest, T.chain(createTask))
