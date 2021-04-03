@@ -18,6 +18,7 @@ const Task_ = make((F) =>
   F.interface({
     id: F.uuid(),
     createdAt: F.date(),
+    updatedAt: F.date(),
 
     title: NonEmptyString(F),
     completed: F.boolean(),
@@ -29,7 +30,15 @@ export interface Task extends AType<typeof Task_> {}
 export interface TaskE extends EType<typeof Task_> {}
 const TaskO = opaque<TaskE, Task>()(Task_)
 export const Task = Object.assign(TaskO, {
-  create: (a: Omit<Task, "id" | "createdAt" | "completed">) =>
-    Task.build({ ...a, createdAt: new Date(), completed: false, id: makeUuid() }),
+  create: (a: Omit<Task, "id" | "createdAt" | "updatedAt" | "completed">) => {
+    const createdAt = new Date()
+    return Task.build({
+      ...a,
+      createdAt,
+      updatedAt: createdAt,
+      completed: false,
+      id: makeUuid(),
+    })
+  },
   complete: TaskO.lens["|>"](Lens.prop("completed")).set(true),
 })

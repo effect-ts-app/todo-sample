@@ -157,6 +157,7 @@ function Tasks() {
                                 </li>)
                             )}
                         </ul></div>
+                        <div>Updated: {selectedTask.updatedAt.toISOString()}</div>
                         <div>Created: {selectedTask.createdAt.toISOString()}</div>
                         <div><i>Id: {selectedTask.id}</i></div>
                         </>

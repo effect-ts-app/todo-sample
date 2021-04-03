@@ -10,7 +10,14 @@ import { Task } from "@/../../packages/types"
 export const handle = (_: Request) =>
   TaskContext.find(_.id)
     ["|>"](T.chain(O.fold(() => T.die(`Did not find Task#${_.id}`), T.succeed)))
-    ["|>"](T.map(Task.lens["|>"](Lens.props("completed", "steps", "title")).set(_)))
+    ["|>"](
+      T.map(
+        Task.lens["|>"](Lens.props("completed", "steps", "title", "updatedAt")).set({
+          ..._,
+          updatedAt: new Date(),
+        })
+      )
+    )
     ["|>"](T.tap(TaskContext.add))
     ["|>"](T.map(() => ({})))
 
