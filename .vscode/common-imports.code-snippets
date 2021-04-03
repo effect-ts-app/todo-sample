@@ -44,28 +44,28 @@
     "Map": {
         "prefix": "+Map",
         "body": [
-            "import * as Map from \"@effect-ts/core/Classic/Map\""
+            "import * as Map from \"@effect-ts/core/Map\""
         ],
         "description": "Map"
     },
     "Array": {
         "prefix": "+A",
         "body": [
-            "import * as A from \"@effect-ts/core/Classic/Array\""
+            "import * as A from \"@effect-ts/core/Array\""
         ],
         "description": "Array as A"
     },
     "Record": {
         "prefix": "+R",
         "body": [
-            "import * as R from \"@effect-ts/core/Classic/Record\""
+            "import * as R from \"@effect-ts/core/Record\""
         ],
         "description": "Record as R"
     },
     "NonEmptyArray": {
         "prefix": "+NA",
         "body": [
-            "import * as NA from \"@effect-ts/core/Classic/NonEmptyArray\""
+            "import * as NA from \"@effect-ts/core/NonEmptyArray\""
         ],
         "description": "NonEmptyArray as NA"
     },
@@ -121,7 +121,7 @@
     "Either": {
         "prefix": "+E",
         "body": [
-            "import * as E from \"@effect-ts/core/Classic/Either\""
+            "import * as E from \"@effect-ts/core/Either\""
         ],
         "description": "Either as E"
     },
@@ -142,7 +142,7 @@
     "Option": {
         "prefix": "+O",
         "body": [
-            "import * as O from \"@effect-ts/core/Classic/Option\""
+            "import * as O from \"@effect-ts/core/Option\""
         ],
         "description": "Option as O"
     },
