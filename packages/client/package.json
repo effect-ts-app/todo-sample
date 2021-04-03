@@ -7,6 +7,7 @@
         "@effect-ts-demo/todo-types": "*",
         "@effect-ts/core": "^0.28.2",
         "@effect-ts/monocle": "^0.25.0",
-        "@effect-ts/morphic": "^0.26.0"
+        "@effect-ts/morphic": "^0.26.0",
+        "cross-fetch": "^3.1.4"
     }
 }

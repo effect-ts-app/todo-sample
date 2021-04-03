@@ -3,6 +3,7 @@ import { pipe } from "@effect-ts/core/Function"
 import * as Ex from "@effect-ts/express"
 import { decoder } from "@effect-ts/morphic/Decoder"
 import { encoder } from "@effect-ts/morphic/Encoder"
+import cors from "cors"
 
 import { GetTasks } from "./Tasks"
 
@@ -36,10 +37,11 @@ const routes = T.tuple(
 )
 
 const HOST = "127.0.0.1"
-const PORT = 6000
+const PORT = 3330
 
 const program = pipe(
-  routes,
+  Ex.use(Ex.classic(cors())),
+  T.zipRight(routes),
   T.tap(() => T.effectTotal(() => console.log(`Running on ${HOST}:${PORT}`))),
   T.tap(() => T.never)
 )

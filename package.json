@@ -1,36 +1,42 @@
 {
-  "name": "@effect-ts-demo/todo",
-  "author": "Patrick Roza <contact@patrickroza.com>",
-  "license": "MIT",
-  "workspaces": {
-    "packages": [
-      "apps/*",
-      "packages/*"
-    ]
-  },
-  "private": true,
-  "devDependencies": {
-    "@types/node": "^14.14.37",
-    "@typescript-eslint/eslint-plugin": "^4.17.0",
-    "@typescript-eslint/parser": "^4.17.0",
-    "create-react-app": "^4.0.3",
-    "eslint": "^7.22.0",
-    "eslint-config-prettier": "^8.1.0",
-    "eslint-import-resolver-typescript": "^2.4.0",
-    "eslint-import-resolver-webpack": "^0.13.0",
-    "eslint-plugin-import": "^2.22.1",
-    "eslint-plugin-prettier": "^3.3.1",
-    "eslint-plugin-sort-destructure-keys": "^1.3.5",
-    "fast-check": "^2.14.0",
-    "nodemon": "^2.0.7",
-    "patch-package": "^6.4.7",
-    "postinstall-postinstall": "^2.1.0",
-    "prettier": "^2.2.1",
-    "ts-node": "^9.1.1",
-    "tsconfig-paths": "^3.9.0",
-    "typescript": "^4.2.3"
-  },
-  "scripts": {
-    "postinstall": "patch-package"
-  }
+    "name": "@effect-ts-demo/todo",
+    "author": "Patrick Roza <contact@patrickroza.com>",
+    "license": "MIT",
+    "workspaces": {
+        "packages": [
+            "apps/*",
+            "packages/*"
+        ]
+    },
+    "private": true,
+    "devDependencies": {
+        "@types/node": "^14.14.37",
+        "@typescript-eslint/eslint-plugin": "^4.17.0",
+        "@typescript-eslint/parser": "^4.17.0",
+        "create-react-app": "^4.0.3",
+        "eslint": "^7.22.0",
+        "eslint-config-prettier": "^8.1.0",
+        "eslint-import-resolver-typescript": "^2.4.0",
+        "eslint-import-resolver-webpack": "^0.13.0",
+        "eslint-plugin-import": "^2.22.1",
+        "eslint-plugin-prettier": "^3.3.1",
+        "eslint-plugin-sort-destructure-keys": "^1.3.5",
+        "fast-check": "^2.14.0",
+        "nodemon": "^2.0.7",
+        "patch-package": "^6.4.7",
+        "postinstall-postinstall": "^2.1.0",
+        "prettier": "^2.2.1",
+        "ts-node": "^9.1.1",
+        "tsconfig-paths": "^3.9.0",
+        "typescript": "^4.2.3"
+    },
+    "scripts": {
+        "postinstall": "patch-package",
+        "start": "concurrently -k -p \"[{name}]\" -n \"CRA Server,CRA Client\" -c \"cyan.bold,green.bold,blue.bold\" \"yarn start:api\" \"yarn start:frontend\"",
+        "start:api": "cd apps/api && yarn start",
+        "start:frontend": "cd apps/frontend && yarn start"
+    },
+    "dependencies": {
+        "concurrently": "^6.0.0"
+    }
 }
