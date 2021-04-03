@@ -1,22 +1,24 @@
-import React, { useEffect, useState } from "react"
+import { useEffect, useState } from "react"
+import styled, { css } from "styled-components"
+
 import * as Todo from "@effect-ts-demo/todo-types"
 import * as TodoClient from "@effect-ts-demo/todo-client"
 import * as A from "@effect-ts/core/Array"
 import * as T from "@effect-ts/core/Effect"
 
-import { pipe } from "@effect-ts/core"
+import { useRun } from "../run"
 
-import styled, { css } from "styled-components"
 
 function useTasks() {
     const [tasks, setTasks] = useState([] as A.Array<Todo.Task>)
+    const runEffect = useRun()
+    // TODO: loading vs error, vs fetching more state etc.
     useEffect(() => {
-        const tasks = async () => {
-            const r = await pipe(TodoClient.Tasks.getTasks, T.runPromise)
-            setTasks(r.tasks)
-        }
-        tasks().catch(console.error)
-    }, [])
+        TodoClient.Tasks.getTasks
+            ["|>"](T.map(r => setTasks(r.tasks)))
+            ["|>"](runEffect)
+            .catch(console.error)
+    }, [runEffect])
     return [tasks] as const
 }
 
