@@ -7,6 +7,6 @@
 
 ## Starting
 
+From repo root:
 - `yarn`
-- `cd apps/frontend && yarn`
-- `cd ../../ && yarn start`
+- `yarn start`
