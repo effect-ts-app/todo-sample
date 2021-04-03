@@ -1,15 +1,16 @@
+import * as GetTask from "@effect-ts-demo/todo-client/Tasks/GetTask"
 import * as GetTasks from "@effect-ts-demo/todo-client/Tasks/GetTasks"
 import { pipe } from "@effect-ts/core"
 import * as T from "@effect-ts/core/Effect"
 import { flow } from "@effect-ts/core/Function"
 import { tag } from "@effect-ts/core/Has"
-import { decoder, Errors } from "@effect-ts/morphic/Decoder"
+import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
+import { decode, Errors } from "@effect-ts/morphic/Decoder"
 import * as Layer from "@effect-ts/system/Layer"
 import fetch from "cross-fetch"
-//import { encoder } from "@effect-ts/morphic/Encoder"
 
 export interface ApiConfig {
-  api: string
+  apiUrl: string
 }
 
 export const ApiConfig = tag<ApiConfig>()
@@ -32,18 +33,19 @@ class ResponseError {
 const mapResponseError = T.mapError((err: Errors) => new ResponseError(err))
 
 function fetchApi(path: string, options?: RequestInit) {
-  return getConfig(({ api }) =>
+  return getConfig(({ apiUrl }) =>
     T.fromPromiseWith(
-      () => fetch(`${api}${path}`, options).then((r) => r.json() as Promise<unknown>),
+      () =>
+        // unknown is better than any, as it demands to handle the unknown value
+        fetch(`${apiUrl}${path}`, options).then((r) => r.json() as Promise<unknown>),
       (err) => new FetchError(err)
     )
   )
 }
 
-//const { encode } = encoder(GetTasks.Request)
-const { decode: decodeGetTasksResponse } = decoder(GetTasks.Response)
+const decodeGetTasksResponse = flow(decode(GetTasks.Response), mapResponseError)
+export const getTasks = pipe(fetchApi("/tasks"), T.chain(decodeGetTasksResponse))
 
-export const getTasks = pipe(
-  fetchApi("/tasks"),
-  T.chain(flow(decodeGetTasksResponse, mapResponseError))
-)
+const decodeGetTaskResponse = flow(decode(GetTask.Response), mapResponseError)
+export const findTask = (id: UUID) =>
+  pipe(fetchApi(`/tasks/${id}`), T.chain(decodeGetTaskResponse))
