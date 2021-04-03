@@ -18,19 +18,17 @@ const routes = T.tuple(
       T.chain(encode),
       T.chain((r) =>
         T.effectTotal(() => {
-          res.body = r
+          res.status(200).send(r)
         })
       ),
       T.catch("_tag", "Validation", (err) =>
         T.effectTotal(() => {
-          res.body = err.toString()
-          res.status = 400
+          res.status(400).send(err.toString())
         })
       )
       //   T.catchAll((err) =>
       //     T.effectTotal(() => {
-      //       res.body = err.toString()
-      //       res.status = 500
+      //       res.status(500).send(err.toString())
       //     })
       //   )
     )
@@ -39,12 +37,13 @@ const routes = T.tuple(
 
 const HOST = "127.0.0.1"
 const PORT = 6000
-pipe(
+
+const program = pipe(
   routes,
-  T.provideSomeLayer(Ex.LiveExpress(HOST, PORT)),
   T.tap(() => T.effectTotal(() => console.log(`Running on ${HOST}:${PORT}`))),
-  T.tap(() => T.never),
-  T.runPromiseExit
+  T.tap(() => T.never)
 )
+
+pipe(program, T.provideSomeLayer(Ex.LiveExpress(HOST, PORT)), T.runPromiseExit)
   .then(console.log)
   .catch(console.error)
