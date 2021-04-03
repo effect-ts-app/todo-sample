@@ -1,0 +1,12 @@
+{
+    "name": "@effect-ts-demo/todo-client",
+    "version": "0.0.1",
+    "main": "index.js",
+    "license": "MIT",
+    "dependencies": {
+        "@effect-ts-demo/todo-types": "*",
+        "@effect-ts/core": "^0.28.2",
+        "@effect-ts/monocle": "^0.25.0",
+        "@effect-ts/morphic": "^0.26.0"
+    }
+}
