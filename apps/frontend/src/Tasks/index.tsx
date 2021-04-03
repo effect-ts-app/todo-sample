@@ -44,6 +44,24 @@ function useNewTask() {
     return [{ newTaskTitle, newTaskProcessing}, setNewTaskTitle, addNewTask] as const
 }
 
+function useDeleteTask() {
+    const runEffect = useRun()
+    const [deleteTaskProcessing, setDeleteTaskProcessing] = useState(false)
+
+    async function deleteTask(id: UUID) {
+        setDeleteTaskProcessing(true)
+        try {
+            await TodoClient.Tasks.deleteTask({ id })["|>"](runEffect)
+        } catch (err) {
+            console.error(err)
+        } finally {
+            setDeleteTaskProcessing(false)
+        }
+    }
+
+    return [{ deleteTaskProcessing }, deleteTask] as const
+}
+
 const Task = styled.li<Pick<Todo.Task, "completed">>`
     ${({ completed }) => completed && css`text-decoration: line-through`}
 `
@@ -61,6 +79,8 @@ function Tasks() {
 
     const [{ newTaskTitle, newTaskProcessing}, setNewTaskTitle, addNewTask] = useNewTask()
 
+    const [ {  deleteTaskProcessing}, deleteTask] = useDeleteTask()
+
     return (
         <div>
             <div><h1>Tasks</h1></div>
@@ -71,6 +91,7 @@ function Tasks() {
                         {t.title}
                         &nbsp;
                         [{makeStepCount(t.steps)}]
+                        <button disabled={deleteTaskProcessing} onClick={() => deleteTask(t.id).then(fetchLatestTasks)}>X</button>
                     </Task>)
                 )}
             </ul>

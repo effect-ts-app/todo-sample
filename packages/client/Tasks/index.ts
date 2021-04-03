@@ -9,6 +9,7 @@ import * as Layer from "@effect-ts/system/Layer"
 import fetch from "cross-fetch"
 
 import * as CreateTask from "./CreateTask"
+import * as DeleteTask from "./DeleteTask"
 import * as GetTask from "./GetTask"
 import * as GetTasks from "./GetTasks"
 import * as UpdateTask from "./UpdateTask"
@@ -91,3 +92,9 @@ export function updateTask(req: UpdateTask.Request) {
 
 const decodeUpdateTaskRequest = decode(UpdateTask.Request)
 export const updateTaskE = flow(decodeUpdateTaskRequest, T.chain(updateTask))
+
+export function deleteTask(req: DeleteTask.Request) {
+  return fetchApi(`/tasks/${req.id}`, {
+    method: "DELETE",
+  })
+}

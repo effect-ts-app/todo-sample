@@ -50,3 +50,7 @@ export const all = pipe(
 export function add(t: Task) {
   return T.effectTotal(() => (tasks = tasks["|>"](Map.insert(t.id, runEncodeTask(t)))))
 }
+
+export function remove(t: Task) {
+  return T.effectTotal(() => (tasks = tasks["|>"](Map.remove(t.id))))
+}
