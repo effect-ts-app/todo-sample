@@ -1,0 +1,16 @@
+{
+    "name": "@effect-ts-demo/todo-api",
+    "version": "0.0.1",
+    "main": "index.js",
+    "license": "MIT",
+    "dependencies": {
+        "@effect-ts-demo/todo-types": "*",
+        "@effect-ts/core": "^0.28.2",
+        "@effect-ts/express": "^0.12.0",
+        "@effect-ts/monocle": "^0.25.0",
+        "@effect-ts/morphic": "^0.26.0"
+    },
+    "scripts": {
+        "start": "TSC_WATCHFILE=UseFsEventsWithFallbackDynamicPolling NODE_ENV=development nodemon --watch . --watch ../../packages --exec ts-node -r tsconfig-paths/register --transpile-only ./start-server.ts"
+    }
+}
