@@ -1,20 +1,25 @@
 import * as T from "@effect-ts/core/Effect"
 import { pipe } from "@effect-ts/core/Function"
 import * as Ex from "@effect-ts/express"
-import { decoder } from "@effect-ts/morphic/Decoder"
+import { decoder, Errors } from "@effect-ts/morphic/Decoder"
 import { encoder } from "@effect-ts/morphic/Encoder"
 import cors from "cors"
 
 import { GetTasks } from "./Tasks"
+
+class ValidationError {
+  public readonly _tag = "ValidationError"
+  constructor(public readonly error: Errors) {}
+}
+
+const mapValidationError = T.mapError((err: Errors) => new ValidationError(err))
 
 const routes = T.tuple(
   Ex.get("/tasks", (req, res) => {
     const { decode } = decoder(GetTasks.Request)
     const { encode } = encoder(GetTasks.Response)
     return pipe(
-      decode(req.body)["|>"](
-        T.mapError((err) => ({ _tag: "Validation" as const, error: err }))
-      ),
+      decode(req.body)["|>"](mapValidationError),
       T.chain(GetTasks.handle),
       T.chain(encode),
       T.chain((r) =>
@@ -22,7 +27,7 @@ const routes = T.tuple(
           res.status(200).send(r)
         })
       ),
-      T.catch("_tag", "Validation", (err) =>
+      T.catch("_tag", "ValidationError", (err) =>
         T.effectTotal(() => {
           res.status(400).send(err.toString())
         })
