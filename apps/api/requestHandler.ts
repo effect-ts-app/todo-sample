@@ -1,8 +1,11 @@
 import * as T from "@effect-ts/core/Effect"
-import { pipe } from "@effect-ts/core/Function"
+import { flow, pipe } from "@effect-ts/core/Function"
+import * as Sy from "@effect-ts/core/Sync"
 import { M } from "@effect-ts/morphic"
-import { Decode, decoder, Errors } from "@effect-ts/morphic/Decoder"
+import { Decode, Errors } from "@effect-ts/morphic/Decoder"
 import { encoder } from "@effect-ts/morphic/Encoder"
+import { strict } from "@effect-ts/morphic/Strict"
+import { strictDecoder } from "@effect-ts/morphic/StrictDecoder"
 import express from "express"
 
 class ValidationError {
@@ -57,7 +60,8 @@ export function makeRequestHandler<
   Response: Res
   handle: (i: RequestA) => T.Effect<R, never, ResponseA>
 }) {
-  const { decode } = decoder(Request)
+  const { decode } = strictDecoder(Request)
   const { encode } = encoder(Response)
-  return handleRequest(decode, encode, handle)
+  const { shrink } = strict(Response)
+  return handleRequest(decode, flow(shrink, Sy.chain(encode)), handle)
 }
