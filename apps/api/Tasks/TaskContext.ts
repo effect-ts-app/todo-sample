@@ -23,7 +23,7 @@ let tasks: Map.Map<UUID, TaskE> = [
     title: "My third Task" as NonEmptyString,
     steps: [
       Step.build({ title: "first step" as NonEmptyString, completed: true }),
-      Step.create({ title: "first step" as NonEmptyString }),
+      Step.create({ title: "second step" as NonEmptyString }),
     ],
   })["|>"](Task.complete),
 ]

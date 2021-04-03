@@ -7,6 +7,7 @@ import * as A from "@effect-ts/core/Array"
 import * as T from "@effect-ts/core/Effect"
 
 import { useRun } from "../run"
+import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
 
 
 function useTasks() {
@@ -55,6 +56,9 @@ function makeStepCount(steps: Todo.Task["steps"]) {
 function Tasks() {
     const [tasks, fetchLatestTasks] = useTasks()
 
+    const [selectedTaskId, setSelectedTaskId] = useState<UUID | null>(null)
+    const selectedTask = tasks.find(x => x.id === selectedTaskId)
+
     const [{ newTaskTitle, newTaskProcessing}, setNewTaskTitle, addNewTask] = useNewTask()
 
     return (
@@ -62,7 +66,8 @@ function Tasks() {
             <div><h1>Tasks</h1></div>
             <ul>
                 {tasks.map(t => (
-                    <Task key={t.id} completed={t.completed}>
+                    <Task key={t.id} completed={t.completed} onClick={() => setSelectedTaskId(t.id)}>
+                        <input type="checkbox" checked={t.completed} />
                         {t.title}
                         &nbsp;
                         [{makeStepCount(t.steps)}]
@@ -74,6 +79,25 @@ function Tasks() {
                     <button onClick={() => addNewTask().then(fetchLatestTasks)} disabled={!newTaskTitle.length || newTaskProcessing}>
                         add
                     </button>
+            </div>
+
+            <div>
+                    <h2>Selected Task</h2>
+                    {selectedTask && <>
+                        {selectedTask.title}
+                        <div><ul>
+                            {selectedTask.steps.map((s, idx) => (
+                                <li key={idx}>
+                                    <input type="checkbox" checked={s.completed} />
+                                    {s.title}
+                                </li>)
+                            )}
+                        </ul></div>
+                        <div>Created: {selectedTask.createdAt.toISOString()}</div>
+                        <div><i>Id: {selectedTask.id}</i></div>
+                        </>
+                    }
+                    {!selectedTask && "Please select a task"}
             </div>
         </div>
     )
