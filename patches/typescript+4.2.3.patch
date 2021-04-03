@@ -1,0 +1,44 @@
+diff --git a/node_modules/typescript/lib/tsserver.js b/node_modules/typescript/lib/tsserver.js
+index ab15b71..2c88594 100644
+--- a/node_modules/typescript/lib/tsserver.js
++++ b/node_modules/typescript/lib/tsserver.js
+@@ -13289,7 +13289,7 @@ var ts;
+ (function (ts) {
+     ts.resolvingEmptyArray = [];
+     ts.externalHelpersModuleNameText = "tslib";
+-    ts.defaultMaximumTruncationLength = 160;
++    ts.defaultMaximumTruncationLength = 800;
+     ts.noTruncationMaximumTruncationLength = 1000000;
+     function getDeclarationOfKind(symbol, kind) {
+         var declarations = symbol.declarations;
+@@ -160754,7 +160754,7 @@ var ts;
+                     return;
+                 }
+                 // No need to analyze lib.d.ts
+-                var fileNamesInProject = fileNames.filter(function (value) { return !ts.stringContains(value, "lib.d.ts"); }); // TODO: GH#18217
++                var fileNamesInProject = fileNames.filter(function (value) { return !ts.stringContains(value, "lib.d.ts") && !ts.stringContains(value, "node_modules"); }); // TODO: GH#18217
+                 if (fileNamesInProject.length === 0) {
+                     return;
+                 }
+diff --git a/node_modules/typescript/lib/tsserverlibrary.js b/node_modules/typescript/lib/tsserverlibrary.js
+index d5b90a0..9ebb531 100644
+--- a/node_modules/typescript/lib/tsserverlibrary.js
++++ b/node_modules/typescript/lib/tsserverlibrary.js
+@@ -13483,7 +13483,7 @@ var ts;
+ (function (ts) {
+     ts.resolvingEmptyArray = [];
+     ts.externalHelpersModuleNameText = "tslib";
+-    ts.defaultMaximumTruncationLength = 160;
++    ts.defaultMaximumTruncationLength = 800;
+     ts.noTruncationMaximumTruncationLength = 1000000;
+     function getDeclarationOfKind(symbol, kind) {
+         var declarations = symbol.declarations;
+@@ -160948,7 +160948,7 @@ var ts;
+                     return;
+                 }
+                 // No need to analyze lib.d.ts
+-                var fileNamesInProject = fileNames.filter(function (value) { return !ts.stringContains(value, "lib.d.ts"); }); // TODO: GH#18217
++                var fileNamesInProject = fileNames.filter(function (value) { return !ts.stringContains(value, "lib.d.ts") && !ts.stringContains(value, "node_modules"); }); // TODO: GH#18217
+                 if (fileNamesInProject.length === 0) {
+                     return;
+                 }

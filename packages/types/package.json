@@ -1,0 +1,11 @@
+{
+  "name": "@effect-ts-demo/todo-types",
+  "version": "0.0.1",
+  "main": "src/index.ts",
+  "license": "MIT",
+  "dependencies": {
+    "@effect-ts/core": "^0.28.2",
+    "@effect-ts/monocle": "^0.25.0",
+    "@effect-ts/morphic": "^0.26.0"
+  }
+}
