@@ -18,7 +18,7 @@ export const handle = (_: Request) =>
       })
     ),
     T.tap(TaskContext.add),
-    T.map(() => ({}))
+    T.asUnit
   )
 
 export { Request, Response }

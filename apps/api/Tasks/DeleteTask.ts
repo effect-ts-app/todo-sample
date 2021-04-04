@@ -9,7 +9,7 @@ export const handle = (_: Request) =>
   pipe(
     TaskContext.find(_.id),
     T.chain(O.fold(() => T.die(`Didnt find Task#${_.id}`), TaskContext.remove)),
-    T.map(() => ({}))
+    T.asUnit
   )
 
 export { Request, Response }

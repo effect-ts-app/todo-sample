@@ -1,5 +1,13 @@
 import type { Branded } from "@effect-ts/core/Branded"
-import { make, FastCheckURI, AType } from "@effect-ts/morphic"
+import * as Sy from "@effect-ts/core/Sync"
+import {
+  make,
+  FastCheckURI,
+  AType,
+  DecoderURI,
+  EncoderURI,
+  opaque,
+} from "@effect-ts/morphic"
 import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
 import { v4 } from "uuid"
 
@@ -32,3 +40,15 @@ export interface NonEmptyStringBrand {
   readonly NonEmptyString: unique symbol
 }
 export type NonEmptyString = AType<typeof NonEmptyString>
+
+const Void_ = make((F) =>
+  F.unknown({
+    conf: {
+      [DecoderURI]: (codec) => codec.with(() => Sy.succeed(void 0)),
+      [EncoderURI]: () => ({ encode: () => Sy.succeed(void 0) }),
+    },
+  })
+)
+export type Void = void
+
+export const Void = opaque<Void, Void>()(Void_ as any)

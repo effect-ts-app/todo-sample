@@ -32,7 +32,7 @@ function handleRequest<R, RequestA, ResponseA, ResponseE>(
       T.chain(encodeResponse),
       T.chain((r) =>
         T.effectTotal(() => {
-          res.status(200).send(r)
+          r === undefined ? res.status(204).send() : res.status(200).send(r)
         })
       ),
       T.catch("_tag", "ValidationError", (err) =>
