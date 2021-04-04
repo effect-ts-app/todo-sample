@@ -11,7 +11,7 @@ export function useRun() {
   const layers = useLayers()
   return useCallback(
     <E, A>(eff: T.Effect<ProvidedEnv, E, A>) =>
-      pipe(eff, T.provideSomeLayer(layers), T.runPromise),
+      pipe(eff, T.provideSomeLayer(layers), T.runPromise).catch(console.error),
     [layers]
   )
 }
