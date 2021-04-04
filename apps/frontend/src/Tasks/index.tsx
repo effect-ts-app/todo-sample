@@ -6,44 +6,16 @@ import * as O from "@effect-ts/core/Option"
 import { Lens } from "@effect-ts/monocle"
 import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
 import React from "react"
-import { useCallback, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import styled, { css } from "styled-components"
 
-import { useRun } from "../run"
+import { useFetch } from "../data"
 
-function useF<A, Args extends readonly unknown[], B>(
-  fnc: (...args: Args) => Promise<A>,
-  defaultData: B
-) {
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<unknown | null>(null)
-  const [data, setData] = useState<A | typeof defaultData>(defaultData)
-  const exec = useCallback(
-    async function (...args: Args) {
-      setLoading(true)
-      try {
-        setData(await fnc(...args))
-      } catch (err) {
-        console.error(err)
-        setError(err)
-      } finally {
-        setLoading(false)
-      }
-    },
-    [fnc]
-  )
-  return [{ loading, data, error }, exec] as const
-}
-
+const fetchLatestTasks_ = TodoClient.Tasks.getTasks["|>"](T.map((r) => r.tasks))
+const fetchLatestTasks = () => fetchLatestTasks_
 function useTasks() {
-  const runEffect = useRun()
-  const fetchLatestTasks = useCallback(
-    () => TodoClient.Tasks.getTasks["|>"](T.map((r) => r.tasks))["|>"](runEffect),
-    [runEffect]
-  )
-  const [result, exec] = useF(fetchLatestTasks, [] as A.Array<Todo.Task>)
+  const [result, exec] = useFetch(fetchLatestTasks, [] as A.Array<Todo.Task>)
 
-  // TODO: loading vs error, vs fetching more state etc.
   useEffect(() => {
     exec()
   }, [exec])
@@ -51,27 +23,26 @@ function useTasks() {
 }
 
 function useNewTask() {
-  const runEffect = useRun()
   const [newTaskTitle, setNewTaskTitle] = useState("")
-  const [{ loading }, addNewTask] = useF(
+  const [{ loading }, addNewTask] = useFetch(
     () =>
-      TodoClient.Tasks.createTaskE({ title: newTaskTitle })
-        ["|>"](T.map(() => setNewTaskTitle("")))
-        ["|>"](runEffect),
+      TodoClient.Tasks.createTaskE({ title: newTaskTitle })["|>"](
+        T.map(() => setNewTaskTitle(""))
+      ),
     null
   )
 
   return [{ newTaskTitle, loading }, setNewTaskTitle, addNewTask] as const
 }
 
+const deleteTask = (id: UUID) => TodoClient.Tasks.deleteTask({ id })
 function useDeleteTask() {
-  const runEffect = useRun()
-  return useF((id: UUID) => TodoClient.Tasks.deleteTask({ id })["|>"](runEffect), null)
+  return useFetch(deleteTask, null)
 }
 
+const updateTask = (t: Todo.Task) => TodoClient.Tasks.updateTask(t)
 function useUpdateTask() {
-  const runEffect = useRun()
-  return useF((t: Todo.Task) => TodoClient.Tasks.updateTask(t)["|>"](runEffect), null)
+  return useFetch(updateTask, null)
 }
 
 const Task = styled.li<Pick<Todo.Task, "completed">>`
@@ -81,6 +52,7 @@ const Task = styled.li<Pick<Todo.Task, "completed">>`
       text-decoration: line-through;
     `}
 `
+
 function makeStepCount(steps: Todo.Task["steps"]) {
   if (steps.length === 0) {
     return "0"
@@ -90,16 +62,12 @@ function makeStepCount(steps: Todo.Task["steps"]) {
 }
 
 function Tasks() {
-  const [tasksResult, fetchLatestTasks] = useTasks()
+  const [tasksResult, getTasks] = useTasks()
 
   const [selectedTaskId, setSelectedTaskId] = useState<UUID | null>(null)
   const selectedTask = tasksResult.data.find((x) => x.id === selectedTaskId)
 
-  const [
-    { loading: newTaskProcessing, newTaskTitle },
-    setNewTaskTitle,
-    addNewTask,
-  ] = useNewTask()
+  const [newResult, setNewTaskTitle, addNewTask] = useNewTask()
 
   const [deleteResult, deleteTask] = useDeleteTask()
 
@@ -109,7 +77,7 @@ function Tasks() {
     const nt = t["|>"](
       Todo.Task.lens["|>"](Lens.prop("completed"))["|>"](Lens.modify((x) => !x))
     )
-    return updateTask(nt).then(fetchLatestTasks)
+    return updateTask(nt).then(getTasks)
   }
 
   function toggleStepChecked(t: Todo.Task, s: Todo.Step) {
@@ -124,7 +92,7 @@ function Tasks() {
         )
       )
     )
-    return updateTask(nt).then(fetchLatestTasks)
+    return updateTask(nt).then(getTasks)
   }
 
   return (
@@ -132,6 +100,8 @@ function Tasks() {
       <div>
         <h1>Tasks</h1>
       </div>
+      {tasksResult.loading && "Loading Tasks..."}
+      {tasksResult.error && "Error Loading tasks: " + tasksResult.error}
       <ul>
         {tasksResult.data.map((t) => (
           <Task
@@ -149,7 +119,7 @@ function Tasks() {
             &nbsp; [{makeStepCount(t.steps)}]
             <button
               disabled={deleteResult.loading}
-              onClick={() => deleteTask(t.id).then(fetchLatestTasks)}
+              onClick={() => deleteTask(t.id).then(getTasks)}
             >
               X
             </button>
@@ -158,13 +128,13 @@ function Tasks() {
       </ul>
       <div>
         <input
-          value={newTaskTitle}
+          value={newResult.newTaskTitle}
           onChange={(evt) => setNewTaskTitle(evt.target.value)}
           type="text"
         />
         <button
-          onClick={() => addNewTask().then(fetchLatestTasks)}
-          disabled={!newTaskTitle.length || newTaskProcessing}
+          onClick={() => addNewTask().then(getTasks)}
+          disabled={!newResult.newTaskTitle.length || newResult.loading}
         >
           add
         </button>
