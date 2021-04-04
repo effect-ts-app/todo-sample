@@ -11,75 +11,67 @@ import styled, { css } from "styled-components"
 
 import { useRun } from "../run"
 
+function useF<A, Args extends readonly unknown[], B>(
+  fnc: (...args: Args) => Promise<A>,
+  defaultData: B
+) {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<unknown | null>(null)
+  const [data, setData] = useState<A | typeof defaultData>(defaultData)
+  const exec = useCallback(
+    async function (...args: Args) {
+      setLoading(true)
+      try {
+        setData(await fnc(...args))
+      } catch (err) {
+        console.error(err)
+        setError(err)
+      } finally {
+        setLoading(false)
+      }
+    },
+    [fnc]
+  )
+  return [{ loading, data, error }, exec] as const
+}
+
 function useTasks() {
-  const [tasks, setTasks] = useState([] as A.Array<Todo.Task>)
   const runEffect = useRun()
-  const fetchLatestTasks = useCallback(() => {
-    return TodoClient.Tasks.getTasks["|>"](T.map((r) => setTasks(r.tasks)))
-      ["|>"](runEffect)
-      .catch(console.error)
-  }, [runEffect])
+  const fetchLatestTasks = useCallback(
+    () => TodoClient.Tasks.getTasks["|>"](T.map((r) => r.tasks))["|>"](runEffect),
+    [runEffect]
+  )
+  const [result, exec] = useF(fetchLatestTasks, [] as A.Array<Todo.Task>)
+
   // TODO: loading vs error, vs fetching more state etc.
   useEffect(() => {
-    fetchLatestTasks()
-  }, [fetchLatestTasks])
-  return [tasks, fetchLatestTasks] as const
+    exec()
+  }, [exec])
+  return [result, exec] as const
 }
 
 function useNewTask() {
   const runEffect = useRun()
   const [newTaskTitle, setNewTaskTitle] = useState("")
-  const [newTaskProcessing, setNewTaskProcessing] = useState(false)
+  const [{ loading }, addNewTask] = useF(
+    () =>
+      TodoClient.Tasks.createTaskE({ title: newTaskTitle })
+        ["|>"](T.map(() => setNewTaskTitle("")))
+        ["|>"](runEffect),
+    null
+  )
 
-  async function addNewTask() {
-    setNewTaskProcessing(true)
-    try {
-      await TodoClient.Tasks.createTaskE({ title: newTaskTitle })["|>"](runEffect)
-      setNewTaskTitle("")
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setNewTaskProcessing(false)
-    }
-  }
-
-  return [{ newTaskTitle, newTaskProcessing }, setNewTaskTitle, addNewTask] as const
+  return [{ newTaskTitle, loading }, setNewTaskTitle, addNewTask] as const
 }
 
 function useDeleteTask() {
   const runEffect = useRun()
-  const [deleteTaskProcessing, setDeleteTaskProcessing] = useState(false)
-
-  async function deleteTask(id: UUID) {
-    setDeleteTaskProcessing(true)
-    try {
-      await TodoClient.Tasks.deleteTask({ id })["|>"](runEffect)
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setDeleteTaskProcessing(false)
-    }
-  }
-
-  return [{ deleteTaskProcessing }, deleteTask] as const
+  return useF((id: UUID) => TodoClient.Tasks.deleteTask({ id })["|>"](runEffect), null)
 }
 
 function useUpdateTask() {
   const runEffect = useRun()
-  const [updateTaskProcessing, setUpdateTaskProcessing] = useState(false)
-
-  async function updateTask(t: Todo.Task) {
-    setUpdateTaskProcessing(true)
-    try {
-      await TodoClient.Tasks.updateTask(t)["|>"](runEffect)
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setUpdateTaskProcessing(false)
-    }
-  }
-
-  return [{ updateTaskProcessing }, updateTask] as const
+  return useF((t: Todo.Task) => TodoClient.Tasks.updateTask(t)["|>"](runEffect), null)
 }
 
 const Task = styled.li<Pick<Todo.Task, "completed">>`
@@ -98,20 +90,20 @@ function makeStepCount(steps: Todo.Task["steps"]) {
 }
 
 function Tasks() {
-  const [tasks, fetchLatestTasks] = useTasks()
+  const [tasksResult, fetchLatestTasks] = useTasks()
 
   const [selectedTaskId, setSelectedTaskId] = useState<UUID | null>(null)
-  const selectedTask = tasks.find((x) => x.id === selectedTaskId)
+  const selectedTask = tasksResult.data.find((x) => x.id === selectedTaskId)
 
   const [
-    { newTaskProcessing, newTaskTitle },
+    { loading: newTaskProcessing, newTaskTitle },
     setNewTaskTitle,
     addNewTask,
   ] = useNewTask()
 
-  const [{ deleteTaskProcessing }, deleteTask] = useDeleteTask()
+  const [deleteResult, deleteTask] = useDeleteTask()
 
-  const [{ updateTaskProcessing }, updateTask] = useUpdateTask()
+  const [updateResult, updateTask] = useUpdateTask()
 
   function toggleTaskChecked(t: Todo.Task) {
     const nt = t["|>"](
@@ -141,7 +133,7 @@ function Tasks() {
         <h1>Tasks</h1>
       </div>
       <ul>
-        {tasks.map((t) => (
+        {tasksResult.data.map((t) => (
           <Task
             key={t.id}
             completed={t.completed}
@@ -150,13 +142,13 @@ function Tasks() {
             <input
               type="checkbox"
               checked={t.completed}
-              disabled={updateTaskProcessing}
+              disabled={updateResult.loading}
               onChange={() => toggleTaskChecked(t)}
             />
             {t.title}
             &nbsp; [{makeStepCount(t.steps)}]
             <button
-              disabled={deleteTaskProcessing}
+              disabled={deleteResult.loading}
               onClick={() => deleteTask(t.id).then(fetchLatestTasks)}
             >
               X
@@ -189,7 +181,7 @@ function Tasks() {
                   <li key={idx}>
                     <input
                       type="checkbox"
-                      disabled={updateTaskProcessing}
+                      disabled={updateResult.loading}
                       checked={s.completed}
                       onChange={() => toggleStepChecked(selectedTask, s)}
                     />
