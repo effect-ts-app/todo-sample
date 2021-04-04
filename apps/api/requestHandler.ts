@@ -1,3 +1,4 @@
+import { NotFoundError } from "@effect-ts-demo/todo-types/shared"
 import * as T from "@effect-ts/core/Effect"
 import { flow, pipe } from "@effect-ts/core/Function"
 import * as Sy from "@effect-ts/core/Sync"
@@ -21,7 +22,7 @@ function getRequestParams(req: express.Request) {
 function handleRequest<R, RequestA, ResponseA, ResponseE>(
   decodeRequest: Decode<RequestA>,
   encodeResponse: (e: ResponseA) => T.Effect<unknown, never, ResponseE>,
-  handle: (r: RequestA) => T.Effect<R, never, ResponseA>
+  handle: (r: RequestA) => T.Effect<R, NotFoundError, ResponseA>
 ) {
   return (req: express.Request, res: express.Response) =>
     pipe(
@@ -37,7 +38,12 @@ function handleRequest<R, RequestA, ResponseA, ResponseE>(
       ),
       T.catch("_tag", "ValidationError", (err) =>
         T.effectTotal(() => {
-          res.status(400).send(JSON.stringify(err))
+          res.status(400).send(err.error)
+        })
+      ),
+      T.catch("_tag", "NotFoundError", (err) =>
+        T.effectTotal(() => {
+          res.status(404).send(err)
         })
       )
     )
@@ -58,7 +64,7 @@ export function makeRequestHandler<
 }: {
   Request: Req
   Response: Res
-  handle: (i: RequestA) => T.Effect<R, never, ResponseA>
+  handle: (i: RequestA) => T.Effect<R, NotFoundError, ResponseA>
 }) {
   const { decode } = strictDecoder(Request)
   const { encode } = encoder(Response)

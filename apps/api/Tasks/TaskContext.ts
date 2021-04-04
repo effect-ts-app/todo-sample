@@ -1,6 +1,6 @@
 import { Step, Task, TaskE } from "@effect-ts-demo/todo-types"
 import * as EO from "@effect-ts-demo/todo-types/ext/EffectOption"
-import { NonEmptyString } from "@effect-ts-demo/todo-types/shared"
+import { NonEmptyString, NotFoundError } from "@effect-ts-demo/todo-types/shared"
 import * as A from "@effect-ts/core/Array"
 import * as T from "@effect-ts/core/Effect"
 import { flow, pipe } from "@effect-ts/core/Function"
@@ -38,6 +38,13 @@ export function find(id: UUID) {
   return pipe(
     T.effectTotal(() => O.fromNullable(tasks.get(id))),
     EO.chain(flow(decodeTask, EO.fromEffect, T.orDie))
+  )
+}
+
+export function get(id: UUID) {
+  return pipe(
+    find(id),
+    T.chain(O.fold(() => T.fail(new NotFoundError("Task", id)), T.succeed))
   )
 }
 
