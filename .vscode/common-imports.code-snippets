@@ -1,4 +1,11 @@
 {
+    "EffectOption": {
+        "prefix": "+EO",
+        "body": [
+            "import * as EO from \"@effect-ts-demo/todo-types/ext/EffectOption\""
+        ],
+        "description": "EffectOption as EO"
+    },
     "Model": {
         "prefix": "+MO",
         "body": [
