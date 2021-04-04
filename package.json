@@ -34,7 +34,7 @@
         "start": "concurrently -k -p \"[{name}]\" -n \"CRA Server,CRA Client\" -c \"cyan.bold,green.bold,blue.bold\" \"yarn start:api\" \"yarn start:frontend\"",
         "start:api": "cd apps/api && yarn start",
         "start:frontend": "cd apps/frontend && yarn start",
-        "postinstall": "patch-package && cd apps/frontend && yarn"
+        "postinstall": "patch-package"
     },
     "dependencies": {
         "concurrently": "^6.0.0"

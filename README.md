@@ -8,5 +8,5 @@
 ## Starting
 
 From repo root:
-- `yarn`
+- `./install_packages.sh`
 - `yarn start`
