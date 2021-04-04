@@ -2,6 +2,7 @@ import * as TodoClient from "@effect-ts-demo/todo-client"
 import * as Todo from "@effect-ts-demo/todo-types"
 import * as A from "@effect-ts/core/Array"
 import * as T from "@effect-ts/core/Effect"
+import { pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import { Lens } from "@effect-ts/monocle"
 import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
@@ -10,15 +11,17 @@ import { useEffect, useState } from "react"
 import styled, { css } from "styled-components"
 
 import { useFetch } from "../data"
+import { useRun } from "../run"
 
 const fetchLatestTasks_ = TodoClient.Tasks.getTasks["|>"](T.map((r) => r.tasks))
 const fetchLatestTasks = () => fetchLatestTasks_
 function useTasks() {
+  const runEffect = useRun()
   const [result, exec] = useFetch(fetchLatestTasks, [] as A.Array<Todo.Task>)
 
   useEffect(() => {
-    exec()
-  }, [exec])
+    exec()["|>"](runEffect)
+  }, [exec, runEffect])
   return [result, exec] as const
 }
 
@@ -62,6 +65,8 @@ function makeStepCount(steps: Todo.Task["steps"]) {
 }
 
 function Tasks() {
+  const runEffect = useRun()
+
   const [tasksResult, getTasks] = useTasks()
 
   const [selectedTaskId, setSelectedTaskId] = useState<UUID | null>(null)
@@ -77,7 +82,7 @@ function Tasks() {
     const nt = t["|>"](
       Todo.Task.lens["|>"](Lens.prop("completed"))["|>"](Lens.modify((x) => !x))
     )
-    return updateTask(nt).then(getTasks)
+    return pipe(updateTask(nt), T.zipRight(getTasks()))
   }
 
   function toggleStepChecked(t: Todo.Task, s: Todo.Step) {
@@ -92,7 +97,7 @@ function Tasks() {
         )
       )
     )
-    return updateTask(nt).then(getTasks)
+    return pipe(updateTask(nt), T.zipRight(getTasks()))
   }
 
   return (
@@ -113,13 +118,13 @@ function Tasks() {
               type="checkbox"
               checked={t.completed}
               disabled={updateResult.loading}
-              onChange={() => toggleTaskChecked(t)}
+              onChange={() => toggleTaskChecked(t)["|>"](runEffect)}
             />
             {t.title}
             &nbsp; [{makeStepCount(t.steps)}]
             <button
               disabled={deleteResult.loading}
-              onClick={() => deleteTask(t.id).then(getTasks)}
+              onClick={() => pipe(deleteTask(t.id), T.zipRight(getTasks()), runEffect)}
             >
               X
             </button>
@@ -133,7 +138,7 @@ function Tasks() {
           type="text"
         />
         <button
-          onClick={() => addNewTask().then(getTasks)}
+          onClick={() => pipe(addNewTask(), T.zipRight(getTasks()), runEffect)}
           disabled={!newResult.newTaskTitle.length || newResult.loading}
         >
           add
@@ -153,7 +158,9 @@ function Tasks() {
                       type="checkbox"
                       disabled={updateResult.loading}
                       checked={s.completed}
-                      onChange={() => toggleStepChecked(selectedTask, s)}
+                      onChange={() =>
+                        toggleStepChecked(selectedTask, s)["|>"](runEffect)
+                      }
                     />
                     {s.title}
                   </li>
