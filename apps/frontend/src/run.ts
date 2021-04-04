@@ -7,12 +7,10 @@ import * as L from "@effect-ts/core/Effect/Layer"
 import { config } from "./config"
 
 const layers = TodoClient.Tasks.LiveApiConfig(config)
-const run = <E, A>(eff: T.Effect<ProvidedEnv, E, A>) =>
-  pipe(eff, T.provideSomeLayer(layers), T.runPromise)
 
-export function useRun() {
-  return run
-}
+// TODO: Layers should be constructed once on bootstrap, and be reused.
+export const runEffect = <E, A>(eff: T.Effect<ProvidedEnv, E, A>) =>
+  pipe(eff, T.provideSomeLayer(layers), T.runPromise).catch(console.error)
 
 type GetProvider<P> = P extends L.Layer<unknown, unknown, infer TP> ? TP : never
 export type ProvidedEnv = DefaultEnv & GetProvider<typeof layers>
