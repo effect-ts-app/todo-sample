@@ -44,10 +44,11 @@ function fetchApi(path: string, options?: RequestInit) {
         fetch(`${apiUrl}${path}`, {
           headers: { "Content-Type": "application/json", ...options?.headers },
           ...options,
-        }).then(
-          (r) =>
-            // unknown is better than any, as it demands to handle the unknown value
-            r.json() as Promise<unknown>
+        }).then((r) =>
+          r.status === 204
+            ? undefined
+            : // unknown is better than any, as it demands to handle the unknown value
+              (r.json() as Promise<unknown>)
         ),
       (err) => new FetchError(err)
     )
