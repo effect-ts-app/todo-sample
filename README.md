@@ -1,7 +1,8 @@
 # Practical use of Effect-TS: Todo app sample
 
 This is an opinionated sample use of full-stack [Effect-TS](https://github.com/Effect-TS/core).
-(See repositories for more info and discord link, articles, youtube videos, etc)
+(See repositories for more info and discord link, articles, youtube videos, etc).
+
 Though in the frontend, the Views and Presentational components so far are void of it's use.
 
 The sample is somewhat based on Microsoft To Do.
@@ -16,10 +17,6 @@ The sample is somewhat based on Microsoft To Do.
 
 TODO: Implement a Layer to demo replacing for example the persistence mechanism.
 
-## Important steps
-
-- in Editor, make sure the typescript runtime is set to the local node_modules/typescript
-
 ## Getting Started
 
 From repo root:
@@ -30,6 +27,12 @@ Interesting bits are in:
 - `apps/api`
 - `apps/frontend/src/Tasks`
 - `packages/client` and `packages/types`
+
+You can interact via the included frontend project, the `docs/postman` collection, or go wild with `curl` if that's your thing ;-)
+
+### Important steps
+
+- in Editor, make sure the typescript runtime is set to the local node_modules/typescript
 
 ## FAQ
 
