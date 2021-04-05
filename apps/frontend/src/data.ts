@@ -4,8 +4,6 @@ import * as Ex from "@effect-ts/core/Effect/Exit"
 import { pipe } from "@effect-ts/core/Function"
 import { useState, useCallback } from "react"
 
-import { ProvidedEnv } from "./run"
-
 class UnknownError {
   public readonly _trag = "UnknownError"
   constructor(public readonly error: unknown) {}
@@ -14,8 +12,8 @@ class UnknownError {
 /**
  * Poor mans "RemoteData"
  */
-export function useFetch<E, A, Args extends readonly unknown[], B>(
-  fetchFnc: (...args: Args) => T.Effect<ProvidedEnv, E, A>,
+export function useFetch<R, E, A, Args extends readonly unknown[], B>(
+  fetchFnc: (...args: Args) => T.Effect<R, E, A>,
   defaultData: B
 ) {
   const [loading, setLoading] = useState(false)
