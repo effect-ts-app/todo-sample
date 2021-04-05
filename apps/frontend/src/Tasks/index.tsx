@@ -8,7 +8,7 @@ import React, { useEffect, useState } from "react"
 import styled from "styled-components"
 
 import { useServiceContext } from "../context"
-import { useFetch } from "../data"
+import { useFetch, useLimitToOne } from "../data"
 
 import TaskDetail from "./TaskDetail"
 import TaskList from "./TaskList"
@@ -18,20 +18,22 @@ import { withLoading } from "./utils"
 const fetchLatestTasks_ = TodoClient.Tasks.getTasks["|>"](T.map((r) => r.tasks))
 const fetchLatestTasks = () => fetchLatestTasks_
 function useTasks() {
-  const { runPromise } = useServiceContext()
-  const [result, exec] = useFetch(fetchLatestTasks, [] as A.Array<Todo.Task>)
+  const { runWithErrorLog } = useServiceContext()
+  const [result, ex] = useFetch(fetchLatestTasks, [] as A.Array<Todo.Task>)
 
+  const exec = useLimitToOne(ex)
   useEffect(() => {
-    exec()["|>"](runPromise)
-  }, [exec, runPromise])
+    const cancel = exec()["|>"](runWithErrorLog)
+    return () => {
+      cancel()
+    }
+  }, [exec, runWithErrorLog])
   return [result, exec] as const
 }
 
+const newTask = (newTitle: string) => TodoClient.Tasks.createTaskE({ title: newTitle })
 function useNewTask() {
-  return useFetch(
-    (newTitle: string) => TodoClient.Tasks.createTaskE({ title: newTitle }),
-    null
-  )
+  return useFetch(newTask, null)
 }
 
 const deleteTask = (id: UUID) => TodoClient.Tasks.deleteTask({ id })
@@ -39,9 +41,8 @@ function useDeleteTask() {
   return useFetch(deleteTask, null)
 }
 
-const updateTask = (t: Todo.Task) => TodoClient.Tasks.updateTask(t)
 function useUpdateTask() {
-  return useFetch(updateTask, null)
+  return useFetch(TodoClient.Tasks.updateTask, null)
 }
 
 const Container = styled.div`
@@ -89,7 +90,7 @@ function Tasks() {
       NonEmptyString.parse,
       T.map((title) => t["|>"](Todo.Task.addStep(title))),
       T.chain(updateTask),
-      T.zipRight(getTasks())
+      T.zipRight(getTasks()["|>"](T.forkDaemon))
     )
   }
 
@@ -113,6 +114,7 @@ function Tasks() {
 
         <TaskList
           tasks={tasksResult.data}
+          setSelectedTask={(t: Todo.Task) => setSelectedTaskId(t.id)}
           addTask={withLoading(
             flow(
               addNewTask,
@@ -122,15 +124,14 @@ function Tasks() {
             ),
             newResult.loading || tasksResult.loading
           )}
-          setSelectedTask={(t: Todo.Task) => setSelectedTaskId(t.id)}
           deleteTask={withLoading(
             (t: Todo.Task) =>
               pipe(deleteTask(t.id), T.zipRight(getTasks()), runPromise),
-            deleteResult.loading
+            deleteResult.loading || tasksResult.loading
           )}
           toggleTaskChecked={withLoading(
             flow(toggleTaskChecked, runPromise),
-            updateResult.loading
+            updateResult.loading || tasksResult.loading
           )}
         />
       </div>
@@ -141,19 +142,19 @@ function Tasks() {
             task={selectedTask}
             toggleChecked={withLoading(
               () => toggleTaskChecked(selectedTask)["|>"](runPromise),
-              tasksResult.loading
+              updateResult.loading || tasksResult.loading
             )}
             toggleStepChecked={withLoading(
               flow(toggleTaskStepChecked(selectedTask), runPromise),
-              updateResult.loading
-            )}
-            deleteStep={withLoading(
-              flow(deleteTaskStep(selectedTask), runPromise),
-              updateResult.loading
+              updateResult.loading || tasksResult.loading
             )}
             addNewStep={withLoading(
               flow(addNewTaskStep(selectedTask), T.asUnit, runPromise),
-              updateResult.loading
+              updateResult.loading || tasksResult.loading
+            )}
+            deleteStep={withLoading(
+              flow(deleteTaskStep(selectedTask), runPromise),
+              updateResult.loading || tasksResult.loading
             )}
           />
         )}

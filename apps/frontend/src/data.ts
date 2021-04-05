@@ -1,4 +1,4 @@
-import { Cause } from "@effect-ts/core"
+import { Cause, Fiber } from "@effect-ts/core"
 import * as T from "@effect-ts/core/Effect"
 import * as Ex from "@effect-ts/core/Effect/Exit"
 import { pipe } from "@effect-ts/core/Function"
@@ -47,4 +47,28 @@ export function useFetch<R, E, A, Args extends readonly unknown[], B>(
     [fetchFnc]
   )
   return [{ loading, data, error }, exec] as const
+}
+
+export function useLimitToOne<R, E, A, Args extends readonly unknown[]>(
+  exec: (...args: Args) => T.Effect<R, E, A>
+) {
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  const [cancel, setCancel] = useState<() => {}>(() => () => void 0)
+  return useCallback(
+    (...args: Args) =>
+      pipe(
+        T.effectTotal(() => {
+          cancel()
+        }),
+        T.zipRight(exec(...args)),
+        T.fork,
+        // NOTE; actually the cancellation means that running to Promise will also not resolve on the success channel.
+        // thus additional callbacks will fail.
+        T.tap((f) =>
+          T.effectTotal(() => setCancel(() => () => T.run(Fiber.interrupt(f))))
+        ),
+        T.chain(Fiber.join)
+      ),
+    [exec]
+  )
 }
