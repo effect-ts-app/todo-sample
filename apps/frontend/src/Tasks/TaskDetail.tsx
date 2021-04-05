@@ -1,3 +1,4 @@
+import { Exit } from "@effect-ts/core/Effect/Exit"
 import React, { useState } from "react"
 
 import * as Todo from "./Todo"
@@ -12,7 +13,7 @@ function TaskDetail({
   toggleStepChecked,
 }: {
   task: Todo.Task
-  addNewStep: WithLoading<(stepTitle: string) => Promise<void>>
+  addNewStep: WithLoading<(stepTitle: string) => Promise<Exit<unknown, unknown>>>
   deleteStep: WithLoading<(s: Todo.Step) => void>
   toggleChecked: WithLoading<() => void>
   toggleStepChecked: WithLoading<(s: Todo.Step) => void>
@@ -39,7 +40,11 @@ function TaskDetail({
               type="text"
             />
             <button
-              onClick={() => addNewStep(newStepTitle).then(() => setNewStepTitle(""))}
+              onClick={() =>
+                addNewStep(newStepTitle).then(
+                  (r) => r._tag === "Success" && setNewStepTitle("")
+                )
+              }
               disabled={!newStepTitle.length || addNewStep.loading}
             >
               add step

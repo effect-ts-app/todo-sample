@@ -1,9 +1,10 @@
 import * as TodoClient from "@effect-ts-demo/todo-client"
 import { ApiConfig } from "@effect-ts-demo/todo-client"
-import { Fiber } from "@effect-ts/core"
+import { Fiber, pipe } from "@effect-ts/core"
 import * as T from "@effect-ts/core/Effect"
 import { pretty } from "@effect-ts/core/Effect/Cause"
 import * as L from "@effect-ts/core/Effect/Layer"
+import { Exit } from "@effect-ts/system/Exit"
 import { Semaphore } from "@effect-ts/system/Semaphore"
 import React, { createContext, ReactNode, useContext, useEffect, useMemo } from "react"
 
@@ -18,7 +19,7 @@ export type ProvidedEnv = T.DefaultEnv & GetProvider<ReturnType<typeof makeLayer
 export interface ServiceContext {
   readonly provide: <E, A>(self: T.Effect<ProvidedEnv, E, A>) => T.Effect<unknown, E, A>
   readonly runWithErrorLog: <E, A>(self: T.Effect<ProvidedEnv, E, A>) => () => void
-  readonly runPromise: <E, A>(self: T.Effect<ProvidedEnv, E, A>) => Promise<A>
+  readonly runPromise: <E, A>(self: T.Effect<ProvidedEnv, E, A>) => Promise<Exit<E, A>>
 }
 
 const MissingContext = T.die(
@@ -28,7 +29,7 @@ const MissingContext = T.die(
 const ServiceContext = createContext<ServiceContext>({
   provide: () => MissingContext,
   runWithErrorLog: () => runWithErrorLog(MissingContext),
-  runPromise: () => T.runPromise(MissingContext),
+  runPromise: () => runPromiseWithErrorLog(MissingContext),
 })
 
 export const LiveServiceContext = ({ children }: { children: ReactNode }) => {
@@ -41,7 +42,7 @@ export const LiveServiceContext = ({ children }: { children: ReactNode }) => {
       runWithErrorLog: <E, A>(self: T.Effect<ProvidedEnv, E, A>) =>
         runWithErrorLog(provider.provide(self)),
       runPromise: <E, A>(self: T.Effect<ProvidedEnv, E, A>) =>
-        T.runPromise(provider.provide(self)),
+        runPromiseWithErrorLog(provider.provide(self)),
     }),
     [provider]
   )
@@ -68,6 +69,15 @@ function runWithErrorLog<E, A>(self: T.Effect<unknown, E, A>) {
   return () => {
     T.run(cancel)
   }
+}
+
+function runPromiseWithErrorLog<E, A>(self: T.Effect<unknown, E, A>) {
+  return pipe(self, T.runPromiseExit).then((ex) => {
+    if (ex._tag === "Failure") {
+      console.error(pretty(ex.cause))
+    }
+    return ex
+  })
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
