@@ -2,7 +2,7 @@ import * as TodoClient from "@effect-ts-demo/todo-client"
 import * as A from "@effect-ts-demo/todo-types/ext/Array"
 import { NonEmptyString } from "@effect-ts-demo/todo-types/shared"
 import * as T from "@effect-ts/core/Effect"
-import { flow, pipe } from "@effect-ts/core/Function"
+import { constant, flow, pipe } from "@effect-ts/core/Function"
 import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
 import React, { useEffect, useState } from "react"
 import styled from "styled-components"
@@ -15,8 +15,9 @@ import TaskList from "./TaskList"
 import * as Todo from "./Todo"
 import { withLoading } from "./utils"
 
-const fetchLatestTasks_ = TodoClient.Tasks.getTasks["|>"](T.map((r) => r.tasks))
-const fetchLatestTasks = () => fetchLatestTasks_
+const fetchLatestTasks = constant(
+  TodoClient.Tasks.getTasks["|>"](T.map((r) => r.tasks))
+)
 function useTasks() {
   const { runWithErrorLog } = useServiceContext()
   const [result, ex] = useFetch(fetchLatestTasks, [] as A.Array<Todo.Task>)
