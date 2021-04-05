@@ -18,6 +18,7 @@ const toggleStepCompleted = (s: Step) => A.modifyOrOriginal(s, Step.toggleComple
 export const Task = Object.assign({}, Todo.Task, {
   addStep: (stepTitle: NonEmptyString) =>
     taskSteps["|>"](Lens.modify(createAndAddStep(stepTitle))),
+  deleteStep: (s: Step) => taskSteps["|>"](Lens.modify(A.deleteOrOriginal(s))),
   toggleCompleted: Todo.Task.lens["|>"](Lens.prop("completed"))["|>"](
     Lens.modify((x) => !x)
   ),

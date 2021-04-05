@@ -73,11 +73,13 @@ function withLoading<Fnc>(fnc: Fnc, loading: boolean): WithLoading<Fnc> {
 
 function Task({
   addNewStep,
+  deleteStep,
   task: t,
   toggleStepChecked,
 }: {
   task: Todo.Task
   addNewStep: WithLoading<(stepTitle: string) => void>
+  deleteStep: WithLoading<(s: Todo.Step) => void>
   toggleStepChecked: WithLoading<(s: Todo.Step) => void>
 }) {
   const [newStepTitle, setNewStepTitle] = useState("")
@@ -96,6 +98,9 @@ function Task({
                 onChange={() => toggleStepChecked(s)}
               />
               {s.title}
+              <button disabled={deleteStep.loading} onClick={() => deleteStep(s)}>
+                X
+              </button>
             </CompletableEntry>
           ))}
         </ul>
@@ -187,9 +192,15 @@ function Tasks() {
   function addNewTaskStep(t: Todo.Task) {
     return flow(
       NonEmptyString.parse,
-      T.chain((title) => t["|>"](Todo.Task.addStep(title))["|>"](updateTask)),
+      T.map((title) => t["|>"](Todo.Task.addStep(title))),
+      T.chain(updateTask),
       T.zipRight(getTasks())
     )
+  }
+
+  function deleteTaskStep(t: Todo.Task) {
+    return (s: Todo.Step) =>
+      pipe(t["|>"](Todo.Task.deleteStep(s)), updateTask, T.zipRight(getTasks()))
   }
 
   return (
@@ -232,6 +243,10 @@ function Tasks() {
             task={selectedTask}
             toggleStepChecked={withLoading(
               flow(toggleTaskStepChecked(selectedTask), runEffect),
+              updateResult.loading
+            )}
+            deleteStep={withLoading(
+              flow(deleteTaskStep(selectedTask), runEffect),
               updateResult.loading
             )}
             addNewStep={withLoading(
