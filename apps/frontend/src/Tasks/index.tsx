@@ -89,13 +89,15 @@ function Tasks() {
   const selectedTask = tasksResult.data.find((x) => x.id === selectedTaskId)
 
   function toggleTaskChecked(t: Todo.Task) {
-    return pipe(TodoTask.toggleCompleted(t), updateTask, T.zipRight(getTasks()))
+    return pipe(
+      t["|>"](TodoTask.toggleCompleted)["|>"](updateTask),
+      T.zipRight(getTasks())
+    )
   }
 
   function toggleStepChecked(t: Todo.Task, s: Todo.Step) {
     return pipe(
-      t["|>"](TodoTask.toggleStepCompleted(s)),
-      updateTask,
+      t["|>"](TodoTask.toggleStepCompleted(s))["|>"](updateTask),
       T.zipRight(getTasks())
     )
   }
