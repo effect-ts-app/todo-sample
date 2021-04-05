@@ -7,8 +7,8 @@ import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
 import React, { useEffect, useState } from "react"
 import styled from "styled-components"
 
+import { useServiceContext } from "../context"
 import { useFetch } from "../data"
-import { useRun } from "../run"
 
 import TaskDetail from "./TaskDetail"
 import TaskList from "./TaskList"
@@ -18,12 +18,12 @@ import { withLoading } from "./utils"
 const fetchLatestTasks_ = TodoClient.Tasks.getTasks["|>"](T.map((r) => r.tasks))
 const fetchLatestTasks = () => fetchLatestTasks_
 function useTasks() {
-  const runEffect = useRun()
+  const { runPromise } = useServiceContext()
   const [result, exec] = useFetch(fetchLatestTasks, [] as A.Array<Todo.Task>)
 
   useEffect(() => {
-    exec()["|>"](runEffect)
-  }, [exec, runEffect])
+    exec()["|>"](runPromise)
+  }, [exec, runPromise])
   return [result, exec] as const
 }
 
@@ -57,7 +57,7 @@ const Loading = styled.div`
 `
 
 function Tasks() {
-  const runEffect = useRun()
+  const { runPromise } = useServiceContext()
 
   const [tasksResult, getTasks] = useTasks()
   const [newResult, addNewTask] = useNewTask()
@@ -118,17 +118,18 @@ function Tasks() {
               addNewTask,
               T.tap(getTasks),
               T.map((r) => setSelectedTaskId(r.id)),
-              runEffect
+              runPromise
             ),
             newResult.loading || tasksResult.loading
           )}
           setSelectedTask={(t: Todo.Task) => setSelectedTaskId(t.id)}
           deleteTask={withLoading(
-            (t: Todo.Task) => pipe(deleteTask(t.id), T.zipRight(getTasks()), runEffect),
+            (t: Todo.Task) =>
+              pipe(deleteTask(t.id), T.zipRight(getTasks()), runPromise),
             deleteResult.loading
           )}
           toggleTaskChecked={withLoading(
-            flow(toggleTaskChecked, runEffect),
+            flow(toggleTaskChecked, runPromise),
             updateResult.loading
           )}
         />
@@ -139,19 +140,19 @@ function Tasks() {
           <TaskDetail
             task={selectedTask}
             toggleChecked={withLoading(
-              () => toggleTaskChecked(selectedTask)["|>"](runEffect),
+              () => toggleTaskChecked(selectedTask)["|>"](runPromise),
               tasksResult.loading
             )}
             toggleStepChecked={withLoading(
-              flow(toggleTaskStepChecked(selectedTask), runEffect),
+              flow(toggleTaskStepChecked(selectedTask), runPromise),
               updateResult.loading
             )}
             deleteStep={withLoading(
-              flow(deleteTaskStep(selectedTask), runEffect),
+              flow(deleteTaskStep(selectedTask), runPromise),
               updateResult.loading
             )}
             addNewStep={withLoading(
-              flow(addNewTaskStep(selectedTask), T.asUnit, runEffect),
+              flow(addNewTaskStep(selectedTask), T.asUnit, runPromise),
               updateResult.loading
             )}
           />

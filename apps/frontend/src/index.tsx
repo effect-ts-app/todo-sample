@@ -3,14 +3,17 @@ import ReactDOM from "react-dom"
 
 import App from "./App"
 import GlobalStyle from "./GlobalStyle"
+import { LiveServiceContext } from "./context"
 import reportWebVitals from "./reportWebVitals"
 
 ReactDOM.render(
   <React.StrictMode>
-    <>
-      <GlobalStyle />
-      <App />
-    </>
+    <LiveServiceContext>
+      <>
+        <GlobalStyle />
+        <App />
+      </>
+    </LiveServiceContext>
   </React.StrictMode>,
   document.getElementById("root")
 )
