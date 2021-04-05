@@ -1,5 +1,6 @@
 import * as TodoClient from "@effect-ts-demo/todo-client"
 import * as A from "@effect-ts-demo/todo-types/ext/Array"
+import { NonEmptyString } from "@effect-ts-demo/todo-types/shared"
 import * as T from "@effect-ts/core/Effect"
 import { flow, pipe } from "@effect-ts/core/Function"
 import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
@@ -46,7 +47,7 @@ function useUpdateTask() {
   return useFetch(updateTask, null)
 }
 
-const TaskEntry = styled.li<Pick<Todo.Task, "completed">>`
+const CompletableEntry = styled.li<{ completed: boolean }>`
   ${({ completed }) =>
     completed &&
     css`
@@ -66,20 +67,28 @@ type WithLoading<Fnc> = Fnc & {
   loading: boolean
 }
 
+function withLoading<Fnc>(fnc: Fnc, loading: boolean): WithLoading<Fnc> {
+  return Object.assign(fnc, { loading })
+}
+
 function Task({
+  addNewStep,
   task: t,
   toggleStepChecked,
 }: {
   task: Todo.Task
+  addNewStep: WithLoading<(stepTitle: string) => void>
   toggleStepChecked: WithLoading<(s: Todo.Step) => void>
 }) {
+  const [newStepTitle, setNewStepTitle] = useState("")
   return (
     <>
       {t.title}
       <div>
+        <h2>Steps</h2>
         <ul>
           {t.steps.map((s, idx) => (
-            <li key={idx}>
+            <CompletableEntry completed={s.completed} key={idx}>
               <input
                 type="checkbox"
                 disabled={toggleStepChecked.loading}
@@ -87,9 +96,22 @@ function Task({
                 onChange={() => toggleStepChecked(s)}
               />
               {s.title}
-            </li>
+            </CompletableEntry>
           ))}
         </ul>
+        <div>
+          <input
+            value={newStepTitle}
+            onChange={(evt) => setNewStepTitle(evt.target.value)}
+            type="text"
+          />
+          <button
+            onClick={() => addNewStep(newStepTitle)}
+            disabled={!newStepTitle.length || addNewStep.loading}
+          >
+            add
+          </button>
+        </div>
       </div>
       <div>Updated: {t.updatedAt.toISOString()}</div>
       <div>Created: {t.createdAt.toISOString()}</div>
@@ -114,7 +136,7 @@ function TaskList({
   return (
     <ul>
       {tasks.map((t) => (
-        <TaskEntry
+        <CompletableEntry
           key={t.id}
           completed={t.completed}
           onClick={() => setSelectedTask(t)}
@@ -130,7 +152,7 @@ function TaskList({
           <button disabled={deleteTask.loading} onClick={() => deleteTask(t)}>
             X
           </button>
-        </TaskEntry>
+        </CompletableEntry>
       ))}
     </ul>
   )
@@ -162,6 +184,14 @@ function Tasks() {
       )
   }
 
+  function addNewTaskStep(t: Todo.Task) {
+    return flow(
+      NonEmptyString.parse,
+      T.chain((title) => t["|>"](Todo.Task.addStep(title))["|>"](updateTask)),
+      T.zipRight(getTasks())
+    )
+  }
+
   return (
     <div>
       <div>
@@ -172,15 +202,14 @@ function Tasks() {
       <TaskList
         tasks={tasksResult.data}
         setSelectedTask={(t: Todo.Task) => setSelectedTaskId(t.id)}
-        deleteTask={Object.assign(
+        deleteTask={withLoading(
           (t: Todo.Task) => pipe(deleteTask(t.id), T.zipRight(getTasks()), runEffect),
-          {
-            loading: deleteResult.loading,
-          }
+          deleteResult.loading
         )}
-        toggleTaskChecked={Object.assign(flow(toggleTaskChecked, runEffect), {
-          loading: updateResult.loading,
-        })}
+        toggleTaskChecked={withLoading(
+          flow(toggleTaskChecked, runEffect),
+          updateResult.loading
+        )}
       />
       <div>
         <input
@@ -201,11 +230,13 @@ function Tasks() {
         {selectedTask && (
           <Task
             task={selectedTask}
-            toggleStepChecked={Object.assign(
+            toggleStepChecked={withLoading(
               flow(toggleTaskStepChecked(selectedTask), runEffect),
-              {
-                loading: updateResult.loading,
-              }
+              updateResult.loading
+            )}
+            addNewStep={withLoading(
+              flow(addNewTaskStep(selectedTask), runEffect),
+              updateResult.loading
             )}
           />
         )}

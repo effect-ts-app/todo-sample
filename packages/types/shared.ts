@@ -9,6 +9,8 @@ import {
   opaque,
 } from "@effect-ts/morphic"
 import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
+import { decode } from "@effect-ts/morphic/Decoder"
+import { flow } from "@effect-ts/system/Function"
 import { v4 } from "uuid"
 
 export function makeUuid() {
@@ -24,7 +26,7 @@ export const isNonEmptyString = (
 /**
  * A string of Min 1 and Max 256KB characters
  */
-export const NonEmptyString = make((F) =>
+const NonEmptyStringO = make((F) =>
   F.refined(F.string(), isNonEmptyString, {
     name: "NonEmptyString",
     conf: {
@@ -36,6 +38,9 @@ export const NonEmptyString = make((F) =>
     },
   })
 )
+export const NonEmptyString = Object.assign(NonEmptyStringO, {
+  parse: flow((s: string) => s, decode(NonEmptyStringO)),
+})
 export interface NonEmptyStringBrand {
   readonly NonEmptyString: unique symbol
 }
