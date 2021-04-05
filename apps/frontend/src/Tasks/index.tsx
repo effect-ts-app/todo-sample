@@ -1,7 +1,7 @@
 import * as TodoClient from "@effect-ts-demo/todo-client"
 import * as A from "@effect-ts-demo/todo-types/ext/Array"
 import * as T from "@effect-ts/core/Effect"
-import { pipe } from "@effect-ts/core/Function"
+import { flow, pipe } from "@effect-ts/core/Function"
 import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
 import React, { useEffect, useState } from "react"
 import styled, { css } from "styled-components"
@@ -46,7 +46,7 @@ function useUpdateTask() {
   return useFetch(updateTask, null)
 }
 
-const Task = styled.li<Pick<Todo.Task, "completed">>`
+const TaskEntry = styled.li<Pick<Todo.Task, "completed">>`
   ${({ completed }) =>
     completed &&
     css`
@@ -60,6 +60,80 @@ function makeStepCount(steps: Todo.Task["steps"]) {
   }
   const completedSteps = steps["|>"](A.filter((x) => x.completed))
   return `${completedSteps.length}/${steps.length}`
+}
+
+type WithLoading<Fnc> = Fnc & {
+  loading: boolean
+}
+
+function Task({
+  task: t,
+  toggleStepChecked,
+}: {
+  task: Todo.Task
+  toggleStepChecked: WithLoading<(s: Todo.Step) => void>
+}) {
+  return (
+    <>
+      {t.title}
+      <div>
+        <ul>
+          {t.steps.map((s, idx) => (
+            <li key={idx}>
+              <input
+                type="checkbox"
+                disabled={toggleStepChecked.loading}
+                checked={s.completed}
+                onChange={() => toggleStepChecked(s)}
+              />
+              {s.title}
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div>Updated: {t.updatedAt.toISOString()}</div>
+      <div>Created: {t.createdAt.toISOString()}</div>
+      <div>
+        <i>Id: {t.id}</i>
+      </div>
+    </>
+  )
+}
+
+function TaskList({
+  deleteTask,
+  setSelectedTask,
+  tasks,
+  toggleTaskChecked,
+}: {
+  setSelectedTask: (i: Todo.Task) => void
+  toggleTaskChecked: WithLoading<(t: Todo.Task) => void>
+  deleteTask: WithLoading<(t: Todo.Task) => void>
+  tasks: A.Array<Todo.Task>
+}) {
+  return (
+    <ul>
+      {tasks.map((t) => (
+        <TaskEntry
+          key={t.id}
+          completed={t.completed}
+          onClick={() => setSelectedTask(t)}
+        >
+          <input
+            type="checkbox"
+            checked={t.completed}
+            disabled={toggleTaskChecked.loading}
+            onChange={() => toggleTaskChecked(t)}
+          />
+          {t.title}
+          &nbsp; [{makeStepCount(t.steps)}]
+          <button disabled={deleteTask.loading} onClick={() => deleteTask(t)}>
+            X
+          </button>
+        </TaskEntry>
+      ))}
+    </ul>
+  )
 }
 
 function Tasks() {
@@ -80,11 +154,12 @@ function Tasks() {
     )
   }
 
-  function toggleStepChecked(t: Todo.Task, s: Todo.Step) {
-    return pipe(
-      t["|>"](Todo.Task.toggleStepCompleted(s))["|>"](updateTask),
-      T.zipRight(getTasks())
-    )
+  function toggleTaskStepChecked(t: Todo.Task) {
+    return (s: Todo.Step) =>
+      pipe(
+        t["|>"](Todo.Task.toggleStepCompleted(s))["|>"](updateTask),
+        T.zipRight(getTasks())
+      )
   }
 
   return (
@@ -94,30 +169,19 @@ function Tasks() {
       </div>
       {tasksResult.loading && "Loading Tasks..."}
       {tasksResult.error && "Error Loading tasks: " + tasksResult.error}
-      <ul>
-        {tasksResult.data.map((t) => (
-          <Task
-            key={t.id}
-            completed={t.completed}
-            onClick={() => setSelectedTaskId(t.id)}
-          >
-            <input
-              type="checkbox"
-              checked={t.completed}
-              disabled={updateResult.loading}
-              onChange={() => toggleTaskChecked(t)["|>"](runEffect)}
-            />
-            {t.title}
-            &nbsp; [{makeStepCount(t.steps)}]
-            <button
-              disabled={deleteResult.loading}
-              onClick={() => pipe(deleteTask(t.id), T.zipRight(getTasks()), runEffect)}
-            >
-              X
-            </button>
-          </Task>
-        ))}
-      </ul>
+      <TaskList
+        tasks={tasksResult.data}
+        setSelectedTask={(t: Todo.Task) => setSelectedTaskId(t.id)}
+        deleteTask={Object.assign(
+          (t: Todo.Task) => pipe(deleteTask(t.id), T.zipRight(getTasks()), runEffect),
+          {
+            loading: deleteResult.loading,
+          }
+        )}
+        toggleTaskChecked={Object.assign(flow(toggleTaskChecked, runEffect), {
+          loading: updateResult.loading,
+        })}
+      />
       <div>
         <input
           value={newResult.newTaskTitle}
@@ -125,7 +189,7 @@ function Tasks() {
           type="text"
         />
         <button
-          onClick={() => pipe(addNewTask(), T.zipRight(getTasks()), runEffect)}
+          onClick={flow(addNewTask, T.zipRight(getTasks()), runEffect)}
           disabled={!newResult.newTaskTitle.length || newResult.loading}
         >
           add
@@ -135,31 +199,15 @@ function Tasks() {
       <div>
         <h2>Selected Task</h2>
         {selectedTask && (
-          <>
-            {selectedTask.title}
-            <div>
-              <ul>
-                {selectedTask.steps.map((s, idx) => (
-                  <li key={idx}>
-                    <input
-                      type="checkbox"
-                      disabled={updateResult.loading}
-                      checked={s.completed}
-                      onChange={() =>
-                        toggleStepChecked(selectedTask, s)["|>"](runEffect)
-                      }
-                    />
-                    {s.title}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>Updated: {selectedTask.updatedAt.toISOString()}</div>
-            <div>Created: {selectedTask.createdAt.toISOString()}</div>
-            <div>
-              <i>Id: {selectedTask.id}</i>
-            </div>
-          </>
+          <Task
+            task={selectedTask}
+            toggleStepChecked={Object.assign(
+              flow(toggleTaskStepChecked(selectedTask), runEffect),
+              {
+                loading: updateResult.loading,
+              }
+            )}
+          />
         )}
         {!selectedTask && "Please select a task"}
       </div>
