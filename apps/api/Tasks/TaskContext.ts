@@ -1,6 +1,6 @@
 import { Step, Task, TaskE } from "@effect-ts-demo/todo-types"
 import * as EO from "@effect-ts-demo/todo-types/ext/EffectOption"
-import { NonEmptyString, NotFoundError } from "@effect-ts-demo/todo-types/shared"
+import { NonEmptyString } from "@effect-ts-demo/todo-types/shared"
 import * as A from "@effect-ts/core/Array"
 import * as T from "@effect-ts/core/Effect"
 import { flow, pipe } from "@effect-ts/core/Function"
@@ -11,6 +11,8 @@ import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
 import { encode } from "@effect-ts/morphic/Encoder"
 import { strict } from "@effect-ts/morphic/Strict"
 import { strictDecoder } from "@effect-ts/morphic/StrictDecoder"
+
+import { NotFoundError } from "@/errors"
 
 const encodeTask = flow(strict(Task).shrink, Sy.chain(encode(Task)))
 const runEncodeTask = flow(encodeTask, Sy.run)

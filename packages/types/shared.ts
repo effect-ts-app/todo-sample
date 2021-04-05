@@ -61,11 +61,3 @@ export type Void = void
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const Void = opaque<Void, Void>()(Void_ as any)
-
-export class NotFoundError {
-  public readonly _tag = "NotFoundError"
-  public readonly message: string
-  constructor(type: string, id: string) {
-    this.message = `Didn't find ${type}#${id}`
-  }
-}

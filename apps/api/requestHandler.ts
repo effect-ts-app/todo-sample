@@ -1,4 +1,3 @@
-import { NotFoundError } from "@effect-ts-demo/todo-types/shared"
 import * as T from "@effect-ts/core/Effect"
 import { flow, pipe } from "@effect-ts/core/Function"
 import * as Sy from "@effect-ts/core/Sync"
@@ -8,6 +7,8 @@ import { Encoder, encode } from "@effect-ts/morphic/Encoder"
 import { strict } from "@effect-ts/morphic/Strict"
 import { strictDecoder } from "@effect-ts/morphic/StrictDecoder"
 import express from "express"
+
+import { NotFoundError } from "./errors"
 
 type Encode<A, E> = Encoder<A, E>["encode"]
 
