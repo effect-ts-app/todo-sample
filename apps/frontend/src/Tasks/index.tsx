@@ -114,7 +114,7 @@ function Task({
             onClick={() => addNewStep(newStepTitle)}
             disabled={!newStepTitle.length || addNewStep.loading}
           >
-            add
+            add step
           </button>
         </div>
       </div>
@@ -232,7 +232,7 @@ function Tasks() {
           onClick={flow(addNewTask, T.zipRight(getTasks()), runEffect)}
           disabled={!newResult.newTaskTitle.length || newResult.loading}
         >
-          add
+          create task
         </button>
       </div>
 
