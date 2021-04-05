@@ -2,7 +2,7 @@ import React, { useState } from "react"
 
 import * as Todo from "./Todo"
 import { CompletableEntry, Table } from "./components"
-import { WithLoading } from "./utilts"
+import { WithLoading } from "./utils"
 
 function TaskDetail({
   addNewStep,

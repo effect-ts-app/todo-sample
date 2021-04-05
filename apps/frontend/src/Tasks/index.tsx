@@ -13,7 +13,7 @@ import { useRun } from "../run"
 import TaskDetail from "./TaskDetail"
 import TaskList from "./TaskList"
 import * as Todo from "./Todo"
-import { withLoading } from "./utilts"
+import { withLoading } from "./utils"
 
 const fetchLatestTasks_ = TodoClient.Tasks.getTasks["|>"](T.map((r) => r.tasks))
 const fetchLatestTasks = () => fetchLatestTasks_

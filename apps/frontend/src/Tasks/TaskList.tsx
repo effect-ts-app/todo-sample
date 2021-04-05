@@ -3,7 +3,7 @@ import React, { useState } from "react"
 
 import * as Todo from "./Todo"
 import { Table, CompletableEntry } from "./components"
-import { WithLoading } from "./utilts"
+import { WithLoading } from "./utils"
 
 function makeStepCount(steps: Todo.Task["steps"]) {
   if (steps.length === 0) {
@@ -48,6 +48,7 @@ function TaskList({
           </button>
         </form>
       </div>
+
       <Table>
         <tbody>
           {tasks.map((t) => (
