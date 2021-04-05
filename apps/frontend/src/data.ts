@@ -88,6 +88,7 @@ function limitToOne(cancel: () => void, setCancel: (cnl: () => void) => void) {
  *
  * Able to use the query over and over in multiple components, but still sharing the same state.
  * TODO: should only share the result when variables are the same...
+ * TODO: use ref.
  */
 export function useQuery<R, E, A, B, Args extends ReadonlyArray<unknown>>(
   name: string,
