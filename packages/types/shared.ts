@@ -1,4 +1,5 @@
 import type { Branded } from "@effect-ts/core/Branded"
+import { constVoid } from "@effect-ts/core/Function"
 import * as Sy from "@effect-ts/core/Sync"
 import {
   make,
@@ -46,11 +47,13 @@ export interface NonEmptyStringBrand {
 }
 export type NonEmptyString = AType<typeof NonEmptyString>
 
+const defaultVoid = Sy.succeed(constVoid())
+const defaultVoidThunk = () => defaultVoid
 const Void_ = make((F) =>
   F.unknown({
     conf: {
-      [DecoderURI]: (codec) => codec.with(() => Sy.succeed(void 0)),
-      [EncoderURI]: () => ({ encode: () => Sy.succeed(void 0) }),
+      [DecoderURI]: (codec) => codec.with(defaultVoidThunk),
+      [EncoderURI]: () => ({ encode: defaultVoidThunk }),
     },
   })
 )

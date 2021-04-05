@@ -69,7 +69,8 @@ function Tasks() {
 
   function toggleTaskChecked(t: Todo.Task) {
     return pipe(
-      t["|>"](Todo.Task.toggleCompleted)["|>"](updateTask),
+      T.effectTotal(() => t["|>"](Todo.Task.toggleCompleted)),
+      T.chain(updateTask),
       T.zipRight(getTasks())
     )
   }
@@ -77,7 +78,8 @@ function Tasks() {
   function toggleTaskStepChecked(t: Todo.Task) {
     return (s: Todo.Step) =>
       pipe(
-        t["|>"](Todo.Task.toggleStepCompleted(s))["|>"](updateTask),
+        T.effectTotal(() => t["|>"](Todo.Task.toggleStepCompleted(s))),
+        T.chain(updateTask),
         T.zipRight(getTasks())
       )
   }
@@ -93,7 +95,11 @@ function Tasks() {
 
   function deleteTaskStep(t: Todo.Task) {
     return (s: Todo.Step) =>
-      pipe(t["|>"](Todo.Task.deleteStep(s)), updateTask, T.zipRight(getTasks()))
+      pipe(
+        T.effectTotal(() => t["|>"](Todo.Task.deleteStep(s))),
+        T.chain(updateTask),
+        T.zipRight(getTasks())
+      )
   }
 
   return (
