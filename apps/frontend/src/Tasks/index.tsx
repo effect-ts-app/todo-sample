@@ -1,13 +1,11 @@
 import * as TodoClient from "@effect-ts-demo/todo-client"
 import * as Todo from "@effect-ts-demo/todo-types"
-import * as A from "@effect-ts/core/Array"
+import * as A from "@effect-ts-demo/todo-types/ext/Array"
 import * as T from "@effect-ts/core/Effect"
 import { pipe } from "@effect-ts/core/Function"
-import * as O from "@effect-ts/core/Option"
 import { Lens } from "@effect-ts/monocle"
 import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
-import React from "react"
-import { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import styled, { css } from "styled-components"
 
 import { useFetch } from "../data"
@@ -64,40 +62,42 @@ function makeStepCount(steps: Todo.Task["steps"]) {
   return `${completedSteps.length}/${steps.length}`
 }
 
+const taskSteps = Todo.Task.lens["|>"](Lens.prop("steps"))
+const stepCompleted = Todo.Step.lens["|>"](Lens.prop("completed"))
+
+const TodoStep = Object.assign(Todo.Step, {
+  toggleCompleted: stepCompleted["|>"](Lens.modify((x) => !x)),
+})
+
+const TodoTask = Object.assign(Todo.Task, {
+  toggleCompleted: Todo.Task.lens["|>"](Lens.prop("completed"))["|>"](
+    Lens.modify((x) => !x)
+  ),
+  toggleStepCompleted: (s: Todo.Step) =>
+    taskSteps["|>"](Lens.modify(A.modifyOrOriginal(s, TodoStep.toggleCompleted))),
+})
+
 function Tasks() {
   const runEffect = useRun()
 
   const [tasksResult, getTasks] = useTasks()
+  const [newResult, setNewTaskTitle, addNewTask] = useNewTask()
+  const [deleteResult, deleteTask] = useDeleteTask()
+  const [updateResult, updateTask] = useUpdateTask()
 
   const [selectedTaskId, setSelectedTaskId] = useState<UUID | null>(null)
   const selectedTask = tasksResult.data.find((x) => x.id === selectedTaskId)
 
-  const [newResult, setNewTaskTitle, addNewTask] = useNewTask()
-
-  const [deleteResult, deleteTask] = useDeleteTask()
-
-  const [updateResult, updateTask] = useUpdateTask()
-
   function toggleTaskChecked(t: Todo.Task) {
-    const nt = t["|>"](
-      Todo.Task.lens["|>"](Lens.prop("completed"))["|>"](Lens.modify((x) => !x))
-    )
-    return pipe(updateTask(nt), T.zipRight(getTasks()))
+    return pipe(TodoTask.toggleCompleted(t), updateTask, T.zipRight(getTasks()))
   }
 
   function toggleStepChecked(t: Todo.Task, s: Todo.Step) {
-    const nt = t["|>"](
-      Todo.Task.lens["|>"](Lens.prop("steps"))["|>"](
-        Lens.modify((steps) =>
-          A.modifyAt_(
-            steps,
-            A.findIndex_(steps, (x) => x === s)["|>"](O.getOrElse(() => -1)),
-            Todo.Step.lens["|>"](Lens.prop("completed"))["|>"](Lens.modify((x) => !x))
-          )["|>"](O.getOrElse(() => steps))
-        )
-      )
+    return pipe(
+      t["|>"](TodoTask.toggleStepCompleted(s)),
+      updateTask,
+      T.zipRight(getTasks())
     )
-    return pipe(updateTask(nt), T.zipRight(getTasks()))
   }
 
   return (
