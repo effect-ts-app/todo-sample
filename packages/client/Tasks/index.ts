@@ -63,6 +63,7 @@ export const findTask = (id: UUID) =>
   pipe(fetchApi(`/tasks/${id}`), T.chain(decodeGetTaskResponse))
 
 const encodeCreateTaskRequest = encode(CreateTask.Request)
+const decodeCreateTaskResponse = flow(decode(CreateTask.Response), mapResponseError)
 export function createTask(req: CreateTask.Request) {
   return pipe(
     encodeCreateTaskRequest(req),
@@ -71,7 +72,8 @@ export function createTask(req: CreateTask.Request) {
         method: "POST",
         body: JSON.stringify(res),
       })
-    )
+    ),
+    T.chain(decodeCreateTaskResponse)
   )
 }
 

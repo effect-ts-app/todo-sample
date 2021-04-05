@@ -26,25 +26,23 @@ export function useFetch<E, A, Args extends readonly unknown[], B>(
       return pipe(
         T.effectTotal(() => setLoading(true)),
         T.zipRight(fetchFnc(...args)),
-        T.map(setData),
+        T.tap((r) => T.effectTotal(() => setData(r))),
+        T.tap(() => T.effectTotal(() => setLoading(false))),
         T.result,
         T.chain(
-          Ex.foldM(
-            (cause) => {
-              if (Cause.died(cause)) {
-                const [abortedWith] = Cause.defects(cause)
-                const err = new UnknownError(abortedWith)
-                setError(err)
-              }
-              if (Cause.failed(cause)) {
-                const [err] = Cause.failures(cause)
-                setError(err)
-              }
-              setLoading(false)
-              return T.halt(cause)
-            },
-            () => T.effectTotal(() => setLoading(false))
-          )
+          Ex.foldM((cause) => {
+            if (Cause.died(cause)) {
+              const [abortedWith] = Cause.defects(cause)
+              const err = new UnknownError(abortedWith)
+              setError(err)
+            }
+            if (Cause.failed(cause)) {
+              const [err] = Cause.failures(cause)
+              setError(err)
+            }
+            setLoading(false)
+            return T.halt(cause)
+          }, T.succeed)
         )
       )
     },

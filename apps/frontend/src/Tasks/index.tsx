@@ -26,15 +26,15 @@ function useTasks() {
 
 function useNewTask() {
   const [newTaskTitle, setNewTaskTitle] = useState("")
-  const [{ loading }, addNewTask] = useFetch(
+  const [result, addNewTask] = useFetch(
     () =>
       TodoClient.Tasks.createTaskE({ title: newTaskTitle })["|>"](
-        T.map(() => setNewTaskTitle(""))
+        T.tap(() => T.effectTotal(() => setNewTaskTitle("")))
       ),
     null
   )
 
-  return [{ newTaskTitle, loading }, setNewTaskTitle, addNewTask] as const
+  return [{ ...result, newTaskTitle }, setNewTaskTitle, addNewTask] as const
 }
 
 const deleteTask = (id: UUID) => TodoClient.Tasks.deleteTask({ id })
@@ -47,7 +47,12 @@ function useUpdateTask() {
   return useFetch(updateTask, null)
 }
 
-const CompletableEntry = styled.li<{ completed: boolean }>`
+const CompletableEntry = styled.tr<{ completed: boolean }>`
+  ${({ onClick }) =>
+    onClick &&
+    css`
+      cursor: pointer;
+    `}
   ${({ completed }) =>
     completed &&
     css`
@@ -57,10 +62,14 @@ const CompletableEntry = styled.li<{ completed: boolean }>`
 
 function makeStepCount(steps: Todo.Task["steps"]) {
   if (steps.length === 0) {
-    return "0"
+    return <>0</>
   }
   const completedSteps = steps["|>"](A.filter((x) => x.completed))
-  return `${completedSteps.length}/${steps.length}`
+  return (
+    <>
+      {completedSteps.length} of {steps.length}
+    </>
+  )
 }
 
 type WithLoading<Fnc> = Fnc & {
@@ -75,57 +84,88 @@ function Task({
   addNewStep,
   deleteStep,
   task: t,
+  toggleChecked,
   toggleStepChecked,
 }: {
   task: Todo.Task
-  addNewStep: WithLoading<(stepTitle: string) => void>
+  addNewStep: WithLoading<(stepTitle: string) => Promise<void>>
   deleteStep: WithLoading<(s: Todo.Step) => void>
+  toggleChecked: WithLoading<() => void>
   toggleStepChecked: WithLoading<(s: Todo.Step) => void>
 }) {
   const [newStepTitle, setNewStepTitle] = useState("")
   return (
     <>
-      {t.title}
+      <CompletableEntry as="h2" completed={t.completed} style={{ textAlign: "left" }}>
+        <input
+          type="checkbox"
+          disabled={toggleChecked.loading}
+          checked={t.completed}
+          onChange={() => toggleChecked()}
+        />
+        &nbsp;
+        {t.title}
+      </CompletableEntry>
       <div>
-        <h2>Steps</h2>
-        <ul>
-          {t.steps.map((s, idx) => (
-            <CompletableEntry completed={s.completed} key={idx}>
-              <input
-                type="checkbox"
-                disabled={toggleStepChecked.loading}
-                checked={s.completed}
-                onChange={() => toggleStepChecked(s)}
-              />
-              {s.title}
-              <button disabled={deleteStep.loading} onClick={() => deleteStep(s)}>
-                X
-              </button>
-            </CompletableEntry>
-          ))}
-        </ul>
         <div>
-          <input
-            value={newStepTitle}
-            onChange={(evt) => setNewStepTitle(evt.target.value)}
-            type="text"
-          />
-          <button
-            onClick={() => addNewStep(newStepTitle)}
-            disabled={!newStepTitle.length || addNewStep.loading}
-          >
-            add step
-          </button>
+          <form>
+            <input
+              value={newStepTitle}
+              onChange={(evt) => setNewStepTitle(evt.target.value)}
+              type="text"
+            />
+            <button
+              onClick={() => addNewStep(newStepTitle).then(() => setNewStepTitle(""))}
+              disabled={!newStepTitle.length || addNewStep.loading}
+            >
+              add step
+            </button>
+          </form>
         </div>
+        <Table>
+          <tbody>
+            {t.steps.map((s, idx) => (
+              <CompletableEntry completed={s.completed} key={idx}>
+                <td>
+                  <input
+                    type="checkbox"
+                    disabled={toggleStepChecked.loading}
+                    checked={s.completed}
+                    onChange={() => toggleStepChecked(s)}
+                  />
+                </td>
+                <td>{s.title}</td>
+                <td>
+                  <button disabled={deleteStep.loading} onClick={() => deleteStep(s)}>
+                    X
+                  </button>
+                </td>
+              </CompletableEntry>
+            ))}
+          </tbody>
+        </Table>
       </div>
-      <div>Updated: {t.updatedAt.toISOString()}</div>
-      <div>Created: {t.createdAt.toISOString()}</div>
+
+      <hr />
+      <div>
+        <i>Updated: {t.updatedAt.toISOString()}</i>
+      </div>
+      <div>
+        <i>Created: {t.createdAt.toISOString()}</i>
+      </div>
       <div>
         <i>Id: {t.id}</i>
       </div>
     </>
   )
 }
+
+const Table = styled.table`
+  width: 100%;
+  tr > td {
+    text-align: left;
+  }
+`
 
 function TaskList({
   deleteTask,
@@ -139,29 +179,50 @@ function TaskList({
   tasks: A.Array<Todo.Task>
 }) {
   return (
-    <ul>
-      {tasks.map((t) => (
-        <CompletableEntry
-          key={t.id}
-          completed={t.completed}
-          onClick={() => setSelectedTask(t)}
-        >
-          <input
-            type="checkbox"
-            checked={t.completed}
-            disabled={toggleTaskChecked.loading}
-            onChange={() => toggleTaskChecked(t)}
-          />
-          {t.title}
-          &nbsp; [{makeStepCount(t.steps)}]
-          <button disabled={deleteTask.loading} onClick={() => deleteTask(t)}>
-            X
-          </button>
-        </CompletableEntry>
-      ))}
-    </ul>
+    <Table>
+      <tbody>
+        {tasks.map((t) => (
+          <CompletableEntry
+            key={t.id}
+            completed={t.completed}
+            onClick={() => setSelectedTask(t)}
+          >
+            <td>
+              <input
+                type="checkbox"
+                checked={t.completed}
+                disabled={toggleTaskChecked.loading}
+                onChange={() => toggleTaskChecked(t)}
+              />
+            </td>
+            <td>
+              {t.title}
+              <br />
+              {makeStepCount(t.steps)}
+            </td>
+            <td>
+              <button disabled={deleteTask.loading} onClick={() => deleteTask(t)}>
+                X
+              </button>
+            </td>
+          </CompletableEntry>
+        ))}
+      </tbody>
+    </Table>
   )
 }
+
+const Container = styled.div`
+  display: flex;
+  flex-flow: row;
+  > * {
+    width: 100%;
+  }
+`
+
+const Loading = styled.div`
+  position: fixed;
+`
 
 function Tasks() {
   const runEffect = useRun()
@@ -204,43 +265,56 @@ function Tasks() {
   }
 
   return (
-    <div>
+    <Container>
       <div>
-        <h1>Tasks</h1>
-      </div>
-      {tasksResult.loading && "Loading Tasks..."}
-      {tasksResult.error && "Error Loading tasks: " + tasksResult.error}
-      <TaskList
-        tasks={tasksResult.data}
-        setSelectedTask={(t: Todo.Task) => setSelectedTaskId(t.id)}
-        deleteTask={withLoading(
-          (t: Todo.Task) => pipe(deleteTask(t.id), T.zipRight(getTasks()), runEffect),
-          deleteResult.loading
-        )}
-        toggleTaskChecked={withLoading(
-          flow(toggleTaskChecked, runEffect),
-          updateResult.loading
-        )}
-      />
-      <div>
-        <input
-          value={newResult.newTaskTitle}
-          onChange={(evt) => setNewTaskTitle(evt.target.value)}
-          type="text"
+        <div>
+          <h1>Tasks</h1>
+        </div>
+        {tasksResult.loading && <Loading>Loading Tasks...</Loading>}
+        {tasksResult.error && "Error Loading tasks: " + tasksResult.error}
+        <div>
+          <form>
+            <input
+              value={newResult.newTaskTitle}
+              onChange={(evt) => setNewTaskTitle(evt.target.value)}
+              type="text"
+            />
+            <button
+              onClick={flow(
+                addNewTask,
+                T.tap(getTasks),
+                T.map((r) => setSelectedTaskId(r.id)),
+                runEffect
+              )}
+              disabled={!newResult.newTaskTitle.length || newResult.loading}
+            >
+              create task
+            </button>
+          </form>
+        </div>
+
+        <TaskList
+          tasks={tasksResult.data}
+          setSelectedTask={(t: Todo.Task) => setSelectedTaskId(t.id)}
+          deleteTask={withLoading(
+            (t: Todo.Task) => pipe(deleteTask(t.id), T.zipRight(getTasks()), runEffect),
+            deleteResult.loading
+          )}
+          toggleTaskChecked={withLoading(
+            flow(toggleTaskChecked, runEffect),
+            updateResult.loading
+          )}
         />
-        <button
-          onClick={flow(addNewTask, T.zipRight(getTasks()), runEffect)}
-          disabled={!newResult.newTaskTitle.length || newResult.loading}
-        >
-          create task
-        </button>
       </div>
 
       <div>
-        <h2>Selected Task</h2>
         {selectedTask && (
           <Task
             task={selectedTask}
+            toggleChecked={withLoading(
+              () => toggleTaskChecked(selectedTask)["|>"](runEffect),
+              tasksResult.loading
+            )}
             toggleStepChecked={withLoading(
               flow(toggleTaskStepChecked(selectedTask), runEffect),
               updateResult.loading
@@ -250,14 +324,13 @@ function Tasks() {
               updateResult.loading
             )}
             addNewStep={withLoading(
-              flow(addNewTaskStep(selectedTask), runEffect),
+              flow(addNewTaskStep(selectedTask), T.asUnit, runEffect),
               updateResult.loading
             )}
           />
         )}
-        {!selectedTask && "Please select a task"}
       </div>
-    </div>
+    </Container>
   )
 }
 
