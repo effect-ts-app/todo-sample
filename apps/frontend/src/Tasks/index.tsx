@@ -8,7 +8,7 @@ import React, { useEffect, useState } from "react"
 import styled from "styled-components"
 
 import { useServiceContext } from "../context"
-import { useFetch, useLimitToOne } from "../data"
+import { useFetch, useQuery } from "../data"
 
 import TaskDetail from "./TaskDetail"
 import TaskList from "./TaskList"
@@ -18,18 +18,22 @@ import { withLoading } from "./utils"
 const fetchLatestTasks = constant(
   TodoClient.Tasks.getTasks["|>"](T.map((r) => r.tasks))
 )
+
 function useTasks() {
   const { runWithErrorLog } = useServiceContext()
-  const [result, ex] = useFetch(fetchLatestTasks, [] as A.Array<Todo.Task>)
+  const [result, refetch, exec] = useQuery(
+    "latestTasks",
+    fetchLatestTasks,
+    [] as A.Array<Todo.Task>
+  )
 
-  const exec = useLimitToOne(ex)
   useEffect(() => {
     const cancel = exec()["|>"](runWithErrorLog)
     return () => {
       cancel()
     }
   }, [exec, runWithErrorLog])
-  return [result, exec] as const
+  return [result, refetch] as const
 }
 
 const newTask = (newTitle: string) => TodoClient.Tasks.createTaskE({ title: newTitle })
@@ -62,6 +66,9 @@ function Tasks() {
   const { runPromise } = useServiceContext()
 
   const [tasksResult, getTasks] = useTasks()
+  useTasks()
+  useTasks()
+  useTasks()
   const [newResult, addNewTask] = useNewTask()
   const [deleteResult, deleteTask] = useDeleteTask()
   const [updateResult, updateTask] = useUpdateTask()

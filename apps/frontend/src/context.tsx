@@ -1,8 +1,10 @@
 import * as TodoClient from "@effect-ts-demo/todo-client"
 import { ApiConfig } from "@effect-ts-demo/todo-client"
+import { Fiber } from "@effect-ts/core"
 import * as T from "@effect-ts/core/Effect"
 import { pretty } from "@effect-ts/core/Effect/Cause"
 import * as L from "@effect-ts/core/Effect/Layer"
+import { Semaphore } from "@effect-ts/system/Semaphore"
 import React, { createContext, ReactNode, useContext, useEffect, useMemo } from "react"
 
 import { useConfig } from "./config"
@@ -66,4 +68,26 @@ function runWithErrorLog<E, A>(self: T.Effect<unknown, E, A>) {
   return () => {
     T.run(cancel)
   }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Result<E = any, A = any> = { loading: boolean; error: E | null; data: A }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type Fetcher<E = any, Err = any, A = any, B = any, Fnc = any> = {
+  cancel: () => void
+  fetch: Fnc
+  fiber: Fiber.FiberContext<E, A> | null
+  result: Result<Err, A | B>
+  listeners: readonly ((result: Result<Err, A | B>) => void)[]
+  sync: Semaphore
+}
+
+type FetchContext = {
+  fetchers: Record<string, Fetcher>
+}
+const FetchContext = createContext<FetchContext>({ fetchers: {} })
+export const useFetchContext = () => useContext(FetchContext)
+export const LiveFetchContext = ({ children }: { children: React.ReactNode }) => {
+  const ctx = useMemo(() => ({ fetchers: {} }), [])
+  return <FetchContext.Provider value={ctx}>{children}</FetchContext.Provider>
 }
