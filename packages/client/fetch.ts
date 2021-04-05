@@ -1,5 +1,5 @@
+import * as T from "@effect-ts-demo/todo-types/ext/Effect"
 import { pipe } from "@effect-ts/core"
-import * as T from "@effect-ts/core/Effect"
 import { flow } from "@effect-ts/core/Function"
 import { M } from "@effect-ts/morphic"
 import { Decode, decode, Errors } from "@effect-ts/morphic/Decoder"
@@ -20,20 +20,28 @@ class ResponseError {
 
 export const mapResponseError = T.mapError((err: Errors) => new ResponseError(err))
 
-export function fetchApi(path: string, options?: RequestInit) {
+const makeAbort = T.effectTotal(() => new AbortController())
+export function fetchApi(path: string, options?: Omit<RequestInit, "signal">) {
   return getConfig(({ apiUrl }) =>
-    T.fromPromiseWith(
-      () =>
-        fetch(`${apiUrl}${path}`, {
-          headers: { "Content-Type": "application/json", ...options?.headers },
-          ...options,
-        }).then((r) =>
-          r.status === 204
-            ? undefined
-            : // unknown is better than any, as it demands to handle the unknown value
-              (r.json() as Promise<unknown>)
-        ),
-      (err) => new FetchError(err)
+    pipe(
+      makeAbort,
+      T.chain((abort) =>
+        T.fromPromiseWithInterrupt(
+          () =>
+            fetch(`${apiUrl}${path}`, {
+              ...options,
+              headers: { "Content-Type": "application/json", ...options?.headers },
+              signal: abort.signal,
+            }).then((r) =>
+              r.status === 204
+                ? undefined
+                : // unknown is better than any, as it demands to handle the unknown value
+                  (r.json() as Promise<unknown>)
+            ),
+          (err) => new FetchError(err),
+          () => abort.abort()
+        )
+      )
     )
   )
 }
