@@ -1,5 +1,5 @@
 import * as A from "@effect-ts-demo/todo-types/ext/Array"
-import { Cause, Fiber, Semaphore } from "@effect-ts/core"
+import { Fiber, Semaphore } from "@effect-ts/core"
 import * as T from "@effect-ts/core/Effect"
 import * as Ex from "@effect-ts/core/Effect/Exit"
 import { pipe } from "@effect-ts/core/Function"
@@ -7,10 +7,10 @@ import { useState, useCallback, useEffect } from "react"
 
 import { Fetcher, useFetchContext } from "./context"
 
-class UnknownError {
-  public readonly _trag = "UnknownError"
-  constructor(public readonly error: unknown) {}
-}
+// class UnknownError {
+//   public readonly _trag = "UnknownError"
+//   constructor(public readonly error: unknown) {}
+// }
 
 /**
  * Poor mans "RemoteData"
@@ -20,31 +20,24 @@ export function useFetch<R, E, A, Args extends readonly unknown[], B>(
   defaultData: B
 ) {
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<E | UnknownError | null>(null)
+  const [error, setError] = useState<E | null>(null)
   const [data, setData] = useState<A | B>(defaultData)
   const exec = useCallback(
     function (...args: Args) {
       return pipe(
         T.effectTotal(() => setLoading(true)),
         T.zipRight(fetchFnc(...args)),
-        T.tap((r) => T.effectTotal(() => setData(r))),
-        T.tap(() => T.effectTotal(() => setLoading(false))),
-        T.result,
-        T.chain(
-          Ex.foldM((cause) => {
-            if (Cause.died(cause)) {
-              const [abortedWith] = Cause.defects(cause)
-              const err = new UnknownError(abortedWith)
-              setError(err)
-            }
-            if (Cause.failed(cause)) {
-              const [err] = Cause.failures(cause)
-              setError(err)
-            }
+        T.tap((r) =>
+          T.effectTotal(() => {
+            setData(r)
             setLoading(false)
-            return T.halt(cause)
-          }, T.succeed)
-        )
+          })
+        ),
+        T.catchAll((err) => {
+          setError(err)
+          setLoading(false)
+          return T.fail(err)
+        })
       )
     },
     [fetchFnc]
@@ -96,8 +89,9 @@ export function useQuery<R, E, A, B, Args extends ReadonlyArray<unknown>>(
   defaultValue: B
 ) {
   const ctx = useFetchContext()
+  //const { runWithErrorLog } = useServiceContext()
   type FetchFnc = typeof fetchFunction
-  type F = Fetcher<E, E | UnknownError, A, B, FetchFnc>
+  type F = Fetcher<E, E, A, B, FetchFnc>
 
   if (ctx.fetchers[name]) {
     if (fetchFunction !== ctx.fetchers[name].fetch) {
@@ -127,37 +121,34 @@ export function useQuery<R, E, A, B, Args extends ReadonlyArray<unknown>>(
           f.listeners.forEach((x) => x(f.result))
         }),
         T.zipRight(fetchFunction(...args)),
+        T.chain((r) =>
+          T.effectTotal(() => {
+            const f = getFetcher()
+            f.result.loading = false
+            f.result.data = r
+            console.log(f.result, f.listeners)
+            f.listeners.forEach((x) => x({ ...f.result }))
+            f.fiber = null
+            return r
+          })
+        ),
+        T.catchAll((err) => {
+          const f = getFetcher()
+          f.result.error = err
+          f.result.loading = false
+          f.listeners.forEach((x) => x(f.result))
+          return T.fail(err)
+        }),
         T.result,
         T.chain(
-          Ex.foldM(
-            (cause) => {
-              console.warn("exiting on cause", cause)
-              const f = getFetcher()
-              if (Cause.died(cause)) {
-                const [abortedWith] = Cause.defects(cause)
-                const err = new UnknownError(abortedWith)
-                f.result.error = err
-              }
-              if (Cause.failed(cause)) {
-                const [err] = Cause.failures(cause)
-                f.result.error = err
-              }
-              f.result.loading = false
-              f.listeners.forEach((x) => x(f.result))
-              f.fiber = null
-              return T.halt(cause)
-            },
-            (r) =>
-              T.effectTotal(() => {
-                const f = getFetcher()
-                f.result.loading = false
-                f.result.data = r
-                console.log(f.result, f.listeners)
-                f.listeners.forEach((x) => x({ ...f.result }))
-                f.fiber = null
-                return r
-              })
-          )
+          Ex.foldM((cause) => {
+            console.warn("exiting on cause", cause)
+            const f = getFetcher()
+            f.result.loading = false
+            f.listeners.forEach((x) => x(f.result))
+            f.fiber = null
+            return T.halt(cause)
+          }, T.succeed)
         )
       )
     },
@@ -233,6 +224,15 @@ export function useQuery<R, E, A, B, Args extends ReadonlyArray<unknown>>(
       }
     }
   }, [])
+
+  // we don't have the Args.. so looks like we need to receive the variables too..
+  // we can then also use them for caching.
+  //   useEffect(() => {
+  //     const cancel = exec()["|>"](runWithErrorLog)
+  //     return () => {
+  //       cancel()
+  //     }
+  //   }, [exec, runWithErrorLog])
 
   return [result, refetch, exec] as const
 }
