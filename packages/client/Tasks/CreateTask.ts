@@ -6,6 +6,7 @@ export interface Request extends AType<typeof Request_> {}
 export interface RequestE extends EType<typeof Request_> {}
 export const Request = opaque<RequestE, Request>()(Request_)
 
-export const Response = make((F) => F.interface({ id: F.uuid() }))
-export type Response = AType<typeof Response>
-export type ResponseE = EType<typeof Response>
+const Response_ = make((F) => F.interface({ id: F.uuid() }))
+export interface Response extends AType<typeof Response_> {}
+export interface ResponseE extends EType<typeof Response_> {}
+export const Response = opaque<ResponseE, Response>()(Response_)

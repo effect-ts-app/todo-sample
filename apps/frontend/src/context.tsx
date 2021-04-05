@@ -1,5 +1,5 @@
 import * as TodoClient from "@effect-ts-demo/todo-client"
-import { ApiConfig } from "@effect-ts-demo/todo-client/Tasks"
+import { ApiConfig } from "@effect-ts-demo/todo-client"
 import * as T from "@effect-ts/core/Effect"
 import { pretty } from "@effect-ts/core/Effect/Cause"
 import * as L from "@effect-ts/core/Effect/Layer"
@@ -8,7 +8,7 @@ import React, { createContext, ReactNode, useContext, useEffect, useMemo } from 
 import { useConfig } from "./config"
 
 function makeLayers(config: ApiConfig) {
-  return TodoClient.Tasks.LiveApiConfig(config)
+  return TodoClient.LiveApiConfig(config)
 }
 type GetProvider<P> = P extends L.Layer<unknown, unknown, infer TP> ? TP : never
 export type ProvidedEnv = T.DefaultEnv & GetProvider<ReturnType<typeof makeLayers>>
