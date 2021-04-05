@@ -28,16 +28,10 @@ function useTasks() {
 }
 
 function useNewTask() {
-  const [newTaskTitle, setNewTaskTitle] = useState("")
-  const [result, addNewTask] = useFetch(
-    () =>
-      TodoClient.Tasks.createTaskE({ title: newTaskTitle })["|>"](
-        T.tap(() => T.effectTotal(() => setNewTaskTitle("")))
-      ),
+  return useFetch(
+    (newTitle: string) => TodoClient.Tasks.createTaskE({ title: newTitle }),
     null
   )
-
-  return [{ ...result, newTaskTitle }, setNewTaskTitle, addNewTask] as const
 }
 
 const deleteTask = (id: UUID) => TodoClient.Tasks.deleteTask({ id })
@@ -66,7 +60,7 @@ function Tasks() {
   const runEffect = useRun()
 
   const [tasksResult, getTasks] = useTasks()
-  const [newResult, setNewTaskTitle, addNewTask] = useNewTask()
+  const [newResult, addNewTask] = useNewTask()
   const [deleteResult, deleteTask] = useDeleteTask()
   const [updateResult, updateTask] = useUpdateTask()
 
@@ -110,29 +104,18 @@ function Tasks() {
         </div>
         {tasksResult.loading && <Loading>Loading Tasks...</Loading>}
         {tasksResult.error && "Error Loading tasks: " + tasksResult.error}
-        <div>
-          <form>
-            <input
-              value={newResult.newTaskTitle}
-              onChange={(evt) => setNewTaskTitle(evt.target.value)}
-              type="text"
-            />
-            <button
-              onClick={flow(
-                addNewTask,
-                T.tap(getTasks),
-                T.map((r) => setSelectedTaskId(r.id)),
-                runEffect
-              )}
-              disabled={!newResult.newTaskTitle.length || newResult.loading}
-            >
-              create task
-            </button>
-          </form>
-        </div>
 
         <TaskList
           tasks={tasksResult.data}
+          addTask={withLoading(
+            flow(
+              addNewTask,
+              T.tap(getTasks),
+              T.map((r) => setSelectedTaskId(r.id)),
+              runEffect
+            ),
+            newResult.loading || tasksResult.loading
+          )}
           setSelectedTask={(t: Todo.Task) => setSelectedTaskId(t.id)}
           deleteTask={withLoading(
             (t: Todo.Task) => pipe(deleteTask(t.id), T.zipRight(getTasks()), runEffect),
