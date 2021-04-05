@@ -30,7 +30,11 @@ export function fetchApi(path: string, options?: Omit<RequestInit, "signal">) {
           () =>
             fetch(`${apiUrl}${path}`, {
               ...options,
-              headers: { "Content-Type": "application/json", ...options?.headers },
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+                ...options?.headers,
+              },
               signal: abort.signal,
             }).then((r) =>
               r.status === 204
