@@ -12,7 +12,7 @@ import * as UpdateTask from "./UpdateTask"
 export const routes = T.tuple(
   Ex.get("/tasks/:id", makeRequestHandler(GetTask)),
   Ex.get("/tasks", makeRequestHandler(GetTasks)),
-  Ex.post("/tasks/:id", makeRequestHandler(UpdateTask)),
+  Ex.patch("/tasks/:id", makeRequestHandler(UpdateTask)),
   Ex.delete("/tasks/:id", makeRequestHandler(DeleteTask)),
   Ex.post("/tasks", makeRequestHandler(CreateTask))
 )

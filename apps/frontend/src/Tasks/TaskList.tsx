@@ -1,4 +1,5 @@
 import * as A from "@effect-ts-demo/todo-types/ext/Array"
+import { Exit } from "@effect-ts/system/Exit"
 import React, { useState } from "react"
 
 import * as Todo from "./Todo"
@@ -26,7 +27,7 @@ function TaskList({
 }: {
   setSelectedTask: (i: Todo.Task) => void
   toggleTaskChecked: WithLoading<(t: Todo.Task) => void>
-  addTask: WithLoading<(taskTitle: string) => Promise<void>>
+  addTask: WithLoading<(taskTitle: string) => Promise<Exit<unknown, unknown>>>
   deleteTask: WithLoading<(t: Todo.Task) => void>
   tasks: A.Array<Todo.Task>
 }) {
@@ -41,7 +42,11 @@ function TaskList({
             type="text"
           />
           <button
-            onClick={() => addTask(newTaskTitle).then(() => setNewTaskTitle(""))}
+            onClick={() =>
+              addTask(newTaskTitle).then(
+                (x) => x._tag === "Success" && setNewTaskTitle("")
+              )
+            }
             disabled={!newTaskTitle.length || addTask.loading}
           >
             create task
