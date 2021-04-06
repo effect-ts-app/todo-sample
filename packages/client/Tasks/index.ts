@@ -24,7 +24,7 @@ export const createTask = fetchApi3(CreateTask)("/tasks")
 const decodeCreateTaskRequest = decode(CreateTask.Request)
 export const createTaskE = flow(decodeCreateTaskRequest, T.chain(createTask))
 
-const update = fetchApi3(UpdateTask)
+const update = fetchApi3(UpdateTask, "PATCH")
 export function updateTask(req: UpdateTask.Request) {
   return update(`/tasks/${req.id}`)(req)
 }
