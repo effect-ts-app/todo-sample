@@ -10,10 +10,8 @@ ReactDOM.render(
   <React.StrictMode>
     <LiveServiceContext>
       <LiveFetchContext>
-        <>
-          <GlobalStyle />
-          <App />
-        </>
+        <GlobalStyle />
+        <App />
       </LiveFetchContext>
     </LiveServiceContext>
   </React.StrictMode>,
