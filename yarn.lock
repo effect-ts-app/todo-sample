@@ -1473,6 +1473,13 @@
     "@types/yargs" "^15.0.0"
     chalk "^4.0.0"
 
+"@nll/datum@^3.5.0":
+  version "3.5.0"
+  resolved "https://registry.yarnpkg.com/@nll/datum/-/datum-3.5.0.tgz#289e97333a6c1714d83fa99c79214f3e85fd9e92"
+  integrity sha512-qNdzqbm8O8DGef5UGJUnMkFmg0aBzBbnMs1dxVGchIJ6nz9iypp6BBwniCXMM4ltkxLRBj3dkv/FcvReGVRZgA==
+  dependencies:
+    fp-ts "^2.0.0"
+
 "@nodelib/fs.scandir@2.1.4":
   version "2.1.4"
   resolved "https://registry.yarnpkg.com/@nodelib/fs.scandir/-/fs.scandir-2.1.4.tgz#d4b3549a5db5de2683e0c1071ab4f140904bbf69"
@@ -5744,6 +5751,11 @@ fp-and-or@^0.1.3:
   version "0.1.3"
   resolved "https://registry.yarnpkg.com/fp-and-or/-/fp-and-or-0.1.3.tgz#e6fba83872a5853a56b3ebdf8d3167f5dfca1882"
   integrity sha512-wJaE62fLaB3jCYvY2ZHjZvmKK2iiLiiehX38rz5QZxtdN8fVPJDeZUiVvJrHStdTc+23LHlyZuSEKgFc0pxi2g==
+
+fp-ts@^2.0.0:
+  version "2.9.5"
+  resolved "https://registry.yarnpkg.com/fp-ts/-/fp-ts-2.9.5.tgz#6690cd8b76b84214a38fc77cbbbd04a38f86ea90"
+  integrity sha512-MiHrA5teO6t8zKArE3DdMPT/Db6v2GUt5yfWnhBTrrsVfeCJUUnV6sgFvjGNBKDmEMqVwRFkEePL7wPwqrLKKA==
 
 fragment-cache@^0.2.1:
   version "0.2.1"

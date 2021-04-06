@@ -3,6 +3,7 @@ import { Fiber, Semaphore } from "@effect-ts/core"
 import * as T from "@effect-ts/core/Effect"
 import * as Ex from "@effect-ts/core/Effect/Exit"
 import { pipe } from "@effect-ts/core/Function"
+import { datumEither } from "@nll/datum"
 import { useState, useCallback, useEffect } from "react"
 
 import { Fetcher, useFetchContext } from "./context"
@@ -12,37 +13,32 @@ import { Fetcher, useFetchContext } from "./context"
 //   constructor(public readonly error: unknown) {}
 // }
 
-/**
- * Poor mans "RemoteData"
- */
-export function useFetch<R, E, A, Args extends readonly unknown[], B>(
-  fetchFnc: (...args: Args) => T.Effect<R, E, A>,
-  defaultData: B
+export function useFetch<R, E, A, Args extends readonly unknown[]>(
+  fetchFnc: (...args: Args) => T.Effect<R, E, A>
 ) {
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<E | null>(null)
-  const [data, setData] = useState<A | B>(defaultData)
+  const [result, setResult] = useState<datumEither.DatumEither<E, A>>(
+    datumEither.constInitial()
+  )
   const exec = useCallback(
     function (...args: Args) {
       return pipe(
-        T.effectTotal(() => setLoading(true)),
+        // for mutations, we don't care about a refreshing state.
+        T.effectTotal(() => setResult(datumEither.constPending())),
         T.zipRight(fetchFnc(...args)),
-        T.tap((r) =>
+        T.tap((a) =>
           T.effectTotal(() => {
-            setData(r)
-            setLoading(false)
+            setResult(datumEither.success(a))
           })
         ),
         T.catchAll((err) => {
-          setError(err)
-          setLoading(false)
+          setResult(datumEither.failure(err))
           return T.fail(err)
         })
       )
     },
     [fetchFnc]
   )
-  return [{ loading, data, error }, exec] as const
+  return [result, exec] as const
 }
 
 export function useLimitToOne<R, E, A, Args extends readonly unknown[]>(
@@ -83,15 +79,14 @@ function limitToOne(cancel: () => void, setCancel: (cnl: () => void) => void) {
  * TODO: should only share the result when variables are the same...
  * TODO: use ref.
  */
-export function useQuery<R, E, A, B, Args extends ReadonlyArray<unknown>>(
+export function useQuery<R, E, A, Args extends ReadonlyArray<unknown>>(
   name: string,
-  fetchFunction: (...args: Args) => T.Effect<R, E, A>,
-  defaultValue: B
+  fetchFunction: (...args: Args) => T.Effect<R, E, A>
 ) {
   const ctx = useFetchContext()
   //const { runWithErrorLog } = useServiceContext()
   type FetchFnc = typeof fetchFunction
-  type F = Fetcher<E, E, A, B, FetchFnc>
+  type F = Fetcher<E, E, A, FetchFnc>
 
   if (ctx.fetchers[name]) {
     if (fetchFunction !== ctx.fetchers[name].fetch) {
@@ -102,7 +97,8 @@ export function useQuery<R, E, A, B, Args extends ReadonlyArray<unknown>>(
       cancel: () => void 0,
       fiber: null,
       fetch: fetchFunction,
-      result: { data: defaultValue, error: null, loading: false },
+      result: datumEither.constInitial(),
+      latestSuccess: datumEither.constInitial(),
       listeners: [],
       sync: Semaphore.unsafeMakeSemaphore(1),
     }
@@ -117,26 +113,30 @@ export function useQuery<R, E, A, B, Args extends ReadonlyArray<unknown>>(
       return pipe(
         T.effectTotal(() => {
           const f = getFetcher()
-          f.result.loading = true
-          f.listeners.forEach((x) => x(f.result))
+          const { latestSuccess } = f
+          const r = (f.result = datumEither.isInitial(f.result)
+            ? datumEither.constPending()
+            : datumEither.toRefresh(f.result))
+          console.log("Loading", r, latestSuccess, f.listeners)
+          f.listeners.forEach((x) => x(result, latestSuccess))
         }),
         T.zipRight(fetchFunction(...args)),
-        T.chain((r) =>
+        T.chain((a) =>
           T.effectTotal(() => {
             const f = getFetcher()
-            f.result.loading = false
-            f.result.data = r
-            console.log(f.result, f.listeners)
-            f.listeners.forEach((x) => x({ ...f.result }))
+            const r = (f.latestSuccess = f.result = datumEither.success(a))
+            console.log(r, f.listeners)
+            f.listeners.forEach((x) => x(r, r))
             f.fiber = null
-            return r
+            return a
           })
         ),
         T.catchAll((err) => {
           const f = getFetcher()
-          f.result.error = err
-          f.result.loading = false
-          f.listeners.forEach((x) => x(f.result))
+          const r = (f.result = datumEither.failure(err))
+          const { latestSuccess } = f
+          console.log("Error", r, latestSuccess, f.listeners)
+          f.listeners.forEach((x) => x(r, latestSuccess))
           return T.fail(err)
         }),
         T.result,
@@ -144,8 +144,8 @@ export function useQuery<R, E, A, B, Args extends ReadonlyArray<unknown>>(
           Ex.foldM((cause) => {
             console.warn("exiting on cause", cause)
             const f = getFetcher()
-            f.result.loading = false
-            f.listeners.forEach((x) => x(f.result))
+            // f.result.loading = false
+            // f.listeners.forEach((x) => x(f.result))
             f.fiber = null
             return T.halt(cause)
           }, T.succeed)
@@ -211,10 +211,15 @@ export function useQuery<R, E, A, B, Args extends ReadonlyArray<unknown>>(
   )
 
   const [result, setResult] = useState<F["result"]>(getFetcher().result)
+  const [lastSuccess, setLastSuccess] = useState<F["result"]>(getFetcher().result)
   useEffect(() => {
     const fetcher = getFetcher()
     setResult(fetcher.result)
-    const handler = (result: F["result"]) => setResult(result)
+    setLastSuccess(fetcher.latestSuccess)
+    const handler = (result: F["result"], latestSuccess: F["latestSuccess"]) => {
+      setResult(result)
+      setLastSuccess(latestSuccess)
+    }
     fetcher.listeners = A.snoc_(fetcher.listeners, handler)
     return () => {
       const fetcher = getFetcher()
@@ -234,5 +239,5 @@ export function useQuery<R, E, A, B, Args extends ReadonlyArray<unknown>>(
   //     }
   //   }, [exec, runWithErrorLog])
 
-  return [result, refetch, exec] as const
+  return [result, lastSuccess, refetch, exec] as const
 }

@@ -1,9 +1,10 @@
 import * as TodoClient from "@effect-ts-demo/todo-client"
-import * as A from "@effect-ts-demo/todo-types/ext/Array"
 import { NonEmptyString } from "@effect-ts-demo/todo-types/shared"
+import * as A from "@effect-ts/core/Array"
 import * as T from "@effect-ts/core/Effect"
 import { constant, flow, pipe } from "@effect-ts/core/Function"
 import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
+import { datumEither } from "@nll/datum"
 import React, { useEffect, useState } from "react"
 import styled from "styled-components"
 
@@ -21,11 +22,7 @@ const fetchLatestTasks = constant(
 
 function useTasks() {
   const { runWithErrorLog } = useServiceContext()
-  const [result, refetch, exec] = useQuery(
-    "latestTasks",
-    fetchLatestTasks,
-    [] as A.Array<Todo.Task>
-  )
+  const [result, lastSuccess, refetch, exec] = useQuery("latestTasks", fetchLatestTasks)
 
   useEffect(() => {
     const cancel = exec()["|>"](runWithErrorLog)
@@ -33,21 +30,21 @@ function useTasks() {
       cancel()
     }
   }, [exec, runWithErrorLog])
-  return [result, refetch] as const
+  return [result, lastSuccess, refetch] as const
 }
 
 const newTask = (newTitle: string) => TodoClient.Tasks.createTaskE({ title: newTitle })
 function useNewTask() {
-  return useFetch(newTask, null)
+  return useFetch(newTask)
 }
 
 const deleteTask = (id: UUID) => TodoClient.Tasks.deleteTask({ id })
 function useDeleteTask() {
-  return useFetch(deleteTask, null)
+  return useFetch(deleteTask)
 }
 
 function useUpdateTask() {
-  return useFetch(TodoClient.Tasks.updateTask, null)
+  return useFetch(TodoClient.Tasks.updateTask)
 }
 
 const Container = styled.div`
@@ -65,7 +62,7 @@ const Loading = styled.div`
 function Tasks() {
   const { runPromise } = useServiceContext()
 
-  const [tasksResult, getTasks] = useTasks()
+  const [tasksResult, , getTasks] = useTasks()
   useTasks()
   useTasks()
   useTasks()
@@ -74,7 +71,6 @@ function Tasks() {
   const [updateResult, updateTask] = useUpdateTask()
 
   const [selectedTaskId, setSelectedTaskId] = useState<UUID | null>(null)
-  const selectedTask = tasksResult.data.find((x) => x.id === selectedTaskId)
 
   function toggleTaskChecked(t: Todo.Task) {
     return pipe(
@@ -111,64 +107,79 @@ function Tasks() {
       )
   }
 
-  return (
-    <Container>
-      <div>
+  function render(tasks: A.Array<Todo.Task>) {
+    const selectedTask = tasks.find((x) => x.id === selectedTaskId)
+    const isRefreshing = datumEither.isRefresh(tasksResult)
+    const isUpdatingTask = datumEither.isPending(updateResult)
+
+    return (
+      <Container>
         <div>
-          <h1>Tasks</h1>
-        </div>
-        {tasksResult.loading && <Loading>Loading Tasks...</Loading>}
-        {tasksResult.error && "Error Loading tasks: " + tasksResult.error}
+          <div>
+            <h1>Tasks</h1>
+          </div>
+          {isRefreshing && <Loading>Loading Tasks...</Loading>}
+          {/*tasksResult.error && "Error Loading tasks: " + tasksResult.error} */}
 
-        <TaskList
-          tasks={tasksResult.data}
-          setSelectedTask={(t: Todo.Task) => setSelectedTaskId(t.id)}
-          addTask={withLoading(
-            flow(
-              addNewTask,
-              T.tap(getTasks),
-              T.map((r) => setSelectedTaskId(r.id)),
-              runPromise
-            ),
-            newResult.loading || tasksResult.loading
-          )}
-          deleteTask={withLoading(
-            (t: Todo.Task) =>
-              pipe(deleteTask(t.id), T.zipRight(getTasks()), runPromise),
-            deleteResult.loading || tasksResult.loading
-          )}
-          toggleTaskChecked={withLoading(
-            flow(toggleTaskChecked, runPromise),
-            updateResult.loading || tasksResult.loading
-          )}
-        />
-      </div>
-
-      <div>
-        {selectedTask && (
-          <TaskDetail
-            task={selectedTask}
-            toggleChecked={withLoading(
-              () => toggleTaskChecked(selectedTask)["|>"](runPromise),
-              updateResult.loading || tasksResult.loading
+          <TaskList
+            tasks={tasks}
+            setSelectedTask={(t: Todo.Task) => setSelectedTaskId(t.id)}
+            addTask={withLoading(
+              flow(
+                addNewTask,
+                T.tap(getTasks),
+                T.map((r) => setSelectedTaskId(r.id)),
+                runPromise
+              ),
+              datumEither.isPending(newResult) || isRefreshing
             )}
-            toggleStepChecked={withLoading(
-              flow(toggleTaskStepChecked(selectedTask), runPromise),
-              updateResult.loading || tasksResult.loading
+            deleteTask={withLoading(
+              (t: Todo.Task) =>
+                pipe(deleteTask(t.id), T.zipRight(getTasks()), runPromise),
+              datumEither.isPending(deleteResult) || isRefreshing
             )}
-            addNewStep={withLoading(
-              flow(addNewTaskStep(selectedTask), T.asUnit, runPromise),
-              updateResult.loading || tasksResult.loading
-            )}
-            deleteStep={withLoading(
-              flow(deleteTaskStep(selectedTask), runPromise),
-              updateResult.loading || tasksResult.loading
+            toggleTaskChecked={withLoading(
+              flow(toggleTaskChecked, runPromise),
+              isUpdatingTask || isRefreshing
             )}
           />
-        )}
-      </div>
-    </Container>
-  )
+        </div>
+
+        <div>
+          {selectedTask && (
+            <TaskDetail
+              task={selectedTask}
+              toggleChecked={withLoading(
+                () => toggleTaskChecked(selectedTask)["|>"](runPromise),
+                isUpdatingTask || isRefreshing
+              )}
+              toggleStepChecked={withLoading(
+                flow(toggleTaskStepChecked(selectedTask), runPromise),
+                isUpdatingTask || isRefreshing
+              )}
+              addNewStep={withLoading(
+                flow(addNewTaskStep(selectedTask), T.asUnit, runPromise),
+                isUpdatingTask || isRefreshing
+              )}
+              deleteStep={withLoading(
+                flow(deleteTaskStep(selectedTask), runPromise),
+                isUpdatingTask || isRefreshing
+              )}
+            />
+          )}
+        </div>
+      </Container>
+    )
+  }
+
+  return datumEither.fold(
+    () => render([] as A.Array<Todo.Task>),
+    () => render([] as A.Array<Todo.Task>),
+    (err) => <>{"Error Refreshing tasks: " + err}</>,
+    render,
+    (err) => <>{"Error Loading tasks: " + err}</>,
+    render
+  )(tasksResult)
 }
 
 export default Tasks

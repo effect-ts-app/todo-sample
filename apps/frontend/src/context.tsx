@@ -6,6 +6,7 @@ import { pretty } from "@effect-ts/core/Effect/Cause"
 import * as L from "@effect-ts/core/Effect/Layer"
 import { Exit } from "@effect-ts/system/Exit"
 import { Semaphore } from "@effect-ts/system/Semaphore"
+import { datumEither } from "@nll/datum"
 import React, { createContext, ReactNode, useContext, useEffect, useMemo } from "react"
 
 import { useConfig } from "./config"
@@ -81,14 +82,16 @@ function runPromiseWithErrorLog<E, A>(self: T.Effect<unknown, E, A>) {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Result<E = any, A = any> = { loading: boolean; error: E | null; data: A }
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type Fetcher<E = any, Err = any, A = any, B = any, Fnc = any> = {
+export type Fetcher<E = any, Err = any, A = any, Fnc = any> = {
   cancel: () => void
   fetch: Fnc
   fiber: Fiber.FiberContext<E, A> | null
-  result: Result<Err, A | B>
-  listeners: readonly ((result: Result<Err, A | B>) => void)[]
+  result: datumEither.DatumEither<Err, A>
+  latestSuccess: datumEither.DatumEither<Err, A>
+  listeners: readonly ((
+    result: datumEither.DatumEither<Err, A>,
+    latestSuccess: datumEither.DatumEither<Err, A>
+  ) => void)[]
   sync: Semaphore
 }
 
