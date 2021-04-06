@@ -107,11 +107,11 @@
 		{
 			"name": "Update Task",
 			"request": {
-				"method": "POST",
+				"method": "PATCH",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"title\": \"Howdy hooo\",\n    \"completed\": true,\n    \"steps\": []\n}",
+					"raw": "{\n    \"title\": \"Howdy hooo---\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
