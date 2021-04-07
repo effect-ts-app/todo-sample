@@ -59,13 +59,9 @@ const Loading = styled.div`
   position: fixed;
 `
 
-function Tasks() {
+function Tasks({ tasks }: { tasks: A.Array<Todo.Task> }) {
   const { runPromise } = useServiceContext()
-
-  const [tasksResult, , getTasks] = useTasks()
-  useTasks()
-  useTasks()
-  useTasks()
+  const [tasksResult, , refetchTasks] = useTasks()
   const [newResult, addNewTask] = useNewTask()
   const [deleteResult, deleteTask] = useDeleteTask()
   const [updateResult, updateTask] = useUpdateTask()
@@ -76,7 +72,7 @@ function Tasks() {
     return pipe(
       T.effectTotal(() => t["|>"](Todo.Task.toggleCompleted)),
       T.chain(updateTask),
-      T.zipRight(getTasks())
+      T.zipRight(refetchTasks())
     )
   }
 
@@ -85,7 +81,7 @@ function Tasks() {
       pipe(
         T.effectTotal(() => t["|>"](Todo.Task.toggleStepCompleted(s))),
         T.chain(updateTask),
-        T.zipRight(getTasks())
+        T.zipRight(refetchTasks())
       )
   }
 
@@ -94,7 +90,7 @@ function Tasks() {
       NonEmptyString.parse,
       T.map((title) => t["|>"](Todo.Task.addStep(title))),
       T.chain(updateTask),
-      T.zipRight(getTasks()["|>"](T.forkDaemon))
+      T.zipRight(refetchTasks()["|>"](T.forkDaemon))
     )
   }
 
@@ -103,83 +99,91 @@ function Tasks() {
       pipe(
         T.effectTotal(() => t["|>"](Todo.Task.deleteStep(s))),
         T.chain(updateTask),
-        T.zipRight(getTasks())
+        T.zipRight(refetchTasks())
       )
   }
 
-  function render(tasks: A.Array<Todo.Task>) {
-    const selectedTask = tasks.find((x) => x.id === selectedTaskId)
-    const isRefreshing = datumEither.isRefresh(tasksResult)
-    const isUpdatingTask = datumEither.isPending(updateResult)
+  const selectedTask = tasks.find((x) => x.id === selectedTaskId)
+  const isRefreshing = datumEither.isRefresh(tasksResult)
+  const isUpdatingTask = datumEither.isPending(updateResult)
 
-    return (
-      <Container>
+  return (
+    <Container>
+      <div>
         <div>
-          <div>
-            <h1>Tasks</h1>
-          </div>
-          {isRefreshing && <Loading>Loading Tasks...</Loading>}
-          {/*tasksResult.error && "Error Loading tasks: " + tasksResult.error} */}
+          <h1>Tasks</h1>
+        </div>
+        {isRefreshing && <Loading>Refreshing..</Loading>}
+        {/*tasksResult.error && "Error Loading tasks: " + tasksResult.error} */}
 
-          <TaskList
-            tasks={tasks}
-            setSelectedTask={(t: Todo.Task) => setSelectedTaskId(t.id)}
-            addTask={withLoading(
-              flow(
-                addNewTask,
-                T.tap(getTasks),
-                T.map((r) => setSelectedTaskId(r.id)),
-                runPromise
-              ),
-              datumEither.isPending(newResult) || isRefreshing
+        <TaskList
+          tasks={tasks}
+          setSelectedTask={(t: Todo.Task) => setSelectedTaskId(t.id)}
+          addTask={withLoading(
+            flow(
+              addNewTask,
+              T.tap(refetchTasks),
+              T.map((r) => setSelectedTaskId(r.id)),
+              runPromise
+            ),
+            datumEither.isPending(newResult) || isRefreshing
+          )}
+          deleteTask={withLoading(
+            (t: Todo.Task) =>
+              pipe(deleteTask(t.id), T.zipRight(refetchTasks()), runPromise),
+            datumEither.isPending(deleteResult) || isRefreshing
+          )}
+          toggleTaskChecked={withLoading(
+            flow(toggleTaskChecked, runPromise),
+            isUpdatingTask || isRefreshing
+          )}
+        />
+      </div>
+
+      <div>
+        {selectedTask && (
+          <TaskDetail
+            task={selectedTask}
+            toggleChecked={withLoading(
+              () => toggleTaskChecked(selectedTask)["|>"](runPromise),
+              isUpdatingTask || isRefreshing
             )}
-            deleteTask={withLoading(
-              (t: Todo.Task) =>
-                pipe(deleteTask(t.id), T.zipRight(getTasks()), runPromise),
-              datumEither.isPending(deleteResult) || isRefreshing
+            toggleStepChecked={withLoading(
+              flow(toggleTaskStepChecked(selectedTask), runPromise),
+              isUpdatingTask || isRefreshing
             )}
-            toggleTaskChecked={withLoading(
-              flow(toggleTaskChecked, runPromise),
+            addNewStep={withLoading(
+              flow(addNewTaskStep(selectedTask), T.asUnit, runPromise),
+              isUpdatingTask || isRefreshing
+            )}
+            deleteStep={withLoading(
+              flow(deleteTaskStep(selectedTask), runPromise),
               isUpdatingTask || isRefreshing
             )}
           />
-        </div>
-
-        <div>
-          {selectedTask && (
-            <TaskDetail
-              task={selectedTask}
-              toggleChecked={withLoading(
-                () => toggleTaskChecked(selectedTask)["|>"](runPromise),
-                isUpdatingTask || isRefreshing
-              )}
-              toggleStepChecked={withLoading(
-                flow(toggleTaskStepChecked(selectedTask), runPromise),
-                isUpdatingTask || isRefreshing
-              )}
-              addNewStep={withLoading(
-                flow(addNewTaskStep(selectedTask), T.asUnit, runPromise),
-                isUpdatingTask || isRefreshing
-              )}
-              deleteStep={withLoading(
-                flow(deleteTaskStep(selectedTask), runPromise),
-                isUpdatingTask || isRefreshing
-              )}
-            />
-          )}
-        </div>
-      </Container>
-    )
-  }
-
-  return datumEither.fold(
-    () => render([] as A.Array<Todo.Task>),
-    () => render([] as A.Array<Todo.Task>),
-    (err) => <>{"Error Refreshing tasks: " + err}</>,
-    render,
-    (err) => <>{"Error Loading tasks: " + err}</>,
-    render
-  )(tasksResult)
+        )}
+      </div>
+    </Container>
+  )
 }
 
-export default Tasks
+function TasksScreen() {
+  const [tasksResult] = useTasks()
+  // testing for multi-call relying on same network-call/cache.
+  useTasks()
+  useTasks()
+  useTasks()
+
+  return tasksResult["|>"](
+    datumEither.fold(
+      () => <div>Hi there... about to get us some Tasks</div>,
+      () => <div>Getting us some tasks now..</div>,
+      (err) => <>{"Error Refreshing tasks: " + err}</>,
+      (tasks) => <Tasks tasks={tasks} />,
+      (err) => <>{"Error Loading tasks: " + err}</>,
+      (tasks) => <Tasks tasks={tasks} />
+    )
+  )
+}
+
+export default TasksScreen
