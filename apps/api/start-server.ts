@@ -1,6 +1,7 @@
 import * as T from "@effect-ts/core/Effect"
 import { pipe } from "@effect-ts/core/Function"
 import * as Ex from "@effect-ts/express"
+import * as N from "@effect-ts/node/Runtime"
 import { urlencoded, json } from "body-parser"
 import cors from "cors"
 
@@ -20,6 +21,4 @@ const program = pipe(
   T.tap(() => T.never)
 )
 
-pipe(program, T.provideSomeLayer(Ex.LiveExpress(HOST, PORT)), T.runPromiseExit)
-  .then(console.log)
-  .catch(console.error)
+pipe(program, T.provideSomeLayer(Ex.LiveExpress(HOST, PORT)), N.runMain)
