@@ -1,6 +1,11 @@
 import { Exit } from "@effect-ts/core/Effect/Exit"
 import * as O from "@effect-ts/core/Option"
+import Button from "@material-ui/core/Button"
+import TextField from "@material-ui/core/TextField"
+import DatePicker from "@material-ui/lab/DatePicker"
+import DateTimePicker from "@material-ui/lab/DateTimePicker"
 import React, { createRef, useEffect, useState } from "react"
+import styled from "styled-components"
 
 import * as Todo from "./Todo"
 import { Clickable, CompletableEntry, Table } from "./components"
@@ -32,16 +37,26 @@ function NoteEditor({
   )
 }
 
+// TODO: override doesnt work, need to add SC support for MUI
+const StateTextField = styled(TextField)<{ state?: "error" | "warn" | null }>`
+  color: ${(props) =>
+    props.state === "warn" ? "yellow" : props.state === "error" ? "red" : "inherit"};
+`
+
 function TaskDetail({
   addNewStep,
   deleteStep,
   editNote,
+  setDue,
+  setReminder,
   task: t,
   toggleChecked,
   toggleFavorite,
   toggleStepChecked,
 }: {
   task: Todo.Task
+  setDue: WithLoading<(d: Date | null) => Promise<Exit<unknown, unknown>>>
+  setReminder: WithLoading<(d: Date | null) => Promise<Exit<unknown, unknown>>>
   addNewStep: WithLoading<(stepTitle: string) => Promise<Exit<unknown, unknown>>>
   deleteStep: WithLoading<(s: Todo.Step) => void>
   editNote: WithLoading<(note: string | null) => Promise<Exit<unknown, unknown>>>
@@ -89,7 +104,7 @@ function TaskDetail({
               onChange={(evt) => setNewStepTitle(evt.target.value)}
               type="text"
             />
-            <button
+            <Button
               onClick={() =>
                 addNewStep(newStepTitle).then(
                   (r) => r._tag === "Success" && setNewStepTitle("")
@@ -98,7 +113,7 @@ function TaskDetail({
               disabled={!newStepTitle.length || addNewStep.loading}
             >
               add step
-            </button>
+            </Button>
           </form>
         </div>
         <Table>
@@ -115,9 +130,9 @@ function TaskDetail({
                 </td>
                 <td>{s.title}</td>
                 <td>
-                  <button disabled={deleteStep.loading} onClick={() => deleteStep(s)}>
+                  <Button disabled={deleteStep.loading} onClick={() => deleteStep(s)}>
                     X
-                  </button>
+                  </Button>
                 </td>
               </CompletableEntry>
             ))}
@@ -126,6 +141,48 @@ function TaskDetail({
       </div>
 
       <div>
+        <div>
+          <h3>Reminder</h3>
+          {
+            <DateTimePicker
+              disabled={setReminder.loading}
+              renderInput={(p) => (
+                <StateTextField
+                  state={t.reminder["|>"](
+                    O.chain((d) => (d < new Date() ? O.some("error" as const) : O.none))
+                  )["|>"](O.toNullable)}
+                  {...p}
+                />
+              )}
+              value={O.toNullable(t.reminder)}
+              onChange={(value) => {
+                setReminder(value)
+              }}
+            />
+          }
+        </div>
+
+        <div>
+          <h3>Due Date</h3>
+          {
+            <DatePicker
+              disabled={setDue.loading}
+              renderInput={(p) => (
+                <StateTextField
+                  state={t.due["|>"](
+                    O.chain((d) => (d < new Date() ? O.some("error" as const) : O.none))
+                  )["|>"](O.toNullable)}
+                  {...p}
+                />
+              )}
+              value={O.toNullable(t.due)}
+              onChange={(value) => {
+                setDue(value)
+              }}
+            />
+          }
+        </div>
+
         <h3>Note</h3>
         {!noteEdit && (
           <Clickable onClick={() => setNoteEdit(true)}>

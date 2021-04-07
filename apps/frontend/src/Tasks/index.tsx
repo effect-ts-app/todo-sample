@@ -104,6 +104,26 @@ function Tasks({ tasks }: { tasks: A.Array<Todo.Task> }) {
     )
   }
 
+  function setDue(t: Todo.Task) {
+    return (date: Date | null) =>
+      pipe(
+        O.fromNullable(date),
+        EO.fromOption,
+        T.chain((due) => updateTask({ id: t.id, due })),
+        T.zipRight(refetchTasks())
+      )
+  }
+
+  function setReminder(t: Todo.Task) {
+    return (date: Date | null) =>
+      pipe(
+        O.fromNullable(date),
+        EO.fromOption,
+        T.chain((reminder) => updateTask({ id: t.id, reminder })),
+        T.zipRight(refetchTasks())
+      )
+  }
+
   function editNote(t: Todo.Task) {
     return (note: string | null) =>
       pipe(
@@ -174,6 +194,14 @@ function Tasks({ tasks }: { tasks: A.Array<Todo.Task> }) {
             )}
             toggleStepChecked={withLoading(
               flow(toggleTaskStepChecked(selectedTask), runPromise),
+              isUpdatingTask || isRefreshing
+            )}
+            setDue={withLoading(
+              flow(setDue(selectedTask), runPromise),
+              isUpdatingTask || isRefreshing
+            )}
+            setReminder={withLoading(
+              flow(setReminder(selectedTask), runPromise),
               isUpdatingTask || isRefreshing
             )}
             editNote={withLoading(

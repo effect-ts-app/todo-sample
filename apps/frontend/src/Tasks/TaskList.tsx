@@ -1,6 +1,7 @@
 import * as A from "@effect-ts-demo/todo-types/ext/Array"
 import * as O from "@effect-ts/core/Option"
 import { Exit } from "@effect-ts/system/Exit"
+import Button from "@material-ui/core/Button"
 import React, { useState } from "react"
 
 import * as Todo from "./Todo"
@@ -59,9 +60,9 @@ function TaskList({
                 {makeStepCount(t.steps)}
               </td>
               <td>
-                <button disabled={deleteTask.loading} onClick={() => deleteTask(t)}>
+                <Button disabled={deleteTask.loading} onClick={() => deleteTask(t)}>
                   X
-                </button>
+                </Button>
               </td>
             </CompletableEntry>
           ))}
@@ -78,7 +79,7 @@ function TaskList({
             onChange={(evt) => setNewTaskTitle(evt.target.value)}
             type="text"
           />
-          <button
+          <Button
             onClick={() =>
               addTask(newTaskTitle).then(
                 (x) => x._tag === "Success" && setNewTaskTitle("")
@@ -87,7 +88,7 @@ function TaskList({
             disabled={!newTaskTitle.length || addTask.loading}
           >
             create task
-          </button>
+          </Button>
         </form>
       </div>
 

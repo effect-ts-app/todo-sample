@@ -1,3 +1,5 @@
+import AdapterDateFns from "@material-ui/lab/AdapterDateFns"
+import LocalizationProvider from "@material-ui/lab/LocalizationProvider"
 import React from "react"
 import ReactDOM from "react-dom"
 
@@ -8,12 +10,14 @@ import reportWebVitals from "./reportWebVitals"
 
 ReactDOM.render(
   <React.StrictMode>
-    <LiveServiceContext>
-      <LiveFetchContext>
-        <GlobalStyle />
-        <App />
-      </LiveFetchContext>
-    </LiveServiceContext>
+    <LocalizationProvider dateAdapter={AdapterDateFns}>
+      <LiveServiceContext>
+        <LiveFetchContext>
+          <GlobalStyle />
+          <App />
+        </LiveFetchContext>
+      </LiveServiceContext>
+    </LocalizationProvider>
   </React.StrictMode>,
   document.getElementById("root")
 )
