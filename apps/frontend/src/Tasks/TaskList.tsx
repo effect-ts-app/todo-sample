@@ -33,28 +33,10 @@ function TaskList({
   tasks: A.Array<Todo.Task>
 }) {
   const [newTaskTitle, setNewTaskTitle] = useState("")
-  return (
-    <>
-      <div>
-        <form>
-          <input
-            value={newTaskTitle}
-            onChange={(evt) => setNewTaskTitle(evt.target.value)}
-            type="text"
-          />
-          <button
-            onClick={() =>
-              addTask(newTaskTitle).then(
-                (x) => x._tag === "Success" && setNewTaskTitle("")
-              )
-            }
-            disabled={!newTaskTitle.length || addTask.loading}
-          >
-            create task
-          </button>
-        </form>
-      </div>
+  const completedTasks = tasks["|>"](A.filter((x) => O.isSome(x.completed)))
 
+  function makeTasksTable(tasks: A.Array<Todo.Task>) {
+    return (
       <Table>
         <tbody>
           {tasks.map((t) => (
@@ -85,6 +67,38 @@ function TaskList({
           ))}
         </tbody>
       </Table>
+    )
+  }
+  return (
+    <>
+      <div>
+        <form>
+          <input
+            value={newTaskTitle}
+            onChange={(evt) => setNewTaskTitle(evt.target.value)}
+            type="text"
+          />
+          <button
+            onClick={() =>
+              addTask(newTaskTitle).then(
+                (x) => x._tag === "Success" && setNewTaskTitle("")
+              )
+            }
+            disabled={!newTaskTitle.length || addTask.loading}
+          >
+            create task
+          </button>
+        </form>
+      </div>
+
+      {makeTasksTable(tasks["|>"](A.filter((x) => !O.isSome(x.completed))))}
+
+      {Boolean(completedTasks.length) && (
+        <div>
+          <h3>Completed</h3>
+          {makeTasksTable(completedTasks)}
+        </div>
+      )}
     </>
   )
 }
