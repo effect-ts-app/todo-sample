@@ -170,16 +170,32 @@ export function useQuery<R, E, A, Args extends ReadonlyArray<unknown>>(
                 console.log("Joining existing fiber", f.id)
                 return f
               })
-            : pipe(
-                ff(...args),
-                T.fork,
-                T.tap((f) =>
-                  T.effectTotal(() => {
-                    console.log("setting fiber", f.id)
-                    getFetcher().fiber = f
-                  })
-                )
-              )
+            : (() => {
+                const r = getFetcher().result
+                return !datumEither.isInitial(r) && !datumEither.isPending(r)
+                  ? T.fork(
+                      pipe(
+                        T.effectTotal(() => {
+                          console.log("using existing value", r)
+                        }),
+                        T.zipRight(
+                          datumEither.isFailure(r)
+                            ? T.fail(r.value.left)
+                            : T.succeed((r.value as any).right as A)
+                        )
+                      )
+                    )
+                  : pipe(
+                      ff(...args),
+                      T.fork,
+                      T.tap((f) =>
+                        T.effectTotal(() => {
+                          console.log("setting fiber", f.id)
+                          getFetcher().fiber = f
+                        })
+                      )
+                    )
+              })()
         ),
 
         Semaphore.withPermit(getFetcher().sync),
