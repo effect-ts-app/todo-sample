@@ -7,9 +7,10 @@ import { Lens } from "@effect-ts/monocle"
 
 const stepCompleted = Todo.Step.lens["|>"](Lens.prop("completed"))
 
+export const toggleBoolean = Lens.modify<boolean>((x) => !x)
 export const Step = Object.assign({}, Todo.Step, {
   create: (title: NonEmptyString) => Todo.Step.build({ title, completed: false }),
-  toggleCompleted: stepCompleted["|>"](Lens.modify((x) => !x)),
+  toggleCompleted: stepCompleted["|>"](toggleBoolean),
 })
 export type Step = Todo.Step
 
@@ -23,6 +24,7 @@ export const Task = Object.assign({}, Todo.Task, {
   toggleCompleted: Todo.Task.lens["|>"](Lens.prop("completed"))["|>"](
     Lens.modify((x) => (O.isSome(x) ? O.none : O.some(new Date())))
   ),
+  toggleFavorite: Todo.Task.lens["|>"](Lens.prop("isFavorite"))["|>"](toggleBoolean),
   toggleStepCompleted: (s: Todo.Step) =>
     taskSteps["|>"](Lens.modify(toggleStepCompleted(s))),
 })

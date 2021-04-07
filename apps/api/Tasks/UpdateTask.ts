@@ -10,7 +10,9 @@ export const handle = (_: Request) =>
   pipe(
     TaskContext.get(_.id),
     T.map(
-      Task.lens["|>"](Lens.props("completed", "steps", "title", "updatedAt"))["|>"](
+      Task.lens["|>"](
+        Lens.props("completed", "steps", "title", "updatedAt", "isFavorite", "note")
+      )["|>"](
         Lens.modify((t) => ({
           ...t,
           ..._,

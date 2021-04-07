@@ -26,6 +26,10 @@ const Task_ = make((F) =>
 
     title: NonEmptyString(F),
     completed: Completed(F),
+    isFavorite: F.boolean(),
+
+    due: F.nullable(F.date()),
+    reminder: F.nullable(F.date()),
     note: F.nullable(NonEmptyString(F)),
     steps: Steps(F),
   })
@@ -35,13 +39,17 @@ export interface Task extends AType<typeof Task_> {}
 export interface TaskE extends EType<typeof Task_> {}
 const TaskO = opaque<TaskE, Task>()(Task_)
 export const Task = Object.assign(TaskO, {
-  create: (a: Omit<Task, "id" | "createdAt" | "updatedAt" | "completed">) => {
+  create: (a: Pick<Task, "title" | "steps">) => {
     const createdAt = new Date()
     return Task.build({
       ...a,
       createdAt,
       updatedAt: createdAt,
       completed: O.none,
+      due: O.none,
+      isFavorite: false,
+      note: O.none,
+      reminder: O.none,
       id: makeUuid(),
     })
   },

@@ -78,6 +78,14 @@ function Tasks({ tasks }: { tasks: A.Array<Todo.Task> }) {
     )
   }
 
+  function toggleTaskFavorite(t: Todo.Task) {
+    return pipe(
+      T.effectTotal(() => t["|>"](Todo.Task.toggleFavorite)),
+      T.chain(updateTask),
+      T.zipRight(refetchTasks())
+    )
+  }
+
   function toggleTaskStepChecked(t: Todo.Task) {
     return (s: Todo.Step) =>
       pipe(
@@ -103,7 +111,7 @@ function Tasks({ tasks }: { tasks: A.Array<Todo.Task> }) {
         EO.fromOption,
         EO.chain(flow(NonEmptyString.parse, EO.fromEffect)),
         T.chain((note) => updateTask({ id: t.id, note })),
-        T.zipRight(refetchTasks()["|>"](T.forkDaemon))
+        T.zipRight(refetchTasks())
       )
   }
 
@@ -127,7 +135,6 @@ function Tasks({ tasks }: { tasks: A.Array<Todo.Task> }) {
           <h1>Tasks</h1>
         </div>
         {isRefreshing && <Loading>Refreshing..</Loading>}
-        {/*tasksResult.error && "Error Loading tasks: " + tasksResult.error} */}
 
         <TaskList
           tasks={tasks}
@@ -159,6 +166,10 @@ function Tasks({ tasks }: { tasks: A.Array<Todo.Task> }) {
             task={selectedTask}
             toggleChecked={withLoading(
               () => toggleTaskChecked(selectedTask)["|>"](runPromise),
+              isUpdatingTask || isRefreshing
+            )}
+            toggleFavorite={withLoading(
+              () => toggleTaskFavorite(selectedTask)["|>"](runPromise),
               isUpdatingTask || isRefreshing
             )}
             toggleStepChecked={withLoading(
@@ -195,9 +206,9 @@ function TasksScreen() {
     datumEither.fold(
       () => <div>Hi there... about to get us some Tasks</div>,
       () => <div>Getting us some tasks now..</div>,
-      (err) => <>{"Error Refreshing tasks: " + err}</>,
+      (err) => <>{"Error Refreshing tasks: " + JSON.stringify(err)}</>,
       (tasks) => <Tasks tasks={tasks} />,
-      (err) => <>{"Error Loading tasks: " + err}</>,
+      (err) => <>{"Error Loading tasks: " + JSON.stringify(err)}</>,
       (tasks) => <Tasks tasks={tasks} />
     )
   )

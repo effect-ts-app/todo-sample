@@ -8,9 +8,11 @@ import { WithLoading } from "./utils"
 
 function NoteEditor({
   initialValue,
+  loading,
   onChange,
 }: {
   onChange: (note: string) => void
+  loading: boolean
   initialValue: string
 }) {
   const editor = createRef<HTMLTextAreaElement>()
@@ -23,6 +25,7 @@ function NoteEditor({
     <textarea
       ref={editor}
       value={note}
+      disabled={loading}
       onBlur={() => onChange(note)}
       onChange={(evt) => setNote(evt.target.value)}
     />
@@ -35,6 +38,7 @@ function TaskDetail({
   editNote,
   task: t,
   toggleChecked,
+  toggleFavorite,
   toggleStepChecked,
 }: {
   task: Todo.Task
@@ -43,6 +47,7 @@ function TaskDetail({
   editNote: WithLoading<(note: string | null) => Promise<Exit<unknown, unknown>>>
   toggleChecked: WithLoading<() => void>
   toggleStepChecked: WithLoading<(s: Todo.Step) => void>
+  toggleFavorite: WithLoading<() => void>
 }) {
   const [newStepTitle, setNewStepTitle] = useState("")
   const [noteEdit, setNoteEdit] = useState(false)
@@ -67,12 +72,20 @@ function TaskDetail({
         />
         &nbsp;
         {t.title}
+        &nbsp;
+        <input
+          type="checkbox"
+          disabled={toggleChecked.loading}
+          checked={t.isFavorite}
+          onChange={() => toggleFavorite()}
+        />
       </CompletableEntry>
       <div>
         <div>
           <form>
             <input
               value={newStepTitle}
+              disabled={addNewStep.loading}
               onChange={(evt) => setNewStepTitle(evt.target.value)}
               type="text"
             />
@@ -121,6 +134,7 @@ function TaskDetail({
         )}
         {noteEdit && (
           <NoteEditor
+            loading={editNote.loading}
             initialValue={O.toNullable(t.note) ?? ""}
             onChange={(note) => {
               editNote(note ? note : null).then(

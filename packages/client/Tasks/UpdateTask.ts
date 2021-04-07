@@ -10,6 +10,10 @@ const Request_ = make((F) =>
     {
       title: NonEmptyString(F),
       completed: Completed(F),
+      isFavorite: F.boolean(),
+
+      due: F.nullable(F.date()),
+      reminder: F.nullable(F.date()),
       note: F.nullable(NonEmptyString(F)),
       steps: Steps(F),
     }
