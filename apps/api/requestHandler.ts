@@ -21,6 +21,16 @@ function parseRequestParams<A>(decodeRequest: Decode<A>) {
   return (req: express.Request) =>
     pipe(
       T.effectTotal(() => ({ ...req.query, ...req.body, ...req.params })),
+      T.tap((pars) =>
+        T.effectTotal(() =>
+          console.log(
+            `${new Date().toISOString()} ${req.method} ${
+              req.originalUrl
+            } processing request`,
+            pars
+          )
+        )
+      ),
       T.chain(decodeRequest),
       T.mapError((err) => new ValidationError(err))
     )
