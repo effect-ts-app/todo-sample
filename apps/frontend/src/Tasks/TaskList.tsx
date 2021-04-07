@@ -80,6 +80,7 @@ function TaskList({
             type="text"
           />
           <Button
+            type="submit"
             onClick={() =>
               addTask(newTaskTitle).then(
                 (x) => x._tag === "Success" && setNewTaskTitle("")

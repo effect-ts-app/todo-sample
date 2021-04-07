@@ -105,6 +105,7 @@ function TaskDetail({
               type="text"
             />
             <Button
+              type="submit"
               onClick={() =>
                 addNewStep(newStepTitle).then(
                   (r) => r._tag === "Success" && setNewStepTitle("")
