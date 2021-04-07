@@ -2,6 +2,7 @@ import * as Todo from "@effect-ts-demo/todo-types"
 import * as A from "@effect-ts-demo/todo-types/ext/Array"
 import { NonEmptyString } from "@effect-ts-demo/todo-types/shared"
 import { flow } from "@effect-ts/core/Function"
+import * as O from "@effect-ts/core/Option"
 import { Lens } from "@effect-ts/monocle"
 
 const stepCompleted = Todo.Step.lens["|>"](Lens.prop("completed"))
@@ -20,7 +21,7 @@ export const Task = Object.assign({}, Todo.Task, {
     taskSteps["|>"](Lens.modify(createAndAddStep(stepTitle))),
   deleteStep: (s: Step) => taskSteps["|>"](Lens.modify(A.deleteOrOriginal(s))),
   toggleCompleted: Todo.Task.lens["|>"](Lens.prop("completed"))["|>"](
-    Lens.modify((x) => !x)
+    Lens.modify((x) => (O.isSome(x) ? O.none : O.some(new Date())))
   ),
   toggleStepCompleted: (s: Todo.Step) =>
     taskSteps["|>"](Lens.modify(toggleStepCompleted(s))),

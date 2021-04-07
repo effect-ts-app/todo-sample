@@ -1,4 +1,5 @@
 import { Exit } from "@effect-ts/core/Effect/Exit"
+import * as O from "@effect-ts/core/Option"
 import React, { useState } from "react"
 
 import * as Todo from "./Todo"
@@ -21,11 +22,15 @@ function TaskDetail({
   const [newStepTitle, setNewStepTitle] = useState("")
   return (
     <>
-      <CompletableEntry as="h2" completed={t.completed} style={{ textAlign: "left" }}>
+      <CompletableEntry
+        as="h2"
+        completed={O.isSome(t.completed)}
+        style={{ textAlign: "left" }}
+      >
         <input
           type="checkbox"
           disabled={toggleChecked.loading}
-          checked={t.completed}
+          checked={O.isSome(t.completed)}
           onChange={() => toggleChecked()}
         />
         &nbsp;
@@ -76,11 +81,20 @@ function TaskDetail({
       </div>
 
       <hr />
+      {O.isSome(t.completed) && (
+        <div>Completed: {t.completed.value.toLocaleDateString()}</div>
+      )}
       <div>
-        <i>Updated: {t.updatedAt.toISOString()}</i>
+        <i>
+          Updated: {t.updatedAt.toLocaleDateString()} at{" "}
+          {t.updatedAt.toLocaleTimeString()}
+        </i>
       </div>
       <div>
-        <i>Created: {t.createdAt.toISOString()}</i>
+        <i>
+          Created: {t.createdAt.toLocaleDateString()} at{" "}
+          {t.createdAt.toLocaleTimeString()}
+        </i>
       </div>
       <div>
         <i>Id: {t.id}</i>

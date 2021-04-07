@@ -1,4 +1,4 @@
-import { Step } from "@effect-ts-demo/todo-types"
+import { Completed, Steps } from "@effect-ts-demo/todo-types"
 import { NonEmptyString, Void } from "@effect-ts-demo/todo-types/shared"
 import { make, AType, EType, opaque } from "@effect-ts/morphic"
 
@@ -9,8 +9,8 @@ const Request_ = make((F) =>
     },
     {
       title: NonEmptyString(F),
-      completed: F.boolean(),
-      steps: F.array(Step(F)),
+      completed: Completed(F),
+      steps: Steps(F),
     }
   )
 )

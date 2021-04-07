@@ -1,3 +1,4 @@
+import * as O from "@effect-ts/core/Option"
 import * as Lens from "@effect-ts/monocle/Lens"
 import { AType, EType, make, opaque } from "@effect-ts/morphic"
 
@@ -14,6 +15,9 @@ export const Step = Object.assign(StepO, {
   complete: StepO.lens["|>"](Lens.prop("completed")).set(true),
 })
 
+export const Steps = make((F) => F.array(Step(F)))
+export const Completed = make((F) => F.nullable(F.date()))
+
 const Task_ = make((F) =>
   F.interface({
     id: F.uuid(),
@@ -21,8 +25,8 @@ const Task_ = make((F) =>
     updatedAt: F.date(),
 
     title: NonEmptyString(F),
-    completed: F.boolean(),
-    steps: F.array(Step(F)),
+    completed: Completed(F),
+    steps: Steps(F),
   })
 )
 
@@ -36,9 +40,9 @@ export const Task = Object.assign(TaskO, {
       ...a,
       createdAt,
       updatedAt: createdAt,
-      completed: false,
+      completed: O.none,
       id: makeUuid(),
     })
   },
-  complete: TaskO.lens["|>"](Lens.prop("completed")).set(true),
+  complete: TaskO.lens["|>"](Lens.prop("completed")).set(O.some(new Date())),
 })

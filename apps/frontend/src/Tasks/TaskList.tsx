@@ -1,4 +1,5 @@
 import * as A from "@effect-ts-demo/todo-types/ext/Array"
+import * as O from "@effect-ts/core/Option"
 import { Exit } from "@effect-ts/system/Exit"
 import React, { useState } from "react"
 
@@ -59,13 +60,13 @@ function TaskList({
           {tasks.map((t) => (
             <CompletableEntry
               key={t.id}
-              completed={t.completed}
+              completed={O.isSome(t.completed)}
               onClick={() => setSelectedTask(t)}
             >
               <td>
                 <input
                   type="checkbox"
-                  checked={t.completed}
+                  checked={O.isSome(t.completed)}
                   disabled={toggleTaskChecked.loading}
                   onChange={() => toggleTaskChecked(t)}
                 />
