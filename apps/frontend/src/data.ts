@@ -143,13 +143,15 @@ export function useQuery<R, E, A, Args extends ReadonlyArray<unknown>>(
           Ex.foldM(
             (cause) => {
               console.warn("exiting on cause", cause)
-              const f = getFetcher()
-              f.fiber = null
+              // let's leave the error fiber, so that subsequent requests can share the result
+              //   const f = getFetcher()
+              //   f.fiber = null
               return T.halt(cause)
             },
             (v) => {
-              const f = getFetcher()
-              f.fiber = null
+              // let's leave the success fiber, so that subsequent requests can share the result
+              //   const f = getFetcher()
+              //   f.fiber = null
               return T.succeed(v)
             }
           )
@@ -170,32 +172,16 @@ export function useQuery<R, E, A, Args extends ReadonlyArray<unknown>>(
                 console.log("Joining existing fiber", f.id)
                 return f
               })
-            : (() => {
-                const r = getFetcher().result
-                return !datumEither.isInitial(r) && !datumEither.isPending(r)
-                  ? T.fork(
-                      pipe(
-                        T.effectTotal(() => {
-                          console.log("using existing value", r)
-                        }),
-                        T.zipRight(
-                          datumEither.isFailure(r)
-                            ? T.fail(r.value.left)
-                            : T.succeed((r.value as any).right as A)
-                        )
-                      )
-                    )
-                  : pipe(
-                      ff(...args),
-                      T.fork,
-                      T.tap((f) =>
-                        T.effectTotal(() => {
-                          console.log("setting fiber", f.id)
-                          getFetcher().fiber = f
-                        })
-                      )
-                    )
-              })()
+            : pipe(
+                ff(...args),
+                T.fork,
+                T.tap((f) =>
+                  T.effectTotal(() => {
+                    console.log("setting fiber", f.id)
+                    getFetcher().fiber = f
+                  })
+                )
+              )
         ),
 
         Semaphore.withPermit(getFetcher().sync),
