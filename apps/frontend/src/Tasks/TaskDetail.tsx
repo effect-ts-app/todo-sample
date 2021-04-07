@@ -1,14 +1,38 @@
 import { Exit } from "@effect-ts/core/Effect/Exit"
 import * as O from "@effect-ts/core/Option"
-import React, { useState } from "react"
+import React, { createRef, useEffect, useState } from "react"
 
 import * as Todo from "./Todo"
-import { CompletableEntry, Table } from "./components"
+import { Clickable, CompletableEntry, Table } from "./components"
 import { WithLoading } from "./utils"
+
+function NoteEditor({
+  initialValue,
+  onChange,
+}: {
+  onChange: (note: string) => void
+  initialValue: string
+}) {
+  const editor = createRef<HTMLTextAreaElement>()
+  useEffect(() => {
+    editor?.current?.focus()
+  }, [])
+  const [note, setNote] = useState(initialValue)
+
+  return (
+    <textarea
+      ref={editor}
+      value={note}
+      onBlur={() => onChange(note)}
+      onChange={(evt) => setNote(evt.target.value)}
+    />
+  )
+}
 
 function TaskDetail({
   addNewStep,
   deleteStep,
+  editNote,
   task: t,
   toggleChecked,
   toggleStepChecked,
@@ -16,10 +40,18 @@ function TaskDetail({
   task: Todo.Task
   addNewStep: WithLoading<(stepTitle: string) => Promise<Exit<unknown, unknown>>>
   deleteStep: WithLoading<(s: Todo.Step) => void>
+  editNote: WithLoading<(note: string | null) => Promise<Exit<unknown, unknown>>>
   toggleChecked: WithLoading<() => void>
   toggleStepChecked: WithLoading<(s: Todo.Step) => void>
 }) {
   const [newStepTitle, setNewStepTitle] = useState("")
+  const [noteEdit, setNoteEdit] = useState(false)
+
+  useEffect(() => {
+    setNewStepTitle("")
+    setNoteEdit(false)
+  }, [t])
+
   return (
     <>
       <CompletableEntry
@@ -80,20 +112,35 @@ function TaskDetail({
         </Table>
       </div>
 
+      <div>
+        <h3>Note</h3>
+        {!noteEdit && (
+          <Clickable onClick={() => setNoteEdit(true)}>
+            <pre>{O.toNullable(t.note) ?? "Add note"}</pre>
+          </Clickable>
+        )}
+        {noteEdit && (
+          <NoteEditor
+            initialValue={O.toNullable(t.note) ?? ""}
+            onChange={(note) => {
+              editNote(note ? note : null).then(
+                (x) => x._tag === "Success" && setNoteEdit(false)
+              )
+            }}
+          />
+        )}
+      </div>
+
       <hr />
-      {O.isSome(t.completed) && (
+      {O.isSome(t.completed) ? (
         <div>Completed: {t.completed.value.toLocaleDateString()}</div>
+      ) : (
+        <div>Created: {t.createdAt.toLocaleDateString()} at </div>
       )}
       <div>
         <i>
           Updated: {t.updatedAt.toLocaleDateString()} at{" "}
           {t.updatedAt.toLocaleTimeString()}
-        </i>
-      </div>
-      <div>
-        <i>
-          Created: {t.createdAt.toLocaleDateString()} at{" "}
-          {t.createdAt.toLocaleTimeString()}
         </i>
       </div>
       <div>

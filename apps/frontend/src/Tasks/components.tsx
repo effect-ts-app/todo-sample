@@ -7,6 +7,14 @@ export const Table = styled.table`
   }
 `
 
+export const Clickable = styled.div`
+  ${({ onClick }) =>
+    onClick &&
+    css`
+      cursor: pointer;
+    `}
+`
+
 export const CompletableEntry = styled.tr<{ completed: boolean }>`
   ${({ onClick }) =>
     onClick &&

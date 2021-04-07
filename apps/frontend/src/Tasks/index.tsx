@@ -1,8 +1,10 @@
 import * as TodoClient from "@effect-ts-demo/todo-client"
+import * as T from "@effect-ts-demo/todo-types/ext/Effect"
+import * as EO from "@effect-ts-demo/todo-types/ext/EffectOption"
 import { NonEmptyString } from "@effect-ts-demo/todo-types/shared"
 import * as A from "@effect-ts/core/Array"
-import * as T from "@effect-ts/core/Effect"
 import { constant, flow, pipe } from "@effect-ts/core/Function"
+import * as O from "@effect-ts/core/Option"
 import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
 import { datumEither } from "@nll/datum"
 import React, { useEffect, useState } from "react"
@@ -17,7 +19,7 @@ import * as Todo from "./Todo"
 import { withLoading } from "./utils"
 
 const fetchLatestTasks = constant(
-  TodoClient.Tasks.getTasks["|>"](T.map((r) => r.tasks))
+  TodoClient.Tasks.getTasks["|>"](T.map((r) => A.reverse(r.tasks)))
 )
 
 function useTasks() {
@@ -94,6 +96,17 @@ function Tasks({ tasks }: { tasks: A.Array<Todo.Task> }) {
     )
   }
 
+  function editNote(t: Todo.Task) {
+    return (note: string | null) =>
+      pipe(
+        O.fromNullable(note),
+        EO.fromOption,
+        EO.chain(flow(NonEmptyString.parse, EO.fromEffect)),
+        T.chain((note) => updateTask({ id: t.id, note })),
+        T.zipRight(refetchTasks()["|>"](T.forkDaemon))
+      )
+  }
+
   function deleteTaskStep(t: Todo.Task) {
     return (s: Todo.Step) =>
       pipe(
@@ -150,6 +163,10 @@ function Tasks({ tasks }: { tasks: A.Array<Todo.Task> }) {
             )}
             toggleStepChecked={withLoading(
               flow(toggleTaskStepChecked(selectedTask), runPromise),
+              isUpdatingTask || isRefreshing
+            )}
+            editNote={withLoading(
+              flow(editNote(selectedTask), runPromise),
               isUpdatingTask || isRefreshing
             )}
             addNewStep={withLoading(

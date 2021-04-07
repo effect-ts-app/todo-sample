@@ -26,6 +26,7 @@ const Task_ = make((F) =>
 
     title: NonEmptyString(F),
     completed: Completed(F),
+    note: F.nullable(NonEmptyString(F)),
     steps: Steps(F),
   })
 )
