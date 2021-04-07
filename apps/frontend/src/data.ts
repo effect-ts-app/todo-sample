@@ -118,7 +118,7 @@ export function useQuery<R, E, A, Args extends ReadonlyArray<unknown>>(
             ? datumEither.constPending()
             : datumEither.toRefresh(f.result))
           console.log("Loading", r, latestSuccess, f.listeners)
-          f.listeners.forEach((x) => x(result, latestSuccess))
+          f.listeners.forEach((x) => x(r, latestSuccess))
         }),
         T.zipRight(fetchFunction(...args)),
         T.chain((a) =>
@@ -127,7 +127,6 @@ export function useQuery<R, E, A, Args extends ReadonlyArray<unknown>>(
             const r = (f.latestSuccess = f.result = datumEither.success(a))
             console.log(r, f.listeners)
             f.listeners.forEach((x) => x(r, r))
-            f.fiber = null
             return a
           })
         ),
@@ -141,14 +140,19 @@ export function useQuery<R, E, A, Args extends ReadonlyArray<unknown>>(
         }),
         T.result,
         T.chain(
-          Ex.foldM((cause) => {
-            console.warn("exiting on cause", cause)
-            const f = getFetcher()
-            // f.result.loading = false
-            // f.listeners.forEach((x) => x(f.result))
-            f.fiber = null
-            return T.halt(cause)
-          }, T.succeed)
+          Ex.foldM(
+            (cause) => {
+              console.warn("exiting on cause", cause)
+              const f = getFetcher()
+              f.fiber = null
+              return T.halt(cause)
+            },
+            (v) => {
+              const f = getFetcher()
+              f.fiber = null
+              return T.succeed(v)
+            }
+          )
         )
       )
     },
