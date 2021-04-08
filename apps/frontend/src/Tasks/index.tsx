@@ -82,10 +82,20 @@ function Tasks({ tasks }: { tasks: A.Array<Todo.Task> }) {
 
   function toggleTaskFavorite(t: Todo.Task) {
     return pipe(
-      T.effectTotal(() => t["|>"](Todo.Task.toggleFavorite)),
+      T.effectTotal(() => Todo.Task.toggleFavorite(t)),
       T.chain(updateTask),
       T.zipRight(refetchTasks())
     )
+  }
+
+  function updateStepTitle(t: Todo.Task) {
+    return (s: Todo.Step) =>
+      flow(
+        NonEmptyString.parse,
+        T.map(Todo.Task.updateStep(t)(s)),
+        T.chain(updateTask),
+        T.zipRight(refetchTasks())
+      )
   }
 
   function toggleTaskStepChecked(t: Todo.Task) {
@@ -220,6 +230,10 @@ function Tasks({ tasks }: { tasks: A.Array<Todo.Task> }) {
                   )}
                   addNewStep={withLoading(
                     flow(addNewTaskStep(t), T.asUnit, runPromise),
+                    isUpdatingTask || isRefreshing
+                  )}
+                  updateStepTitle={withLoading(
+                    (s: Todo.Step) => flow(updateStepTitle(t)(s), T.asUnit, runPromise),
                     isUpdatingTask || isRefreshing
                   )}
                   deleteStep={withLoading(

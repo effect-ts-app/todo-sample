@@ -3,6 +3,7 @@ import { Fiber, Semaphore } from "@effect-ts/core"
 import * as T from "@effect-ts/core/Effect"
 import { Cause } from "@effect-ts/core/Effect/Cause"
 import * as Ex from "@effect-ts/core/Effect/Exit"
+import { Exit } from "@effect-ts/core/Effect/Exit"
 import { pipe } from "@effect-ts/core/Function"
 import { datumEither } from "@nll/datum"
 import { useState, useCallback, useEffect } from "react"
@@ -248,6 +249,8 @@ export function useQuery<R, E, A, Args extends ReadonlyArray<unknown>>(
 
   return [result, lastSuccess, refetch, exec] as const
 }
+
+export type PromiseExit<E = unknown, A = unknown> = Promise<Exit<E, A>>
 
 export function onFail<E, T>(cb: (a: Cause<E>) => T) {
   return Ex.fold(cb, () => void 0)

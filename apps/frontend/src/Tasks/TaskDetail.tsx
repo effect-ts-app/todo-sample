@@ -1,43 +1,15 @@
-import { Exit } from "@effect-ts/core/Effect/Exit"
 import * as O from "@effect-ts/core/Option"
 import { Button, Checkbox, IconButton, TextField } from "@material-ui/core"
 import { Delete, Favorite, FavoriteBorder } from "@material-ui/icons"
 import { DatePicker, DateTimePicker } from "@material-ui/lab"
-import React, { createRef, useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import styled from "styled-components"
 
-import { onSuccess } from "../data"
+import { onSuccess, PromiseExit } from "../data"
 
 import * as Todo from "./Todo"
-import { Clickable, Completable, Table } from "./components"
+import { Completable, Table, TextFieldWithEditor } from "./components"
 import { WithLoading } from "./utils"
-
-function NoteEditor({
-  initialValue,
-  loading,
-  onChange,
-}: {
-  onChange: (note: string) => void
-  loading: boolean
-  initialValue: string
-}) {
-  const editor = createRef<HTMLInputElement>()
-  useEffect(() => {
-    editor?.current?.focus()
-  }, [])
-  const [note, setNote] = useState(initialValue)
-
-  return (
-    <TextField
-      multiline={true}
-      inputRef={editor}
-      value={note}
-      disabled={loading}
-      onBlur={() => onChange(note)}
-      onChange={(evt) => setNote(evt.target.value)}
-    />
-  )
-}
 
 const StateTextField = styled(TextField)<{ state?: "error" | "warn" | null }>`
   input {
@@ -56,24 +28,55 @@ function TaskDetail({
   toggleChecked,
   toggleFavorite,
   toggleStepChecked,
+  updateStepTitle,
 }: {
   task: Todo.Task
-  setDue: WithLoading<(d: Date | null) => Promise<Exit<unknown, unknown>>>
-  setReminder: WithLoading<(d: Date | null) => Promise<Exit<unknown, unknown>>>
-  addNewStep: WithLoading<(stepTitle: string) => Promise<Exit<unknown, unknown>>>
+  setDue: WithLoading<(d: Date | null) => PromiseExit>
+  setReminder: WithLoading<(d: Date | null) => PromiseExit>
+  addNewStep: WithLoading<(stepTitle: string) => PromiseExit>
   deleteStep: WithLoading<(s: Todo.Step) => void>
-  editNote: WithLoading<(note: string | null) => Promise<Exit<unknown, unknown>>>
+  updateStepTitle: WithLoading<(s: Todo.Step) => (newTitle: string) => PromiseExit>
+  editNote: WithLoading<(note: string | null) => PromiseExit>
   toggleChecked: WithLoading<() => void>
   toggleStepChecked: WithLoading<(s: Todo.Step) => void>
   toggleFavorite: WithLoading<() => void>
 }) {
   const [newStepTitle, setNewStepTitle] = useState("")
-  const [noteEdit, setNoteEdit] = useState(false)
 
   useEffect(() => {
     setNewStepTitle("")
-    setNoteEdit(false)
   }, [t])
+
+  function Step({ step: s }: { step: Todo.Step }) {
+    return (
+      <tr>
+        <td>
+          <Checkbox
+            disabled={toggleStepChecked.loading}
+            checked={s.completed}
+            onChange={() => toggleStepChecked(s)}
+          />
+        </td>
+
+        <TextFieldWithEditor
+          loading={updateStepTitle.loading}
+          initialValue={s.title}
+          onChange={(title, onSuc) => {
+            updateStepTitle(s)(title).then(onSuccess(onSuc))
+          }}
+        >
+          <Completable as="td" completed={s.completed}>
+            {s.title}
+          </Completable>
+        </TextFieldWithEditor>
+        <td>
+          <IconButton disabled={deleteStep.loading} onClick={() => deleteStep(s)}>
+            <Delete />
+          </IconButton>
+        </td>
+      </tr>
+    )
+  }
 
   return (
     <>
@@ -115,26 +118,7 @@ function TaskDetail({
         <Table>
           <tbody>
             {t.steps.map((s, idx) => (
-              <tr key={idx}>
-                <td>
-                  <Checkbox
-                    disabled={toggleStepChecked.loading}
-                    checked={s.completed}
-                    onChange={() => toggleStepChecked(s)}
-                  />
-                </td>
-                <Completable as="td" completed={s.completed}>
-                  {s.title}
-                </Completable>
-                <td>
-                  <IconButton
-                    disabled={deleteStep.loading}
-                    onClick={() => deleteStep(s)}
-                  >
-                    <Delete />
-                  </IconButton>
-                </td>
-              </tr>
+              <Step key={idx} step={s} />
             ))}
           </tbody>
         </Table>
@@ -184,20 +168,16 @@ function TaskDetail({
         </div>
 
         <h3>Note</h3>
-        {!noteEdit && (
-          <Clickable onClick={() => setNoteEdit(true)}>
-            <pre>{O.toNullable(t.note) ?? "Add note"}</pre>
-          </Clickable>
-        )}
-        {noteEdit && (
-          <NoteEditor
-            loading={editNote.loading}
-            initialValue={O.toNullable(t.note) ?? ""}
-            onChange={(note) => {
-              editNote(note ? note : null).then(onSuccess(() => setNoteEdit(false)))
-            }}
-          />
-        )}
+        <TextFieldWithEditor
+          multiline={true}
+          loading={editNote.loading}
+          initialValue={O.toNullable(t.note) ?? ""}
+          onChange={(note, onSuc) => {
+            editNote(note ? note : null).then(onSuccess(onSuc))
+          }}
+        >
+          <pre>{O.toNullable(t.note) ?? "Add note"}</pre>
+        </TextFieldWithEditor>
       </div>
 
       <hr />

@@ -17,6 +17,8 @@ export type Step = Todo.Step
 const taskSteps = Todo.Task.lens["|>"](Lens.prop("steps"))
 const createAndAddStep = flow(Step.create, A.snoc)
 const toggleStepCompleted = (s: Step) => A.modifyOrOriginal(s, Step.toggleCompleted)
+const updateStepTitle = (s: Step) => (stepTitle: NonEmptyString) =>
+  A.modifyOrOriginal(s, (s) => ({ ...s, title: stepTitle }))
 
 const pastDate = (d: Date): O.Option<Date> => (d < new Date() ? O.some(d) : O.none)
 
@@ -30,6 +32,9 @@ export const Task = Object.assign({}, Todo.Task, {
   toggleFavorite: Todo.Task.lens["|>"](Lens.prop("isFavorite"))["|>"](toggleBoolean),
   toggleStepCompleted: (s: Todo.Step) =>
     taskSteps["|>"](Lens.modify(toggleStepCompleted(s))),
+
+  updateStep: (t: Todo.Task) => (s: Todo.Step) => (stepTitle: NonEmptyString) =>
+    taskSteps["|>"](Lens.modify(updateStepTitle(s)(stepTitle)))(t),
 
   dueInPast: flow(Todo.Task.lens["|>"](Lens.prop("due")).get, O.chain(pastDate)),
   reminderInPast: flow(
