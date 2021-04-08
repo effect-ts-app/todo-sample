@@ -1,5 +1,5 @@
-import { Completed, Steps } from "@effect-ts-demo/todo-types"
-import { NonEmptyString, Void } from "@effect-ts-demo/todo-types/shared"
+import { EditableTaskProps } from "@effect-ts-demo/todo-types"
+import { Void } from "@effect-ts-demo/todo-types/shared"
 import { make, AType, EType, opaque } from "@effect-ts/morphic"
 
 const Request_ = make((F) =>
@@ -7,16 +7,7 @@ const Request_ = make((F) =>
     {
       id: F.uuid(),
     },
-    {
-      title: NonEmptyString(F),
-      completed: Completed(F),
-      isFavorite: F.boolean(),
-
-      due: F.nullable(F.date()),
-      reminder: F.nullable(F.date()),
-      note: F.nullable(NonEmptyString(F)),
-      steps: Steps(F),
-    }
+    EditableTaskProps(F)
   )
 )
 export interface Request extends AType<typeof Request_> {}

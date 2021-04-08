@@ -1,6 +1,8 @@
 import * as O from "@effect-ts/core/Option"
 import * as Lens from "@effect-ts/monocle/Lens"
 import { AType, EType, make, opaque } from "@effect-ts/morphic"
+import { CoreAlgebra } from "@effect-ts/morphic/Batteries/program"
+import { BaseFC } from "@effect-ts/morphic/FastCheck/base"
 
 import { makeUuid, NonEmptyString } from "./shared"
 
@@ -18,12 +20,8 @@ export const Step = Object.assign(StepO, {
 export const Steps = make((F) => F.array(Step(F)))
 export const Completed = make((F) => F.nullable(F.date()))
 
-const Task_ = make((F) =>
-  F.interface({
-    id: F.uuid(),
-    createdAt: F.date(),
-    updatedAt: F.date(),
-
+export function EditableTaskProps<Env extends BaseFC>(F: CoreAlgebra<"HKT", Env>) {
+  return {
     title: NonEmptyString(F),
     completed: Completed(F),
     isFavorite: F.boolean(),
@@ -32,6 +30,16 @@ const Task_ = make((F) =>
     reminder: F.nullable(F.date()),
     note: F.nullable(NonEmptyString(F)),
     steps: Steps(F),
+  }
+}
+
+const Task_ = make((F) =>
+  F.interface({
+    id: F.uuid(),
+    createdAt: F.date(),
+    updatedAt: F.date(),
+
+    ...EditableTaskProps(F),
   })
 )
 
