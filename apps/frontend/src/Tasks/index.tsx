@@ -7,7 +7,8 @@ import { constant, flow, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
 import { datumEither } from "@nll/datum"
-import React, { useEffect, useState } from "react"
+import React, { useEffect } from "react"
+import { useHistory, Route } from "react-router"
 import styled from "styled-components"
 
 import { useServiceContext } from "../context"
@@ -68,7 +69,8 @@ function Tasks({ tasks }: { tasks: A.Array<Todo.Task> }) {
   const [deleteResult, deleteTask] = useDeleteTask()
   const [updateResult, updateTask] = useUpdateTask()
 
-  const [selectedTaskId, setSelectedTaskId] = useState<UUID | null>(null)
+  const h = useHistory()
+  const setSelectedTaskId = (id: UUID) => h.push(`/${id}`)
 
   function toggleTaskChecked(t: Todo.Task) {
     return pipe(
@@ -144,7 +146,6 @@ function Tasks({ tasks }: { tasks: A.Array<Todo.Task> }) {
       )
   }
 
-  const selectedTask = tasks.find((x) => x.id === selectedTaskId)
   const isRefreshing = datumEither.isRefresh(tasksResult)
   const isUpdatingTask = datumEither.isPending(updateResult)
 
@@ -180,45 +181,57 @@ function Tasks({ tasks }: { tasks: A.Array<Todo.Task> }) {
         />
       </div>
 
-      <div>
-        {selectedTask && (
-          <TaskDetail
-            task={selectedTask}
-            toggleChecked={withLoading(
-              () => toggleTaskChecked(selectedTask)["|>"](runPromise),
-              isUpdatingTask || isRefreshing
-            )}
-            toggleFavorite={withLoading(
-              () => toggleTaskFavorite(selectedTask)["|>"](runPromise),
-              isUpdatingTask || isRefreshing
-            )}
-            toggleStepChecked={withLoading(
-              flow(toggleTaskStepChecked(selectedTask), runPromise),
-              isUpdatingTask || isRefreshing
-            )}
-            setDue={withLoading(
-              flow(setDue(selectedTask), runPromise),
-              isUpdatingTask || isRefreshing
-            )}
-            setReminder={withLoading(
-              flow(setReminder(selectedTask), runPromise),
-              isUpdatingTask || isRefreshing
-            )}
-            editNote={withLoading(
-              flow(editNote(selectedTask), runPromise),
-              isUpdatingTask || isRefreshing
-            )}
-            addNewStep={withLoading(
-              flow(addNewTaskStep(selectedTask), T.asUnit, runPromise),
-              isUpdatingTask || isRefreshing
-            )}
-            deleteStep={withLoading(
-              flow(deleteTaskStep(selectedTask), runPromise),
-              isUpdatingTask || isRefreshing
-            )}
-          />
-        )}
-      </div>
+      <Route
+        path="/:id"
+        render={({
+          match: {
+            params: { id },
+          },
+        }) => {
+          const t = tasks.find((x) => x.id === id)
+          return (
+            <div>
+              {t && (
+                <TaskDetail
+                  task={t}
+                  toggleChecked={withLoading(
+                    () => toggleTaskChecked(t)["|>"](runPromise),
+                    isUpdatingTask || isRefreshing
+                  )}
+                  toggleFavorite={withLoading(
+                    () => toggleTaskFavorite(t)["|>"](runPromise),
+                    isUpdatingTask || isRefreshing
+                  )}
+                  toggleStepChecked={withLoading(
+                    flow(toggleTaskStepChecked(t), runPromise),
+                    isUpdatingTask || isRefreshing
+                  )}
+                  setDue={withLoading(
+                    flow(setDue(t), runPromise),
+                    isUpdatingTask || isRefreshing
+                  )}
+                  setReminder={withLoading(
+                    flow(setReminder(t), runPromise),
+                    isUpdatingTask || isRefreshing
+                  )}
+                  editNote={withLoading(
+                    flow(editNote(t), runPromise),
+                    isUpdatingTask || isRefreshing
+                  )}
+                  addNewStep={withLoading(
+                    flow(addNewTaskStep(t), T.asUnit, runPromise),
+                    isUpdatingTask || isRefreshing
+                  )}
+                  deleteStep={withLoading(
+                    flow(deleteTaskStep(t), runPromise),
+                    isUpdatingTask || isRefreshing
+                  )}
+                />
+              )}
+            </div>
+          )
+        }}
+      ></Route>
     </Container>
   )
 }

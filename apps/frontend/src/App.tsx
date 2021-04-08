@@ -1,4 +1,5 @@
 import React from "react"
+import { BrowserRouter } from "react-router-dom"
 
 import Tasks from "./Tasks"
 import logo from "./logo.svg"
@@ -11,7 +12,9 @@ function App() {
         <img src={logo} className="App-logo" alt="logo" />
       </header>
       <section id="main">
-        <Tasks />
+        <BrowserRouter>
+          <Tasks />
+        </BrowserRouter>
       </section>
     </div>
   )
