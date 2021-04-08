@@ -1,14 +1,22 @@
 import * as A from "@effect-ts-demo/todo-types/ext/Array"
 import * as O from "@effect-ts/core/Option"
 import { Exit } from "@effect-ts/system/Exit"
-import { Button, IconButton, Checkbox, TextField } from "@material-ui/core"
-import { Delete, Alarm } from "@material-ui/icons"
+import { Checkbox, TextField } from "@material-ui/core"
+import { Alarm, CalendarToday } from "@material-ui/icons"
 import React, { useState } from "react"
+import styled from "styled-components"
 
 import { onSuccess } from "../data"
 
 import * as Todo from "./Todo"
-import { Table, Completable, Clickable } from "./components"
+import {
+  Table,
+  Completable,
+  Clickable,
+  FavoriteButton,
+  StateMixinProps,
+  StateMixin,
+} from "./components"
 import { WithLoading } from "./utils"
 
 function makeStepCount(steps: Todo.Task["steps"]) {
@@ -23,17 +31,21 @@ function makeStepCount(steps: Todo.Task["steps"]) {
   )
 }
 
+const State = styled.span<StateMixinProps>`
+  ${StateMixin}
+`
+
 function TaskList({
   addTask,
-  deleteTask,
   setSelectedTask,
   tasks,
+  toggleFavorite,
   toggleTaskChecked,
 }: {
   setSelectedTask: (i: Todo.Task) => void
   toggleTaskChecked: WithLoading<(t: Todo.Task) => void>
   addTask: WithLoading<(taskTitle: string) => Promise<Exit<unknown, unknown>>>
-  deleteTask: WithLoading<(t: Todo.Task) => void>
+  toggleFavorite: WithLoading<(t: Todo.Task) => void>
   tasks: A.Array<Todo.Task>
 }) {
   const [newTaskTitle, setNewTaskTitle] = useState("")
@@ -57,17 +69,29 @@ function TaskList({
                 <div>
                   {makeStepCount(t.steps)}
                   &nbsp;
-                  {t.due["|>"](O.map((d) => d.toLocaleDateString()))["|>"](
-                    O.toNullable
-                  )}
+                  {t.due["|>"](
+                    O.map((d) => (
+                      // eslint-disable-next-line react/jsx-key
+                      <State
+                        state={t["|>"](Todo.Task.dueInPast)
+                          ["|>"](O.map(() => "error" as const))
+                          ["|>"](O.toNullable)}
+                      >
+                        <CalendarToday />
+                        {d.toLocaleDateString()}
+                      </State>
+                    ))
+                  )["|>"](O.toNullable)}
                   &nbsp;
                   {O.toNullable(t.reminder) && <Alarm />}
                 </div>
               </td>
               <td>
-                <IconButton disabled={deleteTask.loading} onClick={() => deleteTask(t)}>
-                  <Delete />
-                </IconButton>
+                <FavoriteButton
+                  disabled={toggleFavorite.loading}
+                  toggleFavorite={() => toggleFavorite(t)}
+                  isFavorite={t.isFavorite}
+                />
               </td>
             </Clickable>
           ))}
@@ -77,24 +101,6 @@ function TaskList({
   }
   return (
     <>
-      <div>
-        <form>
-          <TextField
-            value={newTaskTitle}
-            onChange={(evt) => setNewTaskTitle(evt.target.value)}
-          />
-          <Button
-            type="submit"
-            onClick={() =>
-              addTask(newTaskTitle).then(onSuccess(() => setNewTaskTitle("")))
-            }
-            disabled={!newTaskTitle.length || addTask.loading}
-          >
-            create task
-          </Button>
-        </form>
-      </div>
-
       {makeTasksTable(tasks["|>"](A.filter((x) => !O.isSome(x.completed))))}
 
       {Boolean(completedTasks.length) && (
@@ -103,6 +109,20 @@ function TaskList({
           {makeTasksTable(completedTasks)}
         </div>
       )}
+
+      <div>
+        <TextField
+          placeholder="Add a Task"
+          disabled={addTask.loading}
+          value={newTaskTitle}
+          onKeyPress={(evt) =>
+            evt.charCode === 13 &&
+            newTaskTitle.length &&
+            addTask(newTaskTitle).then(onSuccess(() => setNewTaskTitle("")))
+          }
+          onChange={(evt) => setNewTaskTitle(evt.target.value)}
+        />
+      </div>
     </>
   )
 }

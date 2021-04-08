@@ -1,6 +1,6 @@
 import * as O from "@effect-ts/core/Option"
-import { Button, Checkbox, IconButton, TextField } from "@material-ui/core"
-import { Delete, Favorite, FavoriteBorder } from "@material-ui/icons"
+import { Checkbox, IconButton, TextField } from "@material-ui/core"
+import { Delete } from "@material-ui/icons"
 import { DatePicker, DateTimePicker } from "@material-ui/lab"
 import React, { useEffect, useState } from "react"
 import styled from "styled-components"
@@ -8,19 +8,26 @@ import styled from "styled-components"
 import { onSuccess, PromiseExit } from "../data"
 
 import * as Todo from "./Todo"
-import { Completable, Table, TextFieldWithEditor } from "./components"
+import {
+  Completable,
+  FavoriteButton,
+  StateMixin,
+  StateMixinProps,
+  Table,
+  TextFieldWithEditor,
+} from "./components"
 import { WithLoading } from "./utils"
 
-const StateTextField = styled(TextField)<{ state?: "error" | "warn" | null }>`
+const StateTextField = styled(TextField)<StateMixinProps>`
   input {
-    color: ${(props) =>
-      props.state === "warn" ? "yellow" : props.state === "error" ? "red" : "inherit"};
+    ${StateMixin}
   }
 `
 
 function TaskDetail({
   addNewStep,
   deleteStep,
+  deleteTask,
   editNote,
   setDue,
   setReminder,
@@ -32,6 +39,7 @@ function TaskDetail({
   updateStepTitle,
 }: {
   task: Todo.Task
+  deleteTask: WithLoading<() => void>
   setDue: WithLoading<(d: Date | null) => PromiseExit>
   setReminder: WithLoading<(d: Date | null) => PromiseExit>
   setTitle: WithLoading<(d: string) => PromiseExit>
@@ -106,28 +114,13 @@ function TaskDetail({
           </Completable>
         </TextFieldWithEditor>
         &nbsp;
-        <IconButton disabled={toggleChecked.loading} onClick={() => toggleFavorite()}>
-          {t.isFavorite ? <Favorite /> : <FavoriteBorder />}
-        </IconButton>
+        <FavoriteButton
+          isFavorite={t.isFavorite}
+          disabled={toggleChecked.loading}
+          toggleFavorite={toggleFavorite}
+        />
       </div>
       <div>
-        <div>
-          <form>
-            <TextField
-              value={newStepTitle}
-              onChange={(evt) => setNewStepTitle(evt.target.value)}
-            />
-            <Button
-              type="submit"
-              onClick={() =>
-                addNewStep(newStepTitle).then(onSuccess(() => setNewStepTitle("")))
-              }
-              disabled={!newStepTitle.length || addNewStep.loading}
-            >
-              add step
-            </Button>
-          </form>
-        </div>
         <Table>
           <tbody>
             {t.steps.map((s, idx) => (
@@ -135,6 +128,19 @@ function TaskDetail({
             ))}
           </tbody>
         </Table>
+        <div>
+          <TextField
+            value={newStepTitle}
+            onChange={(evt) => setNewStepTitle(evt.target.value)}
+            disabled={addNewStep.loading}
+            onKeyPress={(evt) => {
+              evt.charCode === 13 &&
+                newStepTitle.length &&
+                addNewStep(newStepTitle).then(onSuccess(() => setNewStepTitle("")))
+            }}
+            placeholder="Next Step"
+          />
+        </div>
       </div>
 
       <div>
@@ -199,6 +205,9 @@ function TaskDetail({
       ) : (
         <div>Created: {t.createdAt.toLocaleDateString()} at </div>
       )}
+      <IconButton disabled={deleteTask.loading} onClick={() => deleteTask()}>
+        <Delete />
+      </IconButton>
       <div>
         <i>
           Updated: {t.updatedAt.toLocaleDateString()} at{" "}

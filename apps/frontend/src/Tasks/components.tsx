@@ -1,4 +1,5 @@
-import { TextField, TextFieldProps } from "@material-ui/core"
+import { IconButton, TextField, TextFieldProps } from "@material-ui/core"
+import { Favorite, FavoriteBorder } from "@material-ui/icons"
 import React, { useState, createRef, useEffect } from "react"
 import styled, { css } from "styled-components"
 
@@ -64,4 +65,29 @@ export function TextFieldWithEditor({
       {children}
     </Clickable>
   )
+}
+
+export function FavoriteButton({
+  disabled,
+  isFavorite,
+  toggleFavorite,
+}: {
+  disabled: boolean
+  toggleFavorite: () => void
+  isFavorite: boolean
+}) {
+  return (
+    <IconButton disabled={disabled} onClick={() => toggleFavorite()}>
+      {isFavorite ? <Favorite /> : <FavoriteBorder />}
+    </IconButton>
+  )
+}
+
+export interface StateMixinProps {
+  state?: "warn" | "error" | null
+}
+export function StateMixin({ state }: StateMixinProps) {
+  return css`
+    color: ${state === "warn" ? "yellow" : state === "error" ? "red" : "inherit"};
+  `
 }

@@ -189,10 +189,9 @@ function Tasks({ tasks }: { tasks: A.Array<Todo.Task> }) {
             ),
             datumEither.isPending(newResult) || isRefreshing
           )}
-          deleteTask={withLoading(
-            (t: Todo.Task) =>
-              pipe(deleteTask(t.id), T.zipRight(refetchTasks()), runPromise),
-            datumEither.isPending(deleteResult) || isRefreshing
+          toggleFavorite={withLoading(
+            (t: Todo.Task) => toggleTaskFavorite(t)["|>"](runPromise),
+            isUpdatingTask || isRefreshing
           )}
           toggleTaskChecked={withLoading(
             flow(toggleTaskChecked, runPromise),
@@ -214,6 +213,11 @@ function Tasks({ tasks }: { tasks: A.Array<Todo.Task> }) {
               {t && (
                 <TaskDetail
                   task={t}
+                  deleteTask={withLoading(
+                    () =>
+                      pipe(deleteTask(t.id), T.zipRight(refetchTasks()), runPromise),
+                    datumEither.isPending(deleteResult) || isRefreshing
+                  )}
                   toggleChecked={withLoading(
                     () => toggleTaskChecked(t)["|>"](runPromise),
                     isUpdatingTask || isRefreshing
