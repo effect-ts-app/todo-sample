@@ -1,3 +1,5 @@
+import { StyledEngineProvider } from "@material-ui/core"
+import { StylesProvider } from "@material-ui/core/styles"
 import AdapterDateFns from "@material-ui/lab/AdapterDateFns"
 import LocalizationProvider from "@material-ui/lab/LocalizationProvider"
 import React from "react"
@@ -10,14 +12,18 @@ import reportWebVitals from "./reportWebVitals"
 
 ReactDOM.render(
   <React.StrictMode>
-    <LocalizationProvider dateAdapter={AdapterDateFns}>
-      <LiveServiceContext>
-        <LiveFetchContext>
-          <GlobalStyle />
-          <App />
-        </LiveFetchContext>
-      </LiveServiceContext>
-    </LocalizationProvider>
+    <StyledEngineProvider injectFirst>
+      <StylesProvider injectFirst>
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <LiveServiceContext>
+            <LiveFetchContext>
+              <GlobalStyle />
+              <App />
+            </LiveFetchContext>
+          </LiveServiceContext>
+        </LocalizationProvider>
+      </StylesProvider>
+    </StyledEngineProvider>
   </React.StrictMode>,
   document.getElementById("root")
 )
