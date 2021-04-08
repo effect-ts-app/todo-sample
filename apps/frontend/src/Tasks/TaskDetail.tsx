@@ -39,10 +39,11 @@ function NoteEditor({
   )
 }
 
-// TODO: override doesnt work, need to add SC support for MUI
 const StateTextField = styled(TextField)<{ state?: "error" | "warn" | null }>`
-  color: ${(props) =>
-    props.state === "warn" ? "yellow" : props.state === "error" ? "red" : "inherit"};
+  input {
+    color: ${(props) =>
+      props.state === "warn" ? "yellow" : props.state === "error" ? "red" : "inherit"};
+  }
 `
 
 function TaskDetail({
@@ -147,9 +148,9 @@ function TaskDetail({
               disabled={setReminder.loading}
               renderInput={(p) => (
                 <StateTextField
-                  state={t.reminder["|>"](
-                    O.chain((d) => (d < new Date() ? O.some("error" as const) : O.none))
-                  )["|>"](O.toNullable)}
+                  state={t["|>"](Todo.Task.reminderInPast)
+                    ["|>"](O.map(() => "error" as const))
+                    ["|>"](O.toNullable)}
                   {...p}
                 />
               )}
@@ -168,9 +169,9 @@ function TaskDetail({
               disabled={setDue.loading}
               renderInput={(p) => (
                 <StateTextField
-                  state={t.due["|>"](
-                    O.chain((d) => (d < new Date() ? O.some("error" as const) : O.none))
-                  )["|>"](O.toNullable)}
+                  state={t["|>"](Todo.Task.dueInPast)
+                    ["|>"](O.map(() => "error" as const))
+                    ["|>"](O.toNullable)}
                   {...p}
                 />
               )}
