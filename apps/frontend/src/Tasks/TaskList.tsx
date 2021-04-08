@@ -2,7 +2,7 @@ import * as A from "@effect-ts-demo/todo-types/ext/Array"
 import * as O from "@effect-ts/core/Option"
 import { Exit } from "@effect-ts/system/Exit"
 import { Button, IconButton, Checkbox, TextField } from "@material-ui/core"
-import { Delete } from "@material-ui/icons"
+import { Delete, Alarm } from "@material-ui/icons"
 import React, { useState } from "react"
 
 import { onSuccess } from "../data"
@@ -54,8 +54,15 @@ function TaskList({
               </td>
               <td>
                 <Completable completed={O.isSome(t.completed)}>{t.title}</Completable>
-                <br />
-                {makeStepCount(t.steps)}
+                <div>
+                  {makeStepCount(t.steps)}
+                  &nbsp;
+                  {t.due["|>"](O.map((d) => d.toLocaleDateString()))["|>"](
+                    O.toNullable
+                  )}
+                  &nbsp;
+                  {O.toNullable(t.reminder) && <Alarm />}
+                </div>
               </td>
               <td>
                 <IconButton disabled={deleteTask.loading} onClick={() => deleteTask(t)}>

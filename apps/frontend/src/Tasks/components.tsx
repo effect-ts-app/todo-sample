@@ -60,6 +60,8 @@ export function TextFieldWithEditor({
       onChange={(evt) => setNote(evt.target.value)}
     />
   ) : (
-    <Clickable onClick={() => setEditing(true)}>{children}</Clickable>
+    <Clickable style={{ display: "inline" }} onClick={() => setEditing(true)}>
+      {children}
+    </Clickable>
   )
 }

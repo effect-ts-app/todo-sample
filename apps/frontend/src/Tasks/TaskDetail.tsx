@@ -24,6 +24,7 @@ function TaskDetail({
   editNote,
   setDue,
   setReminder,
+  setTitle,
   task: t,
   toggleChecked,
   toggleFavorite,
@@ -33,6 +34,7 @@ function TaskDetail({
   task: Todo.Task
   setDue: WithLoading<(d: Date | null) => PromiseExit>
   setReminder: WithLoading<(d: Date | null) => PromiseExit>
+  setTitle: WithLoading<(d: string) => PromiseExit>
   addNewStep: WithLoading<(stepTitle: string) => PromiseExit>
   deleteStep: WithLoading<(s: Todo.Step) => void>
   updateStepTitle: WithLoading<(s: Todo.Step) => (newTitle: string) => PromiseExit>
@@ -57,18 +59,19 @@ function TaskDetail({
             onChange={() => toggleStepChecked(s)}
           />
         </td>
-
-        <TextFieldWithEditor
-          loading={updateStepTitle.loading}
-          initialValue={s.title}
-          onChange={(title, onSuc) => {
-            updateStepTitle(s)(title).then(onSuccess(onSuc))
-          }}
-        >
-          <Completable as="td" completed={s.completed}>
-            {s.title}
-          </Completable>
-        </TextFieldWithEditor>
+        <td>
+          <TextFieldWithEditor
+            loading={updateStepTitle.loading}
+            initialValue={s.title}
+            onChange={(title, onSuc) => {
+              updateStepTitle(s)(title).then(onSuccess(onSuc))
+            }}
+          >
+            <Completable as="span" completed={s.completed}>
+              {s.title}
+            </Completable>
+          </TextFieldWithEditor>
+        </td>
         <td>
           <IconButton disabled={deleteStep.loading} onClick={() => deleteStep(s)}>
             <Delete />
@@ -80,23 +83,33 @@ function TaskDetail({
 
   return (
     <>
-      <Completable
-        as="h2"
-        completed={O.isSome(t.completed)}
-        style={{ textAlign: "left" }}
-      >
+      <div>
         <Checkbox
           disabled={toggleChecked.loading}
           checked={O.isSome(t.completed)}
           onChange={() => toggleChecked()}
         />
         &nbsp;
-        {t.title}
+        <TextFieldWithEditor
+          loading={setTitle.loading}
+          initialValue={t.title}
+          onChange={(title, onSuc) => {
+            setTitle(title).then(onSuccess(onSuc))
+          }}
+        >
+          <Completable
+            as="h2"
+            style={{ display: "inline" }}
+            completed={O.isSome(t.completed)}
+          >
+            {t.title}
+          </Completable>
+        </TextFieldWithEditor>
         &nbsp;
         <IconButton disabled={toggleChecked.loading} onClick={() => toggleFavorite()}>
           {t.isFavorite ? <Favorite /> : <FavoriteBorder />}
         </IconButton>
-      </Completable>
+      </div>
       <div>
         <div>
           <form>

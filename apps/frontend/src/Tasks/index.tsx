@@ -5,6 +5,7 @@ import { NonEmptyString } from "@effect-ts-demo/todo-types/shared"
 import * as A from "@effect-ts/core/Array"
 import { constant, flow, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
+import { Lens } from "@effect-ts/monocle"
 import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
 import { datumEither } from "@nll/datum"
 import React, { useEffect } from "react"
@@ -126,6 +127,15 @@ function Tasks({ tasks }: { tasks: A.Array<Todo.Task> }) {
       )
   }
 
+  function setTitle(t: Todo.Task) {
+    return flow(
+      NonEmptyString.parse,
+      T.map((v) => t["|>"](Todo.Task.lens["|>"](Lens.prop("title")).set(v))),
+      T.chain(updateTask),
+      T.zipRight(refetchTasks())
+    )
+  }
+
   function setReminder(t: Todo.Task) {
     return (date: Date | null) =>
       pipe(
@@ -214,6 +224,10 @@ function Tasks({ tasks }: { tasks: A.Array<Todo.Task> }) {
                   )}
                   toggleStepChecked={withLoading(
                     flow(toggleTaskStepChecked(t), runPromise),
+                    isUpdatingTask || isRefreshing
+                  )}
+                  setTitle={withLoading(
+                    flow(setTitle(t), runPromise),
                     isUpdatingTask || isRefreshing
                   )}
                   setDue={withLoading(
