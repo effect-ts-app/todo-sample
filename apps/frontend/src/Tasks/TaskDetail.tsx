@@ -98,7 +98,6 @@ function TaskDetail({
           <form>
             <TextField
               value={newStepTitle}
-              disabled={addNewStep.loading}
               onChange={(evt) => setNewStepTitle(evt.target.value)}
             />
             <Button
