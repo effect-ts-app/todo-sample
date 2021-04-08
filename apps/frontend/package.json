@@ -10,6 +10,7 @@
         "@emotion/react": "^11.1.5",
         "@emotion/styled": "^11.1.5",
         "@material-ui/core": "next",
+        "@material-ui/icons": "^5.0.0-alpha.28",
         "@material-ui/lab": "next",
         "@material-ui/styled-engine": "next",
         "@nll/datum": "^3.5.0",

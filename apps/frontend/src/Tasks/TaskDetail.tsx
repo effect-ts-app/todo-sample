@@ -1,7 +1,9 @@
 import { Exit } from "@effect-ts/core/Effect/Exit"
 import * as O from "@effect-ts/core/Option"
 import Button from "@material-ui/core/Button"
+import IconButton from "@material-ui/core/IconButton"
 import TextField from "@material-ui/core/TextField"
+import { Favorite, FavoriteBorder } from "@material-ui/icons"
 import DatePicker from "@material-ui/lab/DatePicker"
 import DateTimePicker from "@material-ui/lab/DateTimePicker"
 import React, { createRef, useEffect, useState } from "react"
@@ -90,12 +92,9 @@ function TaskDetail({
         &nbsp;
         {t.title}
         &nbsp;
-        <input
-          type="checkbox"
-          disabled={toggleChecked.loading}
-          checked={t.isFavorite}
-          onChange={() => toggleFavorite()}
-        />
+        <IconButton disabled={toggleChecked.loading} onClick={() => toggleFavorite()}>
+          {t.isFavorite ? <Favorite /> : <FavoriteBorder />}
+        </IconButton>
       </CompletableEntry>
       <div>
         <div>
