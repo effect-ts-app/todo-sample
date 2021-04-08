@@ -200,22 +200,21 @@ function TaskDetail({
       </div>
 
       <hr />
-      {O.isSome(t.completed) ? (
-        <div>Completed: {t.completed.value.toLocaleDateString()}</div>
-      ) : (
-        <div>Created: {t.createdAt.toLocaleDateString()} at </div>
-      )}
-      <IconButton disabled={deleteTask.loading} onClick={() => deleteTask()}>
-        <Delete />
-      </IconButton>
       <div>
-        <i>
-          Updated: {t.updatedAt.toLocaleDateString()} at{" "}
-          {t.updatedAt.toLocaleTimeString()}
-        </i>
-      </div>
-      <div>
-        <i>Id: {t.id}</i>
+        <span
+          title={`Updated: ${t.updatedAt.toLocaleDateString()} at
+          ${t.updatedAt.toLocaleTimeString()}`}
+        >
+          {t.completed["|>"](
+            O.fold(
+              () => <>Created: {t.createdAt.toLocaleDateString()}</>,
+              (d) => <>Completed: {d.toLocaleDateString()}</>
+            )
+          )}
+        </span>
+        <IconButton disabled={deleteTask.loading} onClick={() => deleteTask()}>
+          <Delete />
+        </IconButton>
       </div>
     </>
   )
