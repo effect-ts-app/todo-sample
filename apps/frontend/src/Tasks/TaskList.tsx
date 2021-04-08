@@ -1,13 +1,14 @@
 import * as A from "@effect-ts-demo/todo-types/ext/Array"
 import * as O from "@effect-ts/core/Option"
 import { Exit } from "@effect-ts/system/Exit"
-import Button from "@material-ui/core/Button"
+import { Button, IconButton, Checkbox, TextField } from "@material-ui/core"
+import { Delete } from "@material-ui/icons"
 import React, { useState } from "react"
 
 import { onSuccess } from "../data"
 
 import * as Todo from "./Todo"
-import { Table, CompletableEntry } from "./components"
+import { Table, Completable, Clickable } from "./components"
 import { WithLoading } from "./utils"
 
 function makeStepCount(steps: Todo.Task["steps"]) {
@@ -43,30 +44,25 @@ function TaskList({
       <Table>
         <tbody>
           {tasks.map((t) => (
-            <CompletableEntry
-              key={t.id}
-              completed={O.isSome(t.completed)}
-              onClick={() => setSelectedTask(t)}
-            >
+            <Clickable as="tr" key={t.id} onClick={() => setSelectedTask(t)}>
               <td>
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={O.isSome(t.completed)}
                   disabled={toggleTaskChecked.loading}
                   onChange={() => toggleTaskChecked(t)}
                 />
               </td>
               <td>
-                {t.title}
+                <Completable completed={O.isSome(t.completed)}>{t.title}</Completable>
                 <br />
                 {makeStepCount(t.steps)}
               </td>
               <td>
-                <Button disabled={deleteTask.loading} onClick={() => deleteTask(t)}>
-                  X
-                </Button>
+                <IconButton disabled={deleteTask.loading} onClick={() => deleteTask(t)}>
+                  <Delete />
+                </IconButton>
               </td>
-            </CompletableEntry>
+            </Clickable>
           ))}
         </tbody>
       </Table>
@@ -76,10 +72,9 @@ function TaskList({
     <>
       <div>
         <form>
-          <input
+          <TextField
             value={newTaskTitle}
             onChange={(evt) => setNewTaskTitle(evt.target.value)}
-            type="text"
           />
           <Button
             type="submit"

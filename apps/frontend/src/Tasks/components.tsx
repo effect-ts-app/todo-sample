@@ -15,12 +15,7 @@ export const Clickable = styled.div`
     `}
 `
 
-export const CompletableEntry = styled.tr<{ completed: boolean }>`
-  ${({ onClick }) =>
-    onClick &&
-    css`
-      cursor: pointer;
-    `}
+export const Completable = styled.div<{ completed: boolean }>`
   ${({ completed }) =>
     completed &&
     css`

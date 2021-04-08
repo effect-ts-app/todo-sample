@@ -1,18 +1,15 @@
 import { Exit } from "@effect-ts/core/Effect/Exit"
 import * as O from "@effect-ts/core/Option"
-import Button from "@material-ui/core/Button"
-import IconButton from "@material-ui/core/IconButton"
-import TextField from "@material-ui/core/TextField"
-import { Favorite, FavoriteBorder } from "@material-ui/icons"
-import DatePicker from "@material-ui/lab/DatePicker"
-import DateTimePicker from "@material-ui/lab/DateTimePicker"
+import { Button, Checkbox, IconButton, TextField } from "@material-ui/core"
+import { Delete, Favorite, FavoriteBorder } from "@material-ui/icons"
+import { DatePicker, DateTimePicker } from "@material-ui/lab"
 import React, { createRef, useEffect, useState } from "react"
 import styled from "styled-components"
 
 import { onSuccess } from "../data"
 
 import * as Todo from "./Todo"
-import { Clickable, CompletableEntry, Table } from "./components"
+import { Clickable, Completable, Table } from "./components"
 import { WithLoading } from "./utils"
 
 function NoteEditor({
@@ -24,15 +21,16 @@ function NoteEditor({
   loading: boolean
   initialValue: string
 }) {
-  const editor = createRef<HTMLTextAreaElement>()
+  const editor = createRef<HTMLInputElement>()
   useEffect(() => {
     editor?.current?.focus()
   }, [])
   const [note, setNote] = useState(initialValue)
 
   return (
-    <textarea
-      ref={editor}
+    <TextField
+      multiline={true}
+      inputRef={editor}
       value={note}
       disabled={loading}
       onBlur={() => onChange(note)}
@@ -78,13 +76,12 @@ function TaskDetail({
 
   return (
     <>
-      <CompletableEntry
+      <Completable
         as="h2"
         completed={O.isSome(t.completed)}
         style={{ textAlign: "left" }}
       >
-        <input
-          type="checkbox"
+        <Checkbox
           disabled={toggleChecked.loading}
           checked={O.isSome(t.completed)}
           onChange={() => toggleChecked()}
@@ -95,15 +92,14 @@ function TaskDetail({
         <IconButton disabled={toggleChecked.loading} onClick={() => toggleFavorite()}>
           {t.isFavorite ? <Favorite /> : <FavoriteBorder />}
         </IconButton>
-      </CompletableEntry>
+      </Completable>
       <div>
         <div>
           <form>
-            <input
+            <TextField
               value={newStepTitle}
               disabled={addNewStep.loading}
               onChange={(evt) => setNewStepTitle(evt.target.value)}
-              type="text"
             />
             <Button
               type="submit"
@@ -119,22 +115,26 @@ function TaskDetail({
         <Table>
           <tbody>
             {t.steps.map((s, idx) => (
-              <CompletableEntry completed={s.completed} key={idx}>
+              <tr key={idx}>
                 <td>
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     disabled={toggleStepChecked.loading}
                     checked={s.completed}
                     onChange={() => toggleStepChecked(s)}
                   />
                 </td>
-                <td>{s.title}</td>
+                <Completable as="td" completed={s.completed}>
+                  {s.title}
+                </Completable>
                 <td>
-                  <Button disabled={deleteStep.loading} onClick={() => deleteStep(s)}>
-                    X
-                  </Button>
+                  <IconButton
+                    disabled={deleteStep.loading}
+                    onClick={() => deleteStep(s)}
+                  >
+                    <Delete />
+                  </IconButton>
                 </td>
-              </CompletableEntry>
+              </tr>
             ))}
           </tbody>
         </Table>
