@@ -7,6 +7,8 @@ import DateTimePicker from "@material-ui/lab/DateTimePicker"
 import React, { createRef, useEffect, useState } from "react"
 import styled from "styled-components"
 
+import { onSuccess } from "../data"
+
 import * as Todo from "./Todo"
 import { Clickable, CompletableEntry, Table } from "./components"
 import { WithLoading } from "./utils"
@@ -107,9 +109,7 @@ function TaskDetail({
             <Button
               type="submit"
               onClick={() =>
-                addNewStep(newStepTitle).then(
-                  (r) => r._tag === "Success" && setNewStepTitle("")
-                )
+                addNewStep(newStepTitle).then(onSuccess(() => setNewStepTitle("")))
               }
               disabled={!newStepTitle.length || addNewStep.loading}
             >
@@ -195,9 +195,7 @@ function TaskDetail({
             loading={editNote.loading}
             initialValue={O.toNullable(t.note) ?? ""}
             onChange={(note) => {
-              editNote(note ? note : null).then(
-                (x) => x._tag === "Success" && setNoteEdit(false)
-              )
+              editNote(note ? note : null).then(onSuccess(() => setNoteEdit(false)))
             }}
           />
         )}

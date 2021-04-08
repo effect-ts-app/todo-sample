@@ -4,6 +4,8 @@ import { Exit } from "@effect-ts/system/Exit"
 import Button from "@material-ui/core/Button"
 import React, { useState } from "react"
 
+import { onSuccess } from "../data"
+
 import * as Todo from "./Todo"
 import { Table, CompletableEntry } from "./components"
 import { WithLoading } from "./utils"
@@ -82,9 +84,7 @@ function TaskList({
           <Button
             type="submit"
             onClick={() =>
-              addTask(newTaskTitle).then(
-                (x) => x._tag === "Success" && setNewTaskTitle("")
-              )
+              addTask(newTaskTitle).then(onSuccess(() => setNewTaskTitle("")))
             }
             disabled={!newTaskTitle.length || addTask.loading}
           >

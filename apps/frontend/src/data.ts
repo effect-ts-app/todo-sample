@@ -1,6 +1,7 @@
 import * as A from "@effect-ts-demo/todo-types/ext/Array"
 import { Fiber, Semaphore } from "@effect-ts/core"
 import * as T from "@effect-ts/core/Effect"
+import { Cause } from "@effect-ts/core/Effect/Cause"
 import * as Ex from "@effect-ts/core/Effect/Exit"
 import { pipe } from "@effect-ts/core/Function"
 import { datumEither } from "@nll/datum"
@@ -246,4 +247,12 @@ export function useQuery<R, E, A, Args extends ReadonlyArray<unknown>>(
   //   }, [exec, runWithErrorLog])
 
   return [result, lastSuccess, refetch, exec] as const
+}
+
+export function onFail<E, T>(cb: (a: Cause<E>) => T) {
+  return Ex.fold(cb, () => void 0)
+}
+
+export function onSuccess<A, T>(cb: (a: A) => T) {
+  return Ex.fold(() => void 0, cb)
 }
