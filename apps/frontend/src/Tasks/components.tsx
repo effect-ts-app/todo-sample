@@ -3,19 +3,8 @@ import { Favorite, FavoriteBorder } from "@material-ui/icons"
 import React, { useState, createRef, useEffect } from "react"
 import styled, { css } from "styled-components"
 
-export const Table = styled.table`
-  width: 100%;
-  tr > td {
-    text-align: left;
-  }
-`
-
 export const Clickable = styled.div`
-  ${({ onClick }) =>
-    onClick &&
-    css`
-      cursor: pointer;
-    `}
+  ${ClickableMixin}
 `
 
 export const Completable = styled.div<{ completed: boolean }>`
@@ -80,6 +69,19 @@ export function FavoriteButton({
     <IconButton disabled={disabled} onClick={() => toggleFavorite()}>
       {isFavorite ? <Favorite /> : <FavoriteBorder />}
     </IconButton>
+  )
+}
+
+export interface ClickableMixinProps {
+  onClick?: () => void
+}
+
+export function ClickableMixin({ onClick }: ClickableMixinProps) {
+  return (
+    onClick &&
+    css`
+      cursor: pointer;
+    `
   )
 }
 

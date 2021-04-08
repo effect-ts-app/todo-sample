@@ -7,6 +7,7 @@ import { constant, flow, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import { Lens } from "@effect-ts/monocle"
 import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
+import { Container } from "@material-ui/core"
 import { datumEither } from "@nll/datum"
 import React, { useEffect } from "react"
 import { useHistory, Route } from "react-router"
@@ -51,7 +52,7 @@ function useUpdateTask() {
   return useFetch(TodoClient.Tasks.updateTask)
 }
 
-const Container = styled.div`
+const Root = styled.div`
   display: flex;
   flex-flow: row;
   > * {
@@ -170,8 +171,8 @@ function Tasks({ tasks }: { tasks: A.Array<Todo.Task> }) {
   const isUpdatingTask = datumEither.isPending(updateResult)
 
   return (
-    <Container>
-      <div>
+    <Root style={{ height: "100%" }}>
+      <Container>
         <div>
           <h1>Tasks</h1>
         </div>
@@ -198,7 +199,7 @@ function Tasks({ tasks }: { tasks: A.Array<Todo.Task> }) {
             isUpdatingTask || isRefreshing
           )}
         />
-      </div>
+      </Container>
 
       <Route
         path="/:id"
@@ -209,7 +210,7 @@ function Tasks({ tasks }: { tasks: A.Array<Todo.Task> }) {
         }) => {
           const t = tasks.find((x) => x.id === id)
           return (
-            <div>
+            <Container style={{ backgroundColor: "#efefef" }}>
               {t && (
                 <TaskDetail
                   task={t}
@@ -260,11 +261,11 @@ function Tasks({ tasks }: { tasks: A.Array<Todo.Task> }) {
                   )}
                 />
               )}
-            </div>
+            </Container>
           )
         }}
       ></Route>
-    </Container>
+    </Root>
   )
 }
 

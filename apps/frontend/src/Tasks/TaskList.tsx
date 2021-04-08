@@ -1,7 +1,7 @@
 import * as A from "@effect-ts-demo/todo-types/ext/Array"
 import * as O from "@effect-ts/core/Option"
 import { Exit } from "@effect-ts/system/Exit"
-import { Checkbox, TextField } from "@material-ui/core"
+import { Box, Checkbox, TextField } from "@material-ui/core"
 import { Alarm, CalendarToday } from "@material-ui/icons"
 import React, { useState } from "react"
 import styled from "styled-components"
@@ -10,12 +10,11 @@ import { onSuccess } from "../data"
 
 import * as Todo from "./Todo"
 import {
-  Table,
   Completable,
-  Clickable,
   FavoriteButton,
   StateMixinProps,
   StateMixin,
+  Clickable,
 } from "./components"
 import { WithLoading } from "./utils"
 
@@ -52,53 +51,48 @@ function TaskList({
   const completedTasks = tasks["|>"](A.filter((x) => O.isSome(x.completed)))
 
   function makeTasksTable(tasks: A.Array<Todo.Task>) {
-    return (
-      <Table>
-        <tbody>
-          {tasks.map((t) => (
-            <Clickable as="tr" key={t.id} onClick={() => setSelectedTask(t)}>
-              <td>
-                <Checkbox
-                  checked={O.isSome(t.completed)}
-                  disabled={toggleTaskChecked.loading}
-                  onChange={() => toggleTaskChecked(t)}
-                />
-              </td>
-              <td>
-                <Completable completed={O.isSome(t.completed)}>{t.title}</Completable>
-                <div>
-                  {makeStepCount(t.steps)}
-                  &nbsp;
-                  {t.due["|>"](
-                    O.map((d) => (
-                      // eslint-disable-next-line react/jsx-key
-                      <State
-                        state={t["|>"](Todo.Task.dueInPast)
-                          ["|>"](O.map(() => "error" as const))
-                          ["|>"](O.toNullable)}
-                      >
-                        <CalendarToday />
-                        {d.toLocaleDateString()}
-                      </State>
-                    ))
-                  )["|>"](O.toNullable)}
-                  &nbsp;
-                  {O.toNullable(t.reminder) && <Alarm />}
-                </div>
-              </td>
-              <td>
-                <FavoriteButton
-                  disabled={toggleFavorite.loading}
-                  toggleFavorite={() => toggleFavorite(t)}
-                  isFavorite={t.isFavorite}
-                />
-              </td>
-            </Clickable>
-          ))}
-        </tbody>
-      </Table>
-    )
+    return tasks.map((t) => (
+      <Box key={t.id} display="flex">
+        <Box flexGrow={1} display="flex">
+          <Checkbox
+            checked={O.isSome(t.completed)}
+            disabled={toggleTaskChecked.loading}
+            onChange={() => toggleTaskChecked(t)}
+          />
+          <Clickable onClick={() => setSelectedTask(t)}>
+            <Completable completed={O.isSome(t.completed)}>{t.title}</Completable>
+            <div>
+              {makeStepCount(t.steps)}
+              &nbsp;
+              {t.due["|>"](
+                O.map((d) => (
+                  // eslint-disable-next-line react/jsx-key
+                  <State
+                    state={t["|>"](Todo.Task.dueInPast)
+                      ["|>"](O.map(() => "error" as const))
+                      ["|>"](O.toNullable)}
+                  >
+                    <CalendarToday />
+                    {d.toLocaleDateString()}
+                  </State>
+                ))
+              )["|>"](O.toNullable)}
+              &nbsp;
+              {O.toNullable(t.reminder) && <Alarm />}
+            </div>
+          </Clickable>
+        </Box>
+        <Box>
+          <FavoriteButton
+            disabled={toggleFavorite.loading}
+            toggleFavorite={() => toggleFavorite(t)}
+            isFavorite={t.isFavorite}
+          />
+        </Box>
+      </Box>
+    ))
   }
+
   return (
     <>
       {makeTasksTable(tasks["|>"](A.filter((x) => !O.isSome(x.completed))))}

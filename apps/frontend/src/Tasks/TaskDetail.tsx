@@ -1,5 +1,5 @@
 import * as O from "@effect-ts/core/Option"
-import { Checkbox, IconButton, TextField } from "@material-ui/core"
+import { Box, Checkbox, IconButton, TextField } from "@material-ui/core"
 import { Delete } from "@material-ui/icons"
 import { DatePicker, DateTimePicker } from "@material-ui/lab"
 import React, { useEffect, useState } from "react"
@@ -13,7 +13,6 @@ import {
   FavoriteButton,
   StateMixin,
   StateMixinProps,
-  Table,
   TextFieldWithEditor,
 } from "./components"
 import { WithLoading } from "./utils"
@@ -59,15 +58,13 @@ function TaskDetail({
 
   function Step({ step: s }: { step: Todo.Step }) {
     return (
-      <tr>
-        <td>
+      <Box display="flex">
+        <Box flexGrow={1}>
           <Checkbox
             disabled={toggleStepChecked.loading}
             checked={s.completed}
             onChange={() => toggleStepChecked(s)}
           />
-        </td>
-        <td>
           <TextFieldWithEditor
             loading={updateStepTitle.loading}
             initialValue={s.title}
@@ -79,55 +76,56 @@ function TaskDetail({
               {s.title}
             </Completable>
           </TextFieldWithEditor>
-        </td>
-        <td>
+        </Box>
+        <Box>
           <IconButton disabled={deleteStep.loading} onClick={() => deleteStep(s)}>
             <Delete />
           </IconButton>
-        </td>
-      </tr>
+        </Box>
+      </Box>
     )
   }
 
   return (
-    <>
-      <div>
-        <Checkbox
-          disabled={toggleChecked.loading}
-          checked={O.isSome(t.completed)}
-          onChange={() => toggleChecked()}
-        />
-        &nbsp;
-        <TextFieldWithEditor
-          loading={setTitle.loading}
-          initialValue={t.title}
-          onChange={(title, onSuc) => {
-            setTitle(title).then(onSuccess(onSuc))
-          }}
-        >
-          <Completable
-            as="h2"
-            style={{ display: "inline" }}
-            completed={O.isSome(t.completed)}
+    <Box>
+      <Box display="flex">
+        <Box flexGrow={1}>
+          <Checkbox
+            disabled={toggleChecked.loading}
+            checked={O.isSome(t.completed)}
+            onChange={() => toggleChecked()}
+          />
+          <TextFieldWithEditor
+            loading={setTitle.loading}
+            initialValue={t.title}
+            onChange={(title, onSuc) => {
+              setTitle(title).then(onSuccess(onSuc))
+            }}
           >
-            {t.title}
-          </Completable>
-        </TextFieldWithEditor>
-        &nbsp;
-        <FavoriteButton
-          isFavorite={t.isFavorite}
-          disabled={toggleChecked.loading}
-          toggleFavorite={toggleFavorite}
-        />
-      </div>
+            <Completable
+              as="h2"
+              style={{ display: "inline" }}
+              completed={O.isSome(t.completed)}
+            >
+              {t.title}
+            </Completable>
+          </TextFieldWithEditor>
+        </Box>
+        <Box>
+          <FavoriteButton
+            isFavorite={t.isFavorite}
+            disabled={toggleChecked.loading}
+            toggleFavorite={toggleFavorite}
+          />
+        </Box>
+      </Box>
+      <hr />
       <div>
-        <Table>
-          <tbody>
-            {t.steps.map((s, idx) => (
-              <Step key={idx} step={s} />
-            ))}
-          </tbody>
-        </Table>
+        <Box>
+          {t.steps.map((s, idx) => (
+            <Step key={idx} step={s} />
+          ))}
+        </Box>
         <div>
           <TextField
             value={newStepTitle}
@@ -216,7 +214,7 @@ function TaskDetail({
           <Delete />
         </IconButton>
       </div>
-    </>
+    </Box>
   )
 }
 
