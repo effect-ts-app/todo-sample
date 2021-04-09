@@ -118,7 +118,7 @@ function TaskDetail({
           <FavoriteButton
             isFavorite={t.isFavorite}
             disabled={toggleChecked.loading}
-            toggleFavorite={toggleFavorite}
+            onClick={toggleFavorite}
           />
         </Box>
       </Box>

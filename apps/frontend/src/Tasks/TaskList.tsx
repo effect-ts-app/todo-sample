@@ -1,7 +1,7 @@
 import * as A from "@effect-ts-demo/todo-types/ext/Array"
 import * as O from "@effect-ts/core/Option"
 import { Exit } from "@effect-ts/system/Exit"
-import { Box, Checkbox, TextField } from "@material-ui/core"
+import { Box, Card, Checkbox, TextField } from "@material-ui/core"
 import { Alarm, CalendarToday } from "@material-ui/icons"
 import React, { useState } from "react"
 import styled from "styled-components"
@@ -14,7 +14,7 @@ import {
   FavoriteButton,
   StateMixinProps,
   StateMixin,
-  Clickable,
+  ClickableMixin,
 } from "./components"
 import { WithLoading } from "./utils"
 
@@ -34,6 +34,18 @@ const State = styled.span<StateMixinProps>`
   ${StateMixin}
 `
 
+const StyledCard = styled(Card)`
+  ${ClickableMixin}
+`
+
+const CardList = styled.div`
+  > ${StyledCard} {
+    padding: 4px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+  }
+`
+
 function TaskList({
   addTask,
   setSelectedTask,
@@ -51,46 +63,57 @@ function TaskList({
   const completedTasks = tasks["|>"](A.filter((x) => O.isSome(x.completed)))
 
   function makeTasksTable(tasks: A.Array<Todo.Task>) {
-    return tasks.map((t) => (
-      <Box key={t.id} display="flex">
-        <Box flexGrow={1} display="flex">
-          <Checkbox
-            checked={O.isSome(t.completed)}
-            disabled={toggleTaskChecked.loading}
-            onChange={() => toggleTaskChecked(t)}
-          />
-          <Clickable onClick={() => setSelectedTask(t)}>
-            <Completable completed={O.isSome(t.completed)}>{t.title}</Completable>
-            <div>
-              {makeStepCount(t.steps)}
-              &nbsp;
-              {t.due["|>"](
-                O.map((d) => (
-                  // eslint-disable-next-line react/jsx-key
-                  <State
-                    state={t["|>"](Todo.Task.dueInPast)
-                      ["|>"](O.map(() => "error" as const))
-                      ["|>"](O.toNullable)}
-                  >
-                    <CalendarToday />
-                    {d.toLocaleDateString()}
-                  </State>
-                ))
-              )["|>"](O.toNullable)}
-              &nbsp;
-              {O.toNullable(t.reminder) && <Alarm />}
-            </div>
-          </Clickable>
-        </Box>
-        <Box>
-          <FavoriteButton
-            disabled={toggleFavorite.loading}
-            toggleFavorite={() => toggleFavorite(t)}
-            isFavorite={t.isFavorite}
-          />
-        </Box>
-      </Box>
-    ))
+    return (
+      <CardList>
+        {tasks.map((t) => (
+          <StyledCard key={t.id} onClick={() => setSelectedTask(t)}>
+            <Box display="flex">
+              <Box flexGrow={1} display="flex">
+                <Checkbox
+                  checked={O.isSome(t.completed)}
+                  disabled={toggleTaskChecked.loading}
+                  onClick={(evt) => evt.stopPropagation()}
+                  onChange={(evt) => {
+                    evt.stopPropagation()
+                    toggleTaskChecked(t)
+                  }}
+                />
+                <Completable completed={O.isSome(t.completed)}>{t.title}</Completable>
+                <div>
+                  {makeStepCount(t.steps)}
+                  &nbsp;
+                  {t.due["|>"](
+                    O.map((d) => (
+                      // eslint-disable-next-line react/jsx-key
+                      <State
+                        state={t["|>"](Todo.Task.dueInPast)
+                          ["|>"](O.map(() => "error" as const))
+                          ["|>"](O.toNullable)}
+                      >
+                        <CalendarToday />
+                        {d.toLocaleDateString()}
+                      </State>
+                    ))
+                  )["|>"](O.toNullable)}
+                  &nbsp;
+                  {O.toNullable(t.reminder) && <Alarm />}
+                </div>
+              </Box>
+              <Box>
+                <FavoriteButton
+                  disabled={toggleFavorite.loading}
+                  onClick={(evt) => {
+                    evt.stopPropagation()
+                    toggleFavorite(t)
+                  }}
+                  isFavorite={t.isFavorite}
+                />
+              </Box>
+            </Box>
+          </StyledCard>
+        ))}
+      </CardList>
+    )
   }
 
   return (

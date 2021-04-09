@@ -1,6 +1,6 @@
 import { IconButton, TextField, TextFieldProps } from "@material-ui/core"
 import { Favorite, FavoriteBorder } from "@material-ui/icons"
-import React, { useState, useRef, useEffect } from "react"
+import React, { useState, useRef, useEffect, MouseEventHandler } from "react"
 import styled, { css } from "styled-components"
 
 export const Clickable = styled.div`
@@ -30,6 +30,7 @@ export function TextFieldWithEditor({
   multiline?: boolean
   renderTextField?: (p: TextFieldProps) => JSX.Element
 }) {
+  const [text, setText] = useState(initialValue)
   const [editing, setEditing] = useState(false)
   const editor = useRef<HTMLInputElement | undefined>(undefined)
   useEffect(() => {
@@ -37,19 +38,21 @@ export function TextFieldWithEditor({
       editor?.current?.focus()
     }
   }, [editing])
-  const [note, setNote] = useState(initialValue)
+  useEffect(() => {
+    setText(initialValue)
+  }, [initialValue])
 
-  const submit = () => onChange(note, () => setEditing(false))
+  const submit = () => onChange(text, () => setEditing(false))
 
   return editing ? (
     <Field
       multiline={multiline}
       inputRef={editor}
-      value={note}
+      value={text}
       disabled={loading}
       onKeyPress={multiline ? undefined : (evt) => evt.charCode === 13 && submit()}
       onBlur={submit}
-      onChange={(evt) => setNote(evt.target.value)}
+      onChange={(evt) => setText(evt.target.value)}
     />
   ) : (
     <Clickable style={{ display: "inline" }} onClick={() => setEditing(true)}>
@@ -61,24 +64,24 @@ export function TextFieldWithEditor({
 export function FavoriteButton({
   disabled,
   isFavorite,
-  toggleFavorite,
+  onClick,
 }: {
   disabled: boolean
-  toggleFavorite: () => void
+  onClick: (evt: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void
   isFavorite: boolean
 }) {
   return (
-    <IconButton disabled={disabled} onClick={() => toggleFavorite()}>
+    <IconButton disabled={disabled} onClick={onClick}>
       {isFavorite ? <Favorite /> : <FavoriteBorder />}
     </IconButton>
   )
 }
 
-export interface ClickableMixinProps {
-  onClick?: () => void
+export interface ClickableMixinProps<El> {
+  onClick?: MouseEventHandler<El>
 }
 
-export function ClickableMixin({ onClick }: ClickableMixinProps) {
+export function ClickableMixin<El>({ onClick }: ClickableMixinProps<El>) {
   return (
     onClick &&
     css`

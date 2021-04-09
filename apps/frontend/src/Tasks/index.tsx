@@ -298,9 +298,8 @@ function Tasks({ tasks }: { tasks: A.Array<Todo.Task> }) {
 function TasksScreen() {
   const [tasksResult] = useTasks()
   // testing for multi-call relying on same network-call/cache.
-  useTasks()
-  useTasks()
-  useTasks()
+  //   useTasks()
+  //   useTasks()
 
   const {
     params: { category },

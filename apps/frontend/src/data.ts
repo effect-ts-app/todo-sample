@@ -218,15 +218,18 @@ export function useQuery<R, E, A, Args extends ReadonlyArray<unknown>>(
     [ff, getFetcher]
   )
 
-  const [result, setResult] = useState<F["result"]>(getFetcher().result)
-  const [lastSuccess, setLastSuccess] = useState<F["result"]>(getFetcher().result)
+  const [{ latestSuccess, result }, setResult] = useState<
+    Pick<F, "result" | "latestSuccess">
+  >(() => ({
+    result: getFetcher().result,
+    latestSuccess: getFetcher().result,
+  }))
+
   useEffect(() => {
     const fetcher = getFetcher()
-    setResult(fetcher.result)
-    setLastSuccess(fetcher.latestSuccess)
+    setResult({ result: fetcher.result, latestSuccess: fetcher.latestSuccess })
     const handler = (result: F["result"], latestSuccess: F["latestSuccess"]) => {
-      setResult(result)
-      setLastSuccess(latestSuccess)
+      setResult({ result, latestSuccess })
     }
     fetcher.listeners = A.snoc_(fetcher.listeners, handler)
     return () => {
@@ -247,7 +250,7 @@ export function useQuery<R, E, A, Args extends ReadonlyArray<unknown>>(
   //     }
   //   }, [exec, runWithErrorLog])
 
-  return [result, lastSuccess, refetch, exec] as const
+  return [result, latestSuccess, refetch, exec] as const
 }
 
 export type PromiseExit<E = unknown, A = unknown> = Promise<Exit<E, A>>
