@@ -16,6 +16,10 @@
         "express": "^4.17.1"
     },
     "scripts": {
+        "compile": "tsc --noEmit",
+        "lint": "eslint .",
+        "test": "echo 'no tests yet'",
+        "testsuite": "yarn compile && yarn lint && yarn test",
         "start": "TSC_WATCHFILE=UseFsEventsWithFallbackDynamicPolling NODE_ENV=development nodemon --watch . --watch ../../packages --exec ts-node -r tsconfig-paths/register --transpile-only ./start-server.ts"
     },
     "devDependencies": {

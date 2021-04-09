@@ -9,5 +9,11 @@
         "@effect-ts/monocle": "^0.25.4",
         "@effect-ts/morphic": "^0.26.2",
         "cross-fetch": "^3.1.4"
+    },
+    "scripts": {
+        "compile": "tsc --noEmit",
+        "lint": "eslint .",
+        "test": "echo 'no tests yet'",
+        "testsuite": "yarn compile && yarn lint && yarn test"
     }
 }

@@ -87,9 +87,13 @@
         "workbox-webpack-plugin": "5.1.4"
     },
     "scripts": {
+        "compile": "tsc --noEmit",
+        "lint": "eslint .",
+        "test": "yarn test:runner --watchAll=false",
+        "testsuite": "yarn compile && yarn lint && yarn test",
         "start": "node scripts/start.js",
         "build": "node scripts/build.js",
-        "test": "node scripts/test.js"
+        "test:runner": "node scripts/test.js"
     },
     "browserslist": {
         "production": [
