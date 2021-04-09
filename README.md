@@ -30,6 +30,11 @@ Interesting bits are in:
 
 You can interact via the included frontend project, the `docs/postman` collection, or go wild with `curl` if that's your thing ;-)
 
+### Testing
+
+From repo root or per app/package:
+`yarn testsuite`
+
 ### Important steps
 
 - in Editor, make sure the typescript runtime is set to the local node_modules/typescript
