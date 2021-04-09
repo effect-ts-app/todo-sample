@@ -3,11 +3,19 @@ import { createGlobalStyle } from "styled-components"
 const GlobalStyle = createGlobalStyle`
     html, body {
         height: 100%;
-        overflow: auto;
     }
 
-    #root, #main, .App {
+    .App {
+        display: flex;
+    }
+
+    #root, .App {
         height: 100%;
+        flex-direction: column;
+    }
+
+    #main {
+        flex: 1;
     }
 
     body {

@@ -15,3 +15,8 @@ export function useReportLoading(name: string) {
     return () => console.log("$$$ unloaded", name)
   }, [name])
 }
+
+export function toUpperCaseFirst(s: string) {
+  const f = (s[0] ?? "").toUpperCase()
+  return `${f}${s.slice(1)}`
+}

@@ -90,9 +90,9 @@ function TaskDetail({
   }
 
   return (
-    <Box>
+    <Box flexGrow={1} display="flex" flexDirection="column">
       <Box display="flex">
-        <Box flexGrow={1}>
+        <Box display="flex" flexGrow={1}>
           <Checkbox
             disabled={toggleChecked.loading}
             checked={O.isSome(t.completed)}
@@ -122,7 +122,6 @@ function TaskDetail({
           />
         </Box>
       </Box>
-      <hr />
       <div>
         <Box>
           {t.steps.map((s, idx) => (
@@ -144,7 +143,7 @@ function TaskDetail({
         </div>
       </div>
 
-      <div>
+      <Box flexGrow={1}>
         <div>
           <h3>Reminder</h3>
           <DateTimePicker
@@ -194,9 +193,9 @@ function TaskDetail({
         >
           <pre>{t.note["|>"](O.getOrElse(() => "Add note"))}</pre>
         </TextFieldWithEditor>
-      </div>
+        <hr />
+      </Box>
 
-      <hr />
       <Box display="flex">
         <Box flexGrow={1} textAlign="center">
           <span
