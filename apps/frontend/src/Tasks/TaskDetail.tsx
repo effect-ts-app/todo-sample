@@ -1,3 +1,4 @@
+import { constant } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import { Box, Checkbox, IconButton, TextField } from "@material-ui/core"
 import { Delete } from "@material-ui/icons"
@@ -22,6 +23,8 @@ const StateTextField = styled(TextField)<StateMixinProps>`
     ${StateMixin}
   }
 `
+
+const constEmptyString = constant("")
 
 function TaskDetail({
   addNewStep,
@@ -51,9 +54,9 @@ function TaskDetail({
   toggleFavorite: WithLoading<() => void>
 }) {
   const [newStepTitle, setNewStepTitle] = useState("")
-
+  const clearStepTitle = () => setNewStepTitle("")
   useEffect(() => {
-    setNewStepTitle("")
+    clearStepTitle()
   }, [t])
 
   function Step({ step: s }: { step: Todo.Step }) {
@@ -134,7 +137,7 @@ function TaskDetail({
             onKeyPress={(evt) => {
               evt.charCode === 13 &&
                 newStepTitle.length &&
-                addNewStep(newStepTitle).then(onSuccess(() => setNewStepTitle("")))
+                addNewStep(newStepTitle).then(onSuccess(clearStepTitle))
             }}
             placeholder="Next Step"
           />
@@ -144,76 +147,76 @@ function TaskDetail({
       <div>
         <div>
           <h3>Reminder</h3>
-          {
-            <DateTimePicker
-              disabled={setReminder.loading}
-              renderInput={(p) => (
-                <StateTextField
-                  state={t["|>"](Todo.Task.reminderInPast)
-                    ["|>"](O.map(() => "error" as const))
-                    ["|>"](O.toNullable)}
-                  {...p}
-                />
-              )}
-              value={O.toNullable(t.reminder)}
-              onChange={(value) => {
-                setReminder(value)
-              }}
-            />
-          }
+          <DateTimePicker
+            disabled={setReminder.loading}
+            renderInput={(p) => (
+              <StateTextField
+                state={t["|>"](Todo.Task.reminderInPast)
+                  ["|>"](O.map(() => "error" as const))
+                  ["|>"](O.toNullable)}
+                {...p}
+              />
+            )}
+            value={O.toNullable(t.reminder)}
+            onChange={(value) => {
+              setReminder(value)
+            }}
+          />
         </div>
 
         <div>
           <h3>Due Date</h3>
-          {
-            <DatePicker
-              disabled={setDue.loading}
-              renderInput={(p) => (
-                <StateTextField
-                  state={t["|>"](Todo.Task.dueInPast)
-                    ["|>"](O.map(() => "error" as const))
-                    ["|>"](O.toNullable)}
-                  {...p}
-                />
-              )}
-              value={O.toNullable(t.due)}
-              onChange={(value) => {
-                setDue(value)
-              }}
-            />
-          }
+          <DatePicker
+            disabled={setDue.loading}
+            renderInput={(p) => (
+              <StateTextField
+                state={t["|>"](Todo.Task.dueInPast)
+                  ["|>"](O.map(() => "error" as const))
+                  ["|>"](O.toNullable)}
+                {...p}
+              />
+            )}
+            value={O.toNullable(t.due)}
+            onChange={(value) => {
+              setDue(value)
+            }}
+          />
         </div>
 
         <h3>Note</h3>
         <TextFieldWithEditor
           multiline={true}
           loading={editNote.loading}
-          initialValue={O.toNullable(t.note) ?? ""}
+          initialValue={t.note["|>"](O.getOrElse(constEmptyString))}
           onChange={(note, onSuc) => {
             editNote(note ? note : null).then(onSuccess(onSuc))
           }}
         >
-          <pre>{O.toNullable(t.note) ?? "Add note"}</pre>
+          <pre>{t.note["|>"](O.getOrElse(() => "Add note"))}</pre>
         </TextFieldWithEditor>
       </div>
 
       <hr />
-      <div>
-        <span
-          title={`Updated: ${t.updatedAt.toLocaleDateString()} at
+      <Box display="flex">
+        <Box flexGrow={1} textAlign="center">
+          <span
+            title={`Updated: ${t.updatedAt.toLocaleDateString()} at
           ${t.updatedAt.toLocaleTimeString()}`}
-        >
-          {t.completed["|>"](
-            O.fold(
-              () => <>Created: {t.createdAt.toLocaleDateString()}</>,
-              (d) => <>Completed: {d.toLocaleDateString()}</>
-            )
-          )}
-        </span>
-        <IconButton disabled={deleteTask.loading} onClick={() => deleteTask()}>
-          <Delete />
-        </IconButton>
-      </div>
+          >
+            {t.completed["|>"](
+              O.fold(
+                () => <>Created: {t.createdAt.toLocaleDateString()}</>,
+                (d) => <>Completed: {d.toLocaleDateString()}</>
+              )
+            )}
+          </span>
+        </Box>
+        <Box>
+          <IconButton disabled={deleteTask.loading} onClick={() => deleteTask()}>
+            <Delete />
+          </IconButton>
+        </Box>
+      </Box>
     </Box>
   )
 }
