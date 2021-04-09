@@ -8,12 +8,12 @@ import fetch from "cross-fetch"
 
 import { getConfig } from "./config"
 
-class FetchError {
+export class FetchError {
   public readonly _tag = "FetchError"
   constructor(public readonly error: unknown) {}
 }
 
-class ResponseError {
+export class ResponseError {
   public readonly _tag = "ResponseError"
   constructor(public readonly error: Errors) {}
 }

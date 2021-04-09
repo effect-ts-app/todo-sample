@@ -47,18 +47,21 @@ export interface Task extends AType<typeof Task_> {}
 export interface TaskE extends EType<typeof Task_> {}
 const TaskO = opaque<TaskE, Task>()(Task_)
 export const Task = Object.assign(TaskO, {
-  create: (a: Pick<Task, "title" | "steps">) => {
+  create: (a: Pick<Task, "title" | "steps"> & Partial<Pick<Task, "isFavorite">>) => {
     const createdAt = new Date()
     return Task.build({
-      ...a,
-      createdAt,
-      updatedAt: createdAt,
       completed: O.none,
       due: O.none,
-      isFavorite: false,
       note: O.none,
       reminder: O.none,
+
+      ...a,
+
+      isFavorite: a.isFavorite ?? false,
+
       id: makeUuid(),
+      createdAt,
+      updatedAt: createdAt,
     })
   },
   complete: TaskO.lens["|>"](Lens.prop("completed")).set(O.some(new Date())),

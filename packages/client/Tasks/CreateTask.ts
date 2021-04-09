@@ -1,7 +1,9 @@
 import { NonEmptyString } from "@effect-ts-demo/todo-types/shared"
 import { make, AType, EType, opaque } from "@effect-ts/morphic"
 
-const Request_ = make((F) => F.interface({ title: NonEmptyString(F) }))
+const Request_ = make((F) =>
+  F.interface({ title: NonEmptyString(F), isFavorite: F.boolean() })
+)
 export interface Request extends AType<typeof Request_> {}
 export interface RequestE extends EType<typeof Request_> {}
 export const Request = opaque<RequestE, Request>()(Request_)

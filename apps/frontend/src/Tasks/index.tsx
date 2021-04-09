@@ -7,10 +7,11 @@ import { constant, flow, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import { Lens } from "@effect-ts/monocle"
 import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
-import { Container } from "@material-ui/core"
+import { Box, Container } from "@material-ui/core"
 import { datumEither } from "@nll/datum"
 import React, { useEffect } from "react"
-import { useHistory, Route } from "react-router"
+import { useHistory, Route, useRouteMatch } from "react-router"
+import { Link } from "react-router-dom"
 import styled from "styled-components"
 
 import { useServiceContext } from "../context"
@@ -38,9 +39,11 @@ function useTasks() {
   return [result, lastSuccess, refetch] as const
 }
 
-const newTask = (newTitle: string) => TodoClient.Tasks.createTaskE({ title: newTitle })
-function useNewTask() {
-  return useFetch(newTask)
+const newTask = (isFavorite: boolean) => (newTitle: string) =>
+  TodoClient.Tasks.createTaskE({ title: newTitle, isFavorite })
+
+function useNewTask(isFavorite: boolean) {
+  return useFetch(newTask(isFavorite))
 }
 
 const deleteTask = (id: UUID) => TodoClient.Tasks.deleteTask({ id })
@@ -52,27 +55,29 @@ function useUpdateTask() {
   return useFetch(TodoClient.Tasks.updateTask)
 }
 
-const Root = styled.div`
-  display: flex;
-  flex-flow: row;
-  > * {
-    width: 100%;
-  }
-`
-
 const Loading = styled.div`
   position: fixed;
 `
 
+const LinkContainer = styled(Container)`
+  > * {
+    display: block;
+  }
+`
+
 function Tasks({ tasks }: { tasks: A.Array<Todo.Task> }) {
+  const {
+    params: { category },
+  } = useRouteMatch<{ category: "tasks" | "favorites" }>()
+
   const { runPromise } = useServiceContext()
   const [tasksResult, , refetchTasks] = useTasks()
-  const [newResult, addNewTask] = useNewTask()
+  const [newResult, addNewTask] = useNewTask(category === "favorites")
   const [deleteResult, deleteTask] = useDeleteTask()
   const [updateResult, updateTask] = useUpdateTask()
 
   const h = useHistory()
-  const setSelectedTaskId = (id: UUID) => h.push(`/${id}`)
+  const setSelectedTaskId = (id: UUID) => h.push(`/${category}/${id}`)
 
   function toggleTaskChecked(t: Todo.Task) {
     return pipe(
@@ -171,38 +176,47 @@ function Tasks({ tasks }: { tasks: A.Array<Todo.Task> }) {
   const isUpdatingTask = datumEither.isPending(updateResult)
 
   return (
-    <Root style={{ height: "100%" }}>
-      <Container>
-        <div>
-          <h1>Tasks</h1>
-        </div>
-        {isRefreshing && <Loading>Refreshing..</Loading>}
+    <Box display="flex" style={{ height: "100%" }}>
+      <Box flexBasis="200px" style={{ height: "100%", backgroundColor: "#efefef" }}>
+        <LinkContainer>
+          <Link to="/tasks">Tasks</Link>
+          <Link to="/favorites">Favorites</Link>
+          {/* <Link to="/my-day">my day</Link> */}
+        </LinkContainer>
+      </Box>
+      <Box flexGrow={1}>
+        <Container>
+          <div>
+            <h1>Tasks</h1>
+          </div>
+          {isRefreshing && <Loading>Refreshing..</Loading>}
 
-        <TaskList
-          tasks={tasks}
-          setSelectedTask={(t: Todo.Task) => setSelectedTaskId(t.id)}
-          addTask={withLoading(
-            flow(
-              addNewTask,
-              T.tap(refetchTasks),
-              T.map((r) => setSelectedTaskId(r.id)),
-              runPromise
-            ),
-            datumEither.isPending(newResult) || isRefreshing
-          )}
-          toggleFavorite={withLoading(
-            (t: Todo.Task) => toggleTaskFavorite(t)["|>"](runPromise),
-            isUpdatingTask || isRefreshing
-          )}
-          toggleTaskChecked={withLoading(
-            flow(toggleTaskChecked, runPromise),
-            isUpdatingTask || isRefreshing
-          )}
-        />
-      </Container>
+          <TaskList
+            tasks={tasks}
+            setSelectedTask={(t: Todo.Task) => setSelectedTaskId(t.id)}
+            addTask={withLoading(
+              flow(
+                addNewTask,
+                T.tap(refetchTasks),
+                T.map((r) => setSelectedTaskId(r.id)),
+                runPromise
+              ),
+              datumEither.isPending(newResult) || isRefreshing
+            )}
+            toggleFavorite={withLoading(
+              (t: Todo.Task) => toggleTaskFavorite(t)["|>"](runPromise),
+              isUpdatingTask || isRefreshing
+            )}
+            toggleTaskChecked={withLoading(
+              flow(toggleTaskChecked, runPromise),
+              isUpdatingTask || isRefreshing
+            )}
+          />
+        </Container>
+      </Box>
 
       <Route
-        path="/:id"
+        path={`/${category}/:id`}
         render={({
           match: {
             params: { id },
@@ -210,62 +224,74 @@ function Tasks({ tasks }: { tasks: A.Array<Todo.Task> }) {
         }) => {
           const t = tasks.find((x) => x.id === id)
           return (
-            <Container style={{ backgroundColor: "#efefef" }}>
-              {t && (
-                <TaskDetail
-                  task={t}
-                  deleteTask={withLoading(
-                    () =>
-                      pipe(deleteTask(t.id), T.zipRight(refetchTasks()), runPromise),
-                    datumEither.isPending(deleteResult) || isRefreshing
+            t && (
+              <Box
+                flexBasis="300px"
+                style={{ backgroundColor: "#efefef", width: "400px" }}
+              >
+                <Container>
+                  {t && (
+                    <TaskDetail
+                      task={t}
+                      deleteTask={withLoading(
+                        () =>
+                          pipe(
+                            deleteTask(t.id),
+                            T.zipRight(refetchTasks()),
+                            runPromise
+                          ),
+                        datumEither.isPending(deleteResult) || isRefreshing
+                      )}
+                      toggleChecked={withLoading(
+                        () => toggleTaskChecked(t)["|>"](runPromise),
+                        isUpdatingTask || isRefreshing
+                      )}
+                      toggleFavorite={withLoading(
+                        () => toggleTaskFavorite(t)["|>"](runPromise),
+                        isUpdatingTask || isRefreshing
+                      )}
+                      toggleStepChecked={withLoading(
+                        flow(toggleTaskStepChecked(t), runPromise),
+                        isUpdatingTask || isRefreshing
+                      )}
+                      setTitle={withLoading(
+                        flow(setTitle(t), runPromise),
+                        isUpdatingTask || isRefreshing
+                      )}
+                      setDue={withLoading(
+                        flow(setDue(t), runPromise),
+                        isUpdatingTask || isRefreshing
+                      )}
+                      setReminder={withLoading(
+                        flow(setReminder(t), runPromise),
+                        isUpdatingTask || isRefreshing
+                      )}
+                      editNote={withLoading(
+                        flow(editNote(t), runPromise),
+                        isUpdatingTask || isRefreshing
+                      )}
+                      addNewStep={withLoading(
+                        flow(addNewTaskStep(t), T.asUnit, runPromise),
+                        isUpdatingTask || isRefreshing
+                      )}
+                      updateStepTitle={withLoading(
+                        (s: Todo.Step) =>
+                          flow(updateStepTitle(t)(s), T.asUnit, runPromise),
+                        isUpdatingTask || isRefreshing
+                      )}
+                      deleteStep={withLoading(
+                        flow(deleteTaskStep(t), runPromise),
+                        isUpdatingTask || isRefreshing
+                      )}
+                    />
                   )}
-                  toggleChecked={withLoading(
-                    () => toggleTaskChecked(t)["|>"](runPromise),
-                    isUpdatingTask || isRefreshing
-                  )}
-                  toggleFavorite={withLoading(
-                    () => toggleTaskFavorite(t)["|>"](runPromise),
-                    isUpdatingTask || isRefreshing
-                  )}
-                  toggleStepChecked={withLoading(
-                    flow(toggleTaskStepChecked(t), runPromise),
-                    isUpdatingTask || isRefreshing
-                  )}
-                  setTitle={withLoading(
-                    flow(setTitle(t), runPromise),
-                    isUpdatingTask || isRefreshing
-                  )}
-                  setDue={withLoading(
-                    flow(setDue(t), runPromise),
-                    isUpdatingTask || isRefreshing
-                  )}
-                  setReminder={withLoading(
-                    flow(setReminder(t), runPromise),
-                    isUpdatingTask || isRefreshing
-                  )}
-                  editNote={withLoading(
-                    flow(editNote(t), runPromise),
-                    isUpdatingTask || isRefreshing
-                  )}
-                  addNewStep={withLoading(
-                    flow(addNewTaskStep(t), T.asUnit, runPromise),
-                    isUpdatingTask || isRefreshing
-                  )}
-                  updateStepTitle={withLoading(
-                    (s: Todo.Step) => flow(updateStepTitle(t)(s), T.asUnit, runPromise),
-                    isUpdatingTask || isRefreshing
-                  )}
-                  deleteStep={withLoading(
-                    flow(deleteTaskStep(t), runPromise),
-                    isUpdatingTask || isRefreshing
-                  )}
-                />
-              )}
-            </Container>
+                </Container>
+              </Box>
+            )
           )
         }}
       ></Route>
-    </Root>
+    </Box>
   )
 }
 
@@ -276,14 +302,26 @@ function TasksScreen() {
   useTasks()
   useTasks()
 
+  const {
+    params: { category },
+  } = useRouteMatch<{ category: "tasks" | "favorites" }>()
+
   return tasksResult["|>"](
     datumEither.fold(
       () => <div>Hi there... about to get us some Tasks</div>,
       () => <div>Getting us some tasks now..</div>,
       (err) => <>{"Error Refreshing tasks: " + JSON.stringify(err)}</>,
-      (tasks) => <Tasks tasks={tasks} />,
+      (tasks) => (
+        <Tasks
+          tasks={A.filter_(tasks, (x) => category !== "favorites" || x.isFavorite)}
+        />
+      ),
       (err) => <>{"Error Loading tasks: " + JSON.stringify(err)}</>,
-      (tasks) => <Tasks tasks={tasks} />
+      (tasks) => (
+        <Tasks
+          tasks={A.filter_(tasks, (x) => category !== "favorites" || x.isFavorite)}
+        />
+      )
     )
   )
 }

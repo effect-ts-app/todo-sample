@@ -1,5 +1,5 @@
 import React from "react"
-import { BrowserRouter } from "react-router-dom"
+import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom"
 
 import Tasks from "./Tasks"
 import logo from "./logo.svg"
@@ -13,7 +13,14 @@ function App() {
       </header>
       <section id="main">
         <BrowserRouter>
-          <Tasks />
+          <Switch>
+            <Route path="/:category">
+              <Tasks />
+            </Route>
+            <Route path="/">
+              <Redirect to="/tasks" />
+            </Route>
+          </Switch>
         </BrowserRouter>
       </section>
     </div>

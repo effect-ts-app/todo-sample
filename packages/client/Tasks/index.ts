@@ -21,8 +21,8 @@ export const findTask = (id: UUID) =>
 
 export const createTask = fetchApi3(CreateTask)("/tasks")
 
-const decodeCreateTaskRequest = decode(CreateTask.Request)
-export const createTaskE = flow(decodeCreateTaskRequest, T.chain(createTask))
+const parseCreateTaskRequest = (i: CreateTask.RequestE) => decode(CreateTask.Request)(i)
+export const createTaskE = flow(parseCreateTaskRequest, T.chain(createTask))
 
 const update = fetchApi3(UpdateTask, "PATCH")
 export function updateTask(req: UpdateTask.Request) {
