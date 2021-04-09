@@ -20,7 +20,7 @@ TODO: Implement a Layer to demo replacing for example the persistence mechanism.
 ## Getting Started
 
 From repo root:
-- `./install_packages.sh`
+- `yarn`
 - `yarn start`
 
 Interesting bits are in:

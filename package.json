@@ -29,13 +29,14 @@
         "prettier": "^2.2.1",
         "ts-node": "^9.1.1",
         "tsconfig-paths": "^3.9.0",
-        "typescript": "^4.2.3"
+        "typescript": "^4.2.4"
     },
     "scripts": {
         "start": "concurrently -k -p \"[{name}]\" -n \"CRA Server,CRA Client\" -c \"cyan.bold,green.bold,blue.bold\" \"yarn start:api\" \"yarn start:frontend\"",
         "start:api": "cd apps/api && yarn start",
         "start:frontend": "cd apps/frontend && yarn start",
-        "postinstall": "patch-package"
+        "postinstall": "patch-package",
+        "testsuite": "yarn test"
     },
     "dependencies": {
         "concurrently": "^6.0.1"
