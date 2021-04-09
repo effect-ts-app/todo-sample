@@ -26,17 +26,17 @@ module.exports = {
   extends: [
     "eslint:recommended",
     "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
     //"plugin:jest/recommended",
     "plugin:prettier/recommended", // Enables eslint-plugin-prettier and displays prettier errors as ESLint errors. Make sure this is always the last configuration in the extends array.
   ],
-  plugins: ["import", "sort-destructure-keys", "react-hooks"],
+  plugins: ["import", "sort-destructure-keys"],
   rules: {
     // too many changes
     "@typescript-eslint/ban-types": "warn",
     // too many changes - end
-
     "@typescript-eslint/no-unused-vars": [
       "error",
       { argsIgnorePattern: "^_", ignoreRestSiblings: true },
@@ -65,7 +65,6 @@ module.exports = {
     ],
     "object-shorthand": "error",
     "prefer-destructuring": "warn",
-
     // a nice idea for some parts of the code, but definitely not all.
     "@typescript-eslint/explicit-module-boundary-types": "off",
   },

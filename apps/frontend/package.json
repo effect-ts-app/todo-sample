@@ -91,12 +91,6 @@
         "build": "node scripts/build.js",
         "test": "node scripts/test.js"
     },
-    "eslintConfig": {
-        "extends": [
-            "react-app",
-            "react-app/jest"
-        ]
-    },
     "browserslist": {
         "production": [
             ">0.2%",
