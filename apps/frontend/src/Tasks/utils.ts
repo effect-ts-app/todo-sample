@@ -13,5 +13,5 @@ export function useReportLoading(name: string) {
     console.log("$$$ loaded", name)
 
     return () => console.log("$$$ unloaded", name)
-  }, [])
+  }, [name])
 }

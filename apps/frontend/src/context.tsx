@@ -6,9 +6,14 @@ import { pretty } from "@effect-ts/core/Effect/Cause"
 import * as L from "@effect-ts/core/Effect/Layer"
 import { Exit } from "@effect-ts/system/Exit"
 import { Semaphore } from "@effect-ts/system/Semaphore"
+import { StyledEngineProvider } from "@material-ui/core"
+import { StylesProvider } from "@material-ui/core/styles"
+import AdapterDateFns from "@material-ui/lab/AdapterDateFns"
+import LocalizationProvider from "@material-ui/lab/LocalizationProvider"
 import { datumEither } from "@nll/datum"
 import React, { createContext, ReactNode, useContext, useEffect, useMemo } from "react"
 
+import GlobalStyle from "./GlobalStyle"
 import { useConfig } from "./config"
 
 function makeLayers(config: ApiConfig) {
@@ -103,4 +108,21 @@ export const useFetchContext = () => useContext(FetchContext)
 export const LiveFetchContext = ({ children }: { children: React.ReactNode }) => {
   const ctx = useMemo(() => ({ fetchers: {} }), [])
   return <FetchContext.Provider value={ctx}>{children}</FetchContext.Provider>
+}
+
+export function WithContext({ children }: { children: React.ReactNode }) {
+  return (
+    <StyledEngineProvider injectFirst>
+      <StylesProvider injectFirst>
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <LiveServiceContext>
+            <LiveFetchContext>
+              <GlobalStyle />
+              {children}
+            </LiveFetchContext>
+          </LiveServiceContext>
+        </LocalizationProvider>
+      </StylesProvider>
+    </StyledEngineProvider>
+  )
 }

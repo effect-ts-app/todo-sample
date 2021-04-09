@@ -1,6 +1,6 @@
 import { IconButton, TextField, TextFieldProps } from "@material-ui/core"
 import { Favorite, FavoriteBorder } from "@material-ui/icons"
-import React, { useState, createRef, useEffect } from "react"
+import React, { useState, useRef, useEffect } from "react"
 import styled, { css } from "styled-components"
 
 export const Clickable = styled.div`
@@ -31,10 +31,12 @@ export function TextFieldWithEditor({
   renderTextField?: (p: TextFieldProps) => JSX.Element
 }) {
   const [editing, setEditing] = useState(false)
-  const editor = createRef<HTMLInputElement>()
+  const editor = useRef<HTMLInputElement | undefined>(undefined)
   useEffect(() => {
-    editor?.current?.focus()
-  }, [])
+    if (editing) {
+      editor?.current?.focus()
+    }
+  }, [editing])
   const [note, setNote] = useState(initialValue)
 
   const submit = () => onChange(note, () => setEditing(false))

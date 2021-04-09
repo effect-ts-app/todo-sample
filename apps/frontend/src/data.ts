@@ -51,7 +51,7 @@ export function useLimitToOne<R, E, A, Args extends readonly unknown[]>(
   return useCallback(
     (...args: Args) =>
       limitToOne(cancel, (cncl) => setCancel(() => cncl))(exec(...args)),
-    [exec]
+    [cancel, exec]
   )
 }
 
@@ -107,7 +107,7 @@ export function useQuery<R, E, A, Args extends ReadonlyArray<unknown>>(
     ctx.fetchers[name] = fetcher
   }
 
-  const getFetcher = () => ctx.fetchers[name] as F
+  const getFetcher = useCallback(() => ctx.fetchers[name] as F, [ctx.fetchers, name])
 
   // todo; just store inside the context
   const ff = useCallback(
@@ -160,7 +160,7 @@ export function useQuery<R, E, A, Args extends ReadonlyArray<unknown>>(
         )
       )
     },
-    [fetchFunction]
+    [fetchFunction, getFetcher]
   )
 
   // joins existing fiber when available
@@ -190,7 +190,7 @@ export function useQuery<R, E, A, Args extends ReadonlyArray<unknown>>(
         T.chain(Fiber.join)
       )
     },
-    [ff]
+    [ff, getFetcher]
   )
 
   // kills existing fiber when available and refetches
@@ -215,7 +215,7 @@ export function useQuery<R, E, A, Args extends ReadonlyArray<unknown>>(
         Semaphore.withPermit(getFetcher().sync),
         T.chain(Fiber.join)
       ),
-    [ff]
+    [ff, getFetcher]
   )
 
   const [result, setResult] = useState<F["result"]>(getFetcher().result)
@@ -236,7 +236,7 @@ export function useQuery<R, E, A, Args extends ReadonlyArray<unknown>>(
         delete ctx.fetchers[name]
       }
     }
-  }, [])
+  }, [ctx.fetchers, getFetcher, name])
 
   // we don't have the Args.. so looks like we need to receive the variables too..
   // we can then also use them for caching.
