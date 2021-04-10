@@ -51,28 +51,28 @@
     "Map": {
         "prefix": "+Map",
         "body": [
-            "import * as Map from \"@effect-ts/core/Map\""
+            "import * as Map from \"@effect-ts/core/Collections/Immutable/Map\""
         ],
         "description": "Map"
     },
     "Array": {
         "prefix": "+A",
         "body": [
-            "import * as A from \"@effect-ts/core/Array\""
+            "import * as A from \"@effect-ts/core/Collections/Immutable/Array\""
         ],
         "description": "Array as A"
     },
-    "Record": {
-        "prefix": "+R",
+    "Dictionary": {
+        "prefix": "+D",
         "body": [
-            "import * as R from \"@effect-ts/core/Record\""
+            "import * as D from \"@effect-ts/core/Collections/Immutable/Dictionary\""
         ],
-        "description": "Record as R"
+        "description": "Dictionary as D"
     },
     "NonEmptyArray": {
         "prefix": "+NA",
         "body": [
-            "import * as NA from \"@effect-ts/core/NonEmptyArray\""
+            "import * as NA from \"@effect-ts/core/Collections/Immutable/NonEmptyArray\""
         ],
         "description": "NonEmptyArray as NA"
     },
