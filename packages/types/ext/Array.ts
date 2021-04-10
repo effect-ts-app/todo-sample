@@ -1,4 +1,4 @@
-import * as A from "@effect-ts/core/Array"
+import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import { flow, Predicate } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 
@@ -50,4 +50,4 @@ export function deleteOrOriginal<A>(a: A) {
   return (as: A.Array<A>) => deleteOrOriginal_(as, a)
 }
 
-export * from "@effect-ts/core/Array"
+export * from "@effect-ts/core/Collections/Immutable/Array"

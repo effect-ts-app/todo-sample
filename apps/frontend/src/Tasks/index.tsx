@@ -1,6 +1,6 @@
 import * as T from "@effect-ts-demo/todo-types/ext/Effect"
 import * as EO from "@effect-ts-demo/todo-types/ext/EffectOption"
-import * as A from "@effect-ts/core/Array"
+import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import { flow, identity, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import { UUID } from "@effect-ts/morphic/Algebra/Primitives"

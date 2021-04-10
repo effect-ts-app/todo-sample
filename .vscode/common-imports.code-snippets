@@ -51,14 +51,14 @@
     "Map": {
         "prefix": "+Map",
         "body": [
-            "import * as Map from \"@effect-ts/core/Map\""
+            "import * as Map from \"@effect-ts/core/Collections/Immutable/Map\""
         ],
         "description": "Map"
     },
     "Array": {
         "prefix": "+A",
         "body": [
-            "import * as A from \"@effect-ts/core/Array\""
+            "import * as A from \"@effect-ts/core/Collections/Immutable/Array\""
         ],
         "description": "Array as A"
     },
