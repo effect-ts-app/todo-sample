@@ -3,7 +3,7 @@ import * as O from "@effect-ts/core/Option"
 import { Box, Checkbox, IconButton, TextField } from "@material-ui/core"
 import Delete from "@material-ui/icons/Delete"
 import { DatePicker, DateTimePicker } from "@material-ui/lab"
-import React, { useEffect, useState } from "react"
+import React, { memo } from "react"
 import styled from "styled-components"
 
 import { onSuccess, PromiseExit } from "../data"
@@ -12,6 +12,7 @@ import * as Todo from "./Todo"
 import {
   Completable,
   FavoriteButton,
+  Field,
   StateMixin,
   StateMixinProps,
   TextFieldWithEditor,
@@ -26,7 +27,7 @@ const StateTextField = styled(TextField)<StateMixinProps>`
 
 const constEmptyString = constant("")
 
-function TaskDetail({
+function TaskDetail_({
   addNewStep,
   deleteStep,
   deleteTask,
@@ -53,12 +54,6 @@ function TaskDetail({
   toggleStepChecked: WithLoading<(s: Todo.Step) => void>
   toggleFavorite: WithLoading<() => void>
 }) {
-  const [newStepTitle, setNewStepTitle] = useState("")
-  const clearStepTitle = () => setNewStepTitle("")
-  useEffect(() => {
-    clearStepTitle()
-  }, [t])
-
   function Step({ step: s }: { step: Todo.Step }) {
     return (
       <Box display="flex">
@@ -129,15 +124,10 @@ function TaskDetail({
           ))}
         </Box>
         <div>
-          <TextField
-            value={newStepTitle}
-            onChange={(evt) => setNewStepTitle(evt.target.value)}
+          <Field
+            state={t}
             disabled={addNewStep.loading}
-            onKeyPress={(evt) => {
-              evt.charCode === 13 &&
-                newStepTitle.length &&
-                addNewStep(newStepTitle).then(onSuccess(clearStepTitle))
-            }}
+            onChange={addNewStep}
             placeholder="Next Step"
           />
         </div>
@@ -220,4 +210,5 @@ function TaskDetail({
   )
 }
 
+const TaskDetail = memo(TaskDetail_)
 export default TaskDetail
