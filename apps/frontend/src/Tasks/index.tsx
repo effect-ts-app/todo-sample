@@ -143,8 +143,7 @@ function useFuncs() {
     function setDue(t: Todo.Task) {
       return (date: Date | null) =>
         pipe(
-          O.fromNullable(date),
-          EO.fromOption,
+          EO.fromNullable(date),
           T.chain((due) => updateAndRefreshTask({ id: t.id, due }))
         )
     }
@@ -160,8 +159,7 @@ function useFuncs() {
     function setReminder(t: Todo.Task) {
       return (date: Date | null) =>
         pipe(
-          O.fromNullable(date),
-          EO.fromOption,
+          EO.fromNullable(date),
           T.chain((reminder) => updateAndRefreshTask({ id: t.id, reminder }))
         )
     }
@@ -169,8 +167,7 @@ function useFuncs() {
     function editNote(t: Todo.Task) {
       return (note: string | null) =>
         pipe(
-          O.fromNullable(note),
-          EO.fromOption,
+          EO.fromNullable(note),
           EO.chain(flow(NonEmptyString.parse, EO.fromEffect)),
           T.chain((note) => updateAndRefreshTask({ id: t.id, note }))
         )
