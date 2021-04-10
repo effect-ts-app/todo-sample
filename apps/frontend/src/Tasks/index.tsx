@@ -17,7 +17,7 @@ import styled from "styled-components"
 import useInterval from "use-interval"
 
 import { useServiceContext } from "../context"
-import { useFetch, useQuery } from "../data"
+import { useFetch, useModify, useQuery } from "../data"
 
 import TaskDetail from "./TaskDetail"
 import TaskList from "./TaskList"
@@ -68,34 +68,56 @@ function useUpdateTask() {
   return useFetch(TodoClient.Tasks.updateTask)
 }
 
+function useUpdateTask2(id: string) {
+  // let's use the refetch for now, but in future make a mutation queue e.g via semaphore
+  // or limit to always just 1
+  return useQuery(`update-task-${id}`, TodoClient.Tasks.updateTask)
+}
+
 const LinkBox = styled(Box)`
   > * {
     display: block;
   }
 `
 
-function useFuncs() {
-  const [, , , , modifyTasks] = useTasks()
+export function useModifyTasks() {
+  return useModify<A.Array<Todo.Task>>("latestTasks")
+}
 
-  const [updateResult, updateTask] = useUpdateTask()
+export function useGetTask() {
+  const modifyTasks = useModifyTasks()
   const [findResult, findTask] = useFindTask()
-
-  return useMemo(() => {
-    const getTask = flow(
-      findTask,
-      EO.tap((t) =>
-        T.effectTotal(() =>
-          modifyTasks((tasks) =>
-            pipe(
-              A.findIndex_(tasks, (x) => x.id === t.id),
-              O.chain((i) => A.modifyAt_(tasks, i, constant(t))),
-              O.getOrElse(() => A.snoc_(tasks, t))
+  return [
+    findResult,
+    useCallback(
+      (id: UUID) =>
+        pipe(
+          findTask(id),
+          EO.tap((t) =>
+            T.effectTotal(() =>
+              modifyTasks((tasks) =>
+                pipe(
+                  A.findIndex_(tasks, (x) => x.id === t.id),
+                  O.chain((i) => A.modifyAt_(tasks, i, constant(t))),
+                  O.getOrElse(() => A.snoc_(tasks, t))
+                )
+              )
             )
           )
-        )
-      )
-    )
+        ),
+      [findTask, modifyTasks]
+    ),
+  ] as const
+}
 
+export function useFuncs(id: UUID) {
+  const modifyTasks = useModifyTasks()
+
+  const [updateResult, , updateTask] = useUpdateTask2(id)
+
+  const [findResult, getTask] = useGetTask()
+
+  const funcs = useMemo(() => {
     const refreshTask = (t: { id: UUID }) => getTask(t.id)
     const updateAndRefreshTask = (r: TodoClient.Tasks.UpdateTask.Request) =>
       pipe(updateTask(r), T.zipRight(refreshTask(r)))
@@ -180,10 +202,10 @@ function useFuncs() {
           T.chain(updateAndRefreshTask)
         )
     }
+
     return {
       deleteTaskStep,
       editNote,
-      getTask,
       setReminder,
       setTitle,
       setDue,
@@ -194,10 +216,16 @@ function useFuncs() {
       toggleTaskChecked,
       modifyTasks,
     }
-  }, [findTask, modifyTasks, updateTask])
+  }, [getTask, modifyTasks, updateTask])
+
+  return {
+    ...funcs,
+    findResult,
+    updateResult,
+  }
 }
 
-type Funcs = ReturnType<typeof useFuncs>
+export type Funcs = ReturnType<typeof useFuncs>
 
 export const Tasks = memo(function Tasks({
   category,
@@ -212,8 +240,6 @@ export const Tasks = memo(function Tasks({
   const { runPromise } = useServiceContext()
   const [tasksResult, , refetchTasks] = useTasks()
   const [newResult, addNewTask] = useNewTask(category === "favorites")
-  const [updateResult, updateTask] = useUpdateTask()
-  const [findResult, findTask] = useFindTask()
 
   useInterval(() => refetchTasks, 30 * 1000)
 
@@ -223,12 +249,9 @@ export const Tasks = memo(function Tasks({
     h,
   ])
 
-  const funcs = useFuncs()
-  const { getTask, toggleTaskChecked, toggleTaskFavorite } = funcs
+  const [findResult, getTask] = useGetTask()
 
   const isRefreshing = datumEither.isRefresh(tasksResult)
-  const isRefreshingTask = datumEither.isRefresh(findResult)
-  const isUpdatingTask = datumEither.isPending(updateResult) || isRefreshingTask
 
   return (
     <Box display="flex" height="100%">
@@ -249,6 +272,7 @@ export const Tasks = memo(function Tasks({
           {toUpperCaseFirst(category)} {isRefreshing && <Refresh />}
         </h1>
 
+        {/* TODO: The loading state must be per Task, but still shared across views based via the tasks-{id} */}
         <TaskList
           tasks={tasks}
           setSelectedTask={(t: Todo.Task) => setSelectedTaskId(t.id)}
@@ -259,15 +283,8 @@ export const Tasks = memo(function Tasks({
               EO.map((t) => setSelectedTaskId(t.id)),
               runPromise
             ),
-            datumEither.isPending(newResult) || isRefreshingTask
-          )}
-          toggleFavorite={withLoading(
-            (t: Todo.Task) => toggleTaskFavorite(t)["|>"](runPromise),
-            isUpdatingTask
-          )}
-          toggleTaskChecked={withLoading(
-            flow(toggleTaskChecked, runPromise),
-            isUpdatingTask
+            // TODO: or refreshing
+            datumEither.isPending(newResult) || datumEither.isPending(findResult)
           )}
         />
       </Box>
@@ -280,18 +297,21 @@ export const Tasks = memo(function Tasks({
           },
         }) => {
           const t = tasks.find((x) => x.id === id)
-          return t && <SelectedTask task={t} funcs={funcs} />
+          return t && <SelectedTask task={t} />
         }}
       ></Route>
     </Box>
   )
 })
 
-const SelectedTask_ = ({
-  funcs: {
+const SelectedTask_ = ({ task: t }: { task: Todo.Task }) => {
+  const { runPromise } = useServiceContext()
+  const [deleteResult, deleteTask] = useDeleteTask()
+  const {
     addNewTaskStep,
     deleteTaskStep,
     editNote,
+    findResult,
     modifyTasks,
     setDue,
     setReminder,
@@ -299,19 +319,12 @@ const SelectedTask_ = ({
     toggleTaskChecked,
     toggleTaskFavorite,
     toggleTaskStepChecked,
+    updateResult,
     updateStepTitle,
-  },
+  } = useFuncs(t.id)
 
-  task: t,
-}: {
-  task: Todo.Task
-  funcs: Funcs
-}) => {
-  const { runPromise } = useServiceContext()
-  const [deleteResult, deleteTask] = useDeleteTask()
-
-  // TODO: per-task updating, but still shared between views
-  const isUpdatingTask = false
+  const isRefreshingTask = datumEither.isRefresh(findResult)
+  const isUpdatingTask = datumEither.isPending(updateResult) || isRefreshingTask
 
   return (
     <Box

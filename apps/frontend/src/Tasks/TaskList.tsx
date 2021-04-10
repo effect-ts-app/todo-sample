@@ -1,11 +1,14 @@
 import * as A from "@effect-ts-demo/todo-types/ext/Array"
+import { flow } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import { Box, Card, Checkbox, TextField } from "@material-ui/core"
 import Alarm from "@material-ui/icons/Alarm"
 import CalendarToday from "@material-ui/icons/CalendarToday"
-import React, { useState } from "react"
+import { datumEither } from "@nll/datum"
+import React, { memo, useEffect, useState } from "react"
 import styled from "styled-components"
 
+import { useServiceContext } from "../context"
 import { onSuccess, PromiseExit } from "../data"
 
 import * as Todo from "./Todo"
@@ -16,7 +19,9 @@ import {
   StateMixin,
   ClickableMixin,
 } from "./components"
-import { WithLoading } from "./utils"
+import { withLoading, WithLoading } from "./utils"
+
+import { useFuncs } from "."
 
 function makeStepCount(steps: Todo.Task["steps"]) {
   if (steps.length === 0) {
@@ -50,82 +55,108 @@ function TaskList({
   addTask,
   setSelectedTask,
   tasks,
-  toggleFavorite,
-  toggleTaskChecked,
 }: {
   setSelectedTask: (i: Todo.Task) => void
-  toggleTaskChecked: WithLoading<(t: Todo.Task) => void>
   addTask: WithLoading<(taskTitle: string) => PromiseExit>
-  toggleFavorite: WithLoading<(t: Todo.Task) => void>
   tasks: A.Array<Todo.Task>
 }) {
   const [newTaskTitle, setNewTaskTitle] = useState("")
-  const completedTasks = tasks["|>"](A.filter((x) => O.isSome(x.completed)))
+  const [completedTasks, setCompletedTasks] = useState([] as A.Array<Todo.Task>)
+  const [openTasks, setOpenTasks] = useState([] as A.Array<Todo.Task>)
+  useEffect(() => {
+    setCompletedTasks(tasks["|>"](A.filter((x) => O.isSome(x.completed))))
+    setOpenTasks(tasks["|>"](A.filter((x) => !O.isSome(x.completed))))
+  }, [tasks])
 
-  function makeTasksTable(tasks: A.Array<Todo.Task>) {
+  function Task_({ task: t }: { task: Todo.Task }) {
+    const {
+      findResult,
+      toggleTaskChecked,
+      toggleTaskFavorite,
+      updateResult,
+    } = useFuncs(t.id)
+    const isRefreshingTask = datumEither.isRefresh(findResult)
+    const isUpdatingTask = datumEither.isPending(updateResult) || isRefreshingTask
+
+    const { runPromise } = useServiceContext()
+
+    const toggleFavorite = withLoading(
+      (t: Todo.Task) => toggleTaskFavorite(t)["|>"](runPromise),
+      isUpdatingTask
+    )
+
+    const toggleChecked = withLoading(
+      flow(toggleTaskChecked, runPromise),
+      isUpdatingTask
+    )
     return (
-      <CardList>
-        {tasks.map((t) => (
-          <StyledCard key={t.id} onClick={() => setSelectedTask(t)}>
-            <Box display="flex">
-              <Box flexGrow={1} display="flex">
-                <Checkbox
-                  checked={O.isSome(t.completed)}
-                  disabled={toggleTaskChecked.loading}
-                  onClick={(evt) => evt.stopPropagation()}
-                  onChange={(evt) => {
-                    evt.stopPropagation()
-                    toggleTaskChecked(t)
-                  }}
-                />
-                <div>
-                  <Completable completed={O.isSome(t.completed)}>{t.title}</Completable>
-                  <div>
-                    {makeStepCount(t.steps)}
-                    &nbsp;
-                    {t.due["|>"](
-                      O.map((d) => (
-                        // eslint-disable-next-line react/jsx-key
-                        <State
-                          state={t["|>"](Todo.Task.dueInPast)
-                            ["|>"](O.map(() => "error" as const))
-                            ["|>"](O.toNullable)}
-                        >
-                          <CalendarToday />
-                          {d.toLocaleDateString()}
-                        </State>
-                      ))
-                    )["|>"](O.toNullable)}
-                    &nbsp;
-                    {O.toNullable(t.reminder) && <Alarm />}
-                  </div>
-                </div>
-              </Box>
-              <Box>
-                <FavoriteButton
-                  disabled={toggleFavorite.loading}
-                  onClick={(evt) => {
-                    evt.stopPropagation()
-                    toggleFavorite(t)
-                  }}
-                  isFavorite={t.isFavorite}
-                />
-              </Box>
-            </Box>
-          </StyledCard>
-        ))}
-      </CardList>
+      <StyledCard onClick={() => setSelectedTask(t)}>
+        <Box display="flex">
+          <Box flexGrow={1} display="flex">
+            <Checkbox
+              checked={O.isSome(t.completed)}
+              disabled={toggleChecked.loading}
+              onClick={(evt) => evt.stopPropagation()}
+              onChange={(evt) => {
+                evt.stopPropagation()
+                toggleChecked(t)
+              }}
+            />
+            <div>
+              <Completable completed={O.isSome(t.completed)}>{t.title}</Completable>
+              <div>
+                {makeStepCount(t.steps)}
+                &nbsp;
+                {t.due["|>"](
+                  O.map((d) => (
+                    // eslint-disable-next-line react/jsx-key
+                    <State
+                      state={t["|>"](Todo.Task.dueInPast)
+                        ["|>"](O.map(() => "error" as const))
+                        ["|>"](O.toNullable)}
+                    >
+                      <CalendarToday />
+                      {d.toLocaleDateString()}
+                    </State>
+                  ))
+                )["|>"](O.toNullable)}
+                &nbsp;
+                {O.toNullable(t.reminder) && <Alarm />}
+              </div>
+            </div>
+          </Box>
+          <Box>
+            <FavoriteButton
+              disabled={toggleFavorite.loading}
+              onClick={(evt) => {
+                evt.stopPropagation()
+                toggleFavorite(t)
+              }}
+              isFavorite={t.isFavorite}
+            />
+          </Box>
+        </Box>
+      </StyledCard>
     )
   }
+  const Task = memo(Task_)
 
   return (
     <>
-      {makeTasksTable(tasks["|>"](A.filter((x) => !O.isSome(x.completed))))}
+      <CardList>
+        {openTasks.map((t) => (
+          <Task task={t} key={t.id} />
+        ))}
+      </CardList>
 
       {Boolean(completedTasks.length) && (
         <div>
           <h3>Completed</h3>
-          {makeTasksTable(completedTasks)}
+          <CardList>
+            {completedTasks.map((t) => (
+              <Task task={t} key={t.id} />
+            ))}
+          </CardList>
         </div>
       )}
 

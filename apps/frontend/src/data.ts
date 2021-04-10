@@ -6,6 +6,7 @@ import * as Ex from "@effect-ts/core/Effect/Exit"
 import { Exit } from "@effect-ts/core/Effect/Exit"
 import { pipe } from "@effect-ts/core/Function"
 import { datumEither } from "@nll/datum"
+import { DatumEither } from "@nll/datum/DatumEither"
 import { useState, useCallback, useEffect } from "react"
 
 import { Fetcher, useFetchContext } from "./context"
@@ -18,9 +19,7 @@ import { Fetcher, useFetchContext } from "./context"
 export function useFetch<R, E, A, Args extends readonly unknown[]>(
   fetchFnc: (...args: Args) => T.Effect<R, E, A>
 ) {
-  const [result, setResult] = useState<datumEither.DatumEither<E, A>>(
-    datumEither.constInitial()
-  )
+  const [result, setResult] = useState<DatumEither<E, A>>(datumEither.constInitial())
   const exec = useCallback(
     function (...args: Args) {
       return pipe(
@@ -75,6 +74,33 @@ function limitToOne(cancel: () => void, setCancel: (cnl: () => void) => void) {
     )
 }
 
+export function useModify<A>(name: string) {
+  const ctx = useFetchContext()
+  const getFetcher = useCallback(
+    () =>
+      ctx.fetchers[name] as {
+        result: DatumEither<any, A>
+        latestSuccess: DatumEither<any, A>
+        update: (
+          result: DatumEither<any, A>,
+          latestSuccess: DatumEither<any, A>
+        ) => void
+      },
+    [ctx.fetchers, name]
+  )
+  const modify = useCallback(
+    (mod: (a: A) => A) => {
+      const f = getFetcher()
+      const result = f.result["|>"](datumEither.map(mod))
+      const latestSuccess = f.latestSuccess["|>"](datumEither.map(mod))
+      f.update(result, latestSuccess)
+    },
+    [getFetcher]
+  )
+
+  return modify
+}
+
 /**
  *
  * Able to use the query over and over in multiple components, but still sharing the same state.
@@ -121,15 +147,7 @@ export function useQuery<R, E, A, Args extends ReadonlyArray<unknown>>(
 
   const getFetcher = useCallback(() => ctx.fetchers[name] as F, [ctx.fetchers, name])
 
-  const modify = useCallback(
-    (mod: (a: A) => A) => {
-      const f = getFetcher()
-      const result = f.result["|>"](datumEither.map(mod))
-      const latestSuccess = f.latestSuccess["|>"](datumEither.map(mod))
-      f.update(result, latestSuccess)
-    },
-    [getFetcher]
-  )
+  const modify = useModify<A>(name)
 
   // todo; just store inside the context
   const ff = useCallback(
@@ -248,9 +266,11 @@ export function useQuery<R, E, A, Args extends ReadonlyArray<unknown>>(
     return () => {
       const fetcher = getFetcher()
       fetcher.listeners = A.deleteOrOriginal_(fetcher.listeners, handler)
-      if (fetcher.listeners.length === 0) {
-        delete ctx.fetchers[name]
-      }
+      // TODO
+      //   if (fetcher.listeners.length === 0) {
+      //     console.log("deleting fetcher", name)
+      //     delete ctx.fetchers[name]
+      //   }
     }
   }, [ctx.fetchers, getFetcher, name])
 
