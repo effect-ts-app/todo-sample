@@ -14,9 +14,14 @@ function App() {
       <section id="main">
         <BrowserRouter>
           <Switch>
-            <Route path="/:category">
-              <Tasks />
-            </Route>
+            <Route
+              path="/:category"
+              render={({
+                match: {
+                  params: { category },
+                },
+              }) => <Tasks category={category} />}
+            ></Route>
             <Route path="/">
               <Redirect to="/tasks" />
             </Route>

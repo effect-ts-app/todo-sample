@@ -79,25 +79,27 @@ function TaskList({
                     toggleTaskChecked(t)
                   }}
                 />
-                <Completable completed={O.isSome(t.completed)}>{t.title}</Completable>
                 <div>
-                  {makeStepCount(t.steps)}
-                  &nbsp;
-                  {t.due["|>"](
-                    O.map((d) => (
-                      // eslint-disable-next-line react/jsx-key
-                      <State
-                        state={t["|>"](Todo.Task.dueInPast)
-                          ["|>"](O.map(() => "error" as const))
-                          ["|>"](O.toNullable)}
-                      >
-                        <CalendarToday />
-                        {d.toLocaleDateString()}
-                      </State>
-                    ))
-                  )["|>"](O.toNullable)}
-                  &nbsp;
-                  {O.toNullable(t.reminder) && <Alarm />}
+                  <Completable completed={O.isSome(t.completed)}>{t.title}</Completable>
+                  <div>
+                    {makeStepCount(t.steps)}
+                    &nbsp;
+                    {t.due["|>"](
+                      O.map((d) => (
+                        // eslint-disable-next-line react/jsx-key
+                        <State
+                          state={t["|>"](Todo.Task.dueInPast)
+                            ["|>"](O.map(() => "error" as const))
+                            ["|>"](O.toNullable)}
+                        >
+                          <CalendarToday />
+                          {d.toLocaleDateString()}
+                        </State>
+                      ))
+                    )["|>"](O.toNullable)}
+                    &nbsp;
+                    {O.toNullable(t.reminder) && <Alarm />}
+                  </div>
                 </div>
               </Box>
               <Box>
