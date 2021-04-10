@@ -1,13 +1,12 @@
 import * as A from "@effect-ts-demo/todo-types/ext/Array"
 import * as O from "@effect-ts/core/Option"
-import { Exit } from "@effect-ts/system/Exit"
 import { Box, Card, Checkbox, TextField } from "@material-ui/core"
 import Alarm from "@material-ui/icons/Alarm"
 import CalendarToday from "@material-ui/icons/CalendarToday"
 import React, { useState } from "react"
 import styled from "styled-components"
 
-import { onSuccess } from "../data"
+import { onSuccess, PromiseExit } from "../data"
 
 import * as Todo from "./Todo"
 import {
@@ -56,7 +55,7 @@ function TaskList({
 }: {
   setSelectedTask: (i: Todo.Task) => void
   toggleTaskChecked: WithLoading<(t: Todo.Task) => void>
-  addTask: WithLoading<(taskTitle: string) => Promise<Exit<unknown, unknown>>>
+  addTask: WithLoading<(taskTitle: string) => PromiseExit>
   toggleFavorite: WithLoading<(t: Todo.Task) => void>
   tasks: A.Array<Todo.Task>
 }) {
