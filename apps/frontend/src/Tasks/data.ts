@@ -76,7 +76,7 @@ export function useGetTask() {
                 pipe(
                   A.findIndex_(tasks, (x) => x.id === t.id),
                   O.chain((i) => A.modifyAt_(tasks, i, constant(t))),
-                  O.getOrElse(() => A.snoc_(tasks, t))
+                  O.getOrElse(() => A.cons_(tasks, t))
                 )
               )
             )

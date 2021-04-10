@@ -5,9 +5,10 @@ import { Cause } from "@effect-ts/core/Effect/Cause"
 import * as Ex from "@effect-ts/core/Effect/Exit"
 import { Exit } from "@effect-ts/core/Effect/Exit"
 import { pipe } from "@effect-ts/core/Function"
+import * as O from "@effect-ts/core/Option"
 import { datumEither } from "@nll/datum"
 import { DatumEither } from "@nll/datum/DatumEither"
-import { useState, useCallback, useEffect } from "react"
+import { useState, useCallback, useEffect, useMemo } from "react"
 
 import { Fetcher, useFetchContext } from "./context"
 
@@ -113,7 +114,8 @@ export function useQuery<R, E, A, Args extends ReadonlyArray<unknown>>(
 
   if (ctx.fetchers[name]) {
     if (fetchFunction !== ctx.fetchers[name].fetch) {
-      throw new Error("fetch function is not stable")
+      console.warn(`Fetch function for ${name} appears to be unstable`)
+      ctx.fetchers[name].fetch = fetchFunction
     }
   } else {
     const fetcher: F = {
@@ -133,6 +135,7 @@ export function useQuery<R, E, A, Args extends ReadonlyArray<unknown>>(
             ? result
             : fetcher.latestSuccess
         }
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         fetcher.listeners.forEach((x) => x(result, latestSuccess!))
       },
       sync: Semaphore.unsafeMakeSemaphore(1),
@@ -140,7 +143,7 @@ export function useQuery<R, E, A, Args extends ReadonlyArray<unknown>>(
     ctx.fetchers[name] = fetcher
   }
 
-  const getFetcher = useCallback(() => ctx.fetchers[name] as F, [ctx.fetchers, name])
+  const fetcher = useMemo(() => ctx.fetchers[name] as F, [ctx.fetchers, name])
 
   const modify = useModify<A>(name)
 
@@ -149,21 +152,21 @@ export function useQuery<R, E, A, Args extends ReadonlyArray<unknown>>(
     function (...args: Args) {
       return pipe(
         T.effectTotal(() => {
-          getFetcher().modify((r) =>
+          fetcher.modify((r) =>
             datumEither.isInitial(r)
               ? datumEither.constPending()
               : datumEither.toRefresh(r)
           )
         }),
-        T.zipRight(fetchFunction(...args)),
+        T.zipRight(fetcher.fetch(...args)),
         T.chain((a) =>
           T.effectTotal(() => {
-            getFetcher().update(datumEither.success(a))
+            fetcher.update(datumEither.success(a))
             return a
           })
         ),
         T.catchAll((err) => {
-          getFetcher().update(datumEither.failure(err))
+          fetcher.update(datumEither.failure(err))
           return T.fail(err)
         }),
         T.result,
@@ -172,28 +175,26 @@ export function useQuery<R, E, A, Args extends ReadonlyArray<unknown>>(
             (cause) => {
               console.warn("exiting on cause", cause)
               // let's leave the error fiber, so that subsequent requests can share the result
-              //   const f = getFetcher()
-              //   f.fiber = null
+              //   fetcher.fiber = null
               return T.halt(cause)
             },
             (v) => {
               // let's leave the success fiber, so that subsequent requests can share the result
-              //   const f = getFetcher()
-              //   f.fiber = null
+              //   fetcher.fiber = null
               return T.succeed(v)
             }
           )
         )
       )
     },
-    [fetchFunction, getFetcher]
+    [fetcher]
   )
 
-  // joins existing fiber when available
+  // joins existing fiber when available, even when old.
   const exec = useCallback(
     function (...args: Args) {
       return pipe(
-        T.effectTotal(() => getFetcher().fiber),
+        T.effectTotal(() => fetcher.fiber),
         T.chain((f) =>
           f
             ? T.effectTotal(() => {
@@ -206,17 +207,16 @@ export function useQuery<R, E, A, Args extends ReadonlyArray<unknown>>(
                 T.tap((f) =>
                   T.effectTotal(() => {
                     console.log("setting fiber", f.id)
-                    getFetcher().fiber = f
+                    fetcher.fiber = f
                   })
                 )
               )
         ),
-
-        Semaphore.withPermit(getFetcher().sync),
+        Semaphore.withPermit(fetcher.sync),
         T.chain(Fiber.join)
       )
     },
-    [ff, getFetcher]
+    [ff, fetcher]
   )
 
   // kills existing fiber when available and refetches
@@ -226,48 +226,54 @@ export function useQuery<R, E, A, Args extends ReadonlyArray<unknown>>(
         ff(...args),
         T.fork,
         T.tap((f) => {
-          const runFib = getFetcher().fiber
+          const runFib = fetcher.fiber
           if (runFib) {
             console.log("interrupting fiber", runFib.id)
           }
           const setFiber = T.effectTotal(() => {
             console.log("setting fiber", f.id)
-            getFetcher().fiber = f
+            fetcher.fiber = f
           })
           return runFib
             ? Fiber.interrupt(runFib)["|>"](T.chain(() => setFiber))
             : setFiber
         }),
-        Semaphore.withPermit(getFetcher().sync),
+        Semaphore.withPermit(fetcher.sync),
         T.chain(Fiber.join)
       ),
-    [ff, getFetcher]
+    [ff, fetcher]
   )
 
   const [{ latestSuccess, result }, setResult] = useState<
     Pick<F, "result" | "latestSuccess">
   >(() => ({
-    result: getFetcher().result,
-    latestSuccess: getFetcher().result,
+    result: fetcher.result,
+    latestSuccess: fetcher.result,
   }))
 
   useEffect(() => {
-    const fetcher = getFetcher()
     setResult({ result: fetcher.result, latestSuccess: fetcher.latestSuccess })
     const handler = (result: F["result"], latestSuccess: F["latestSuccess"]) => {
       setResult({ result, latestSuccess })
     }
     fetcher.listeners = A.snoc_(fetcher.listeners, handler)
     return () => {
-      const fetcher = getFetcher()
-      fetcher.listeners = A.deleteOrOriginal_(fetcher.listeners, handler)
+      A.findIndex_(fetcher.listeners, (x) => x === handler)
+        ["|>"](O.chain((idx) => A.deleteAt_(fetcher.listeners, idx)))
+        ["|>"](
+          O.fold(
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
+            () => {},
+            (l) => (fetcher.listeners = l)
+          )
+        )
       // TODO
       //   if (fetcher.listeners.length === 0) {
       //     console.log("deleting fetcher", name)
       //     delete ctx.fetchers[name]
       //   }
     }
-  }, [ctx.fetchers, getFetcher, name])
+  }, [fetcher])
 
   // we don't have the Args.. so looks like we need to receive the variables too..
   // we can then also use them for caching.
