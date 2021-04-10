@@ -32,11 +32,23 @@ export function useTasks() {
   return r
 }
 
-const newTask = (isFavorite: boolean) => (newTitle: string) =>
-  TodoClient.Tasks.createTaskE({ title: newTitle, isFavorite })
+const newTask = (v: TaskView) => (newTitle: string) =>
+  TodoClient.Tasks.createTaskE({
+    title: newTitle,
+    isFavorite: false,
+    myDay: null,
+    ...(v === "important"
+      ? { isFavorite: true }
+      : v === "my-day"
+      ? { myDay: new Date().toISOString() }
+      : {}),
+  })
 
-export function useNewTask(isFavorite: boolean) {
-  return useFetch(newTask(isFavorite))
+export const TaskView = ["tasks", "important", "my-day"] as const
+export type TaskView = typeof TaskView[number]
+
+export function useNewTask(v: TaskView) {
+  return useFetch(newTask(v))
 }
 
 export function useFindTask() {
@@ -102,6 +114,13 @@ export function useTaskCommands(id: UUID) {
     function toggleTaskChecked(t: Todo.Task) {
       return pipe(
         T.effectTotal(() => t["|>"](Todo.Task.toggleCompleted)),
+        T.chain(updateAndRefreshTask)
+      )
+    }
+
+    function toggleTaskMyDay(t: Todo.Task) {
+      return pipe(
+        T.effectTotal(() => t["|>"](Todo.Task.toggleMyDay)),
         T.chain(updateAndRefreshTask)
       )
     }
@@ -191,6 +210,7 @@ export function useTaskCommands(id: UUID) {
       updateStepTitle,
       toggleTaskFavorite,
       toggleTaskChecked,
+      toggleTaskMyDay,
       modifyTasks,
     }
   }, [getTask, modifyTasks, updateTask])

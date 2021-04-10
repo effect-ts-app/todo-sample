@@ -5,6 +5,7 @@ import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
 import { Box, Card, Checkbox } from "@material-ui/core"
 import Alarm from "@material-ui/icons/Alarm"
 import CalendarToday from "@material-ui/icons/CalendarToday"
+import Today from "@material-ui/icons/Today"
 import { datumEither } from "@nll/datum"
 import React, { memo, useEffect, useState } from "react"
 import styled from "styled-components"
@@ -90,6 +91,11 @@ function Task_({
           <div>
             <Completable completed={O.isSome(t.completed)}>{t.title}</Completable>
             <div>
+              {O.isSome(t.myDay) && (
+                <>
+                  <Today /> My day -&nbsp;
+                </>
+              )}
               {makeStepCount(t.steps)}
               &nbsp;
               {t.due["|>"](

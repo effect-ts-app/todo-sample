@@ -29,6 +29,9 @@ export const Task = Object.assign({}, Todo.Task, {
   toggleCompleted: Todo.Task.lens["|>"](Lens.prop("completed"))["|>"](
     Lens.modify((x) => (O.isSome(x) ? O.none : O.some(new Date())))
   ),
+  toggleMyDay: Todo.Task.lens["|>"](Lens.prop("myDay"))["|>"](
+    Lens.modify((x) => (O.isSome(x) ? O.none : O.some(new Date())))
+  ),
   toggleFavorite: Todo.Task.lens["|>"](Lens.prop("isFavorite"))["|>"](toggleBoolean),
   toggleStepCompleted: (s: Todo.Step) =>
     taskSteps["|>"](Lens.modify(toggleStepCompleted(s))),

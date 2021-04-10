@@ -1,7 +1,8 @@
 import * as T from "@effect-ts-demo/todo-types/ext/Effect"
 import * as EO from "@effect-ts-demo/todo-types/ext/EffectOption"
 import * as A from "@effect-ts/core/Array"
-import { flow, pipe } from "@effect-ts/core/Function"
+import { flow, identity, pipe } from "@effect-ts/core/Function"
+import * as O from "@effect-ts/core/Option"
 import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
 import { Box } from "@material-ui/core"
 import Refresh from "@material-ui/icons/Refresh"
@@ -19,6 +20,7 @@ import TaskList from "./TaskList"
 import * as Todo from "./Todo"
 import { Field } from "./components"
 import {
+  TaskView,
   useDeleteTask,
   useGetTask,
   useNewTask,
@@ -26,8 +28,6 @@ import {
   useTasks,
 } from "./data"
 import { toUpperCaseFirst, withLoading } from "./utils"
-
-type TaskView = "tasks" | "favorites"
 
 const LinkBox = styled(Box)`
   > * {
@@ -44,16 +44,39 @@ function FolderList_() {
       paddingTop={7}
       paddingBottom={2}
     >
-      <Link to="/tasks">Tasks</Link>
-      <Link to="/favorites">Favorites</Link>
-      {/* <Link to="/my-day">my day</Link> */}
+      {TaskView.map((c) => (
+        <Link to={`/${c}`} key={c}>
+          {toUpperCaseFirst(c)}
+        </Link>
+      ))}
     </LinkBox>
   )
 }
 const FolderList = memo(FolderList_)
 
+function isSameDay(today: Date) {
+  return (someDate: Date) => {
+    return (
+      someDate.getDate() == today.getDate() &&
+      someDate.getMonth() == today.getMonth() &&
+      someDate.getFullYear() == today.getFullYear()
+    )
+  }
+}
+
 function filterByCategory(category: TaskView) {
-  return A.filter((t: Todo.Task) => category !== "favorites" || t.isFavorite)
+  switch (category) {
+    case "important":
+      return A.filter((t: Todo.Task) => t.isFavorite)
+    case "my-day": {
+      const isToday = isSameDay(new Date())
+      return A.filter((t: Todo.Task) =>
+        t.myDay["|>"](O.map(isToday))["|>"](O.getOrElse(() => false))
+      )
+    }
+    default:
+      return identity
+  }
 }
 
 export const Tasks = memo(function Tasks({
@@ -110,11 +133,11 @@ const AddTask_ = ({
   category,
   setSelectedTaskId,
 }: {
-  category: string
+  category: TaskView
   setSelectedTaskId: (i: UUID) => void
 }) => {
   const { runPromise } = useServiceContext()
-  const [newResult, addNewTask] = useNewTask(category === "favorites")
+  const [newResult, addNewTask] = useNewTask(category)
 
   const [findResult, getTask] = useGetTask()
 
@@ -151,6 +174,7 @@ const SelectedTask_ = ({ task: t }: { task: Todo.Task }) => {
     setTitle,
     toggleTaskChecked,
     toggleTaskFavorite,
+    toggleTaskMyDay,
     toggleTaskStepChecked,
     updateResult,
     updateStepTitle,
@@ -185,6 +209,10 @@ const SelectedTask_ = ({ task: t }: { task: Todo.Task }) => {
               runPromise
             ),
           datumEither.isPending(deleteResult)
+        )}
+        toggleMyDay={withLoading(
+          () => toggleTaskMyDay(t)["|>"](runPromise),
+          isUpdatingTask
         )}
         toggleChecked={withLoading(
           () => toggleTaskChecked(t)["|>"](runPromise),

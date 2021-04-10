@@ -28,6 +28,7 @@ export function EditableTaskProps<Env extends BaseFC>(F: CoreAlgebra<"HKT", Env>
 
     due: F.nullable(F.date()),
     reminder: F.nullable(F.date()),
+    myDay: F.nullable(F.date()),
     note: F.nullable(NonEmptyString(F)),
     steps: Steps(F),
   }
@@ -47,7 +48,9 @@ export interface Task extends AType<typeof Task_> {}
 export interface TaskE extends EType<typeof Task_> {}
 const TaskO = opaque<TaskE, Task>()(Task_)
 export const Task = Object.assign(TaskO, {
-  create: (a: Pick<Task, "title" | "steps"> & Partial<Pick<Task, "isFavorite">>) => {
+  create: (
+    a: Pick<Task, "title" | "steps"> & Partial<Pick<Task, "isFavorite" | "myDay">>
+  ) => {
     const createdAt = new Date()
     return Task.build({
       completed: O.none,
@@ -62,6 +65,8 @@ export const Task = Object.assign(TaskO, {
       id: makeUuid(),
       createdAt,
       updatedAt: createdAt,
+
+      myDay: a.myDay ?? O.none,
     })
   },
   complete: TaskO.lens["|>"](Lens.prop("completed")).set(O.some(new Date())),

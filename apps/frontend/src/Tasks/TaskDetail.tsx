@@ -1,6 +1,6 @@
 import { constant } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
-import { Box, Checkbox, IconButton, TextField } from "@material-ui/core"
+import { Box, Button, Checkbox, IconButton, TextField } from "@material-ui/core"
 import Delete from "@material-ui/icons/Delete"
 import { DatePicker, DateTimePicker } from "@material-ui/lab"
 import React, { memo } from "react"
@@ -38,6 +38,7 @@ function TaskDetail_({
   task: t,
   toggleChecked,
   toggleFavorite,
+  toggleMyDay,
   toggleStepChecked,
   updateStepTitle,
 }: {
@@ -51,6 +52,7 @@ function TaskDetail_({
   updateStepTitle: WithLoading<(s: Todo.Step) => (newTitle: string) => PromiseExit>
   editNote: WithLoading<(note: string | null) => PromiseExit>
   toggleChecked: WithLoading<() => void>
+  toggleMyDay: WithLoading<() => void>
   toggleStepChecked: WithLoading<(s: Todo.Step) => void>
   toggleFavorite: WithLoading<() => void>
 }) {
@@ -131,6 +133,17 @@ function TaskDetail_({
             placeholder="Next Step"
           />
         </div>
+      </div>
+
+      <div>
+        <Button onClick={toggleMyDay}>
+          {t.myDay["|>"](
+            O.fold(
+              () => "Add to my day",
+              () => "Added to my day"
+            )
+          )}
+        </Button>
       </div>
 
       <Box flexGrow={1}>
