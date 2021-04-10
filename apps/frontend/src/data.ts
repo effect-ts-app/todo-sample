@@ -79,11 +79,11 @@ export function useModify<A>(name: string) {
   const getFetcher = useCallback(
     () =>
       ctx.fetchers[name] as {
-        result: DatumEither<any, A>
-        latestSuccess: DatumEither<any, A>
+        result: DatumEither<unknown, A>
+        latestSuccess: DatumEither<unknown, A>
         update: (
-          result: DatumEither<any, A>,
-          latestSuccess: DatumEither<any, A>
+          result: DatumEither<unknown, A>,
+          latestSuccess: DatumEither<unknown, A>
         ) => void
       },
     [ctx.fetchers, name]

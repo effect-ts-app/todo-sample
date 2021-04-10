@@ -71,7 +71,7 @@ export const Field = ({
   ...rest
 }: {
   onChange: (t: NonEmptyString) => PromiseExit
-  state?: any
+  state?: unknown
 } & Omit<TextFieldProps, "onChange">) => {
   const [text, setText] = useState("")
   const clearText = () => setText("")

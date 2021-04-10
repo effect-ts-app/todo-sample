@@ -22,6 +22,7 @@ import { useFetch, useModify, useQuery } from "../data"
 import TaskDetail from "./TaskDetail"
 import TaskList from "./TaskList"
 import * as Todo from "./Todo"
+import { Field } from "./components"
 import { toUpperCaseFirst, withLoading } from "./utils"
 
 type TaskView = "tasks" | "favorites"
@@ -227,6 +228,23 @@ export function useFuncs(id: UUID) {
 
 export type Funcs = ReturnType<typeof useFuncs>
 
+function FolderList_() {
+  return (
+    <LinkBox
+      flexBasis="200px"
+      style={{ backgroundColor: "#efefef" }}
+      paddingX={1}
+      paddingTop={7}
+      paddingBottom={2}
+    >
+      <Link to="/tasks">Tasks</Link>
+      <Link to="/favorites">Favorites</Link>
+      {/* <Link to="/my-day">my day</Link> */}
+    </LinkBox>
+  )
+}
+const FolderList = memo(FolderList_)
+
 export const Tasks = memo(function Tasks({
   category,
   tasks: unfilteredTasks,
@@ -237,9 +255,7 @@ export const Tasks = memo(function Tasks({
   const filter = filterByCategory(category)
   const tasks = filter(unfilteredTasks)
 
-  const { runPromise } = useServiceContext()
   const [tasksResult, , refetchTasks] = useTasks()
-  const [newResult, addNewTask] = useNewTask(category === "favorites")
 
   useInterval(() => refetchTasks, 30 * 1000)
 
@@ -249,44 +265,19 @@ export const Tasks = memo(function Tasks({
     h,
   ])
 
-  const [findResult, getTask] = useGetTask()
-
   const isRefreshing = datumEither.isRefresh(tasksResult)
 
   return (
     <Box display="flex" height="100%">
-      <LinkBox
-        flexBasis="200px"
-        style={{ backgroundColor: "#efefef" }}
-        paddingX={1}
-        paddingTop={7}
-        paddingBottom={2}
-      >
-        <Link to="/tasks">Tasks</Link>
-        <Link to="/favorites">Favorites</Link>
-        {/* <Link to="/my-day">my day</Link> */}
-      </LinkBox>
+      <FolderList />
 
       <Box flexGrow={1} paddingX={2} paddingBottom={2}>
         <h1>
           {toUpperCaseFirst(category)} {isRefreshing && <Refresh />}
         </h1>
 
-        {/* TODO: The loading state must be per Task, but still shared across views based via the tasks-{id} */}
-        <TaskList
-          tasks={tasks}
-          setSelectedTask={(t: Todo.Task) => setSelectedTaskId(t.id)}
-          addTask={withLoading(
-            flow(
-              addNewTask,
-              T.chain((r) => getTask(r.id)),
-              EO.map((t) => setSelectedTaskId(t.id)),
-              runPromise
-            ),
-            // TODO: or refreshing
-            datumEither.isPending(newResult) || datumEither.isPending(findResult)
-          )}
-        />
+        <TaskList tasks={tasks} setSelectedTaskId={setSelectedTaskId} />
+        <AddTask category={category} setSelectedTaskId={setSelectedTaskId} />
       </Box>
 
       <Route
@@ -303,6 +294,37 @@ export const Tasks = memo(function Tasks({
     </Box>
   )
 })
+
+const AddTask_ = ({
+  category,
+  setSelectedTaskId,
+}: {
+  category: string
+  setSelectedTaskId: (i: UUID) => void
+}) => {
+  const { runPromise } = useServiceContext()
+  const [newResult, addNewTask] = useNewTask(category === "favorites")
+
+  const [findResult, getTask] = useGetTask()
+
+  const addTask = withLoading(
+    flow(
+      addNewTask,
+      T.chain((r) => getTask(r.id)),
+      EO.map((t) => setSelectedTaskId(t.id)),
+      runPromise
+    ),
+    // TODO: or refreshing
+    datumEither.isPending(newResult) || datumEither.isPending(findResult)
+  )
+  return (
+    <div>
+      <Field placeholder="Add a Task" disabled={addTask.loading} onChange={addTask} />
+    </div>
+  )
+}
+
+const AddTask = memo(AddTask_)
 
 const SelectedTask_ = ({ task: t }: { task: Todo.Task }) => {
   const { runPromise } = useServiceContext()

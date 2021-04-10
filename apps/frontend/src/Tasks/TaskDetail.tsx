@@ -3,7 +3,7 @@ import * as O from "@effect-ts/core/Option"
 import { Box, Checkbox, IconButton, TextField } from "@material-ui/core"
 import Delete from "@material-ui/icons/Delete"
 import { DatePicker, DateTimePicker } from "@material-ui/lab"
-import React from "react"
+import React, { memo } from "react"
 import styled from "styled-components"
 
 import { onSuccess, PromiseExit } from "../data"
@@ -27,7 +27,7 @@ const StateTextField = styled(TextField)<StateMixinProps>`
 
 const constEmptyString = constant("")
 
-function TaskDetail({
+function TaskDetail_({
   addNewStep,
   deleteStep,
   deleteTask,
@@ -210,4 +210,5 @@ function TaskDetail({
   )
 }
 
+const TaskDetail = memo(TaskDetail_)
 export default TaskDetail
