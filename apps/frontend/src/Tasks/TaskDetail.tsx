@@ -1,7 +1,7 @@
 import { constant } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import { Box, Checkbox, IconButton, TextField } from "@material-ui/core"
-import { Delete } from "@material-ui/icons"
+import Delete from "@material-ui/icons/Delete"
 import { DatePicker, DateTimePicker } from "@material-ui/lab"
 import React, { useEffect, useState } from "react"
 import styled from "styled-components"

@@ -1,5 +1,6 @@
 import { IconButton, TextField, TextFieldProps } from "@material-ui/core"
-import { Favorite, FavoriteBorder } from "@material-ui/icons"
+import Favorite from "@material-ui/icons/Favorite"
+import FavoriteBorder from "@material-ui/icons/FavoriteBorder"
 import React, { useState, useRef, useEffect, MouseEventHandler } from "react"
 import styled, { css } from "styled-components"
 

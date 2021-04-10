@@ -12,6 +12,8 @@ import * as GetTask from "./GetTask"
 import * as GetTasks from "./GetTasks"
 import * as UpdateTask from "./UpdateTask"
 
+export { CreateTask, DeleteTask, GetTask, GetTasks, UpdateTask }
+
 const decodeGetTasksResponse = flow(decode(GetTasks.Response), mapResponseError)
 export const getTasks = pipe(fetchApi("/tasks"), T.chain(decodeGetTasksResponse))
 

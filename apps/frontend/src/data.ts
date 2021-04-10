@@ -102,6 +102,18 @@ export function useQuery<R, E, A, Args extends ReadonlyArray<unknown>>(
       result: datumEither.constInitial(),
       latestSuccess: datumEither.constInitial(),
       listeners: [],
+      modify: (mod) => fetcher.update(mod(fetcher.result)),
+      update: (result, latestSuccess) => {
+        fetcher.result = result
+        if (latestSuccess) {
+          fetcher.latestSuccess = latestSuccess
+        } else {
+          latestSuccess = fetcher.latestSuccess = datumEither.isSuccess(result)
+            ? result
+            : fetcher.latestSuccess
+        }
+        fetcher.listeners.forEach((x) => x(result, latestSuccess!))
+      },
       sync: Semaphore.unsafeMakeSemaphore(1),
     }
     ctx.fetchers[name] = fetcher
@@ -109,35 +121,36 @@ export function useQuery<R, E, A, Args extends ReadonlyArray<unknown>>(
 
   const getFetcher = useCallback(() => ctx.fetchers[name] as F, [ctx.fetchers, name])
 
+  const modify = useCallback(
+    (mod: (a: A) => A) => {
+      const f = getFetcher()
+      const result = f.result["|>"](datumEither.map(mod))
+      const latestSuccess = f.latestSuccess["|>"](datumEither.map(mod))
+      f.update(result, latestSuccess)
+    },
+    [getFetcher]
+  )
+
   // todo; just store inside the context
   const ff = useCallback(
     function (...args: Args) {
       return pipe(
         T.effectTotal(() => {
-          const f = getFetcher()
-          const { latestSuccess } = f
-          const r = (f.result = datumEither.isInitial(f.result)
-            ? datumEither.constPending()
-            : datumEither.toRefresh(f.result))
-          console.log("Loading", r, latestSuccess, f.listeners)
-          f.listeners.forEach((x) => x(r, latestSuccess))
+          getFetcher().modify((r) =>
+            datumEither.isInitial(r)
+              ? datumEither.constPending()
+              : datumEither.toRefresh(r)
+          )
         }),
         T.zipRight(fetchFunction(...args)),
         T.chain((a) =>
           T.effectTotal(() => {
-            const f = getFetcher()
-            const r = (f.latestSuccess = f.result = datumEither.success(a))
-            console.log(r, f.listeners)
-            f.listeners.forEach((x) => x(r, r))
+            getFetcher().update(datumEither.success(a))
             return a
           })
         ),
         T.catchAll((err) => {
-          const f = getFetcher()
-          const r = (f.result = datumEither.failure(err))
-          const { latestSuccess } = f
-          console.log("Error", r, latestSuccess, f.listeners)
-          f.listeners.forEach((x) => x(r, latestSuccess))
+          getFetcher().update(datumEither.failure(err))
           return T.fail(err)
         }),
         T.result,
@@ -250,7 +263,7 @@ export function useQuery<R, E, A, Args extends ReadonlyArray<unknown>>(
   //     }
   //   }, [exec, runWithErrorLog])
 
-  return [result, latestSuccess, refetch, exec] as const
+  return [result, latestSuccess, refetch, exec, modify] as const
 }
 
 export type PromiseExit<E = unknown, A = unknown> = Promise<Exit<E, A>>

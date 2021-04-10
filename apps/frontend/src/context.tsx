@@ -97,6 +97,13 @@ export type Fetcher<E = any, Err = any, A = any, Fnc = any> = {
     result: datumEither.DatumEither<Err, A>,
     latestSuccess: datumEither.DatumEither<Err, A>
   ) => void)[]
+  modify: (
+    mod: (c: datumEither.DatumEither<Err, A>) => datumEither.DatumEither<Err, A>
+  ) => void
+  update: (
+    result: datumEither.DatumEither<Err, A>,
+    latestSuccess?: datumEither.DatumEither<Err, A>
+  ) => void
   sync: Semaphore
 }
 
