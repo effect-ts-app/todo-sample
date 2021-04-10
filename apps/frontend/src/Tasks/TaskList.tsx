@@ -19,9 +19,8 @@ import {
   StateMixin,
   ClickableMixin,
 } from "./components"
+import { useTaskCommands } from "./data"
 import { withLoading } from "./utils"
-
-import { useFuncs } from "."
 
 function makeStepCount(steps: Todo.Task["steps"]) {
   if (steps.length === 0) {
@@ -58,9 +57,12 @@ function Task_({
   task: Todo.Task
   setSelectedTaskId: (id: UUID) => void
 }) {
-  const { findResult, toggleTaskChecked, toggleTaskFavorite, updateResult } = useFuncs(
-    t.id
-  )
+  const {
+    findResult,
+    toggleTaskChecked,
+    toggleTaskFavorite,
+    updateResult,
+  } = useTaskCommands(t.id)
   const isRefreshingTask = datumEither.isRefresh(findResult)
   const isUpdatingTask = datumEither.isPending(updateResult) || isRefreshingTask
 
