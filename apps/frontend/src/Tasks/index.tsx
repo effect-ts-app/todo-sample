@@ -299,7 +299,7 @@ export const Tasks = memo(function Tasks({
           const t = tasks.find((x) => x.id === id)
           return t && <SelectedTask task={t} />
         }}
-      ></Route>
+      />
     </Box>
   )
 })

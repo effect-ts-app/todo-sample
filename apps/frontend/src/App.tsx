@@ -21,7 +21,7 @@ function App() {
                   params: { category },
                 },
               }) => <Tasks category={category} />}
-            ></Route>
+            />
             <Route path="/">
               <Redirect to="/tasks" />
             </Route>
