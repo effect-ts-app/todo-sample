@@ -1,10 +1,9 @@
-import { NonEmptyString } from "@effect-ts-demo/todo-types/shared"
 import { constant } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
-import { Box, Checkbox, IconButton, TextField, TextFieldProps } from "@material-ui/core"
+import { Box, Checkbox, IconButton, TextField } from "@material-ui/core"
 import Delete from "@material-ui/icons/Delete"
 import { DatePicker, DateTimePicker } from "@material-ui/lab"
-import React, { useEffect, useState } from "react"
+import React from "react"
 import styled from "styled-components"
 
 import { onSuccess, PromiseExit } from "../data"
@@ -13,6 +12,7 @@ import * as Todo from "./Todo"
 import {
   Completable,
   FavoriteButton,
+  Field,
   StateMixin,
   StateMixinProps,
   TextFieldWithEditor,
@@ -26,34 +26,6 @@ const StateTextField = styled(TextField)<StateMixinProps>`
 `
 
 const constEmptyString = constant("")
-
-const Field = ({
-  onChange,
-  state,
-  ...rest
-}: {
-  onChange: (t: NonEmptyString) => PromiseExit
-  state: any
-} & Omit<TextFieldProps, "onChange">) => {
-  const [text, setText] = useState("")
-  const clearText = () => setText("")
-  useEffect(() => {
-    clearText()
-  }, [state])
-
-  return (
-    <TextField
-      value={text}
-      onChange={(evt) => setText(evt.target.value)}
-      onKeyPress={(evt) => {
-        evt.charCode === 13 &&
-          text.length &&
-          onChange(text as NonEmptyString).then(onSuccess(clearText))
-      }}
-      {...rest}
-    />
-  )
-}
 
 function TaskDetail({
   addNewStep,

@@ -1,7 +1,7 @@
 import * as A from "@effect-ts-demo/todo-types/ext/Array"
 import { flow } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
-import { Box, Card, Checkbox, TextField } from "@material-ui/core"
+import { Box, Card, Checkbox } from "@material-ui/core"
 import Alarm from "@material-ui/icons/Alarm"
 import CalendarToday from "@material-ui/icons/CalendarToday"
 import { datumEither } from "@nll/datum"
@@ -9,7 +9,7 @@ import React, { memo, useEffect, useState } from "react"
 import styled from "styled-components"
 
 import { useServiceContext } from "../context"
-import { onSuccess, PromiseExit } from "../data"
+import { PromiseExit } from "../data"
 
 import * as Todo from "./Todo"
 import {
@@ -18,6 +18,7 @@ import {
   StateMixinProps,
   StateMixin,
   ClickableMixin,
+  Field,
 } from "./components"
 import { withLoading, WithLoading } from "./utils"
 
@@ -60,7 +61,6 @@ function TaskList({
   addTask: WithLoading<(taskTitle: string) => PromiseExit>
   tasks: A.Array<Todo.Task>
 }) {
-  const [newTaskTitle, setNewTaskTitle] = useState("")
   const [completedTasks, setCompletedTasks] = useState([] as A.Array<Todo.Task>)
   const [openTasks, setOpenTasks] = useState([] as A.Array<Todo.Task>)
   useEffect(() => {
@@ -161,17 +161,7 @@ function TaskList({
       )}
 
       <div>
-        <TextField
-          placeholder="Add a Task"
-          disabled={addTask.loading}
-          value={newTaskTitle}
-          onKeyPress={(evt) =>
-            evt.charCode === 13 &&
-            newTaskTitle.length &&
-            addTask(newTaskTitle).then(onSuccess(() => setNewTaskTitle("")))
-          }
-          onChange={(evt) => setNewTaskTitle(evt.target.value)}
-        />
+        <Field placeholder="Add a Task" disabled={addTask.loading} onChange={addTask} />
       </div>
     </>
   )
