@@ -76,26 +76,21 @@ function limitToOne(cancel: () => void, setCancel: (cnl: () => void) => void) {
 
 export function useModify<A>(name: string) {
   const ctx = useFetchContext()
-  const getFetcher = useCallback(
-    () =>
-      ctx.fetchers[name] as {
+  const modify = useCallback(
+    (mod: (a: A) => A) => {
+      const f = ctx.fetchers[name] as {
         result: DatumEither<unknown, A>
         latestSuccess: DatumEither<unknown, A>
         update: (
           result: DatumEither<unknown, A>,
           latestSuccess: DatumEither<unknown, A>
         ) => void
-      },
-    [ctx.fetchers, name]
-  )
-  const modify = useCallback(
-    (mod: (a: A) => A) => {
-      const f = getFetcher()
+      }
       const result = f.result["|>"](datumEither.map(mod))
       const latestSuccess = f.latestSuccess["|>"](datumEither.map(mod))
       f.update(result, latestSuccess)
     },
-    [getFetcher]
+    [ctx.fetchers, name]
   )
 
   return modify
