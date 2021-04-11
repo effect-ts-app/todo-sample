@@ -142,6 +142,11 @@ export function useTaskCommands(id: UUID) {
         )
     }
 
+    function updateStepIndex(t: Todo.Task) {
+      return (s: Todo.Step) =>
+        flow(Todo.Task.updateStepIndex(t)(s), updateAndRefreshTask)
+    }
+
     function toggleTaskStepChecked(t: Todo.Task) {
       return (s: Todo.Step) =>
         pipe(
@@ -208,6 +213,7 @@ export function useTaskCommands(id: UUID) {
       addNewTaskStep,
       toggleTaskStepChecked,
       updateStepTitle,
+      updateStepIndex,
       toggleTaskFavorite,
       toggleTaskChecked,
       toggleTaskMyDay,

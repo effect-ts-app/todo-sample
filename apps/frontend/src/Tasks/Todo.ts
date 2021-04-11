@@ -22,6 +22,15 @@ const updateStepTitle = (s: Step) => (stepTitle: NonEmptyString) =>
 
 const pastDate = (d: Date): O.Option<Date> => (d < new Date() ? O.some(d) : O.none)
 
+export function updateStepIndex(s: Step) {
+  return (newIndex: number) => (steps: A.Array<Step>) => {
+    const modifiedSteps = steps["|>"](A.filter((x) => x !== s))["|>"](
+      A.insertAt(newIndex, s)
+    )
+    return modifiedSteps["|>"](O.getOrElse(() => steps))
+  }
+}
+
 export const Task = Object.assign({}, Todo.Task, {
   addStep: (stepTitle: NonEmptyString) =>
     taskSteps["|>"](Lens.modify(createAndAddStep(stepTitle))),
@@ -38,6 +47,9 @@ export const Task = Object.assign({}, Todo.Task, {
 
   updateStep: (t: Todo.Task) => (s: Todo.Step) => (stepTitle: NonEmptyString) =>
     taskSteps["|>"](Lens.modify(updateStepTitle(s)(stepTitle)))(t),
+
+  updateStepIndex: (t: Todo.Task) => (s: Todo.Step) => (newIndex: number) =>
+    taskSteps["|>"](Lens.modify(updateStepIndex(s)(newIndex)))(t),
 
   dueInPast: flow(Todo.Task.lens["|>"](Lens.prop("due")).get, O.chain(pastDate)),
   reminderInPast: flow(
