@@ -1,3 +1,4 @@
+import * as TodoClient from "@effect-ts-demo/todo-client"
 import * as A from "@effect-ts-demo/todo-types/ext/Array"
 import { flow } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
@@ -152,6 +153,7 @@ function TaskList_({
   setSelectedTaskId: (i: UUID) => void
   tasks: A.Array<Todo.Task>
 }) {
+  const { runWithErrorLog } = useServiceContext()
   const [tasks, setTasks] = useState(tasksOriginal)
   useEffect(() => {
     setTasks(tasksOriginal)
@@ -171,9 +173,11 @@ function TaskList_({
           return
         }
         const t = tasks.find((x) => x.id === result.draggableId)!
-        // TODO: remote order persistence.
-        setTasks(tasks["|>"](updateTaskIndex(t, destination.index)))
-        // updateTaskIndex(t)(destination.index)
+        const reorderedTasks = tasks["|>"](updateTaskIndex(t, destination.index))
+        setTasks(reorderedTasks)
+        TodoClient.Tasks.setTasksOrder({ order: A.map_(reorderedTasks, (t) => t.id) })[
+          "|>"
+        ](runWithErrorLog)
       }}
     >
       <Droppable droppableId={"tasks"}>

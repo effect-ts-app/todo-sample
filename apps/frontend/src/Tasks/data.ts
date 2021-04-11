@@ -15,7 +15,7 @@ import { useFetch, useModify, useQuery } from "../data"
 import * as Todo from "./Todo"
 
 const fetchLatestTasks = constant(
-  TodoClient.Tasks.getTasks["|>"](T.map((r) => A.reverse(r.tasks)))
+  TodoClient.Tasks.getTasks["|>"](T.map((r) => r.tasks))
 )
 
 export function useTasks() {

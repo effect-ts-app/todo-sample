@@ -10,9 +10,10 @@ import * as CreateTask from "./CreateTask"
 import * as DeleteTask from "./DeleteTask"
 import * as GetTask from "./GetTask"
 import * as GetTasks from "./GetTasks"
+import * as SetTasksOrder from "./SetTasksOrder"
 import * as UpdateTask from "./UpdateTask"
 
-export { CreateTask, DeleteTask, GetTask, GetTasks, UpdateTask }
+export { CreateTask, DeleteTask, GetTask, GetTasks, SetTasksOrder, UpdateTask }
 
 const decodeGetTasksResponse = flow(decode(GetTasks.Response), mapResponseError)
 export const getTasks = pipe(fetchApi("/tasks"), T.chain(decodeGetTasksResponse))
@@ -34,4 +35,9 @@ export function updateTask(req: UpdateTask.Request) {
 const del = fetchApi3(DeleteTask, "DELETE")
 export function deleteTask(req: DeleteTask.Request) {
   return del(`/tasks/${req.id}`)(req)
+}
+
+const tasksOrder = fetchApi3(SetTasksOrder, "POST")
+export function setTasksOrder(req: SetTasksOrder.Request) {
+  return tasksOrder(`/tasks-order`)(req)
 }

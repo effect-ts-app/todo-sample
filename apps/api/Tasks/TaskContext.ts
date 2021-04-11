@@ -7,6 +7,7 @@ import * as T from "@effect-ts/core/Effect"
 import * as Ref from "@effect-ts/core/Effect/Ref"
 import { flow, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
+import { Ord } from "@effect-ts/core/Ord"
 import * as Sy from "@effect-ts/core/Sync"
 import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
 import { encode } from "@effect-ts/morphic/Encoder"
@@ -39,6 +40,8 @@ const tasksRef = Ref.unsafeMakeRef<Map.Map<UUID, TaskE>>(
   )
 )
 
+const orderRef = Ref.unsafeMakeRef<A.Array<UUID>>([])
+
 const { decode: decodeTask } = strictDecoder(Task)
 export function find(id: UUID) {
   return pipe(
@@ -55,7 +58,8 @@ export function get(id: UUID) {
 }
 
 export const all = pipe(
-  tasksRef.get["|>"](T.chain((tasks) => T.forEach_(tasks.values(), decodeTask))),
+  tasksRef.get,
+  T.chain((tasks) => T.forEach_(tasks.values(), decodeTask)),
   T.orDie
 )
 
@@ -70,4 +74,25 @@ export function remove(t: Task) {
   return tasksRef.get["|>"](
     T.chain((tasks) => tasksRef.set(tasks["|>"](Map.remove(t.id))))
   )
+}
+
+export const getOrder = orderRef.get
+export const setOrder = orderRef.set
+
+export const allOrdered = pipe(
+  T.structPar({ tasks: all, order: getOrder }),
+  T.map(({ order, tasks }) => orderTasks(tasks, order))
+)
+
+function orderTasks(a: A.Array<Task>, order: A.Array<UUID>) {
+  return A.reverse(a)["|>"](A.sort(makeOrd(order)))
+}
+
+function makeOrd(sortingArr: A.Array<UUID>): Ord<Task> {
+  return {
+    compare: (a, b) => {
+      const diff = sortingArr.indexOf(a.id) - sortingArr.indexOf(b.id)
+      return diff > 1 ? 1 : diff < 0 ? -1 : 0
+    },
+  }
 }
