@@ -22,8 +22,8 @@ const updateStepTitle = (s: Step) => (stepTitle: NonEmptyString) =>
 
 const pastDate = (d: Date): O.Option<Date> => (d < new Date() ? O.some(d) : O.none)
 
-export function updateStepIndex(s: Step) {
-  return (newIndex: number) => (steps: A.Array<Step>) => {
+export function updateStepIndex(s: Step, newIndex: number) {
+  return (steps: A.Array<Step>) => {
     const modifiedSteps = steps["|>"](A.filter((x) => x !== s))["|>"](
       A.insertAt(newIndex, s)
     )
@@ -45,11 +45,11 @@ export const Task = Object.assign({}, Todo.Task, {
   toggleStepCompleted: (s: Todo.Step) =>
     taskSteps["|>"](Lens.modify(toggleStepCompleted(s))),
 
-  updateStep: (t: Todo.Task) => (s: Todo.Step) => (stepTitle: NonEmptyString) =>
-    taskSteps["|>"](Lens.modify(updateStepTitle(s)(stepTitle)))(t),
+  updateStep: (s: Todo.Step, stepTitle: NonEmptyString) =>
+    taskSteps["|>"](Lens.modify(updateStepTitle(s)(stepTitle))),
 
-  updateStepIndex: (t: Todo.Task) => (s: Todo.Step) => (newIndex: number) =>
-    taskSteps["|>"](Lens.modify(updateStepIndex(s)(newIndex)))(t),
+  updateStepIndex: (s: Todo.Step, newIndex: number) =>
+    taskSteps["|>"](Lens.modify(updateStepIndex(s, newIndex))),
 
   dueInPast: flow(Todo.Task.lens["|>"](Lens.prop("due")).get, O.chain(pastDate)),
   reminderInPast: flow(

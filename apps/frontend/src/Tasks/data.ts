@@ -137,14 +137,14 @@ export function useTaskCommands(id: UUID) {
       return (s: Todo.Step) =>
         flow(
           NonEmptyString.parse,
-          T.map(Todo.Task.updateStep(t)(s)),
+          T.map((stepTitle) => t["|>"](Todo.Task.updateStep(s, stepTitle))),
           T.chain(updateAndRefreshTask)
         )
     }
 
     function updateStepIndex(t: Todo.Task) {
-      return (s: Todo.Step) =>
-        flow(Todo.Task.updateStepIndex(t)(s), updateAndRefreshTask)
+      return (s: Todo.Step) => (newIndex: number) =>
+        pipe(t["|>"](Todo.Task.updateStepIndex(s, newIndex)), updateAndRefreshTask)
     }
 
     function toggleTaskStepChecked(t: Todo.Task) {

@@ -112,7 +112,7 @@ function TaskDetail_({
         }
         const stepIndex = parseInt(result.draggableId)
         const step = steps[stepIndex]
-        setSteps(Todo.updateStepIndex(step)(destination.index))
+        setSteps(Todo.updateStepIndex(step, destination.index))
         updateStepIndex(step)(destination.index)
       }}
     >
