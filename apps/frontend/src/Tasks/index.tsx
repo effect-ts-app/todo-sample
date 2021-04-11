@@ -106,9 +106,9 @@ type OrderDir = "up" | "down"
 function TaskListMenu_({
   setOrder,
 }: {
-  order: O.Option<Orders>
-  orderDirection: O.Option<OrderDir>
-  setOrder: (o: O.Option<Orders>) => void
+  order: Orders | null
+  orderDirection: OrderDir | null
+  setOrder: (o: Orders | null) => void
 }) {
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null)
 
@@ -136,7 +136,7 @@ function TaskListMenu_({
           <MenuItem
             key={o}
             onClick={() => {
-              setOrder(O.some(o as Orders))
+              setOrder(o as Orders)
               handleClose()
             }}
           >
@@ -158,13 +158,14 @@ export const Tasks = memo(function Tasks({
 }: {
   category: TaskView
   tasks: A.Array<Todo.Task>
-  order: O.Option<Orders>
-  orderDirection: O.Option<OrderDir>
+  order: Orders | null
+  orderDirection: OrderDir | null
 }) {
   const filter = filterByCategory(category)
-  const orderDir = orderDirection["|>"](O.getOrElse(() => "up"))
+  const orderDir = orderDirection ?? "up"
 
-  const ordering = order["|>"](O.chain((o) => O.fromNullable(orders[o])))
+  const ordering = O.fromNullable(order)
+    ["|>"](O.chain((o) => O.fromNullable(orders[o])))
     ["|>"](O.map(A.single))
     ["|>"](O.getOrElse(() => [] as A.Array<ORD.Ord<Todo.Task>>))
     ["|>"](A.map((o) => (orderDir === "down" ? ORD.inverted(o) : o)))
@@ -178,16 +179,12 @@ export const Tasks = memo(function Tasks({
   const location = useLocation()
 
   const setDirection = useCallback(
-    (dir: OrderDir) => h.push(`${location.pathname}${makeSearch(order, O.some(dir))}`),
+    (dir: OrderDir) => h.push(`${location.pathname}${makeSearch(order, dir)}`),
     [h, location.pathname, order]
   )
 
-  const makeSearch = (o: O.Option<Orders>, dir: O.Option<OrderDir>) =>
-    O.fold_(
-      o,
-      () => "",
-      (o) => `?order=${o}&orderDirection=${dir["|>"](O.getOrElse(() => "up"))}`
-    )
+  const makeSearch = (o: Orders | null, dir: OrderDir | null) =>
+    o ? `?order=${o}&orderDirection=${dir ?? "up"}` : ""
 
   const setSelectedTaskId = useCallback(
     (id: UUID) => h.push(`/${category}/${id}${makeSearch(order, orderDirection)}`),
@@ -220,9 +217,9 @@ export const Tasks = memo(function Tasks({
           </Box>
         </Box>
 
-        {O.isSome(order) && (
+        {Boolean(order) && (
           <div>
-            {order.value}
+            {order}
             <IconButton onClick={() => setDirection(orderDir === "up" ? "down" : "up")}>
               {orderDir === "up" ? <ArrowUp /> : <ArrowDown />}
             </IconButton>
@@ -385,6 +382,8 @@ function TasksScreen_({
   //   useTasks()
   //   useTasks()
 
+  console.log("renderin")
+
   return tasksResult["|>"](
     datumEither.fold(
       () => <div>Hi there... about to get us some Tasks</div>,
@@ -394,8 +393,8 @@ function TasksScreen_({
         <Tasks
           tasks={tasks}
           category={category as TaskView}
-          order={O.fromNullable(order) as O.Option<Orders>}
-          orderDirection={O.fromNullable(orderDirection) as O.Option<OrderDir>}
+          order={order as Orders}
+          orderDirection={orderDirection as OrderDir}
         />
       ),
       (err) => <>{"Error Loading tasks: " + JSON.stringify(err)}</>,
@@ -403,8 +402,8 @@ function TasksScreen_({
         <Tasks
           tasks={tasks}
           category={category as TaskView}
-          order={O.fromNullable(order) as O.Option<Orders>}
-          orderDirection={O.fromNullable(orderDirection) as O.Option<OrderDir>}
+          order={order as Orders}
+          orderDirection={orderDirection as OrderDir}
         />
       )
     )
