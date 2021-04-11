@@ -8,11 +8,12 @@ import Alarm from "@material-ui/icons/Alarm"
 import CalendarToday from "@material-ui/icons/CalendarToday"
 import Today from "@material-ui/icons/Today"
 import { datumEither } from "@nll/datum"
-import React, { memo, useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Draggable, Droppable, DragDropContext } from "react-beautiful-dnd"
 import styled from "styled-components"
 
 import { useServiceContext } from "../context"
+import { memo } from "../data"
 
 import * as Todo from "./Todo"
 import { updateTaskIndex } from "./Todo"
@@ -23,7 +24,7 @@ import {
   StateMixin,
   ClickableMixin,
 } from "./components"
-import { useTaskCommands } from "./data"
+import { useModifyTasks, useTaskCommands } from "./data"
 import { withLoading } from "./utils"
 
 function makeStepCount(steps: Todo.Task["steps"]) {
@@ -148,21 +149,22 @@ function Task_({
 const Task = memo(Task_)
 function TaskList_({
   setSelectedTaskId,
-  tasks: tasksOriginal,
+  tasks,
 }: {
   setSelectedTaskId: (i: UUID) => void
   tasks: A.Array<Todo.Task>
 }) {
   const { runWithErrorLog } = useServiceContext()
-  const [tasks, setTasks] = useState(tasksOriginal)
+  const modifyTasks = useModifyTasks()
+  const [{ completedTasks, openTasks }, setFilteredTasks] = useState(() => ({
+    completedTasks: [] as A.Array<Todo.Task>,
+    openTasks: [] as A.Array<Todo.Task>,
+  }))
   useEffect(() => {
-    setTasks(tasksOriginal)
-  }, [tasksOriginal])
-  const [completedTasks, setCompletedTasks] = useState([] as A.Array<Todo.Task>)
-  const [openTasks, setOpenTasks] = useState([] as A.Array<Todo.Task>)
-  useEffect(() => {
-    setCompletedTasks(tasks["|>"](A.filter((x) => O.isSome(x.completed))))
-    setOpenTasks(tasks["|>"](A.filter((x) => !O.isSome(x.completed))))
+    setFilteredTasks({
+      openTasks: tasks["|>"](A.filter((x) => !O.isSome(x.completed))),
+      completedTasks: tasks["|>"](A.filter((x) => O.isSome(x.completed))),
+    })
   }, [tasks])
 
   return (
@@ -173,11 +175,13 @@ function TaskList_({
           return
         }
         const t = tasks.find((x) => x.id === result.draggableId)!
-        const reorderedTasks = tasks["|>"](updateTaskIndex(t, destination.index))
-        setTasks(reorderedTasks)
-        TodoClient.Tasks.setTasksOrder({ order: A.map_(reorderedTasks, (t) => t.id) })[
-          "|>"
-        ](runWithErrorLog)
+        // TODO: Next section aint pretty.
+        const reorder = updateTaskIndex(t, destination.index)
+        modifyTasks(reorder)
+        const reorderedTasks = tasks["|>"](reorder)
+        TodoClient.Tasks.setTasksOrder({
+          order: A.map_(reorderedTasks, (t) => t.id),
+        })["|>"](runWithErrorLog)
       }}
     >
       <Droppable droppableId={"tasks"}>
