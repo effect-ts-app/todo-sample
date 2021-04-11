@@ -3,11 +3,11 @@ import * as O from "@effect-ts/core/Option"
 import { Box, Button, Checkbox, IconButton, TextField } from "@material-ui/core"
 import Delete from "@material-ui/icons/Delete"
 import { DatePicker, DateTimePicker } from "@material-ui/lab"
-import React, { memo, useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Draggable, Droppable, DragDropContext } from "react-beautiful-dnd"
 import styled from "styled-components"
 
-import { onSuccess, PromiseExit } from "../data"
+import { memo, onSuccess, PromiseExit } from "../data"
 
 import * as Todo from "./Todo"
 import {

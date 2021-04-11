@@ -4,11 +4,12 @@ import * as T from "@effect-ts/core/Effect"
 import { Cause } from "@effect-ts/core/Effect/Cause"
 import * as Ex from "@effect-ts/core/Effect/Exit"
 import { Exit } from "@effect-ts/core/Effect/Exit"
+import * as E from "@effect-ts/core/Either"
 import { pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import { datumEither } from "@nll/datum"
 import { DatumEither } from "@nll/datum/DatumEither"
-import { useState, useCallback, useEffect, useMemo } from "react"
+import React, { useState } from "react"
 
 import { Fetcher, useFetchContext } from "./context"
 
@@ -42,7 +43,6 @@ export function useFetch<R, E, A, Args extends readonly unknown[]>(
   )
   return [result, exec] as const
 }
-
 export function useLimitToOne<R, E, A, Args extends readonly unknown[]>(
   exec: (...args: Args) => T.Effect<R, E, A>
 ) {
@@ -295,4 +295,114 @@ export function onFail<E, T>(cb: (a: Cause<E>) => T) {
 
 export function onSuccess<A, T>(cb: (a: A) => T) {
   return Ex.fold(() => void 0, cb)
+}
+
+/**
+ *
+assert.strictEqual(shallowEqual(1, 1), true)
+assert.strictEqual(shallowEqual(1, 0), false)
+assert.strictEqual(shallowEqual(O.none, O.none), true)
+const something = {}
+assert.strictEqual(shallowEqual(O.some(something), O.some(something)), true)
+assert.strictEqual(shallowEqual(O.some(something), O.none), false)
+
+assert.strictEqual(shallowEqual(E.left(something), E.left(something)), true)
+assert.strictEqual(shallowEqual(E.right(something), E.left(something)), false)
+assert.strictEqual(shallowEqual(E.left(1), E.left(2)), false)
+assert.strictEqual(shallowEqual(E.right(1), E.right(2)), false)
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function shallowEqual(objA: any, objB: any) {
+  if (Object.is(objA, objB)) {
+    return true
+  }
+
+  if (
+    typeof objA !== "object" ||
+    objA === null ||
+    typeof objB !== "object" ||
+    objB === null
+  ) {
+    return false
+  }
+
+  const keysA = Object.keys(objA)
+  const keysB = Object.keys(objB)
+
+  if (keysA.length !== keysB.length) {
+    return false
+  }
+
+  // Test for A's keys different from B.
+  for (let i = 0; i < keysA.length; i++) {
+    const propA = objA[keysA[i]]
+    const propB = objB[keysA[i]]
+    if (
+      !Object.hasOwnProperty.call(objB, keysA[i]) ||
+      (!Object.is(propA, propB) &&
+        (!propA._tag ||
+          !propB._tag ||
+          propA._tag !== propB._tag ||
+          (propA._tag !== "Some" &&
+            propA._tag !== "None" &&
+            propA._tag !== "Left" &&
+            propA._tag !== "Right")))
+    ) {
+      return false
+    }
+    if (typeof propA === "object" && typeof propB === "object") {
+      if (O.isSome(propA) && !Object.is(propA.value, propB.value)) {
+        return false
+      }
+      if (
+        (E.isLeft(propA) && !Object.is(propA.left, propB.left)) ||
+        (E.isRight(propA) && !Object.is(propA.right, propB.right))
+      ) {
+        return false
+      }
+    }
+  }
+
+  return true
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function memo<T extends React.ComponentType<any>>(f: T) {
+  return React.memo(f, shallowEqual)
+}
+
+export function useEffect(effect: React.EffectCallback, deps: React.DependencyList) {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  return React.useEffect(effect, mapDeps(deps))
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function useCallback<T extends (...args: any[]) => any>(
+  callback: T,
+  deps: React.DependencyList
+) {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  return React.useCallback(callback, mapDeps(deps))
+}
+
+export function useMemo<T>(factory: () => T, deps: React.DependencyList) {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  return React.useMemo(factory, mapDeps(deps))
+}
+
+function mapDeps(deps: React.DependencyList) {
+  return deps.map(convertDep)
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function convertDep(x: any) {
+  return typeof x !== "object"
+    ? x
+    : O.isSome(x) || O.isNone(x)
+    ? O.toNullable(x)
+    : E.isLeft(x)
+    ? x.left
+    : E.isRight(x)
+    ? x.right
+    : x
 }
