@@ -410,7 +410,7 @@ function mapDeps(deps: React.DependencyList) {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function convertDep(x: any) {
-  return typeof x !== "object"
+  return typeof x !== "object" || x === null
     ? x
     : O.isSome(x) || O.isNone(x)
     ? O.toNullable(x)
