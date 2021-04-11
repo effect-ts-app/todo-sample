@@ -8,11 +8,13 @@ import CalendarToday from "@material-ui/icons/CalendarToday"
 import Today from "@material-ui/icons/Today"
 import { datumEither } from "@nll/datum"
 import React, { memo, useEffect, useState } from "react"
+import { Draggable, Droppable, DragDropContext } from "react-beautiful-dnd"
 import styled from "styled-components"
 
 import { useServiceContext } from "../context"
 
 import * as Todo from "./Todo"
+import { updateTaskIndex } from "./Todo"
 import {
   Completable,
   FavoriteButton,
@@ -52,10 +54,12 @@ const CardList = styled.div`
 `
 
 function Task_({
+  index,
   setSelectedTaskId,
   task: t,
 }: {
   task: Todo.Task
+  index: number
   setSelectedTaskId: (id: UUID) => void
 }) {
   const {
@@ -76,69 +80,82 @@ function Task_({
 
   const toggleChecked = withLoading(flow(toggleTaskChecked, runPromise), isUpdatingTask)
   return (
-    <StyledCard onClick={() => setSelectedTaskId(t.id)}>
-      <Box display="flex">
-        <Box flexGrow={1} display="flex">
-          <Checkbox
-            checked={O.isSome(t.completed)}
-            disabled={toggleChecked.loading}
-            onClick={(evt) => evt.stopPropagation()}
-            onChange={(evt) => {
-              evt.stopPropagation()
-              toggleChecked(t)
-            }}
-          />
-          <div>
-            <Completable completed={O.isSome(t.completed)}>{t.title}</Completable>
-            <div>
-              {O.isSome(t.myDay) && (
-                <>
-                  <Today /> My day -&nbsp;
-                </>
-              )}
-              {makeStepCount(t.steps)}
-              &nbsp;
-              {t.due["|>"](
-                O.map((d) => (
-                  // eslint-disable-next-line react/jsx-key
-                  <State
-                    state={t["|>"](Todo.Task.dueInPast)
-                      ["|>"](O.map(() => "error" as const))
-                      ["|>"](O.toNullable)}
-                  >
-                    <CalendarToday />
-                    {d.toLocaleDateString()}
-                  </State>
-                ))
-              )["|>"](O.toNullable)}
-              &nbsp;
-              {O.toNullable(t.reminder) && <Alarm />}
-            </div>
-          </div>
-        </Box>
-        <Box>
-          <FavoriteButton
-            disabled={toggleFavorite.loading}
-            onClick={(evt) => {
-              evt.stopPropagation()
-              toggleFavorite(t)
-            }}
-            isFavorite={t.isFavorite}
-          />
-        </Box>
-      </Box>
-    </StyledCard>
+    <Draggable draggableId={t.id} index={index}>
+      {(provided) => (
+        <StyledCard
+          ref={provided.innerRef}
+          {...provided.draggableProps}
+          {...provided.dragHandleProps}
+          onClick={() => setSelectedTaskId(t.id)}
+        >
+          <Box display="flex">
+            <Box flexGrow={1} display="flex">
+              <Checkbox
+                checked={O.isSome(t.completed)}
+                disabled={toggleChecked.loading}
+                onClick={(evt) => evt.stopPropagation()}
+                onChange={(evt) => {
+                  evt.stopPropagation()
+                  toggleChecked(t)
+                }}
+              />
+              <div>
+                <Completable completed={O.isSome(t.completed)}>{t.title}</Completable>
+                <div>
+                  {O.isSome(t.myDay) && (
+                    <>
+                      <Today /> My day -&nbsp;
+                    </>
+                  )}
+                  {makeStepCount(t.steps)}
+                  &nbsp;
+                  {t.due["|>"](
+                    O.map((d) => (
+                      // eslint-disable-next-line react/jsx-key
+                      <State
+                        state={t["|>"](Todo.Task.dueInPast)
+                          ["|>"](O.map(() => "error" as const))
+                          ["|>"](O.toNullable)}
+                      >
+                        <CalendarToday />
+                        {d.toLocaleDateString()}
+                      </State>
+                    ))
+                  )["|>"](O.toNullable)}
+                  &nbsp;
+                  {O.toNullable(t.reminder) && <Alarm />}
+                </div>
+              </div>
+            </Box>
+            <Box>
+              <FavoriteButton
+                disabled={toggleFavorite.loading}
+                onClick={(evt) => {
+                  evt.stopPropagation()
+                  toggleFavorite(t)
+                }}
+                isFavorite={t.isFavorite}
+              />
+            </Box>
+          </Box>
+        </StyledCard>
+      )}
+    </Draggable>
   )
 }
 
 const Task = memo(Task_)
 function TaskList_({
   setSelectedTaskId,
-  tasks,
+  tasks: tasksOriginal,
 }: {
   setSelectedTaskId: (i: UUID) => void
   tasks: A.Array<Todo.Task>
 }) {
+  const [tasks, setTasks] = useState(tasksOriginal)
+  useEffect(() => {
+    setTasks(tasksOriginal)
+  }, [tasksOriginal])
   const [completedTasks, setCompletedTasks] = useState([] as A.Array<Todo.Task>)
   const [openTasks, setOpenTasks] = useState([] as A.Array<Todo.Task>)
   useEffect(() => {
@@ -147,24 +164,55 @@ function TaskList_({
   }, [tasks])
 
   return (
-    <>
-      <CardList>
-        {openTasks.map((t) => (
-          <Task task={t} setSelectedTaskId={setSelectedTaskId} key={t.id} />
-        ))}
-      </CardList>
+    <DragDropContext
+      onDragEnd={(result) => {
+        const { destination } = result
+        if (!destination) {
+          return
+        }
+        const t = tasks.find((x) => x.id === result.draggableId)!
+        // TODO: remote order persistence.
+        setTasks(tasks["|>"](updateTaskIndex(t, destination.index)))
+        // updateTaskIndex(t)(destination.index)
+      }}
+    >
+      <Droppable droppableId={"tasks"}>
+        {(provided) => (
+          <CardList ref={provided.innerRef} {...provided.droppableProps}>
+            {openTasks.map((t) => (
+              <Task
+                task={t}
+                index={tasks.findIndex((ot) => ot === t)}
+                setSelectedTaskId={setSelectedTaskId}
+                key={t.id}
+              />
+            ))}
+            {provided.placeholder}
+          </CardList>
+        )}
+      </Droppable>
 
       {Boolean(completedTasks.length) && (
         <div>
           <h3>Completed</h3>
-          <CardList>
-            {completedTasks.map((t) => (
-              <Task task={t} setSelectedTaskId={setSelectedTaskId} key={t.id} />
-            ))}
-          </CardList>
+          <Droppable droppableId={"tasks-completed"}>
+            {(provided) => (
+              <CardList ref={provided.innerRef} {...provided.droppableProps}>
+                {completedTasks.map((t) => (
+                  <Task
+                    task={t}
+                    index={tasks.findIndex((ot) => ot === t)}
+                    setSelectedTaskId={setSelectedTaskId}
+                    key={t.id}
+                  />
+                ))}
+                {provided.placeholder}
+              </CardList>
+            )}
+          </Droppable>
         </div>
       )}
-    </>
+    </DragDropContext>
   )
 }
 const TaskList = memo(TaskList_)

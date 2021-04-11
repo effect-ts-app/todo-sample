@@ -22,6 +22,15 @@ const updateStepTitle = (s: Step) => (stepTitle: NonEmptyString) =>
 
 const pastDate = (d: Date): O.Option<Date> => (d < new Date() ? O.some(d) : O.none)
 
+export function updateTaskIndex(t: Task, newIndex: number) {
+  return (tasks: A.Array<Task>) => {
+    const modifiedSteps = tasks["|>"](A.filter((x) => x !== t))["|>"](
+      A.insertAt(newIndex, t)
+    )
+    return modifiedSteps["|>"](O.getOrElse(() => tasks))
+  }
+}
+
 export function updateStepIndex(s: Step, newIndex: number) {
   return (steps: A.Array<Step>) => {
     const modifiedSteps = steps["|>"](A.filter((x) => x !== s))["|>"](
