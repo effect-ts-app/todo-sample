@@ -299,10 +299,21 @@ export function onSuccess<A, T>(cb: (a: A) => T) {
 
 /**
  *
+const something = {}
+assert.strictEqual(shallowEqual({ a: O.none }, { a: O.none }), true)
+assert.strictEqual(shallowEqual({ a: O.some(1)}, { a: O.some(1) }), true)
+assert.strictEqual(shallowEqual({ a: O.some(something)}, { a: O.some(something) }), true)
+assert.strictEqual(shallowEqual({ a: O.some(something)}, { a: O.none }), false)
+
+assert.strictEqual(shallowEqual({ a: E.left(something)}, { a: E.left(something) }), true)
+assert.strictEqual(shallowEqual({ a: E.right(something)}, { a: E.left(something) }), false)
+assert.strictEqual(shallowEqual({ a: E.left(1)}, { a: E.left(2) }), false)
+assert.strictEqual(shallowEqual({ a: E.right(1)}, { a: E.right(2) }), false)
+
+// Works by default
 assert.strictEqual(shallowEqual(1, 1), true)
 assert.strictEqual(shallowEqual(1, 0), false)
 assert.strictEqual(shallowEqual(O.none, O.none), true)
-const something = {}
 assert.strictEqual(shallowEqual(O.some(something), O.some(something)), true)
 assert.strictEqual(shallowEqual(O.some(something), O.none), false)
 
