@@ -15,8 +15,10 @@ import * as UpdateTask from "./UpdateTask"
 
 export { CreateTask, DeleteTask, GetTask, GetTasks, SetTasksOrder, UpdateTask }
 
-const decodeGetTasksResponse = flow(decode(GetTasks.Response), mapResponseError)
-export const getTasks = pipe(fetchApi("/tasks"), T.chain(decodeGetTasksResponse))
+export const getTasks = pipe(
+  fetchApi("/tasks"),
+  T.chain(flow(decode(GetTasks.Response), mapResponseError))
+)
 
 const decodeGetTaskResponse = flow(decode(GetTask.Response), mapResponseError)
 export const findTask = (id: UUID) =>
@@ -37,7 +39,4 @@ export function deleteTask(req: DeleteTask.Request) {
   return del(`/tasks/${req.id}`)(req)
 }
 
-const tasksOrder = fetchApi3(SetTasksOrder, "POST")
-export function setTasksOrder(req: SetTasksOrder.Request) {
-  return tasksOrder(`/tasks-order`)(req)
-}
+export const setTasksOrder = fetchApi3(SetTasksOrder, "POST")(`/tasks-order`)
