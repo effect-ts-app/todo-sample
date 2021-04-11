@@ -1,7 +1,6 @@
 import * as A from "@effect-ts-demo/todo-types/ext/Array"
-import { constant, flow } from "@effect-ts/core/Function"
+import { flow } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
-import * as ORD from "@effect-ts/core/Ord"
 import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
 import { Box, Card, Checkbox } from "@material-ui/core"
 import Alarm from "@material-ui/icons/Alarm"
@@ -132,25 +131,6 @@ function Task_({
   )
 }
 
-const defaultDate = constant(new Date(1900, 1, 1))
-
-const orders = {
-  creation: ORD.contramap_(ORD.date, (t: Todo.Task) => t.createdAt),
-  important: ORD.contramap_(ORD.inverted(ORD.boolean), (t: Todo.Task) => t.isFavorite),
-  alphabetically: ORD.contramap_(ORD.string, (t: Todo.Task) => t.title.toLowerCase()),
-  due: ORD.contramap_(ORD.inverted(ORD.date), (t: Todo.Task) =>
-    O.getOrElse_(t.due, defaultDate)
-  ),
-  myDay: ORD.contramap_(ORD.inverted(ORD.date), (t: Todo.Task) =>
-    O.getOrElse_(t.myDay, defaultDate)
-  ),
-}
-
-type Orders = keyof typeof orders
-
-// TODO: Listbox to choose, and X button to remove order
-const order: O.Option<Orders> = O.some("important")
-
 const Task = memo(Task_)
 function TaskList_({
   setSelectedTaskId,
@@ -162,15 +142,8 @@ function TaskList_({
   const [completedTasks, setCompletedTasks] = useState([] as A.Array<Todo.Task>)
   const [openTasks, setOpenTasks] = useState([] as A.Array<Todo.Task>)
   useEffect(() => {
-    const sort = order["|>"](O.map((o) => orders[o]))["|>"](O.map((o) => A.sortBy([o])))
-    const orderedTasks = sort["|>"](
-      O.fold(
-        () => tasks,
-        (o) => o(tasks)
-      )
-    )
-    setCompletedTasks(orderedTasks["|>"](A.filter((x) => O.isSome(x.completed))))
-    setOpenTasks(orderedTasks["|>"](A.filter((x) => !O.isSome(x.completed))))
+    setCompletedTasks(tasks["|>"](A.filter((x) => O.isSome(x.completed))))
+    setOpenTasks(tasks["|>"](A.filter((x) => !O.isSome(x.completed))))
   }, [tasks])
 
   return (

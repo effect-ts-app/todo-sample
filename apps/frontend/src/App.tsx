@@ -1,9 +1,19 @@
+import qs from "querystring"
+
 import React from "react"
 import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom"
 
 import Tasks from "./Tasks"
 import logo from "./logo.svg"
 import "./App.css"
+
+function getQueryParam(search: qs.ParsedUrlQuery, param: string) {
+  const v = search[param]
+  if (Array.isArray(v)) {
+    return v[0]
+  }
+  return v ?? null
+}
 
 function App() {
   return (
@@ -17,10 +27,16 @@ function App() {
             <Route
               path="/:category"
               render={({
+                location,
                 match: {
                   params: { category },
                 },
-              }) => <Tasks category={category} />}
+              }) => (
+                <Tasks
+                  category={category}
+                  order={getQueryParam(qs.parse(location.search.slice(1)), "order")}
+                />
+              )}
             />
             <Route path="/">
               <Redirect to="/tasks" />

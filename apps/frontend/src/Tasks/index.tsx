@@ -1,14 +1,15 @@
 import * as T from "@effect-ts-demo/todo-types/ext/Effect"
 import * as EO from "@effect-ts-demo/todo-types/ext/EffectOption"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
-import { flow, identity, pipe } from "@effect-ts/core/Function"
+import { constant, flow, identity, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
+import * as ORD from "@effect-ts/core/Ord"
 import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
-import { Box } from "@material-ui/core"
+import { Box, Button, MenuItem, Select } from "@material-ui/core"
 import Refresh from "@material-ui/icons/Refresh"
 import { datumEither } from "@nll/datum"
 import React, { memo, useCallback } from "react"
-import { useHistory, Route } from "react-router"
+import { useHistory, Route, useLocation } from "react-router"
 import { Link } from "react-router-dom"
 import styled from "styled-components"
 import useInterval from "use-interval"
@@ -79,24 +80,86 @@ function filterByCategory(category: TaskView) {
   }
 }
 
+const defaultDate = constant(new Date(1900, 1, 1))
+
+const orders = {
+  creation: ORD.contramap_(ORD.date, (t: Todo.Task) => t.createdAt),
+  important: ORD.contramap_(ORD.inverted(ORD.boolean), (t: Todo.Task) => t.isFavorite),
+  alphabetically: ORD.contramap_(ORD.string, (t: Todo.Task) => t.title.toLowerCase()),
+  due: ORD.contramap_(ORD.inverted(ORD.date), (t: Todo.Task) =>
+    O.getOrElse_(t.due, defaultDate)
+  ),
+  myDay: ORD.contramap_(ORD.inverted(ORD.date), (t: Todo.Task) =>
+    O.getOrElse_(t.myDay, defaultDate)
+  ),
+}
+
+type Orders = keyof typeof orders
+
+function OrderSelector_({
+  order,
+  setOrder,
+}: {
+  order: O.Option<Orders>
+  setOrder: (o: O.Option<Orders>) => void
+}) {
+  return (
+    <>
+      <Select<Orders | "">
+        onChange={(evt) => evt.target.value && setOrder(O.some(evt.target.value))}
+        value={O.toNullable(order) ?? ""}
+      >
+        {Object.keys(orders).map((o) => (
+          <MenuItem key={o} value={o}>
+            {o}
+          </MenuItem>
+        ))}
+      </Select>
+      {O.isSome(order) && <Button onClick={() => setOrder(O.none)}>X</Button>}
+    </>
+  )
+}
+
+const OrderSelector = memo(OrderSelector_)
+
 export const Tasks = memo(function Tasks({
   category,
+  order,
   tasks: unfilteredTasks,
 }: {
   category: TaskView
   tasks: A.Array<Todo.Task>
+  order: O.Option<Orders>
 }) {
   const filter = filterByCategory(category)
-  const tasks = filter(unfilteredTasks)
+
+  const ordering = order["|>"](O.chain((o) => O.fromNullable(orders[o])))
+    ["|>"](O.map(A.single))
+    ["|>"](O.getOrElse(() => []))
+  const tasks = unfilteredTasks["|>"](filter)["|>"](A.sortBy(ordering))
 
   const [tasksResult, , refetchTasks] = useTasks()
 
   useInterval(() => refetchTasks, 30 * 1000)
 
   const h = useHistory()
-  const setSelectedTaskId = useCallback((id: UUID) => h.push(`/${category}/${id}`), [
-    category,
+  const location = useLocation()
+
+  const makeSearch = (o: O.Option<Orders>) =>
+    O.fold_(
+      o,
+      () => "",
+      (o) => `?order=${o}`
+    )
+
+  const setSelectedTaskId = useCallback(
+    (id: UUID) => h.push(`/${category}/${id}${makeSearch(order)}`),
+    [category, h, order]
+  )
+
+  const setOrder = useCallback((o) => h.push(`${location.pathname}${makeSearch(o)}`), [
     h,
+    location.pathname,
   ])
 
   const isRefreshing = datumEither.isRefresh(tasksResult)
@@ -109,6 +172,8 @@ export const Tasks = memo(function Tasks({
         <h1>
           {toUpperCaseFirst(category)} {isRefreshing && <Refresh />}
         </h1>
+
+        <OrderSelector setOrder={setOrder} order={order} />
 
         <TaskList tasks={tasks} setSelectedTaskId={setSelectedTaskId} />
         <AddTask category={category} setSelectedTaskId={setSelectedTaskId} />
@@ -246,7 +311,7 @@ const SelectedTask_ = ({ task: t }: { task: Todo.Task }) => {
 
 const SelectedTask = memo(SelectedTask_)
 
-function TasksScreen_({ category }: { category: string }) {
+function TasksScreen_({ category, order }: { category: string; order: string | null }) {
   const [tasksResult] = useTasks()
   // testing for multi-call relying on same network-call/cache.
   //   useTasks()
@@ -257,9 +322,21 @@ function TasksScreen_({ category }: { category: string }) {
       () => <div>Hi there... about to get us some Tasks</div>,
       () => <div>Getting us some tasks now..</div>,
       (err) => <>{"Error Refreshing tasks: " + JSON.stringify(err)}</>,
-      (tasks) => <Tasks tasks={tasks} category={category as TaskView} />,
+      (tasks) => (
+        <Tasks
+          tasks={tasks}
+          category={category as TaskView}
+          order={O.fromNullable(order) as O.Option<Orders>}
+        />
+      ),
       (err) => <>{"Error Loading tasks: " + JSON.stringify(err)}</>,
-      (tasks) => <Tasks tasks={tasks} category={category as TaskView} />
+      (tasks) => (
+        <Tasks
+          tasks={tasks}
+          category={category as TaskView}
+          order={O.fromNullable(order) as O.Option<Orders>}
+        />
+      )
     )
   )
 }
