@@ -5,7 +5,18 @@ import { constant, flow, identity, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import * as ORD from "@effect-ts/core/Ord"
 import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
-import { Box, Button, List, ListItem, MenuItem, Select } from "@material-ui/core"
+import {
+  Box,
+  Button,
+  IconButton,
+  List,
+  ListItem,
+  Menu,
+  MenuItem,
+} from "@material-ui/core"
+import ArrowDown from "@material-ui/icons/ArrowDownward"
+import ArrowUp from "@material-ui/icons/ArrowUpward"
+import OpenMenu from "@material-ui/icons/Menu"
 import Refresh from "@material-ui/icons/Refresh"
 import { datumEither } from "@nll/datum"
 import React, { memo, useCallback } from "react"
@@ -90,47 +101,73 @@ const orders = {
 }
 
 type Orders = keyof typeof orders
+type OrderDir = "up" | "down"
 
-function OrderSelector_({
-  order,
+function TaskListMenu_({
   setOrder,
 }: {
   order: O.Option<Orders>
+  orderDirection: O.Option<OrderDir>
   setOrder: (o: O.Option<Orders>) => void
 }) {
+  const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null)
+
+  const handleClose = () => {
+    setAnchorEl(null)
+  }
   return (
     <>
-      <Select<Orders | "">
-        onChange={(evt) => evt.target.value && setOrder(O.some(evt.target.value))}
-        value={O.toNullable(order) ?? ""}
+      <IconButton
+        aria-controls="simple-menu"
+        aria-haspopup="true"
+        onClick={(event) => {
+          setAnchorEl(event.currentTarget)
+        }}
+      >
+        <OpenMenu />
+      </IconButton>
+      <Menu
+        anchorEl={anchorEl}
+        keepMounted
+        open={Boolean(anchorEl)}
+        onClose={handleClose}
       >
         {Object.keys(orders).map((o) => (
-          <MenuItem key={o} value={o}>
+          <MenuItem
+            key={o}
+            onClick={() => {
+              setOrder(O.some(o as Orders))
+              handleClose()
+            }}
+          >
             {o}
           </MenuItem>
         ))}
-      </Select>
-      {O.isSome(order) && <Button onClick={() => setOrder(O.none)}>X</Button>}
+      </Menu>
     </>
   )
 }
 
-const OrderSelector = memo(OrderSelector_)
+const TaskListMenu = memo(TaskListMenu_)
 
 export const Tasks = memo(function Tasks({
   category,
   order,
+  orderDirection,
   tasks: unfilteredTasks,
 }: {
   category: TaskView
   tasks: A.Array<Todo.Task>
   order: O.Option<Orders>
+  orderDirection: O.Option<OrderDir>
 }) {
   const filter = filterByCategory(category)
+  const orderDir = orderDirection["|>"](O.getOrElse(() => "up"))
 
   const ordering = order["|>"](O.chain((o) => O.fromNullable(orders[o])))
     ["|>"](O.map(A.single))
-    ["|>"](O.getOrElse(() => []))
+    ["|>"](O.getOrElse(() => [] as A.Array<ORD.Ord<Todo.Task>>))
+    ["|>"](A.map((o) => (orderDir === "down" ? ORD.inverted(o) : o)))
   const tasks = unfilteredTasks["|>"](filter)["|>"](A.sortBy(ordering))
 
   const [tasksResult, , refetchTasks] = useTasks()
@@ -140,22 +177,27 @@ export const Tasks = memo(function Tasks({
   const h = useHistory()
   const location = useLocation()
 
-  const makeSearch = (o: O.Option<Orders>) =>
+  const setDirection = useCallback(
+    (dir: OrderDir) => h.push(`${location.pathname}${makeSearch(order, O.some(dir))}`),
+    [h, location.pathname, order]
+  )
+
+  const makeSearch = (o: O.Option<Orders>, dir: O.Option<OrderDir>) =>
     O.fold_(
       o,
       () => "",
-      (o) => `?order=${o}`
+      (o) => `?order=${o}&orderDirection=${dir["|>"](O.getOrElse(() => "up"))}`
     )
 
   const setSelectedTaskId = useCallback(
-    (id: UUID) => h.push(`/${category}/${id}${makeSearch(order)}`),
-    [category, h, order]
+    (id: UUID) => h.push(`/${category}/${id}${makeSearch(order, orderDirection)}`),
+    [category, h, order, orderDirection]
   )
 
-  const setOrder = useCallback((o) => h.push(`${location.pathname}${makeSearch(o)}`), [
-    h,
-    location.pathname,
-  ])
+  const setOrder = useCallback(
+    (o) => h.push(`${location.pathname}${makeSearch(o, orderDirection)}`),
+    [h, location.pathname, orderDirection]
+  )
 
   const isRefreshing = datumEither.isRefresh(tasksResult)
 
@@ -164,11 +206,29 @@ export const Tasks = memo(function Tasks({
       <FolderList />
 
       <Box flexGrow={1} paddingX={2} paddingBottom={2}>
-        <h1>
-          {toUpperCaseFirst(category)} {isRefreshing && <Refresh />}
-        </h1>
+        <Box display="flex">
+          <h1>
+            {toUpperCaseFirst(category)} {isRefreshing && <Refresh />}
+          </h1>
 
-        <OrderSelector setOrder={setOrder} order={order} />
+          <Box marginLeft="auto" marginTop={1}>
+            <TaskListMenu
+              setOrder={setOrder}
+              order={order}
+              orderDirection={orderDirection}
+            />
+          </Box>
+        </Box>
+
+        {O.isSome(order) && (
+          <div>
+            {order.value}
+            <IconButton onClick={() => setDirection(orderDir === "up" ? "down" : "up")}>
+              {orderDir === "up" ? <ArrowUp /> : <ArrowDown />}
+            </IconButton>
+            <Button onClick={() => setOrder(O.none)}>X</Button>
+          </div>
+        )}
 
         <TaskList tasks={tasks} setSelectedTaskId={setSelectedTaskId} />
         <AddTask category={category} setSelectedTaskId={setSelectedTaskId} />
@@ -237,6 +297,7 @@ const SelectedTask_ = ({ task: t }: { task: Todo.Task }) => {
     toggleTaskMyDay,
     toggleTaskStepChecked,
     updateResult,
+    updateStepIndex,
     updateStepTitle,
   } = useTaskCommands(t.id)
 
@@ -298,6 +359,10 @@ const SelectedTask_ = ({ task: t }: { task: Todo.Task }) => {
           (s: Todo.Step) => flow(updateStepTitle(t)(s), T.asUnit, runPromise),
           isUpdatingTask
         )}
+        updateStepIndex={withLoading(
+          (s: Todo.Step) => flow(updateStepIndex(t)(s), T.asUnit, runPromise),
+          isUpdatingTask
+        )}
         deleteStep={withLoading(flow(deleteTaskStep(t), runPromise), isUpdatingTask)}
       />
     </Box>
@@ -306,7 +371,15 @@ const SelectedTask_ = ({ task: t }: { task: Todo.Task }) => {
 
 const SelectedTask = memo(SelectedTask_)
 
-function TasksScreen_({ category, order }: { category: string; order: string | null }) {
+function TasksScreen_({
+  category,
+  order,
+  orderDirection,
+}: {
+  category: string
+  order: string | null
+  orderDirection: string | null
+}) {
   const [tasksResult] = useTasks()
   // testing for multi-call relying on same network-call/cache.
   //   useTasks()
@@ -322,6 +395,7 @@ function TasksScreen_({ category, order }: { category: string; order: string | n
           tasks={tasks}
           category={category as TaskView}
           order={O.fromNullable(order) as O.Option<Orders>}
+          orderDirection={O.fromNullable(orderDirection) as O.Option<OrderDir>}
         />
       ),
       (err) => <>{"Error Loading tasks: " + JSON.stringify(err)}</>,
@@ -330,6 +404,7 @@ function TasksScreen_({ category, order }: { category: string; order: string | n
           tasks={tasks}
           category={category as TaskView}
           order={O.fromNullable(order) as O.Option<Orders>}
+          orderDirection={O.fromNullable(orderDirection) as O.Option<OrderDir>}
         />
       )
     )

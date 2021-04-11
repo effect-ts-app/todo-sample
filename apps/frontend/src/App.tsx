@@ -31,12 +31,17 @@ function App() {
                 match: {
                   params: { category },
                 },
-              }) => (
-                <Tasks
-                  category={category}
-                  order={getQueryParam(qs.parse(location.search.slice(1)), "order")}
-                />
-              )}
+              }) => {
+                const pars = qs.parse(location.search.slice(1))
+
+                return (
+                  <Tasks
+                    category={category}
+                    order={getQueryParam(pars, "order")}
+                    orderDirection={getQueryParam(pars, "orderDirection")}
+                  />
+                )
+              }}
             />
             <Route path="/">
               <Redirect to="/tasks" />
