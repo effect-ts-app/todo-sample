@@ -360,7 +360,11 @@ export function shallowEqual(objA: any, objB: any) {
     ) {
       return false
     }
-    if (typeof propA === "object" && typeof propB === "object") {
+    if (
+      typeof propA === "object" &&
+      typeof propB === "object" &&
+      !(propA === null || propB === null)
+    ) {
       if (O.isSome(propA) && !Object.is(propA.value, propB.value)) {
         return false
       }
