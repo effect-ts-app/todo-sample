@@ -149,17 +149,13 @@ function Task_({
 const Task = memo(Task_)
 function TaskList_({
   setSelectedTaskId,
-  tasks: tasksOriginal,
+  tasks,
 }: {
   setSelectedTaskId: (i: UUID) => void
   tasks: A.Array<Todo.Task>
 }) {
   const { runWithErrorLog } = useServiceContext()
   const modifyTasks = useModifyTasks()
-  const [tasks, setTasks] = useState(tasksOriginal)
-  useEffect(() => {
-    setTasks(tasksOriginal)
-  }, [tasksOriginal])
   const [{ completedTasks, openTasks }, setFilteredTasks] = useState(() => ({
     completedTasks: [] as A.Array<Todo.Task>,
     openTasks: [] as A.Array<Todo.Task>,
@@ -179,10 +175,10 @@ function TaskList_({
           return
         }
         const t = tasks.find((x) => x.id === result.draggableId)!
+        // TODO: Next section aint pretty.
         const reorder = updateTaskIndex(t, destination.index)
         modifyTasks(reorder)
         const reorderedTasks = tasks["|>"](reorder)
-        setTasks(reorderedTasks)
         TodoClient.Tasks.setTasksOrder({
           order: A.map_(reorderedTasks, (t) => t.id),
         })["|>"](runWithErrorLog)

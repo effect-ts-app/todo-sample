@@ -3,7 +3,7 @@ import * as O from "@effect-ts/core/Option"
 import { Box, Button, Checkbox, IconButton, TextField } from "@material-ui/core"
 import Delete from "@material-ui/icons/Delete"
 import { DatePicker, DateTimePicker } from "@material-ui/lab"
-import React, { useEffect, useState } from "react"
+import React from "react"
 import { Draggable, Droppable, DragDropContext } from "react-beautiful-dnd"
 import styled from "styled-components"
 
@@ -98,11 +98,6 @@ function TaskDetail_({
     )
   }
 
-  const [steps, setSteps] = useState(t.steps)
-  useEffect(() => {
-    setSteps(t.steps)
-  }, [t.steps])
-
   return (
     <DragDropContext
       onDragEnd={(result) => {
@@ -111,8 +106,7 @@ function TaskDetail_({
           return
         }
         const stepIndex = parseInt(result.draggableId)
-        const step = steps[stepIndex]
-        setSteps(Todo.updateStepIndex(step, destination.index))
+        const step = t.steps[stepIndex]
         updateStepIndex(step)(destination.index)
       }}
     >
@@ -152,7 +146,7 @@ function TaskDetail_({
           <Droppable droppableId={"steps"}>
             {(provided) => (
               <Box ref={provided.innerRef} {...provided.droppableProps}>
-                {steps.map((s, idx) => (
+                {t.steps.map((s, idx) => (
                   <Step key={idx} index={idx} step={s} />
                 ))}
                 {provided.placeholder}

@@ -143,8 +143,11 @@ export function useTaskCommands(id: UUID) {
     }
 
     function updateStepIndex(t: Todo.Task) {
-      return (s: Todo.Step) => (newIndex: number) =>
-        pipe(t["|>"](Todo.Task.updateStepIndex(s, newIndex)), updateAndRefreshTask)
+      return (s: Todo.Step) => (newIndex: number) => {
+        const updatedTask = t["|>"](Todo.Task.updateStepIndex(s, newIndex))
+        modifyTasks(A.map((_) => (_.id === t.id ? updatedTask : _)))
+        return updateAndRefreshTask(updatedTask)
+      }
     }
 
     function toggleTaskStepChecked(t: Todo.Task) {
