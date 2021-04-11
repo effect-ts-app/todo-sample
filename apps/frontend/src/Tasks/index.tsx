@@ -5,13 +5,12 @@ import { constant, flow, identity, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import * as ORD from "@effect-ts/core/Ord"
 import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
-import { Box, Button, MenuItem, Select } from "@material-ui/core"
+import { Box, Button, List, ListItem, MenuItem, Select } from "@material-ui/core"
 import Refresh from "@material-ui/icons/Refresh"
 import { datumEither } from "@nll/datum"
 import React, { memo, useCallback } from "react"
 import { useHistory, Route, useLocation } from "react-router"
 import { Link } from "react-router-dom"
-import styled from "styled-components"
 import useInterval from "use-interval"
 
 import { useServiceContext } from "../context"
@@ -30,27 +29,23 @@ import {
 } from "./data"
 import { toUpperCaseFirst, withLoading } from "./utils"
 
-const LinkBox = styled(Box)`
-  > * {
-    display: block;
-  }
-`
-
 function FolderList_() {
   return (
-    <LinkBox
+    <Box
       flexBasis="200px"
       style={{ backgroundColor: "#efefef" }}
       paddingX={1}
       paddingTop={7}
       paddingBottom={2}
     >
-      {TaskView.map((c) => (
-        <Link to={`/${c}`} key={c}>
-          {toUpperCaseFirst(c)}
-        </Link>
-      ))}
-    </LinkBox>
+      <List>
+        {TaskView.map((c) => (
+          <ListItem button component={Link} to={`/${c}`} key={c}>
+            {toUpperCaseFirst(c)}
+          </ListItem>
+        ))}
+      </List>
+    </Box>
   )
 }
 const FolderList = memo(FolderList_)
