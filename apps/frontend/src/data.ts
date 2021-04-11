@@ -352,7 +352,6 @@ export function shallowEqual(objA: any, objB: any) {
       !Object.hasOwnProperty.call(objB, keysA[i]) ||
       (!Object.is(propA, propB) &&
         (!propA._tag ||
-          !propB._tag ||
           propA._tag !== propB._tag ||
           (propA._tag !== "Some" &&
             propA._tag !== "None" &&
