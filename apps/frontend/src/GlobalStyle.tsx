@@ -16,6 +16,7 @@ const GlobalStyle = createGlobalStyle`
 
     #main {
         flex: 1;
+        overflow: hidden;
     }
 
     body {

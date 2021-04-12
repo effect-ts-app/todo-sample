@@ -1,6 +1,7 @@
 import { constant } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import { Box, Button, Checkbox, IconButton, TextField } from "@material-ui/core"
+import ArrowRight from "@material-ui/icons/ArrowRight"
 import Delete from "@material-ui/icons/Delete"
 import { DatePicker, DateTimePicker } from "@material-ui/lab"
 import React from "react"
@@ -30,6 +31,7 @@ const constEmptyString = constant("")
 
 function TaskDetail_({
   addNewStep,
+  closeTaskDetail,
   deleteStep,
   deleteTask,
   editNote,
@@ -45,6 +47,7 @@ function TaskDetail_({
   updateStepTitle,
 }: {
   task: Todo.Task
+  closeTaskDetail: () => void
   deleteTask: WithLoading<() => void>
   setDue: WithLoading<(d: Date | null) => PromiseExit>
   setReminder: WithLoading<(d: Date | null) => PromiseExit>
@@ -227,7 +230,12 @@ function TaskDetail_({
           <hr />
         </Box>
 
-        <Box display="flex">
+        <Box display="flex" alignItems="center" fontSize="12px">
+          <Box>
+            <IconButton onClick={closeTaskDetail}>
+              <ArrowRight />
+            </IconButton>
+          </Box>
           <Box flexGrow={1} textAlign="center">
             <span
               title={`Updated: ${t.updatedAt.toLocaleDateString()} at
@@ -242,7 +250,11 @@ function TaskDetail_({
             </span>
           </Box>
           <Box>
-            <IconButton disabled={deleteTask.loading} onClick={() => deleteTask()}>
+            <IconButton
+              size="small"
+              disabled={deleteTask.loading}
+              onClick={() => deleteTask()}
+            >
               <Delete />
             </IconButton>
           </Box>

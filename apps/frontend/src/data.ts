@@ -363,10 +363,8 @@ export function shallowEqual(objA: any, objB: any) {
         return false
       }
 
-      if (O.isSome(propA) && !Object.is(propA.value, propB.value)) {
-        return false
-      }
       if (
+        (O.isSome(propA) && !Object.is(propA.value, propB.value)) ||
         (E.isLeft(propA) && !Object.is(propA.left, propB.left)) ||
         (E.isRight(propA) && !Object.is(propA.right, propB.right))
       ) {

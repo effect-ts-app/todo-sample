@@ -43,21 +43,13 @@ import { toUpperCaseFirst, withLoading } from "./utils"
 
 function FolderList_() {
   return (
-    <Box
-      flexBasis="200px"
-      style={{ backgroundColor: "#efefef" }}
-      paddingX={1}
-      paddingTop={7}
-      paddingBottom={2}
-    >
-      <List>
-        {TaskView.map((c) => (
-          <ListItem button component={Link} to={`/${c}`} key={c}>
-            {toUpperCaseFirst(c)}
-          </ListItem>
-        ))}
-      </List>
-    </Box>
+    <List>
+      {TaskView.map((c) => (
+        <ListItem button component={Link} to={`/${c}`} key={c}>
+          {toUpperCaseFirst(c)}
+        </ListItem>
+      ))}
+    </List>
   )
 }
 const FolderList = memo(FolderList_)
@@ -191,7 +183,8 @@ export const Tasks = memo(function Tasks({
     )
 
   const setSelectedTaskId = useCallback(
-    (id: UUID) => h.push(`/${category}/${id}${makeSearch(order, orderDirection)}`),
+    (id: UUID | null) =>
+      h.push(`/${category}${id ? `/${id}` : ""}${makeSearch(order, orderDirection)}`),
     [category, h, order, orderDirection]
   )
 
@@ -204,9 +197,18 @@ export const Tasks = memo(function Tasks({
 
   return (
     <Box display="flex" height="100%">
-      <FolderList />
+      <Box
+        flexBasis="200px"
+        style={{ backgroundColor: "#efefef" }}
+        paddingX={1}
+        paddingTop={7}
+        paddingBottom={2}
+        overflow="auto"
+      >
+        <FolderList />
+      </Box>
 
-      <Box flexGrow={1} paddingX={2} paddingBottom={2}>
+      <Box flexGrow={1} paddingX={2} paddingBottom={2} overflow="auto">
         <Box display="flex">
           <h1>
             {toUpperCaseFirst(category)} {isRefreshing && <Refresh />}
@@ -243,7 +245,25 @@ export const Tasks = memo(function Tasks({
           },
         }) => {
           const t = tasks.find((x) => x.id === id)
-          return t && <SelectedTask task={t} />
+          return (
+            t && (
+              <Box
+                display="flex"
+                flexBasis="300px"
+                paddingX={2}
+                paddingTop={2}
+                paddingBottom={1}
+                overflow="auto"
+                width="400px"
+                style={{ backgroundColor: "#efefef" }}
+              >
+                <SelectedTask
+                  task={t}
+                  closeTaskDetail={() => setSelectedTaskId(null)}
+                />
+              </Box>
+            )
+          )
         }}
       />
     </Box>
@@ -281,7 +301,13 @@ const AddTask_ = ({
 
 const AddTask = memo(AddTask_)
 
-const SelectedTask_ = ({ task: t }: { task: Todo.Task }) => {
+const SelectedTask_ = ({
+  closeTaskDetail,
+  task: t,
+}: {
+  task: Todo.Task
+  closeTaskDetail: () => void
+}) => {
   const { runPromise } = useServiceContext()
   const [deleteResult, deleteTask] = useDeleteTask()
   const {
@@ -306,67 +332,59 @@ const SelectedTask_ = ({ task: t }: { task: Todo.Task }) => {
   const isUpdatingTask = datumEither.isPending(updateResult) || isRefreshingTask
 
   return (
-    <Box
-      display="flex"
-      flexBasis="300px"
-      paddingX={2}
-      paddingTop={2}
-      paddingBottom={1}
-      style={{ backgroundColor: "#efefef", width: "400px" }}
-    >
-      <TaskDetail
-        task={t}
-        deleteTask={withLoading(
-          () =>
-            pipe(
-              deleteTask(t.id),
-              T.map(() =>
-                modifyTasks((tasks) =>
-                  A.unsafeDeleteAt_(
-                    tasks,
-                    tasks.findIndex((x) => x.id === t.id)
-                  )
+    <TaskDetail
+      task={t}
+      closeTaskDetail={closeTaskDetail}
+      deleteTask={withLoading(
+        () =>
+          pipe(
+            deleteTask(t.id),
+            T.map(() =>
+              modifyTasks((tasks) =>
+                A.unsafeDeleteAt_(
+                  tasks,
+                  tasks.findIndex((x) => x.id === t.id)
                 )
-              ),
-              runPromise
+              )
             ),
-          datumEither.isPending(deleteResult)
-        )}
-        toggleMyDay={withLoading(
-          () => toggleTaskMyDay(t)["|>"](runPromise),
-          isUpdatingTask
-        )}
-        toggleChecked={withLoading(
-          () => toggleTaskChecked(t)["|>"](runPromise),
-          isUpdatingTask
-        )}
-        toggleFavorite={withLoading(
-          () => toggleTaskFavorite(t)["|>"](runPromise),
-          isUpdatingTask
-        )}
-        toggleStepChecked={withLoading(
-          flow(toggleTaskStepChecked(t), runPromise),
-          isUpdatingTask
-        )}
-        setTitle={withLoading(flow(setTitle(t), runPromise), isUpdatingTask)}
-        setDue={withLoading(flow(setDue(t), runPromise), isUpdatingTask)}
-        setReminder={withLoading(flow(setReminder(t), runPromise), isUpdatingTask)}
-        editNote={withLoading(flow(editNote(t), runPromise), isUpdatingTask)}
-        addNewStep={withLoading(
-          flow(addNewTaskStep(t), T.asUnit, runPromise),
-          isUpdatingTask
-        )}
-        updateStepTitle={withLoading(
-          (s: Todo.Step) => flow(updateStepTitle(t)(s), T.asUnit, runPromise),
-          isUpdatingTask
-        )}
-        updateStepIndex={withLoading(
-          (s: Todo.Step) => flow(updateStepIndex(t)(s), T.asUnit, runPromise),
-          isUpdatingTask
-        )}
-        deleteStep={withLoading(flow(deleteTaskStep(t), runPromise), isUpdatingTask)}
-      />
-    </Box>
+            runPromise
+          ),
+        datumEither.isPending(deleteResult)
+      )}
+      toggleMyDay={withLoading(
+        () => toggleTaskMyDay(t)["|>"](runPromise),
+        isUpdatingTask
+      )}
+      toggleChecked={withLoading(
+        () => toggleTaskChecked(t)["|>"](runPromise),
+        isUpdatingTask
+      )}
+      toggleFavorite={withLoading(
+        () => toggleTaskFavorite(t)["|>"](runPromise),
+        isUpdatingTask
+      )}
+      toggleStepChecked={withLoading(
+        flow(toggleTaskStepChecked(t), runPromise),
+        isUpdatingTask
+      )}
+      setTitle={withLoading(flow(setTitle(t), runPromise), isUpdatingTask)}
+      setDue={withLoading(flow(setDue(t), runPromise), isUpdatingTask)}
+      setReminder={withLoading(flow(setReminder(t), runPromise), isUpdatingTask)}
+      editNote={withLoading(flow(editNote(t), runPromise), isUpdatingTask)}
+      addNewStep={withLoading(
+        flow(addNewTaskStep(t), T.asUnit, runPromise),
+        isUpdatingTask
+      )}
+      updateStepTitle={withLoading(
+        (s: Todo.Step) => flow(updateStepTitle(t)(s), T.asUnit, runPromise),
+        isUpdatingTask
+      )}
+      updateStepIndex={withLoading(
+        (s: Todo.Step) => flow(updateStepIndex(t)(s), T.asUnit, runPromise),
+        isUpdatingTask
+      )}
+      deleteStep={withLoading(flow(deleteTaskStep(t), runPromise), isUpdatingTask)}
+    />
   )
 }
 
