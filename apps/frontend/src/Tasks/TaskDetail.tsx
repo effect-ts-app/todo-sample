@@ -162,6 +162,8 @@ function TaskDetail_({
             </Droppable>
             <div>
               <Field
+                size="small"
+                fullWidth
                 state={t}
                 disabled={addNewStep.loading}
                 onChange={addNewStep}

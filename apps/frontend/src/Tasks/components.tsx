@@ -50,6 +50,7 @@ export function TextFieldWithEditor({
 
   return editing ? (
     <Field
+      size="small"
       multiline={multiline}
       inputRef={editor}
       value={text}

@@ -208,7 +208,13 @@ export const Tasks = memo(function Tasks({
         <FolderList />
       </Box>
 
-      <Box flexGrow={1} paddingX={2} paddingBottom={2} overflow="auto">
+      <Box
+        display="flex"
+        flexDirection="column"
+        flexGrow={1}
+        paddingX={2}
+        paddingBottom={2}
+      >
         <Box display="flex">
           <h1>
             {toUpperCaseFirst(category)} {isRefreshing && <Refresh />}
@@ -233,7 +239,9 @@ export const Tasks = memo(function Tasks({
           </div>
         )}
 
-        <TaskList tasks={tasks} setSelectedTaskId={setSelectedTaskId} />
+        <Box flexGrow={1} overflow="auto">
+          <TaskList tasks={tasks} setSelectedTaskId={setSelectedTaskId} />
+        </Box>
         <AddTask category={category} setSelectedTaskId={setSelectedTaskId} />
       </Box>
 
@@ -293,7 +301,13 @@ const AddTask_ = ({
   )
   return (
     <div>
-      <Field placeholder="Add a Task" disabled={addTask.loading} onChange={addTask} />
+      <Field
+        size="small"
+        fullWidth
+        placeholder="Add a Task"
+        disabled={addTask.loading}
+        onChange={addTask}
+      />
     </div>
   )
 }
