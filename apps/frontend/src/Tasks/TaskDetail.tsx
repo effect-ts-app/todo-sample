@@ -114,8 +114,8 @@ function TaskDetail_({
       }}
     >
       <Box flexGrow={1} display="flex" flexDirection="column">
-        <Box display="flex">
-          <Box display="flex" flexGrow={1}>
+        <Box display="flex" alignItems="center">
+          <Box display="flex" flexGrow={1} alignItems="center">
             <Checkbox
               disabled={toggleChecked.loading}
               checked={O.isSome(t.completed)}
@@ -146,38 +146,44 @@ function TaskDetail_({
           </Box>
         </Box>
         <div>
-          <Droppable droppableId={"steps"}>
-            {(provided) => (
-              <Box ref={provided.innerRef} {...provided.droppableProps}>
-                {t.steps.map((s, idx) => (
-                  <Step key={idx} index={idx} step={s} />
-                ))}
-                {provided.placeholder}
-              </Box>
-            )}
-          </Droppable>
+          <hr />
+        </div>
+        <Box flexGrow={1} overflow="auto">
           <div>
-            <Field
-              state={t}
-              disabled={addNewStep.loading}
-              onChange={addNewStep}
-              placeholder="Next Step"
-            />
+            <Droppable droppableId={"steps"}>
+              {(provided) => (
+                <Box ref={provided.innerRef} {...provided.droppableProps}>
+                  {t.steps.map((s, idx) => (
+                    <Step key={idx} index={idx} step={s} />
+                  ))}
+                  {provided.placeholder}
+                </Box>
+              )}
+            </Droppable>
+            <div>
+              <Field
+                state={t}
+                disabled={addNewStep.loading}
+                onChange={addNewStep}
+                placeholder="Next Step"
+              />
+            </div>
+            <div>
+              <hr />
+            </div>
           </div>
-        </div>
 
-        <div>
-          <Button onClick={toggleMyDay}>
-            {t.myDay["|>"](
-              O.fold(
-                () => "Add to my day",
-                () => "Added to my day"
-              )
-            )}
-          </Button>
-        </div>
+          <div>
+            <Button onClick={toggleMyDay}>
+              {t.myDay["|>"](
+                O.fold(
+                  () => "Add to my day",
+                  () => "Added to my day"
+                )
+              )}
+            </Button>
+          </div>
 
-        <Box flexGrow={1}>
           <div>
             <h3>Reminder</h3>
             <DateTimePicker

@@ -253,7 +253,6 @@ export const Tasks = memo(function Tasks({
                 paddingX={2}
                 paddingTop={2}
                 paddingBottom={1}
-                overflow="auto"
                 width="400px"
                 style={{ backgroundColor: "#efefef" }}
               >
