@@ -1,16 +1,19 @@
-import { constant } from "@effect-ts/core/Function"
+import * as A from "@effect-ts/core/Collections/Immutable/Array"
+import * as T from "@effect-ts/core/Effect"
+import { constant, flow, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import { Box, Button, Checkbox, IconButton, TextField } from "@material-ui/core"
 import ArrowRight from "@material-ui/icons/ArrowRight"
 import Delete from "@material-ui/icons/Delete"
 import { DatePicker, DateTimePicker } from "@material-ui/lab"
+import { datumEither } from "@nll/datum"
 import React from "react"
-import { Draggable, Droppable, DragDropContext } from "react-beautiful-dnd"
+import { Droppable, DragDropContext } from "react-beautiful-dnd"
 import styled from "styled-components"
 
-import { memo, onSuccess, PromiseExit } from "../data"
-
-import * as Todo from "./Todo"
+import { useServiceContext } from "../../context"
+import { memo, onSuccess, PromiseExit } from "../../data"
+import * as Todo from "../Todo"
 import {
   Completable,
   FavoriteButton,
@@ -18,8 +21,11 @@ import {
   StateMixin,
   StateMixinProps,
   TextFieldWithEditor,
-} from "./components"
-import { WithLoading } from "./utils"
+} from "../components"
+import { useDeleteTask, useTaskCommands } from "../data"
+import { withLoading, WithLoading } from "../utils"
+
+import { Step } from "./Step"
 
 const StateTextField = styled(TextField)<StateMixinProps>`
   input {
@@ -62,45 +68,6 @@ function TaskDetail_({
   toggleStepChecked: WithLoading<(s: Todo.Step) => void>
   toggleFavorite: WithLoading<() => void>
 }) {
-  function Step({ index, step: s }: { step: Todo.Step; index: number }) {
-    return (
-      <Draggable draggableId={index.toString()} index={index}>
-        {(provided) => (
-          <Box
-            ref={provided.innerRef}
-            {...provided.draggableProps}
-            {...provided.dragHandleProps}
-            display="flex"
-          >
-            <Box flexGrow={1}>
-              <Checkbox
-                disabled={toggleStepChecked.loading}
-                checked={s.completed}
-                onChange={() => toggleStepChecked(s)}
-              />
-              <TextFieldWithEditor
-                loading={updateStepTitle.loading}
-                initialValue={s.title}
-                onChange={(title, onSuc) => {
-                  updateStepTitle(s)(title).then(onSuccess(onSuc))
-                }}
-              >
-                <Completable as="span" completed={s.completed}>
-                  {s.title}
-                </Completable>
-              </TextFieldWithEditor>
-            </Box>
-            <Box>
-              <IconButton disabled={deleteStep.loading} onClick={() => deleteStep(s)}>
-                <Delete />
-              </IconButton>
-            </Box>
-          </Box>
-        )}
-      </Draggable>
-    )
-  }
-
   return (
     <DragDropContext
       onDragEnd={(result) => {
@@ -154,7 +121,20 @@ function TaskDetail_({
               {(provided) => (
                 <Box ref={provided.innerRef} {...provided.droppableProps}>
                   {t.steps.map((s, idx) => (
-                    <Step key={idx} index={idx} step={s} />
+                    <Step
+                      key={idx}
+                      index={idx}
+                      step={s}
+                      deleteStep={withLoading(() => deleteStep(s), deleteStep.loading)}
+                      updateTitle={withLoading(
+                        updateStepTitle(s),
+                        updateStepTitle.loading
+                      )}
+                      toggleChecked={withLoading(
+                        () => toggleStepChecked(s),
+                        toggleStepChecked.loading
+                      )}
+                    />
                   ))}
                   {provided.placeholder}
                 </Box>
@@ -247,7 +227,7 @@ function TaskDetail_({
           <Box flexGrow={1} textAlign="center">
             <span
               title={`Updated: ${t.updatedAt.toLocaleDateString()} at
-          ${t.updatedAt.toLocaleTimeString()}`}
+            ${t.updatedAt.toLocaleTimeString()}`}
             >
               {t.completed["|>"](
                 O.fold(
@@ -272,5 +252,89 @@ function TaskDetail_({
   )
 }
 
-const TaskDetail = memo(TaskDetail_)
-export default TaskDetail
+export const TaskDetail = memo(function ({
+  closeTaskDetail,
+  task: t,
+}: {
+  task: Todo.Task
+  closeTaskDetail: () => void
+}) {
+  const { runPromise } = useServiceContext()
+  const [deleteResult, deleteTask] = useDeleteTask()
+  const {
+    addNewTaskStep,
+    deleteTaskStep,
+    editNote,
+    findResult,
+    modifyTasks,
+    setDue,
+    setReminder,
+    setTitle,
+    toggleTaskChecked,
+    toggleTaskFavorite,
+    toggleTaskMyDay,
+    toggleTaskStepChecked,
+    updateResult,
+    updateStepIndex,
+    updateStepTitle,
+  } = useTaskCommands(t.id)
+
+  const isRefreshingTask = datumEither.isRefresh(findResult)
+  const isUpdatingTask = datumEither.isPending(updateResult) || isRefreshingTask
+
+  return (
+    <TaskDetail_
+      task={t}
+      closeTaskDetail={closeTaskDetail}
+      deleteTask={withLoading(
+        () =>
+          pipe(
+            deleteTask(t.id),
+            T.map(() =>
+              modifyTasks((tasks) =>
+                A.unsafeDeleteAt_(
+                  tasks,
+                  tasks.findIndex((x) => x.id === t.id)
+                )
+              )
+            ),
+            runPromise
+          ),
+        datumEither.isPending(deleteResult)
+      )}
+      toggleMyDay={withLoading(
+        () => toggleTaskMyDay(t)["|>"](runPromise),
+        isUpdatingTask
+      )}
+      toggleChecked={withLoading(
+        () => toggleTaskChecked(t)["|>"](runPromise),
+        isUpdatingTask
+      )}
+      toggleFavorite={withLoading(
+        () => toggleTaskFavorite(t)["|>"](runPromise),
+        isUpdatingTask
+      )}
+      toggleStepChecked={withLoading(
+        flow(toggleTaskStepChecked(t), runPromise),
+        isUpdatingTask
+      )}
+      setTitle={withLoading(flow(setTitle(t), runPromise), isUpdatingTask)}
+      setDue={withLoading(flow(setDue(t), runPromise), isUpdatingTask)}
+      setReminder={withLoading(flow(setReminder(t), runPromise), isUpdatingTask)}
+      editNote={withLoading(flow(editNote(t), runPromise), isUpdatingTask)}
+      addNewStep={withLoading(
+        flow(addNewTaskStep(t), T.asUnit, runPromise),
+        isUpdatingTask
+      )}
+      updateStepTitle={withLoading(
+        (s: Todo.Step) => flow(updateStepTitle(t)(s), T.asUnit, runPromise),
+        isUpdatingTask
+      )}
+      updateStepIndex={withLoading(
+        (s: Todo.Step) => flow(updateStepIndex(t)(s), T.asUnit, runPromise),
+        isUpdatingTask
+      )}
+      deleteStep={withLoading(flow(deleteTaskStep(t), runPromise), isUpdatingTask)}
+    />
+  )
+})

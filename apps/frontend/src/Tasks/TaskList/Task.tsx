@@ -1,4 +1,3 @@
-import * as TodoClient from "@effect-ts-demo/todo-client"
 import * as A from "@effect-ts-demo/todo-types/ext/Array"
 import { flow } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
@@ -8,24 +7,17 @@ import Alarm from "@material-ui/icons/Alarm"
 import CalendarToday from "@material-ui/icons/CalendarToday"
 import Today from "@material-ui/icons/Today"
 import { datumEither } from "@nll/datum"
-import React, { useEffect, useState } from "react"
-import { Draggable, Droppable, DragDropContext } from "react-beautiful-dnd"
+import React from "react"
+import { Draggable } from "react-beautiful-dnd"
 import styled from "styled-components"
 
-import { useServiceContext } from "../context"
-import { memo } from "../data"
-
-import * as Todo from "./Todo"
-import { updateTaskIndex } from "./Todo"
-import {
-  Completable,
-  FavoriteButton,
-  StateMixinProps,
-  StateMixin,
-  ClickableMixin,
-} from "./components"
-import { useModifyTasks, useTaskCommands } from "./data"
-import { withLoading } from "./utils"
+import { useServiceContext } from "../../context"
+import { memo } from "../../data"
+import * as Todo from "../Todo"
+import { ClickableMixin } from "../components"
+import { Completable, FavoriteButton, StateMixinProps, StateMixin } from "../components"
+import { useTaskCommands } from "../data"
+import { withLoading } from "../utils"
 
 function makeStepCount(steps: Todo.Task["steps"]) {
   if (steps.length === 0) {
@@ -39,23 +31,15 @@ function makeStepCount(steps: Todo.Task["steps"]) {
   )
 }
 
+export const StyledCard = styled(Card)`
+  ${ClickableMixin}
+`
+
 const State = styled.span<StateMixinProps>`
   ${StateMixin}
 `
 
-const StyledCard = styled(Card)`
-  ${ClickableMixin}
-`
-
-const CardList = styled.div`
-  > ${StyledCard} {
-    padding: 4px;
-    margin-top: 8px;
-    margin-bottom: 8px;
-  }
-`
-
-function Task_({
+export const Task = memo(function ({
   index,
   setSelectedTaskId,
   task: t,
@@ -144,84 +128,4 @@ function Task_({
       )}
     </Draggable>
   )
-}
-
-const Task = memo(Task_)
-function TaskList_({
-  setSelectedTaskId,
-  tasks,
-}: {
-  setSelectedTaskId: (i: UUID) => void
-  tasks: A.Array<Todo.Task>
-}) {
-  const { runWithErrorLog } = useServiceContext()
-  const modifyTasks = useModifyTasks()
-  const [{ completedTasks, openTasks }, setFilteredTasks] = useState(() => ({
-    completedTasks: [] as A.Array<Todo.Task>,
-    openTasks: [] as A.Array<Todo.Task>,
-  }))
-  useEffect(() => {
-    setFilteredTasks({
-      openTasks: tasks["|>"](A.filter((x) => !O.isSome(x.completed))),
-      completedTasks: tasks["|>"](A.filter((x) => O.isSome(x.completed))),
-    })
-  }, [tasks])
-
-  return (
-    <DragDropContext
-      onDragEnd={(result) => {
-        const { destination } = result
-        if (!destination) {
-          return
-        }
-        const t = tasks.find((x) => x.id === result.draggableId)!
-        // TODO: Next section aint pretty.
-        const reorder = updateTaskIndex(t, destination.index)
-        modifyTasks(reorder)
-        const reorderedTasks = tasks["|>"](reorder)
-        TodoClient.Tasks.setTasksOrder({
-          order: A.map_(reorderedTasks, (t) => t.id),
-        })["|>"](runWithErrorLog)
-      }}
-    >
-      <Droppable droppableId={"tasks"}>
-        {(provided) => (
-          <CardList ref={provided.innerRef} {...provided.droppableProps}>
-            {openTasks.map((t) => (
-              <Task
-                task={t}
-                index={tasks.findIndex((ot) => ot === t)}
-                setSelectedTaskId={setSelectedTaskId}
-                key={t.id}
-              />
-            ))}
-            {provided.placeholder}
-          </CardList>
-        )}
-      </Droppable>
-
-      {Boolean(completedTasks.length) && (
-        <div>
-          <h3>Completed</h3>
-          <Droppable droppableId={"tasks-completed"}>
-            {(provided) => (
-              <CardList ref={provided.innerRef} {...provided.droppableProps}>
-                {completedTasks.map((t) => (
-                  <Task
-                    task={t}
-                    index={tasks.findIndex((ot) => ot === t)}
-                    setSelectedTaskId={setSelectedTaskId}
-                    key={t.id}
-                  />
-                ))}
-                {provided.placeholder}
-              </CardList>
-            )}
-          </Droppable>
-        </div>
-      )}
-    </DragDropContext>
-  )
-}
-const TaskList = memo(TaskList_)
-export default TaskList
+})

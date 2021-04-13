@@ -5,6 +5,7 @@ import { NonEmptyString } from "@effect-ts-demo/todo-types/shared"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import { constant, flow, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
+import * as ORD from "@effect-ts/core/Ord"
 import { Lens } from "@effect-ts/monocle"
 import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
 import { useCallback, useEffect, useMemo } from "react"
@@ -232,3 +233,20 @@ export function useTaskCommands(id: UUID) {
 }
 
 export type TaskCommands = ReturnType<typeof useTaskCommands>
+
+const defaultDate = constant(new Date(1900, 1, 1))
+
+export const orders = {
+  creation: ORD.contramap_(ORD.date, (t: Todo.Task) => t.createdAt),
+  important: ORD.contramap_(ORD.inverted(ORD.boolean), (t: Todo.Task) => t.isFavorite),
+  alphabetically: ORD.contramap_(ORD.string, (t: Todo.Task) => t.title.toLowerCase()),
+  due: ORD.contramap_(ORD.inverted(ORD.date), (t: Todo.Task) =>
+    O.getOrElse_(t.due, defaultDate)
+  ),
+  myDay: ORD.contramap_(ORD.inverted(ORD.date), (t: Todo.Task) =>
+    O.getOrElse_(t.myDay, defaultDate)
+  ),
+}
+
+export type Orders = keyof typeof orders
+export type OrderDir = "up" | "down"

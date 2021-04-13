@@ -1,58 +1,38 @@
 import * as T from "@effect-ts-demo/todo-types/ext/Effect"
 import * as EO from "@effect-ts-demo/todo-types/ext/EffectOption"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
-import { constant, flow, identity, pipe } from "@effect-ts/core/Function"
+import { flow, identity } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import * as ORD from "@effect-ts/core/Ord"
 import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
-import {
-  Box,
-  Button,
-  IconButton,
-  List,
-  ListItem,
-  Menu,
-  MenuItem,
-} from "@material-ui/core"
+import { Box, Button, IconButton } from "@material-ui/core"
 import ArrowDown from "@material-ui/icons/ArrowDownward"
 import ArrowUp from "@material-ui/icons/ArrowUpward"
-import OpenMenu from "@material-ui/icons/Menu"
 import Refresh from "@material-ui/icons/Refresh"
 import { datumEither } from "@nll/datum"
 import React from "react"
 import { useHistory, Route, useLocation } from "react-router"
-import { Link } from "react-router-dom"
 import useInterval from "use-interval"
 
 import { useServiceContext } from "../context"
 import { memo, useCallback } from "../data"
 
-import TaskDetail from "./TaskDetail"
+import { FolderList } from "./FolderList"
+import { TaskDetail } from "./TaskDetail"
 import TaskList from "./TaskList"
+import { TaskListMenu } from "./TaskListMenu"
 import * as Todo from "./Todo"
 import { Field } from "./components"
 import {
+  OrderDir,
+  orders,
+  Orders,
   TaskView,
-  useDeleteTask,
   useGetTask,
   useNewTask,
-  useTaskCommands,
   useTasks,
 } from "./data"
 import { toUpperCaseFirst, withLoading } from "./utils"
-
-function FolderList_() {
-  return (
-    <List>
-      {TaskView.map((c) => (
-        <ListItem button component={Link} to={`/${c}`} key={c}>
-          {toUpperCaseFirst(c)}
-        </ListItem>
-      ))}
-    </List>
-  )
-}
-const FolderList = memo(FolderList_)
 
 function isSameDay(today: Date) {
   return (someDate: Date) => {
@@ -79,71 +59,7 @@ function filterByCategory(category: TaskView) {
   }
 }
 
-const defaultDate = constant(new Date(1900, 1, 1))
-
-const orders = {
-  creation: ORD.contramap_(ORD.date, (t: Todo.Task) => t.createdAt),
-  important: ORD.contramap_(ORD.inverted(ORD.boolean), (t: Todo.Task) => t.isFavorite),
-  alphabetically: ORD.contramap_(ORD.string, (t: Todo.Task) => t.title.toLowerCase()),
-  due: ORD.contramap_(ORD.inverted(ORD.date), (t: Todo.Task) =>
-    O.getOrElse_(t.due, defaultDate)
-  ),
-  myDay: ORD.contramap_(ORD.inverted(ORD.date), (t: Todo.Task) =>
-    O.getOrElse_(t.myDay, defaultDate)
-  ),
-}
-
-type Orders = keyof typeof orders
-type OrderDir = "up" | "down"
-
-function TaskListMenu_({
-  setOrder,
-}: {
-  order: O.Option<Orders>
-  orderDirection: O.Option<OrderDir>
-  setOrder: (o: O.Option<Orders>) => void
-}) {
-  const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null)
-
-  const handleClose = () => {
-    setAnchorEl(null)
-  }
-  return (
-    <>
-      <IconButton
-        aria-controls="simple-menu"
-        aria-haspopup="true"
-        onClick={(event) => {
-          setAnchorEl(event.currentTarget)
-        }}
-      >
-        <OpenMenu />
-      </IconButton>
-      <Menu
-        anchorEl={anchorEl}
-        keepMounted
-        open={Boolean(anchorEl)}
-        onClose={handleClose}
-      >
-        {Object.keys(orders).map((o) => (
-          <MenuItem
-            key={o}
-            onClick={() => {
-              setOrder(O.some(o as Orders))
-              handleClose()
-            }}
-          >
-            {o}
-          </MenuItem>
-        ))}
-      </Menu>
-    </>
-  )
-}
-
-const TaskListMenu = memo(TaskListMenu_)
-
-export const Tasks = memo(function Tasks({
+const Tasks = memo(function ({
   category,
   order,
   orderDirection,
@@ -264,10 +180,7 @@ export const Tasks = memo(function Tasks({
                 width="400px"
                 style={{ backgroundColor: "#efefef" }}
               >
-                <SelectedTask
-                  task={t}
-                  closeTaskDetail={() => setSelectedTaskId(null)}
-                />
+                <TaskDetail task={t} closeTaskDetail={() => setSelectedTaskId(null)} />
               </Box>
             )
           )
@@ -277,13 +190,13 @@ export const Tasks = memo(function Tasks({
   )
 })
 
-const AddTask_ = ({
+const AddTask = memo(function ({
   category,
   setSelectedTaskId,
 }: {
   category: TaskView
   setSelectedTaskId: (i: UUID) => void
-}) => {
+}) {
   const { runPromise } = useServiceContext()
   const [newResult, addNewTask] = useNewTask(category)
 
@@ -310,100 +223,9 @@ const AddTask_ = ({
       />
     </div>
   )
-}
+})
 
-const AddTask = memo(AddTask_)
-
-const SelectedTask_ = ({
-  closeTaskDetail,
-  task: t,
-}: {
-  task: Todo.Task
-  closeTaskDetail: () => void
-}) => {
-  const { runPromise } = useServiceContext()
-  const [deleteResult, deleteTask] = useDeleteTask()
-  const {
-    addNewTaskStep,
-    deleteTaskStep,
-    editNote,
-    findResult,
-    modifyTasks,
-    setDue,
-    setReminder,
-    setTitle,
-    toggleTaskChecked,
-    toggleTaskFavorite,
-    toggleTaskMyDay,
-    toggleTaskStepChecked,
-    updateResult,
-    updateStepIndex,
-    updateStepTitle,
-  } = useTaskCommands(t.id)
-
-  const isRefreshingTask = datumEither.isRefresh(findResult)
-  const isUpdatingTask = datumEither.isPending(updateResult) || isRefreshingTask
-
-  return (
-    <TaskDetail
-      task={t}
-      closeTaskDetail={closeTaskDetail}
-      deleteTask={withLoading(
-        () =>
-          pipe(
-            deleteTask(t.id),
-            T.map(() =>
-              modifyTasks((tasks) =>
-                A.unsafeDeleteAt_(
-                  tasks,
-                  tasks.findIndex((x) => x.id === t.id)
-                )
-              )
-            ),
-            runPromise
-          ),
-        datumEither.isPending(deleteResult)
-      )}
-      toggleMyDay={withLoading(
-        () => toggleTaskMyDay(t)["|>"](runPromise),
-        isUpdatingTask
-      )}
-      toggleChecked={withLoading(
-        () => toggleTaskChecked(t)["|>"](runPromise),
-        isUpdatingTask
-      )}
-      toggleFavorite={withLoading(
-        () => toggleTaskFavorite(t)["|>"](runPromise),
-        isUpdatingTask
-      )}
-      toggleStepChecked={withLoading(
-        flow(toggleTaskStepChecked(t), runPromise),
-        isUpdatingTask
-      )}
-      setTitle={withLoading(flow(setTitle(t), runPromise), isUpdatingTask)}
-      setDue={withLoading(flow(setDue(t), runPromise), isUpdatingTask)}
-      setReminder={withLoading(flow(setReminder(t), runPromise), isUpdatingTask)}
-      editNote={withLoading(flow(editNote(t), runPromise), isUpdatingTask)}
-      addNewStep={withLoading(
-        flow(addNewTaskStep(t), T.asUnit, runPromise),
-        isUpdatingTask
-      )}
-      updateStepTitle={withLoading(
-        (s: Todo.Step) => flow(updateStepTitle(t)(s), T.asUnit, runPromise),
-        isUpdatingTask
-      )}
-      updateStepIndex={withLoading(
-        (s: Todo.Step) => flow(updateStepIndex(t)(s), T.asUnit, runPromise),
-        isUpdatingTask
-      )}
-      deleteStep={withLoading(flow(deleteTaskStep(t), runPromise), isUpdatingTask)}
-    />
-  )
-}
-
-const SelectedTask = memo(SelectedTask_)
-
-function TasksScreen_({
+const TasksScreen = memo(function ({
   category,
   order,
   orderDirection,
@@ -441,7 +263,6 @@ function TasksScreen_({
       )
     )
   )
-}
-const TasksScreen = memo(TasksScreen_)
+})
 
 export default TasksScreen
