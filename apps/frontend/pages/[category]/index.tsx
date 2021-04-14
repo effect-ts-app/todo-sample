@@ -1,7 +1,7 @@
 import { useRouter } from "next/router"
 import React from "react"
 
-import TasksScreen, { getQueryParam } from "./TasksScreen"
+import TasksScreen, { getQueryParam } from "../../components/Tasks/TasksScreen"
 
 const Category = () => {
   const r = useRouter()
