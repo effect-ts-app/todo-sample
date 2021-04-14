@@ -1,5 +1,5 @@
 const config = Object.freeze({
-  apiUrl: "http://localhost:3330",
+  apiUrl: "/api",
 })
 export function useConfig() {
   return config
