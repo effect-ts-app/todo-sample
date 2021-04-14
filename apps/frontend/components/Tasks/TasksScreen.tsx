@@ -91,7 +91,7 @@ const Tasks = memo(function ({
   const r = useRouter()
 
   const setDirection = useCallback(
-    (dir: OrderDir) => r.push(`${r.pathname}${makeSearch(order, O.some(dir))}`),
+    (dir: OrderDir) => r.push(`${location.pathname}${makeSearch(order, O.some(dir))}`),
     [r, order]
   )
 
@@ -109,7 +109,7 @@ const Tasks = memo(function ({
   )
 
   const setOrder = useCallback(
-    (o) => r.push(`${r.pathname}${makeSearch(o, orderDirection)}`),
+    (o) => r.push(`${location.pathname}${makeSearch(o, orderDirection)}`),
     [r, orderDirection]
   )
 
