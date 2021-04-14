@@ -1,5 +1,7 @@
 const withTM = require('next-transpile-modules')(['fp-ts', '@nll/datum', '@effect-ts-demo/todo-client', '@effect-ts-demo/todo-types']);
 
+const { API_ROOT = "http://localhost:3330" } = process.env
+
 // eslint-disable-next-line no-undef
 module.exports = withTM({
 //   webpack: (config) => {
@@ -32,7 +34,7 @@ module.exports = withTM({
     return [
       {
         source: '/api/:path*',
-        destination: 'http://localhost:3330/:path*' // Proxy to Backend
+        destination: `${API_ROOT}/:path*` // Proxy to Backend
       }
     ]
   },
