@@ -1,12 +1,26 @@
+import { StyledEngineProvider } from "@material-ui/core"
+import { StylesProvider } from "@material-ui/core/styles"
+import AdapterDateFns from "@material-ui/lab/AdapterDateFns"
+import LocalizationProvider from "@material-ui/lab/LocalizationProvider"
 import React from "react"
 
-import { WithContext } from "@/context"
+import GlobalStyle from "@/GlobalStyle"
+import { LiveFetchContext, LiveServiceContext } from "@/context"
 
 function MyApp({ Component, pageProps }: any) {
   return (
-    <WithContext>
-      <Component {...pageProps} />
-    </WithContext>
+    <StyledEngineProvider injectFirst>
+      <StylesProvider injectFirst>
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <LiveServiceContext>
+            <LiveFetchContext>
+              <GlobalStyle />
+              <Component {...pageProps} />
+            </LiveFetchContext>
+          </LiveServiceContext>
+        </LocalizationProvider>
+      </StylesProvider>
+    </StyledEngineProvider>
   )
 }
 
