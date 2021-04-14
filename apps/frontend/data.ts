@@ -369,7 +369,7 @@ export function shallowEqual(objA: any, objB: any) {
         (E.isLeft(propA) && Object.is(propA.left, propB.left)) ||
         (E.isRight(propA) && Object.is(propA.right, propB.right))
       ) {
-        return true
+        continue
       }
       return false
     }
