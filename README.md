@@ -39,10 +39,3 @@ From repo root or per app/package:
 ### Important steps
 
 - in Editor, make sure the typescript runtime is set to the local node_modules/typescript
-
-## FAQ
-
-### Why Create React App
-
-Just easy to quickly bootstrap a TS React app.
-Yes, the irony of duplicate yarn.lock and node_modules in a yarn workspace is not lost on me ;-)
