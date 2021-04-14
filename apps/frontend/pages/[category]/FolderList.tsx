@@ -1,10 +1,10 @@
-import { List, ListItem } from "@material-ui/core"
+import { List, ListItem, ListItemText } from "@material-ui/core"
 import Link from "next/link"
 import React from "react"
 
+import * as Todo from "../../Todo"
 import { memo } from "../../data"
 
-import * as Todo from "./Todo"
 import { TaskView } from "./data"
 import { toUpperCaseFirst } from "./utils"
 
@@ -16,9 +16,11 @@ export const FolderList = memo(function ({
   return (
     <List component="nav">
       {TaskView.map((c) => (
-        <ListItem button key={c}>
-          <Link href={`/${c}`}>{toUpperCaseFirst(c)}</Link>
-        </ListItem>
+        <Link href={`/${c}`} passHref key={c}>
+          <ListItem component="a" button>
+            <ListItemText>{toUpperCaseFirst(c)}</ListItemText>
+          </ListItem>
+        </Link>
       ))}
       {folders.map((f, idx) =>
         Todo.FolderListADT.matchStrict({

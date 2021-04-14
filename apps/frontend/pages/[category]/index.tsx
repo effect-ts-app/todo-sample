@@ -3,7 +3,7 @@ import React from "react"
 
 import TasksScreen, { getQueryParam } from "./TasksScreen"
 
-export default () => {
+const Category = () => {
   const r = useRouter()
   return (
     <TasksScreen
@@ -14,3 +14,5 @@ export default () => {
     />
   )
 }
+
+export default Category

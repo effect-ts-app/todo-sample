@@ -13,7 +13,7 @@ import styled from "styled-components"
 
 import { useServiceContext } from "../../../context"
 import { memo } from "../../../data"
-import * as Todo from "../Todo"
+import * as Todo from "../../../Todo"
 import { ClickableMixin } from "../components"
 import { Completable, FavoriteButton, StateMixinProps, StateMixin } from "../components"
 import { useTaskCommands } from "../data"

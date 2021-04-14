@@ -1,2 +1,4 @@
 import redirect from "nextjs-redirect"
-export default redirect("/tasks")
+
+const redirectToTasks = redirect("/tasks")
+export default redirectToTasks
