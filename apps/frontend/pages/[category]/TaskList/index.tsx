@@ -6,10 +6,9 @@ import React, { useEffect, useState } from "react"
 import { Droppable, DragDropContext } from "react-beautiful-dnd"
 import styled from "styled-components"
 
-import { useServiceContext } from "../../context"
-import { memo } from "../../data"
-import * as Todo from "../Todo"
-import { updateTaskIndex } from "../Todo"
+import * as Todo from "../../../Todo"
+import { useServiceContext } from "../../../context"
+import { memo } from "../../../data"
 import { useModifyTasks } from "../data"
 
 import { StyledCard, Task } from "./Task"
@@ -51,7 +50,7 @@ const TaskList = memo(function ({
         }
         const t = tasks.find((x) => x.id === result.draggableId)!
         // TODO: Next section aint pretty.
-        const reorder = updateTaskIndex(t, destination.index)
+        const reorder = Todo.updateTaskIndex(t, destination.index)
         modifyTasks(reorder)
         const reorderedTasks = tasks["|>"](reorder)
         TodoClient.Tasks.setTasksOrder({

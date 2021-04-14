@@ -5,7 +5,7 @@ import FavoriteBorder from "@material-ui/icons/FavoriteBorder"
 import React, { useState, useRef, useEffect, MouseEventHandler } from "react"
 import styled, { css } from "styled-components"
 
-import { onSuccess, PromiseExit } from "../data"
+import { onSuccess, PromiseExit } from "../../data"
 
 export const Clickable = styled.div`
   ${ClickableMixin}
@@ -55,7 +55,7 @@ export function TextFieldWithEditor({
       inputRef={editor}
       value={text}
       disabled={loading}
-      onKeyPress={multiline ? undefined : (evt) => evt.charCode === 13 && submit()}
+      onKeyDown={multiline ? undefined : (evt) => evt.key === "Enter" && submit()}
       onBlur={submit}
       onChange={(evt) => setText(evt.target.value)}
     />
@@ -84,8 +84,8 @@ export const Field = ({
     <TextField
       value={text}
       onChange={(evt) => setText(evt.target.value)}
-      onKeyPress={(evt) => {
-        evt.charCode === 13 &&
+      onKeyDown={(evt) => {
+        evt.key === "Enter" &&
           text.length &&
           onChange(text as NonEmptyString).then(onSuccess(clearText))
       }}

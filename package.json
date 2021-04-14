@@ -10,10 +10,10 @@
     },
     "private": true,
     "devDependencies": {
+        "@effect-ts/tracing-plugin": "^0.8.0",
         "@types/node": "^14.14.37",
         "@typescript-eslint/eslint-plugin": "^4.22.0",
         "@typescript-eslint/parser": "^4.22.0",
-        "create-react-app": "^4.0.3",
         "eslint": "^7.24.0",
         "eslint-config-prettier": "^8.1.0",
         "eslint-import-resolver-typescript": "^2.4.0",
@@ -30,11 +30,14 @@
         "ts-node": "^9.1.1",
         "tsconfig-paths": "^3.9.0",
         "typescript": "^4.2.4",
+        "ttypescript": "^1.5.12",
         "ultra-runner": "^3.10.5"
     },
     "scripts": {
         "start": "concurrently -k -p \"[{name}]\" -n \"CRA Server,CRA Client\" -c \"cyan.bold,green.bold,blue.bold\" \"yarn start:api\" \"yarn start:frontend\"",
         "start:api": "cd apps/api && yarn start",
+        "dev": "concurrently -k -p \"[{name}]\" -n \"CRA Server,CRA Client\" -c \"cyan.bold,green.bold,blue.bold\" \"yarn start:api\" \"yarn dev:frontend\"",
+        "dev:frontend": "cd apps/frontend && yarn dev",
         "start:frontend": "cd apps/frontend && yarn start",
         "postinstall": "patch-package",
         "testsuite": "ultra -r yarn testsuite",

@@ -3,8 +3,8 @@ import Delete from "@material-ui/icons/Delete"
 import React from "react"
 import { Draggable } from "react-beautiful-dnd"
 
-import { onSuccess, PromiseExit } from "../../data"
-import * as Todo from "../Todo"
+import { onSuccess, PromiseExit } from "../../../data"
+import * as Todo from "../../../Todo"
 import { Completable, TextFieldWithEditor } from "../components"
 import { WithLoading } from "../utils"
 

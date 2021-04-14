@@ -3,7 +3,7 @@ import { IconButton, Menu, MenuItem } from "@material-ui/core"
 import OpenMenu from "@material-ui/icons/Menu"
 import React from "react"
 
-import { memo } from "../data"
+import { memo } from "../../data"
 
 import { OrderDir, Orders, orders } from "./data"
 
