@@ -10,7 +10,7 @@ export default () => {
       category={getQueryParam(r.query, "category")!}
       order={getQueryParam(r.query, "order")}
       orderDirection={getQueryParam(r.query, "orderDirection")}
-      taskId={null}
+      taskId={getQueryParam(r.query, "tasks")}
     />
   )
 }

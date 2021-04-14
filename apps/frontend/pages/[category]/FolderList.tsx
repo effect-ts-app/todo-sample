@@ -1,6 +1,6 @@
 import { List, ListItem } from "@material-ui/core"
+import Link from "next/link"
 import React from "react"
-import { Link } from "react-router-dom"
 
 import { memo } from "../../data"
 
@@ -16,8 +16,8 @@ export const FolderList = memo(function ({
   return (
     <List component="nav">
       {TaskView.map((c) => (
-        <ListItem button component={Link} to={`/${c}`} key={c}>
-          {toUpperCaseFirst(c)}
+        <ListItem button key={c}>
+          <Link href={`/${c}`}>{toUpperCaseFirst(c)}</Link>
         </ListItem>
       ))}
       {folders.map((f, idx) =>

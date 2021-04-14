@@ -1,5 +1,2 @@
-import React from "react"
-
-export default function Home() {
-  return <div>Howdy</div>
-}
+import redirect from "nextjs-redirect"
+export default redirect("/tasks")
