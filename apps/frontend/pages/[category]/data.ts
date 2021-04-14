@@ -10,8 +10,8 @@ import { Lens } from "@effect-ts/monocle"
 import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
 import { useCallback, useEffect, useMemo } from "react"
 
-import { useServiceContext } from "../context"
-import { useFetch, useModify, useQuery } from "../data"
+import { useServiceContext } from "../../context"
+import { useFetch, useModify, useQuery } from "../../data"
 
 import * as Todo from "./Todo"
 

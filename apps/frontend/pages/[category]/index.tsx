@@ -1,3 +1,5 @@
+import { ParsedUrlQuery } from "querystring"
+
 import * as T from "@effect-ts-demo/todo-types/ext/Effect"
 import * as EO from "@effect-ts-demo/todo-types/ext/EffectOption"
 import { NonEmptyString } from "@effect-ts-demo/todo-types/shared"
@@ -11,12 +13,13 @@ import ArrowDown from "@material-ui/icons/ArrowDownward"
 import ArrowUp from "@material-ui/icons/ArrowUpward"
 import Refresh from "@material-ui/icons/Refresh"
 import { datumEither } from "@nll/datum"
+import { useRouter } from "next/router"
 import React from "react"
-import { useHistory, Route, useLocation } from "react-router"
+import { Route } from "react-router"
 import useInterval from "use-interval"
 
-import { useServiceContext } from "../context"
-import { memo, useCallback } from "../data"
+import { useServiceContext } from "../../context"
+import { memo, useCallback } from "../../data"
 
 import { FolderList } from "./FolderList"
 import { TaskDetail } from "./TaskDetail"
@@ -84,12 +87,11 @@ const Tasks = memo(function ({
 
   useInterval(() => refetchTasks, 30 * 1000)
 
-  const h = useHistory()
-  const location = useLocation()
+  const r = useRouter()
 
   const setDirection = useCallback(
-    (dir: OrderDir) => h.push(`${location.pathname}${makeSearch(order, O.some(dir))}`),
-    [h, location.pathname, order]
+    (dir: OrderDir) => r.push(`${r.pathname}${makeSearch(order, O.some(dir))}`),
+    [r, order]
   )
 
   const makeSearch = (o: O.Option<Orders>, dir: O.Option<OrderDir>) =>
@@ -101,13 +103,13 @@ const Tasks = memo(function ({
 
   const setSelectedTaskId = useCallback(
     (id: UUID | null) =>
-      h.push(`/${category}${id ? `/${id}` : ""}${makeSearch(order, orderDirection)}`),
-    [category, h, order, orderDirection]
+      r.push(`/${category}${id ? `/${id}` : ""}${makeSearch(order, orderDirection)}`),
+    [category, r, order, orderDirection]
   )
 
   const setOrder = useCallback(
-    (o) => h.push(`${location.pathname}${makeSearch(o, orderDirection)}`),
-    [h, location.pathname, orderDirection]
+    (o) => r.push(`${r.pathname}${makeSearch(o, orderDirection)}`),
+    [r, orderDirection]
   )
 
   const isRefreshing = datumEither.isRefresh(tasksResult)
@@ -287,4 +289,21 @@ const TasksScreen = memo(function ({
   )
 })
 
-export default TasksScreen
+function getQueryParam(search: ParsedUrlQuery, param: string) {
+  const v = search[param]
+  if (Array.isArray(v)) {
+    return v[0]
+  }
+  return v ?? null
+}
+
+export default () => {
+  const r = useRouter()
+  return (
+    <TasksScreen
+      category={getQueryParam(r.query, "category")!}
+      order={getQueryParam(r.query, "order")}
+      orderDirection={getQueryParam(r.query, "orderDirection")}
+    />
+  )
+}

@@ -2,7 +2,7 @@ import { List, ListItem } from "@material-ui/core"
 import React from "react"
 import { Link } from "react-router-dom"
 
-import { memo } from "../data"
+import { memo } from "../../data"
 
 import * as Todo from "./Todo"
 import { TaskView } from "./data"
@@ -29,7 +29,7 @@ export const FolderList = memo(function ({
               <List component="div">
                 {g.lists.map((l, idx) => (
                   <ListItem key={idx}>List {l.title}</ListItem>
-                ))}{" "}
+                ))}
               </List>
             </React.Fragment>
           ),

@@ -5,18 +5,8 @@ const GlobalStyle = createGlobalStyle`
         height: 100%;
     }
 
-    .App {
-        display: flex;
-    }
-
-    #root, .App {
+    #__next {
         height: 100%;
-        flex-direction: column;
-    }
-
-    #main {
-        flex: 1;
-        overflow: hidden;
     }
 
     body {

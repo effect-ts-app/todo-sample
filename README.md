@@ -21,7 +21,8 @@ TODO: Implement a Layer to demo replacing for example the persistence mechanism.
 
 From repo root:
 - `yarn`
-- `yarn start`
+- `yarn dev`
+- visit `http://localhost:3133`
 
 Interesting bits are in:
 - `apps/api`
