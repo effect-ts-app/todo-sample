@@ -5,25 +5,25 @@ import React from "react"
 import * as Todo from "@/Todo"
 import { memo } from "@/data"
 
-import { TaskView } from "./data"
-import { toUpperCaseFirst } from "./utils"
-
 export const FolderList = memo(function ({
   folders,
 }: {
   folders: readonly Todo.FolderListADT[]
 }) {
+  // TODO: dynamic TaskViews should show count
   return (
     <List component="nav">
-      {TaskView.map((c) => (
-        <Link href={`/${c}`} passHref key={c}>
-          <ListItem component="a" button>
-            <ListItemText>{toUpperCaseFirst(c)}</ListItemText>
-          </ListItem>
-        </Link>
-      ))}
       {folders.map((f, idx) =>
         Todo.FolderListADT.matchStrict({
+          TaskListView: (c) => (
+            <Link href={`/${c.slug}`} passHref key={c.slug}>
+              <ListItem component="a" button>
+                <ListItemText>
+                  {c.title} ({c.count})
+                </ListItemText>
+              </ListItem>
+            </Link>
+          ),
           TaskList: (l) => <ListItem key={idx}>List {l.title}</ListItem>,
           TaskListGroup: (g) => (
             <React.Fragment key={idx}>

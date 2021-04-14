@@ -115,7 +115,23 @@ const Tasks = memo(function ({
 
   const isRefreshing = datumEither.isRefresh(tasksResult)
 
+  // TODO: count
   const folders = [
+    ...TaskView["|>"](
+      A.map((c) => ({
+        slug: c as NonEmptyString,
+        tasks: unfilteredTasks["|>"](filterByCategory(c)),
+      }))
+    )["|>"](
+      A.map(({ slug, tasks }) =>
+        Todo.FolderListADT.of.TaskListView({
+          title: toUpperCaseFirst(slug) as NonEmptyString,
+          slug,
+          count: tasks.length, // should not have separate count if tasks would be provided, but we shouldnt need to provide the tasks in the folderlist anyhow.
+          tasks,
+        })
+      )
+    ),
     Todo.FolderListADT.of.TaskList({ title: "Some list" as NonEmptyString, tasks: [] }),
     Todo.FolderListADT.of.TaskListGroup({
       title: "Leisure" as NonEmptyString,

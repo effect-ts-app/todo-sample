@@ -83,7 +83,18 @@ export const TaskListGroup = make((F) =>
   )()
 )
 
-export const FolderListADT = makeADT("_tag")({ TaskList, TaskListGroup })
+export const TaskListView = make((F) =>
+  F.intersection(
+    Todo.TaskList(F),
+    F.interface({
+      count: F.number(),
+      slug: NonEmptyString(F),
+      _tag: F.stringLiteral("TaskListView"),
+    })
+  )()
+)
+
+export const FolderListADT = makeADT("_tag")({ TaskList, TaskListGroup, TaskListView })
 export type FolderListADT = AType<typeof FolderListADT>
 
 export * from "@effect-ts-demo/todo-types/Task"
