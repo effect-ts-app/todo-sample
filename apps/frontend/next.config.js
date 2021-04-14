@@ -2,10 +2,9 @@ const withTM = require('next-transpile-modules')(['fp-ts', '@nll/datum', '@effec
 
 // eslint-disable-next-line no-undef
 module.exports = withTM({
-  //webpack: (config) => {
-    //config.module.rules = [
-        // customisation for using effect-ts typescript compiler with tracing
-
+//   webpack: (config) => {
+//     config.module.rules = [
+//     // customization for effect-ts custom ts with compiler plugin
 //       {
 //         test: /\.(tsx|ts)$/,
 //         use: [
@@ -18,6 +17,14 @@ module.exports = withTM({
 //           }
 //         ]
 //       },
+//       ...config.module.rules.map((r) => {
+//         if (String(r.test).includes("ts")) {
+//           return { ...r, test: /\.(js|mjs|jsx)$/ }
+//         }
+//         return r
+//       })
+//     ]
+
 //     return config
 //   },
   future: {
