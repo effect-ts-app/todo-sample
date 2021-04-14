@@ -34,6 +34,81 @@ const tasksRef = Ref.unsafeMakeRef<Map.Map<UUID, TaskE>>(
           Step.create({ title: "second step" as NonEmptyString }),
         ],
       })["|>"](Task.complete),
+      {
+        ...Task.create({
+          title: "My third Task" as NonEmptyString,
+          steps: [
+            Step.build({ title: "first step" as NonEmptyString, completed: true }),
+            Step.create({ title: "second step" as NonEmptyString }),
+          ],
+        }),
+        due: O.some(new Date(2021, 1, 1)),
+      },
+      {
+        ...Task.create({
+          title: "My third Task" as NonEmptyString,
+          steps: [
+            Step.build({ title: "first step" as NonEmptyString, completed: true }),
+            Step.create({ title: "second step" as NonEmptyString }),
+          ],
+        }),
+        due: O.some(new Date(2021, 2, 1)),
+      },
+
+      {
+        ...Task.create({
+          title: "My fourth Task" as NonEmptyString,
+          steps: [
+            Step.build({ title: "first step" as NonEmptyString, completed: true }),
+            Step.create({ title: "second step" as NonEmptyString }),
+          ],
+        }),
+        reminder: O.some(new Date(2021, 1, 1)),
+      },
+
+      {
+        ...Task.create({
+          title: "My fifth Task" as NonEmptyString,
+          steps: [
+            Step.build({ title: "first step" as NonEmptyString, completed: true }),
+            Step.create({ title: "second step" as NonEmptyString }),
+          ],
+        }),
+        due: O.some(new Date(2021, 2, 1)),
+      },
+
+      {
+        ...Task.create({
+          title: "My sixth Task" as NonEmptyString,
+          steps: [
+            Step.build({ title: "first step" as NonEmptyString, completed: true }),
+            Step.create({ title: "second step" as NonEmptyString }),
+          ],
+        }),
+        isFavorite: true,
+      },
+
+      {
+        ...Task.create({
+          title: "My seventh Task" as NonEmptyString,
+          steps: [
+            Step.build({ title: "first step" as NonEmptyString, completed: true }),
+            Step.create({ title: "second step" as NonEmptyString }),
+          ],
+        }),
+        isFavorite: true,
+      },
+
+      {
+        ...Task.create({
+          title: "My eight Task" as NonEmptyString,
+          steps: [
+            Step.build({ title: "first step" as NonEmptyString, completed: true }),
+            Step.create({ title: "second step" as NonEmptyString }),
+          ],
+        }),
+        myDay: O.some(new Date()),
+      },
     ],
     A.map((task) => [task.id, runEncodeTask(task)] as const),
     Map.make
