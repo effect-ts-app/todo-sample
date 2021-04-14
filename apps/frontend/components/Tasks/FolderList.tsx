@@ -2,8 +2,8 @@ import { List, ListItem, ListItemText } from "@material-ui/core"
 import Link from "next/link"
 import React from "react"
 
-import * as Todo from "../../Todo"
-import { memo } from "../../data"
+import * as Todo from "@/Todo"
+import { memo } from "@/data"
 
 import { TaskView } from "./data"
 import { toUpperCaseFirst } from "./utils"

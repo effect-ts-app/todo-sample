@@ -11,9 +11,10 @@ import React from "react"
 import { Droppable, DragDropContext } from "react-beautiful-dnd"
 import styled from "styled-components"
 
-import { useServiceContext } from "../../../context"
-import { memo, onSuccess, PromiseExit } from "../../../data"
-import * as Todo from "../../../Todo"
+import * as Todo from "@/Todo"
+import { useServiceContext } from "@/context"
+import { memo, onSuccess, PromiseExit } from "@/data"
+
 import {
   Completable,
   FavoriteButton,

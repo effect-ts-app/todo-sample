@@ -4,6 +4,11 @@
         "lib": [
             "es2020"
         ],
+        "paths": {
+            "@/*": [
+                "./*"
+            ]
+        },
         "target": "es2020",
         "baseUrl": ".",
         "noErrorTruncation": true,

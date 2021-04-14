@@ -1,6 +1,6 @@
 import React from "react"
 
-import { WithContext } from "../context"
+import { WithContext } from "@/context"
 
 function MyApp({ Component, pageProps }: any) {
   return (

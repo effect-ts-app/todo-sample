@@ -17,9 +17,9 @@ import { useRouter } from "next/router"
 import React from "react"
 import useInterval from "use-interval"
 
-import * as Todo from "../../Todo"
-import { useServiceContext } from "../../context"
-import { memo, useCallback } from "../../data"
+import * as Todo from "@/Todo"
+import { useServiceContext } from "@/context"
+import { memo, useCallback } from "@/data"
 
 import { FolderList } from "./FolderList"
 import { TaskDetail } from "./TaskDetail"

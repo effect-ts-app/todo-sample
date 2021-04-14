@@ -5,7 +5,7 @@ import FavoriteBorder from "@material-ui/icons/FavoriteBorder"
 import React, { useState, useRef, useEffect, MouseEventHandler } from "react"
 import styled, { css } from "styled-components"
 
-import { onSuccess, PromiseExit } from "../../data"
+import { onSuccess, PromiseExit } from "@/data"
 
 export const Clickable = styled.div`
   ${ClickableMixin}

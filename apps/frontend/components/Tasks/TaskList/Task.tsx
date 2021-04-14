@@ -11,9 +11,10 @@ import React from "react"
 import { Draggable } from "react-beautiful-dnd"
 import styled from "styled-components"
 
-import { useServiceContext } from "../../../context"
-import { memo } from "../../../data"
-import * as Todo from "../../../Todo"
+import * as Todo from "@/Todo"
+import { useServiceContext } from "@/context"
+import { memo } from "@/data"
+
 import { ClickableMixin } from "../components"
 import { Completable, FavoriteButton, StateMixinProps, StateMixin } from "../components"
 import { useTaskCommands } from "../data"
