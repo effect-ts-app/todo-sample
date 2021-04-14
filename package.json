@@ -41,6 +41,7 @@
         "start:api": "cd apps/api && yarn start",
         "dev": "concurrently -k -p \"[{name}]\" -n \"CRA Server,CRA Client\" -c \"cyan.bold,green.bold,blue.bold\" \"yarn start:api\" \"yarn dev:frontend\"",
         "dev:frontend": "cd apps/frontend && yarn dev",
+        "build": "cd apps/frontend && yarn build",
         "start:frontend": "cd apps/frontend && yarn start",
         "postinstall": "patch-package",
         "testsuite": "ultra -r yarn testsuite",
