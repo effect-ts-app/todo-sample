@@ -71,3 +71,27 @@ export const Task = Object.assign(TaskO, {
   },
   complete: TaskO.lens["|>"](Lens.prop("completed")).set(O.some(new Date())),
 })
+
+// FE; tasklists contain tasks. BE: tasks have task.listID
+// Important change for scalability.
+const TaskList_ = make((F) =>
+  F.interface({
+    title: NonEmptyString(F),
+    tasks: F.array(Task(F)),
+  })
+)
+
+export interface TaskList extends AType<typeof TaskList_> {}
+export interface TaskListE extends EType<typeof TaskList_> {}
+export const TaskList = opaque<TaskListE, TaskList>()(TaskList_)
+
+// TaskListGroups contains tasklists
+const TaskListGroup_ = make((F) =>
+  F.interface({ title: NonEmptyString(F), lists: F.array(TaskList(F)) })
+)
+export interface TaskListGroup extends AType<typeof TaskListGroup_> {}
+export interface TaskListGroupE extends EType<typeof TaskListGroup_> {}
+export const TaskListGroup = opaque<TaskListGroupE, TaskListGroup>()(TaskListGroup_)
+
+// In backend, tasks would be saved separately from lists and list separately from groups.
+// so you would have a relationship db; task.listId,  list.groupId etc.

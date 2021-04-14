@@ -1,5 +1,6 @@
 import * as T from "@effect-ts-demo/todo-types/ext/Effect"
 import * as EO from "@effect-ts-demo/todo-types/ext/EffectOption"
+import { NonEmptyString } from "@effect-ts-demo/todo-types/shared"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import { flow, identity } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
@@ -111,6 +112,27 @@ const Tasks = memo(function ({
 
   const isRefreshing = datumEither.isRefresh(tasksResult)
 
+  const folders = [
+    Todo.FolderListADT.of.TaskList({ title: "Some list" as NonEmptyString, tasks: [] }),
+    Todo.FolderListADT.of.TaskListGroup({
+      title: "Leisure" as NonEmptyString,
+      lists: [
+        Todo.FolderListADT.as.TaskList({
+          title: "Leisure 1" as NonEmptyString,
+          tasks: [],
+        }),
+        Todo.FolderListADT.as.TaskList({
+          title: "Leisure 2" as NonEmptyString,
+          tasks: [],
+        }),
+      ],
+    }),
+    Todo.FolderListADT.of.TaskList({
+      title: "Some other list" as NonEmptyString,
+      tasks: [],
+    }),
+  ] as const
+
   return (
     <Box display="flex" height="100%">
       <Box
@@ -121,7 +143,7 @@ const Tasks = memo(function ({
         paddingBottom={2}
         overflow="auto"
       >
-        <FolderList />
+        <FolderList folders={folders} />
       </Box>
 
       <Box

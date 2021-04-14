@@ -4,8 +4,11 @@ import { NonEmptyString } from "@effect-ts-demo/todo-types/shared"
 import { flow } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import { Lens } from "@effect-ts/monocle"
+import { AType, make, makeADT } from "@effect-ts/morphic"
 
 const stepCompleted = Todo.Step.lens["|>"](Lens.prop("completed"))
+
+export * from "@effect-ts-demo/todo-types"
 
 export const toggleBoolean = Lens.modify<boolean>((x) => !x)
 export const Step = Object.assign({}, Todo.Step, {
@@ -68,5 +71,19 @@ export const Task = Object.assign({}, Todo.Task, {
 })
 
 export type Task = Todo.Task
+
+export const TaskList = make((F) =>
+  F.intersection(Todo.TaskList(F), F.interface({ _tag: F.stringLiteral("TaskList") }))()
+)
+
+export const TaskListGroup = make((F) =>
+  F.intersection(
+    Todo.TaskListGroup(F),
+    F.interface({ _tag: F.stringLiteral("TaskListGroup") })
+  )()
+)
+
+export const FolderListADT = makeADT("_tag")({ TaskList, TaskListGroup })
+export type FolderListADT = AType<typeof FolderListADT>
 
 export * from "@effect-ts-demo/todo-types/Task"
