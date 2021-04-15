@@ -12,10 +12,10 @@ import { memo } from "@/data"
 
 import { useModifyTasks } from "../data"
 
-import { StyledCard, Task } from "./Task"
+import { TaskCard, Task } from "./Task"
 
 const CardList = styled.div`
-  > ${StyledCard} {
+  > ${TaskCard} {
     padding: 4px;
     margin-top: 8px;
     margin-bottom: 8px;

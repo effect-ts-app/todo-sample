@@ -35,7 +35,7 @@ function makeStepCount(steps: Todo.Task["steps"]) {
   )
 }
 
-export const StyledCard = styled(Card)`
+export const TaskCard = styled(Card)`
   ${ClickableMixin}
 `
 
@@ -74,7 +74,7 @@ export const Task = memo(function ({
   return (
     <Draggable draggableId={t.id} index={index}>
       {(provided) => (
-        <StyledCard
+        <TaskCard
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
@@ -115,7 +115,7 @@ export const Task = memo(function ({
                     ))
                   )["|>"](O.toNullable)}
                   &nbsp;
-                  {O.toNullable(t.reminder) && <Alarm />}
+                  {O.isSome(t.reminder) && <Alarm />}
                 </div>
               </div>
             </Box>
@@ -130,7 +130,7 @@ export const Task = memo(function ({
               />
             </Box>
           </Box>
-        </StyledCard>
+        </TaskCard>
       )}
     </Draggable>
   )

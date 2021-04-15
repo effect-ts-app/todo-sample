@@ -1,5 +1,7 @@
 import { stringify, ParsedUrlQueryInput } from "querystring"
 
+import { constant } from "@effect-ts/core/Function"
+
 export function toUpperCaseFirst(s: string) {
   const f = (s[0] ?? "").toUpperCase()
   return `${f}${s.slice(1)}`
@@ -13,3 +15,5 @@ export function makeQueryString(pq: ParsedUrlQueryInput) {
     ["|>"](stringify)
   return qs ? "?" + qs : ""
 }
+
+export const constEmptyString = constant("")
