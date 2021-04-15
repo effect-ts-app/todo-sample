@@ -6,11 +6,11 @@ import { TaskView, Order, OrderDir } from "@/components/Tasks/data"
 import { useRouteParams } from "@/data"
 
 const Tasks = () => {
-  const { category, order, orderDirection, taskId } = useRouteParams({
+  const { category, order, orderDirection, tasks: taskId } = useRouteParams({
     category: TaskView,
     order: Order,
     orderDirection: OrderDir,
-    taskId: NonEmptyString,
+    tasks: NonEmptyString,
   })
   return (
     <TasksScreen
