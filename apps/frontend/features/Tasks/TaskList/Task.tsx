@@ -1,5 +1,4 @@
 import * as A from "@effect-ts-demo/todo-types/ext/Array"
-import { flow } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
 import { Box, Card, Checkbox } from "@material-ui/core"
@@ -22,7 +21,7 @@ import {
 import { useServiceContext } from "@/context"
 import { memo, withLoading } from "@/data"
 
-import { useTaskCommands } from "../data"
+import { useTaskCommandsResolved } from "../data"
 
 function makeStepCount(steps: Todo.Task["steps"]) {
   if (steps.length === 0) {
@@ -58,18 +57,20 @@ export const Task = memo(function ({
     toggleTaskChecked,
     toggleTaskFavorite,
     updateResult,
-  } = useTaskCommands(t.id)
+  } = useTaskCommandsResolved(t)
   const isRefreshingTask = datumEither.isRefresh(findResult)
   const isUpdatingTask = datumEither.isPending(updateResult) || isRefreshingTask
 
   const { runPromise } = useServiceContext()
 
   const toggleFavorite = withLoading(
-    (t: Todo.Task) => toggleTaskFavorite(t)["|>"](runPromise),
+    () => toggleTaskFavorite["|>"](runPromise),
     isUpdatingTask
   )
-
-  const toggleChecked = withLoading(flow(toggleTaskChecked, runPromise), isUpdatingTask)
+  const toggleChecked = withLoading(
+    () => toggleTaskChecked["|>"](runPromise),
+    isUpdatingTask
+  )
   return (
     <Draggable draggableId={t.id} index={index}>
       {(provided) => (
@@ -87,7 +88,7 @@ export const Task = memo(function ({
                 onClick={(evt) => evt.stopPropagation()}
                 onChange={(evt) => {
                   evt.stopPropagation()
-                  toggleChecked(t)
+                  toggleChecked()
                 }}
               />
               <div>
@@ -123,7 +124,7 @@ export const Task = memo(function ({
                 disabled={toggleFavorite.loading}
                 onClick={(evt) => {
                   evt.stopPropagation()
-                  toggleFavorite(t)
+                  toggleFavorite()
                 }}
                 isFavorite={t.isFavorite}
               />

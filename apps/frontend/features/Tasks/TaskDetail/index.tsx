@@ -23,7 +23,7 @@ import {
 import { useServiceContext } from "@/context"
 import { memo, onSuccess, PromiseExit, withLoading, WithLoading } from "@/data"
 
-import { useDeleteTask, useTaskCommands } from "../data"
+import { useDeleteTask, useTaskCommandsResolved } from "../data"
 
 import { Step } from "./Step"
 
@@ -277,7 +277,7 @@ export const TaskDetail = memo(function ({
     updateResult,
     updateStepIndex,
     updateStepTitle,
-  } = useTaskCommands(t.id)
+  } = useTaskCommandsResolved(t)
 
   const isRefreshingTask = datumEither.isRefresh(findResult)
   const isUpdatingTask = datumEither.isPending(updateResult) || isRefreshingTask
@@ -302,39 +302,36 @@ export const TaskDetail = memo(function ({
           ),
         datumEither.isPending(deleteResult)
       )}
-      toggleMyDay={withLoading(
-        () => toggleTaskMyDay(t)["|>"](runPromise),
-        isUpdatingTask
-      )}
+      toggleMyDay={withLoading(() => toggleTaskMyDay["|>"](runPromise), isUpdatingTask)}
       toggleChecked={withLoading(
-        () => toggleTaskChecked(t)["|>"](runPromise),
+        () => toggleTaskChecked["|>"](runPromise),
         isUpdatingTask
       )}
       toggleFavorite={withLoading(
-        () => toggleTaskFavorite(t)["|>"](runPromise),
+        () => toggleTaskFavorite["|>"](runPromise),
         isUpdatingTask
       )}
       toggleStepChecked={withLoading(
-        flow(toggleTaskStepChecked(t), runPromise),
+        flow(toggleTaskStepChecked, runPromise),
         isUpdatingTask
       )}
-      setTitle={withLoading(flow(setTitle(t), runPromise), isUpdatingTask)}
-      setDue={withLoading(flow(setDue(t), runPromise), isUpdatingTask)}
-      setReminder={withLoading(flow(setReminder(t), runPromise), isUpdatingTask)}
-      editNote={withLoading(flow(editNote(t), runPromise), isUpdatingTask)}
+      setTitle={withLoading(flow(setTitle, runPromise), isUpdatingTask)}
+      setDue={withLoading(flow(setDue, runPromise), isUpdatingTask)}
+      setReminder={withLoading(flow(setReminder, runPromise), isUpdatingTask)}
+      editNote={withLoading(flow(editNote, runPromise), isUpdatingTask)}
       addNewStep={withLoading(
-        flow(addNewTaskStep(t), T.asUnit, runPromise),
+        flow(addNewTaskStep, T.asUnit, runPromise),
         isUpdatingTask
       )}
       updateStepTitle={withLoading(
-        (s: Todo.Step) => flow(updateStepTitle(t)(s), T.asUnit, runPromise),
+        (s: Todo.Step) => flow(updateStepTitle(s), T.asUnit, runPromise),
         isUpdatingTask
       )}
       updateStepIndex={withLoading(
-        (s: Todo.Step) => flow(updateStepIndex(t)(s), T.asUnit, runPromise),
+        (s: Todo.Step) => flow(updateStepIndex(s), T.asUnit, runPromise),
         isUpdatingTask
       )}
-      deleteStep={withLoading(flow(deleteTaskStep(t), runPromise), isUpdatingTask)}
+      deleteStep={withLoading(flow(deleteTaskStep, runPromise), isUpdatingTask)}
     />
   )
 })

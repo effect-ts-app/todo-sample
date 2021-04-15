@@ -109,6 +109,41 @@ export function useGetTask() {
   ] as const
 }
 
+export function useTaskCommandsResolved(t: Todo.Task) {
+  const {
+    addNewTaskStep,
+    deleteTaskStep,
+    editNote,
+    setDue,
+    setReminder,
+    setTitle,
+    toggleTaskChecked,
+    toggleTaskFavorite,
+    toggleTaskMyDay,
+    toggleTaskStepChecked,
+    updateStepIndex,
+    updateStepTitle,
+    ...rest
+  } = useTaskCommands(t.id)
+
+  return {
+    ...rest,
+
+    deleteTaskStep: deleteTaskStep(t),
+    editNote: editNote(t),
+    setReminder: setReminder(t),
+    setTitle: setTitle(t),
+    setDue: setDue(t),
+    addNewTaskStep: addNewTaskStep(t),
+    toggleTaskStepChecked: toggleTaskStepChecked(t),
+    updateStepTitle: updateStepTitle(t),
+    updateStepIndex: updateStepIndex(t),
+    toggleTaskFavorite: toggleTaskFavorite(t),
+    toggleTaskChecked: toggleTaskChecked(t),
+    toggleTaskMyDay: toggleTaskMyDay(t),
+  }
+}
+
 export function useTaskCommands(id: UUID) {
   const modifyTasks = useModifyTasks()
 
