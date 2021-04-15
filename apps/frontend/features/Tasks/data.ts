@@ -302,6 +302,14 @@ const orderDir = ["up", "down"] as const
 export const OrderDir = make((F) => F.keysOf(makeKeys(orderDir)))
 export type OrderDir = AType<typeof OrderDir>
 
+export const Ordery = make((F) =>
+  F.interface({
+    kind: Order(F),
+    dir: OrderDir(F),
+  })
+)
+export type Ordery = AType<typeof Ordery>
+
 export function filterByCategory(category: TaskView) {
   switch (category) {
     case "important":

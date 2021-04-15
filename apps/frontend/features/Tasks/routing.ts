@@ -5,38 +5,35 @@ import { useMemo, useRef } from "react"
 
 import { makeQueryString } from "@/utils"
 
-import { OrderDir, Orders, TaskView } from "./data"
+import { OrderDir, Orders, Ordery, TaskView } from "./data"
 
-export function useRouting(
-  category: TaskView,
-  order: O.Option<Orders>,
-  orderDirection: O.Option<OrderDir>
-) {
+export function useRouting(category: TaskView, order: O.Option<Ordery>) {
   const r = useRouter()
 
   // the functions are not stable when order direction, order, or category changes...
   // so we work around it with a ref. alternative would be reparsing and replacing the location.
-  const s = useRef({ category, order, orderDirection, push: r.push })
-  s.current = { category, order, orderDirection, push: r.push }
+  const s = useRef({ category, order, push: r.push })
+  s.current = { category, order, push: r.push }
 
   const { setDirection, setOrder, setSelectedTaskId } = useMemo(
     () => ({
       setDirection: (dir: OrderDir) =>
         s.current.push(
-          `${location.pathname}${makeSearch(s.current.order, O.some(dir))}`
+          `${location.pathname}${makeSearch(
+            O.map_(s.current.order, (o) => ({ ...o, dir }))
+          )}`
         ),
 
       setSelectedTaskId: (id: UUID | null) =>
         s.current.push(
-          `/${s.current.category}${id ? `/${id}` : ""}${makeSearch(
-            s.current.order,
-            s.current.orderDirection
-          )}`
+          `/${s.current.category}${id ? `/${id}` : ""}${makeSearch(s.current.order)}`
         ),
 
       setOrder: (o: O.Option<Orders>) =>
         s.current.push(
-          `${location.pathname}${makeSearch(o, s.current.orderDirection)}`
+          `${location.pathname}${makeSearch(
+            O.map_(o, (kind) => ({ kind, dir: "up" }))
+          )}`
         ),
     }),
     []
@@ -49,9 +46,9 @@ export function useRouting(
   }
 }
 
-function makeSearch(o: O.Option<Orders>, dir: O.Option<OrderDir>) {
+function makeSearch(o: O.Option<Ordery>) {
   return makeQueryString({
-    order: O.toUndefined(o),
-    orderDirection: o["|>"](O.zipSecond(dir))["|>"](O.toUndefined),
+    order: o["|>"](O.map((o) => o.kind))["|>"](O.toUndefined),
+    orderDirection: o["|>"](O.map((o) => o.dir))["|>"](O.toUndefined),
   })
 }

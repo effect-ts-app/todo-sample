@@ -7,19 +7,17 @@ import { memo } from "@/data"
 import FolderList from "./FolderList"
 import TaskDetail from "./TaskDetail"
 import TaskList from "./TaskList"
-import { OrderDir, Orders, TaskView } from "./data"
+import { Ordery, TaskView } from "./data"
 
 import { UUID } from "@/../../packages/types/shared"
 
 const TasksScreen = memo(function ({
   category,
   order,
-  orderDirection,
   taskId,
 }: {
   category: O.Option<TaskView>
-  order: O.Option<Orders>
-  orderDirection: O.Option<OrderDir>
+  order: O.Option<Ordery>
   taskId: O.Option<UUID>
 }) {
   return (
@@ -42,7 +40,7 @@ const TasksScreen = memo(function ({
         paddingX={2}
         paddingBottom={2}
       >
-        <TaskList category={category} order={order} orderDirection={orderDirection} />
+        <TaskList category={category} order={order} />
       </Box>
 
       {O.isSome(taskId) && (
@@ -55,12 +53,7 @@ const TasksScreen = memo(function ({
           width="400px"
           style={{ backgroundColor: "#efefef" }}
         >
-          <TaskDetail
-            taskId={taskId.value}
-            category={category}
-            order={order}
-            orderDirection={orderDirection}
-          />
+          <TaskDetail taskId={taskId.value} category={category} order={order} />
         </Box>
       )}
     </Box>

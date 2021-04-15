@@ -21,9 +21,8 @@ import { toUpperCaseFirst } from "@/utils"
 
 import {
   filterByCategory,
-  OrderDir,
   orders,
-  Orders,
+  Ordery,
   TaskView,
   useGetTask,
   useNewTask,
@@ -72,11 +71,9 @@ const AddTask = memo(function ({
 const TaskListView = memo(function ({
   category,
   order,
-  orderDirection,
 }: {
   category: TaskView
-  order: O.Option<Orders>
-  orderDirection: O.Option<OrderDir>
+  order: O.Option<Ordery>
 }) {
   const [tasksResult, , refetchTasks] = useTasks()
 
@@ -87,18 +84,16 @@ const TaskListView = memo(function ({
   //   useTasks()
 
   const filter = filterByCategory(category)
-  const orderDir = orderDirection["|>"](O.getOrElse(() => "up"))
 
-  const ordering = order["|>"](O.map((o) => orders[o]))
-    ["|>"](O.map(A.single))
-    ["|>"](O.getOrElse(() => [] as A.Array<ORD.Ord<Todo.Task>>))
-    ["|>"](A.map((o) => (orderDir === "down" ? ORD.inverted(o) : o)))
+  const ordering = order["|>"](
+    O.map((o) => {
+      return orders[o.kind]
+        ["|>"](A.single)
+        ["|>"](A.map((ord) => (o.dir === "down" ? ORD.inverted(ord) : ord)))
+    })
+  )["|>"](O.getOrElse(() => [] as A.Array<ORD.Ord<Todo.Task>>))
 
-  const { setDirection, setOrder, setSelectedTaskId } = useRouting(
-    category,
-    order,
-    orderDirection
-  )
+  const { setDirection, setOrder, setSelectedTaskId } = useRouting(category, order)
   const isRefreshing = datumEither.isRefresh(tasksResult)
 
   function renderTasks(unfilteredTasks: A.Array<Todo.Task>) {
@@ -112,15 +107,20 @@ const TaskListView = memo(function ({
           </h1>
 
           <Box marginLeft="auto" marginTop={1}>
-            <TaskListMenu setOrder={setOrder} order={order} />
+            <TaskListMenu
+              setOrder={setOrder}
+              order={order["|>"](O.map((x) => x.kind))}
+            />
           </Box>
         </Box>
 
         {O.isSome(order) && (
           <div>
-            {order.value}
-            <IconButton onClick={() => setDirection(orderDir === "up" ? "down" : "up")}>
-              {orderDir === "up" ? <ArrowUp /> : <ArrowDown />}
+            {order.value.kind}
+            <IconButton
+              onClick={() => setDirection(order.value.dir === "up" ? "down" : "up")}
+            >
+              {order.value.dir === "up" ? <ArrowUp /> : <ArrowDown />}
             </IconButton>
             <Button onClick={() => setOrder(O.none)}>X</Button>
           </div>
@@ -149,18 +149,14 @@ const TaskListView = memo(function ({
 const TaskListOrNone = ({
   category,
   order,
-  orderDirection,
 }: {
   category: O.Option<TaskView>
-  order: O.Option<Orders>
-  orderDirection: O.Option<OrderDir>
+  order: O.Option<Ordery>
 }) =>
   O.fold_(
     category,
     () => <>List not found</>,
-    (category) => (
-      <TaskListView category={category} order={order} orderDirection={orderDirection} />
-    )
+    (category) => <TaskListView category={category} order={order} />
   )
 
 export default TaskListOrNone
