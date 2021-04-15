@@ -18,6 +18,8 @@ import useInterval from "use-interval"
 import * as Todo from "@/Todo"
 import { useServiceContext } from "@/context"
 import { memo, useCallback } from "@/data"
+import { withLoading } from "@/data"
+import { toUpperCaseFirst } from "@/utils"
 
 import { FolderList } from "./FolderList"
 import { TaskDetail } from "./TaskDetail"
@@ -34,7 +36,6 @@ import {
   useNewTask,
   useTasks,
 } from "./data"
-import { toUpperCaseFirst, withLoading } from "./utils"
 
 function isSameDay(today: Date) {
   return (someDate: Date) => {

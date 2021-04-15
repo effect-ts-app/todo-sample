@@ -13,7 +13,7 @@ import styled from "styled-components"
 
 import * as Todo from "@/Todo"
 import { useServiceContext } from "@/context"
-import { memo, onSuccess, PromiseExit } from "@/data"
+import { memo, onSuccess, PromiseExit, withLoading, WithLoading } from "@/data"
 
 import {
   Completable,
@@ -24,7 +24,6 @@ import {
   TextFieldWithEditor,
 } from "../components"
 import { useDeleteTask, useTaskCommands } from "../data"
-import { withLoading, WithLoading } from "../utils"
 
 import { Step } from "./Step"
 

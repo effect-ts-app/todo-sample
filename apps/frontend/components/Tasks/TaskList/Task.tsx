@@ -13,12 +13,11 @@ import styled from "styled-components"
 
 import * as Todo from "@/Todo"
 import { useServiceContext } from "@/context"
-import { memo } from "@/data"
+import { memo, withLoading } from "@/data"
 
 import { ClickableMixin } from "../components"
 import { Completable, FavoriteButton, StateMixinProps, StateMixin } from "../components"
 import { useTaskCommands } from "../data"
-import { withLoading } from "../utils"
 
 function makeStepCount(steps: Todo.Task["steps"]) {
   if (steps.length === 0) {

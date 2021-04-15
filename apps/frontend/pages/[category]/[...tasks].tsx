@@ -2,7 +2,8 @@ import { NonEmptyString } from "@effect-ts-demo/todo-types/shared"
 import React from "react"
 
 import TasksScreen from "@/components/Tasks/TasksScreen"
-import { TaskView, Order, OrderDir, useRouteParams } from "@/components/Tasks/data"
+import { TaskView, Order, OrderDir } from "@/components/Tasks/data"
+import { useRouteParams } from "@/data"
 
 const Tasks = () => {
   const { category, order, orderDirection, taskId } = useRouteParams({
