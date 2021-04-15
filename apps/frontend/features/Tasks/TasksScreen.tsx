@@ -11,15 +11,14 @@ import ArrowDown from "@material-ui/icons/ArrowDownward"
 import ArrowUp from "@material-ui/icons/ArrowUpward"
 import Refresh from "@material-ui/icons/Refresh"
 import { datumEither } from "@nll/datum"
-import { useRouter } from "next/router"
-import React from "react"
+import React, { useCallback } from "react"
 import useInterval from "use-interval"
 
 import * as Todo from "@/Todo"
 import { Field } from "@/components"
 import { useServiceContext } from "@/context"
-import { memo, useCallback, withLoading } from "@/data"
-import { makeQueryString, toUpperCaseFirst } from "@/utils"
+import { memo, withLoading } from "@/data"
+import { toUpperCaseFirst } from "@/utils"
 
 import { FolderList } from "./FolderList"
 import { TaskDetail } from "./TaskDetail"
@@ -35,6 +34,7 @@ import {
   useNewTask,
   useTasks,
 } from "./data"
+import { useRouting } from "./routing"
 
 function isSameDay(today: Date) {
   return (someDate: Date) => {
@@ -58,43 +58,6 @@ function filterByCategory(category: TaskView) {
     }
     default:
       return identity
-  }
-}
-
-function makeSearch(o: O.Option<Orders>, dir: O.Option<OrderDir>) {
-  return makeQueryString({
-    order: O.toUndefined(o),
-    orderDirection: o["|>"](O.zipSecond(dir))["|>"](O.toUndefined),
-  })
-}
-
-const useH = (
-  category: TaskView,
-  order: O.Option<Orders>,
-  orderDirection: O.Option<OrderDir>
-) => {
-  const r = useRouter()
-
-  const setDirection = useCallback(
-    (dir: OrderDir) => r.push(`${location.pathname}${makeSearch(order, O.some(dir))}`),
-    [r, order]
-  )
-
-  const setSelectedTaskId = useCallback(
-    (id: UUID | null) =>
-      r.push(`/${category}${id ? `/${id}` : ""}${makeSearch(order, orderDirection)}`),
-    [category, r, order, orderDirection]
-  )
-
-  const setOrder = useCallback(
-    (o) => r.push(`${location.pathname}${makeSearch(o, orderDirection)}`),
-    [r, orderDirection]
-  )
-  return {
-    setDirection,
-    setOrder,
-    makeSearch,
-    setSelectedTaskId,
   }
 }
 
@@ -158,7 +121,7 @@ const TasksL = memo(function ({
     ["|>"](O.getOrElse(() => [] as A.Array<ORD.Ord<Todo.Task>>))
     ["|>"](A.map((o) => (orderDir === "down" ? ORD.inverted(o) : o)))
 
-  const { setDirection, setOrder, setSelectedTaskId } = useH(
+  const { setDirection, setOrder, setSelectedTaskId } = useRouting(
     category,
     order,
     orderDirection
@@ -176,11 +139,7 @@ const TasksL = memo(function ({
           </h1>
 
           <Box marginLeft="auto" marginTop={1}>
-            <TaskListMenu
-              setOrder={setOrder}
-              order={order}
-              orderDirection={orderDirection}
-            />
+            <TaskListMenu setOrder={setOrder} order={order} />
           </Box>
         </Box>
 
@@ -280,11 +239,15 @@ const TasksScreen = memo(function ({
     O.chain((taskId) => O.fromNullable(unfilteredTasks.find((x) => x.id === taskId)))
   )["|>"](O.toNullable)
 
-  const { setSelectedTaskId } = useH(
+  const { setSelectedTaskId } = useRouting(
     O.getOrElse_(category, () => "tasks"),
     order,
     orderDirection
   )
+
+  const closeTaskDetail = useCallback(() => setSelectedTaskId(null), [
+    setSelectedTaskId,
+  ])
 
   return (
     <Box display="flex" height="100%">
@@ -325,7 +288,7 @@ const TasksScreen = memo(function ({
           width="400px"
           style={{ backgroundColor: "#efefef" }}
         >
-          <TaskDetail task={t} closeTaskDetail={() => setSelectedTaskId(null)} />
+          <TaskDetail task={t} closeTaskDetail={closeTaskDetail} />
         </Box>
       )}
     </Box>

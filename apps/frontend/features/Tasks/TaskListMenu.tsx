@@ -4,14 +4,15 @@ import OpenMenu from "@material-ui/icons/Menu"
 import React from "react"
 
 import { memo } from "@/data"
+import { typedKeysOf } from "@/utils"
 
-import { OrderDir, Orders, orders } from "./data"
+import { Orders, orders } from "./data"
 
 export const TaskListMenu = memo(function ({
+  order,
   setOrder,
 }: {
   order: O.Option<Orders>
-  orderDirection: O.Option<OrderDir>
   setOrder: (o: O.Option<Orders>) => void
 }) {
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null)
@@ -19,6 +20,7 @@ export const TaskListMenu = memo(function ({
   const handleClose = () => {
     setAnchorEl(null)
   }
+  const order_ = order["|>"](O.toNullable)
   return (
     <>
       <IconButton
@@ -32,15 +34,16 @@ export const TaskListMenu = memo(function ({
       </IconButton>
       <Menu
         anchorEl={anchorEl}
-        keepMounted
         open={Boolean(anchorEl)}
         onClose={handleClose}
+        keepMounted
       >
-        {Object.keys(orders).map((o) => (
+        {typedKeysOf(orders).map((o) => (
           <MenuItem
             key={o}
+            selected={order_ === o}
             onClick={() => {
-              setOrder(O.some(o as Orders))
+              setOrder(O.some(o))
               handleClose()
             }}
           >
