@@ -1,16 +1,23 @@
-import { useRouter } from "next/router"
+import { NonEmptyString } from "@effect-ts-demo/todo-types/shared"
 import React from "react"
 
-import TasksScreen, { getQueryParam } from "@/components/Tasks/TasksScreen"
+import TasksScreen from "@/components/Tasks/TasksScreen"
+import { TaskView, Order, OrderDir } from "@/components/Tasks/data"
+import { useRouteParams } from "@/data"
 
 const Tasks = () => {
-  const r = useRouter()
+  const { category, order, orderDirection, tasks: taskId } = useRouteParams({
+    category: TaskView,
+    order: Order,
+    orderDirection: OrderDir,
+    tasks: NonEmptyString,
+  })
   return (
     <TasksScreen
-      category={getQueryParam(r.query, "category")!}
-      order={getQueryParam(r.query, "order")}
-      orderDirection={getQueryParam(r.query, "orderDirection")}
-      taskId={getQueryParam(r.query, "tasks")}
+      category={category}
+      order={order}
+      orderDirection={orderDirection}
+      taskId={taskId}
     />
   )
 }

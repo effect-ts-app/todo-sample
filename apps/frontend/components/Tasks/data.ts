@@ -7,12 +7,14 @@ import { constant, flow, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import * as ORD from "@effect-ts/core/Ord"
 import { Lens } from "@effect-ts/monocle"
+import { AType, make } from "@effect-ts/morphic"
 import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
 import { useCallback, useEffect, useMemo } from "react"
 
 import * as Todo from "@/Todo"
 import { useServiceContext } from "@/context"
 import { useFetch, useModify, useQuery } from "@/data"
+import { typedKeysOf } from "@/utils"
 
 const fetchLatestTasks = constant(
   TodoClient.Tasks.getTasks["|>"](T.map((r) => r.tasks))
@@ -44,8 +46,16 @@ const newTask = (v: TaskView) => (newTitle: string) =>
       : {}),
   })
 
-export const TaskView = ["tasks", "important", "my-day"] as const
-export type TaskView = typeof TaskView[number]
+export function makeKeys<T extends string>(a: readonly T[]) {
+  return a.reduce((prev, cur) => {
+    prev[cur] = null
+    return prev
+  }, {} as { [P in typeof a[number]]: null })
+}
+
+export const TaskViews = ["tasks", "important", "my-day"] as const
+export const TaskView = make((F) => F.keysOf(makeKeys(TaskViews)))
+export type TaskView = AType<typeof TaskView>
 
 export function useNewTask(v: TaskView) {
   return useFetch(newTask(v))
@@ -248,4 +258,11 @@ export const orders = {
 }
 
 export type Orders = keyof typeof orders
-export type OrderDir = "up" | "down"
+
+const order = typedKeysOf(orders)
+export const Order = make((F) => F.keysOf(makeKeys(order)))
+export type Order = AType<typeof Order>
+
+const orderDir = ["up", "down"] as const
+export const OrderDir = make((F) => F.keysOf(makeKeys(orderDir)))
+export type OrderDir = AType<typeof OrderDir>

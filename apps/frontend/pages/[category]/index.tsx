@@ -1,18 +1,24 @@
-import { useRouter } from "next/router"
+import * as O from "@effect-ts/core/Option"
 import React from "react"
 
-import TasksScreen, { getQueryParam } from "@/components/Tasks/TasksScreen"
+import TasksScreen from "@/components/Tasks/TasksScreen"
+import { TaskView, Order, OrderDir } from "@/components/Tasks/data"
+import { useRouteParams } from "@/data"
 
-const Category = () => {
-  const r = useRouter()
+const Tasks = () => {
+  const { category, order, orderDirection } = useRouteParams({
+    category: TaskView,
+    order: Order,
+    orderDirection: OrderDir,
+  })
   return (
     <TasksScreen
-      category={getQueryParam(r.query, "category")!}
-      order={getQueryParam(r.query, "order")}
-      orderDirection={getQueryParam(r.query, "orderDirection")}
-      taskId={null}
+      category={category}
+      order={order}
+      orderDirection={orderDirection}
+      taskId={O.none}
     />
   )
 }
 
-export default Category
+export default Tasks

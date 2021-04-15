@@ -4,10 +4,9 @@ import React from "react"
 import { Draggable } from "react-beautiful-dnd"
 
 import * as Todo from "@/Todo"
-import { onSuccess, PromiseExit } from "@/data"
+import { onSuccess, PromiseExit, WithLoading } from "@/data"
 
 import { Completable, TextFieldWithEditor } from "../components"
-import { WithLoading } from "../utils"
 
 export function Step({
   deleteStep,
