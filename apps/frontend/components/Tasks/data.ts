@@ -6,8 +6,11 @@ import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import { constant, flow, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import * as ORD from "@effect-ts/core/Ord"
+import * as Sy from "@effect-ts/core/Sync"
 import { Lens } from "@effect-ts/monocle"
+import { AType, make } from "@effect-ts/morphic"
 import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
+import { decode } from "@effect-ts/morphic/Decoder"
 import { useCallback, useEffect, useMemo } from "react"
 
 import * as Todo from "@/Todo"
@@ -44,8 +47,29 @@ const newTask = (v: TaskView) => (newTitle: string) =>
       : {}),
   })
 
-export const TaskView = ["tasks", "important", "my-day"] as const
-export type TaskView = typeof TaskView[number]
+export function makeKeys<T extends string>(a: readonly T[]) {
+  return a.reduce((prev, cur) => {
+    prev[cur] = null
+    return prev
+  }, {} as { [P in typeof a[number]]: null })
+}
+
+export const TaskViews = ["tasks", "important", "my-day"] as const
+export const TaskView = make((F) => F.keysOf(makeKeys(TaskViews)))
+export type TaskView = AType<typeof TaskView>
+
+// category = list = per route. throw 404 when missing.
+// taskId per route
+// order and order direction
+
+export const findCategory = (cat: string) =>
+  decode(TaskView)(cat)["|>"](Sy.runEither)["|>"](O.fromEither)
+
+// TODO: effect
+const findList = (_id: string) => O.none
+
+const findCategoryOrList = (catOrId: string) =>
+  findCategory(catOrId)["|>"](O.alt(() => findList(catOrId)))
 
 export function useNewTask(v: TaskView) {
   return useFetch(newTask(v))
