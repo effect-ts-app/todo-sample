@@ -1,3 +1,5 @@
+import { ParsedUrlQuery } from "querystring"
+
 import * as TodoClient from "@effect-ts-demo/todo-client"
 import * as T from "@effect-ts-demo/todo-types/ext/Effect"
 import * as EO from "@effect-ts-demo/todo-types/ext/EffectOption"
@@ -7,15 +9,19 @@ import { constant, flow, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import * as ORD from "@effect-ts/core/Ord"
 import * as Sy from "@effect-ts/core/Sync"
+import { EnforceNonEmptyRecord } from "@effect-ts/core/Utils"
 import { Lens } from "@effect-ts/monocle"
-import { AType, make } from "@effect-ts/morphic"
+import { AType, M, make } from "@effect-ts/morphic"
 import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
 import { decode } from "@effect-ts/morphic/Decoder"
+import { useRouter } from "next/router"
 import { useCallback, useEffect, useMemo } from "react"
 
 import * as Todo from "@/Todo"
 import { useServiceContext } from "@/context"
 import { useFetch, useModify, useQuery } from "@/data"
+
+import { typedKeysOf } from "./utils"
 
 const fetchLatestTasks = constant(
   TodoClient.Tasks.getTasks["|>"](T.map((r) => r.tasks))
@@ -62,14 +68,10 @@ export type TaskView = AType<typeof TaskView>
 // taskId per route
 // order and order direction
 
-export const findCategory = (cat: string) =>
-  decode(TaskView)(cat)["|>"](Sy.runEither)["|>"](O.fromEither)
-
-// TODO: effect
-const findList = (_id: string) => O.none
-
-const findCategoryOrList = (catOrId: string) =>
-  findCategory(catOrId)["|>"](O.alt(() => findList(catOrId)))
+export const parseOption = <E, A>(t: M<{}, E, A>) => {
+  const dec = decode(t)
+  return (_: E) => dec(_)["|>"](Sy.runEither)["|>"](O.fromEither)
+}
 
 export function useNewTask(v: TaskView) {
   return useFetch(newTask(v))
@@ -272,4 +274,45 @@ export const orders = {
 }
 
 export type Orders = keyof typeof orders
-export type OrderDir = "up" | "down"
+
+const order = typedKeysOf(orders)
+export const Order = make((F) => F.keysOf(makeKeys(order)))
+export type Order = AType<typeof Order>
+
+const orderDir = ["up", "down"] as const
+export const OrderDir = make((F) => F.keysOf(makeKeys(orderDir)))
+export type OrderDir = AType<typeof OrderDir>
+
+export function getQueryParam(search: ParsedUrlQuery, param: string) {
+  const v = search[param]
+  if (Array.isArray(v)) {
+    return v[0]
+  }
+  return v ?? null
+}
+
+export const getQueryParamO = flow(getQueryParam, O.fromNullable)
+
+export const useRouteParam = <A>(t: M<{}, string, A>, key: string) => {
+  const r = useRouter()
+  return getQueryParamO(r.query, key)["|>"](O.chain(parseOption(t)))
+}
+
+export const useRouteParams = <NER extends Record<string, M<{}, string, any>>>(
+  t: NER // enforce non empty
+): {
+  [K in keyof NER]: O.Option<AType<NER[K]>>
+} => {
+  const r = useRouter()
+  return typedKeysOf(t).reduce(
+    (prev, cur) => {
+      prev[cur] = getQueryParamO(r.query, cur as string)["|>"](
+        O.chain(parseOption(t[cur]))
+      )
+      return prev
+    },
+    {} as {
+      [K in keyof NER]: AType<NER[K]>
+    }
+  )
+}

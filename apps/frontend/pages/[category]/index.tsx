@@ -1,18 +1,20 @@
 import * as O from "@effect-ts/core/Option"
-import { useRouter } from "next/router"
 import React from "react"
 
-import TasksScreen, { getQueryParam } from "@/components/Tasks/TasksScreen"
-import { findCategory, Orders } from "@/components/Tasks/data"
+import TasksScreen from "@/components/Tasks/TasksScreen"
+import { TaskView, useRouteParams, Order, OrderDir } from "@/components/Tasks/data"
+
 const Tasks = () => {
-  const r = useRouter()
+  const { category, order, orderDirection } = useRouteParams({
+    category: TaskView,
+    order: Order,
+    orderDirection: OrderDir,
+  })
   return (
     <TasksScreen
-      category={findCategory(getQueryParam(r.query, "category")!)}
-      order={O.fromNullable(getQueryParam(r.query, "order") as Orders)}
-      orderDirection={O.fromNullable(
-        getQueryParam(r.query, "orderDirection") as "up" | "down"
-      )}
+      category={category}
+      order={order}
+      orderDirection={orderDirection}
       taskId={O.none}
     />
   )

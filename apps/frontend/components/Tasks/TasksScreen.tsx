@@ -1,5 +1,3 @@
-import { ParsedUrlQuery } from "querystring"
-
 import * as T from "@effect-ts-demo/todo-types/ext/Effect"
 import * as EO from "@effect-ts-demo/todo-types/ext/EffectOption"
 import { NonEmptyString } from "@effect-ts-demo/todo-types/shared"
@@ -333,13 +331,5 @@ const TasksScreen = memo(function ({
     </Box>
   )
 })
-
-export function getQueryParam(search: ParsedUrlQuery, param: string) {
-  const v = search[param]
-  if (Array.isArray(v)) {
-    return v[0]
-  }
-  return v ?? null
-}
 
 export default TasksScreen
