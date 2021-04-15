@@ -12,9 +12,6 @@ import { Droppable, DragDropContext } from "react-beautiful-dnd"
 import styled from "styled-components"
 
 import * as Todo from "@/Todo"
-import { useServiceContext } from "@/context"
-import { memo, onSuccess, PromiseExit, withLoading, WithLoading } from "@/data"
-
 import {
   Completable,
   FavoriteButton,
@@ -22,7 +19,10 @@ import {
   StateMixin,
   StateMixinProps,
   TextFieldWithEditor,
-} from "../components"
+} from "@/components"
+import { useServiceContext } from "@/context"
+import { memo, onSuccess, PromiseExit, withLoading, WithLoading } from "@/data"
+
 import { useDeleteTask, useTaskCommands } from "../data"
 
 import { Step } from "./Step"

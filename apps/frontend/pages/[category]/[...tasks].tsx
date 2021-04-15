@@ -1,11 +1,11 @@
 import { NonEmptyString } from "@effect-ts-demo/todo-types/shared"
 import React from "react"
 
-import TasksScreen from "@/components/Tasks/TasksScreen"
-import { TaskView, Order, OrderDir } from "@/components/Tasks/data"
-import { useRouteParams } from "@/data"
+import TasksScreen from "@/features/Tasks/TasksScreen"
+import { TaskView, Order, OrderDir } from "@/features/Tasks/data"
+import { useRouteParams } from "@/routing"
 
-const Tasks = () => {
+function TasksPage() {
   const { category, order, orderDirection, tasks: taskId } = useRouteParams({
     category: TaskView,
     order: Order,
@@ -22,4 +22,4 @@ const Tasks = () => {
   )
 }
 
-export default Tasks
+export default TasksPage

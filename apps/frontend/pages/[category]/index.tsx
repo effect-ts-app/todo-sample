@@ -1,11 +1,11 @@
 import * as O from "@effect-ts/core/Option"
 import React from "react"
 
-import TasksScreen from "@/components/Tasks/TasksScreen"
-import { TaskView, Order, OrderDir } from "@/components/Tasks/data"
-import { useRouteParams } from "@/data"
+import TasksScreen from "@/features/Tasks/TasksScreen"
+import { TaskView, Order, OrderDir } from "@/features/Tasks/data"
+import { useRouteParams } from "@/routing"
 
-const Tasks = () => {
+function CategoryPage() {
   const { category, order, orderDirection } = useRouteParams({
     category: TaskView,
     order: Order,
@@ -21,4 +21,4 @@ const Tasks = () => {
   )
 }
 
-export default Tasks
+export default CategoryPage

@@ -12,11 +12,16 @@ import { Draggable } from "react-beautiful-dnd"
 import styled from "styled-components"
 
 import * as Todo from "@/Todo"
+import {
+  ClickableMixin,
+  Completable,
+  FavoriteButton,
+  StateMixinProps,
+  StateMixin,
+} from "@/components"
 import { useServiceContext } from "@/context"
 import { memo, withLoading } from "@/data"
 
-import { ClickableMixin } from "../components"
-import { Completable, FavoriteButton, StateMixinProps, StateMixin } from "../components"
 import { useTaskCommands } from "../data"
 
 function makeStepCount(steps: Todo.Task["steps"]) {

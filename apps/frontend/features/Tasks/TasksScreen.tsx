@@ -16,16 +16,15 @@ import React from "react"
 import useInterval from "use-interval"
 
 import * as Todo from "@/Todo"
+import { Field } from "@/components"
 import { useServiceContext } from "@/context"
-import { memo, useCallback } from "@/data"
-import { withLoading } from "@/data"
-import { toUpperCaseFirst } from "@/utils"
+import { memo, useCallback, withLoading } from "@/data"
+import { makeQueryString, toUpperCaseFirst } from "@/utils"
 
 import { FolderList } from "./FolderList"
 import { TaskDetail } from "./TaskDetail"
 import TaskList from "./TaskList"
 import { TaskListMenu } from "./TaskListMenu"
-import { Field } from "./components"
 import {
   OrderDir,
   orders,
@@ -62,6 +61,13 @@ function filterByCategory(category: TaskView) {
   }
 }
 
+function makeSearch(o: O.Option<Orders>, dir: O.Option<OrderDir>) {
+  return makeQueryString({
+    order: O.toUndefined(o),
+    orderDirection: o["|>"](O.zipSecond(dir))["|>"](O.toUndefined),
+  })
+}
+
 const useH = (
   category: TaskView,
   order: O.Option<Orders>,
@@ -73,13 +79,6 @@ const useH = (
     (dir: OrderDir) => r.push(`${location.pathname}${makeSearch(order, O.some(dir))}`),
     [r, order]
   )
-
-  const makeSearch = (o: O.Option<Orders>, dir: O.Option<OrderDir>) =>
-    O.fold_(
-      o,
-      () => "",
-      (o) => `?order=${o}&orderDirection=${dir["|>"](O.getOrElse(() => "up"))}`
-    )
 
   const setSelectedTaskId = useCallback(
     (id: UUID | null) =>
