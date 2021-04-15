@@ -1,7 +1,7 @@
 import * as O from "@effect-ts/core/Option"
 import React from "react"
 
-import TasksScreen from "@/features/Tasks/TasksScreen"
+import TasksScreen from "@/features/Tasks"
 import { TaskView, Order, OrderDir } from "@/features/Tasks/data"
 import { useRouteParams } from "@/routing"
 

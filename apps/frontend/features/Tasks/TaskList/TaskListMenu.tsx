@@ -6,7 +6,7 @@ import React from "react"
 import { memo } from "@/data"
 import { typedKeysOf } from "@/utils"
 
-import { Orders, orders } from "./data"
+import { Orders, orders } from "../data"
 
 export const TaskListMenu = memo(function ({
   order,

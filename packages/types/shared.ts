@@ -9,7 +9,6 @@ import {
   EncoderURI,
   opaque,
 } from "@effect-ts/morphic"
-import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
 import { decode } from "@effect-ts/morphic/Decoder"
 import { flow } from "@effect-ts/system/Function"
 import { v4 } from "uuid"
@@ -46,6 +45,9 @@ export interface NonEmptyStringBrand {
   readonly NonEmptyString: unique symbol
 }
 export type NonEmptyString = AType<typeof NonEmptyString>
+
+export const UUID = make((F) => F.uuid())
+export type UUID = AType<typeof UUID>
 
 const defaultVoid = Sy.succeed(constVoid())
 const defaultVoidThunk = () => defaultVoid

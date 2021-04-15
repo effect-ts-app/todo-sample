@@ -1,7 +1,7 @@
-import { NonEmptyString } from "@effect-ts-demo/todo-types/shared"
+import { UUID } from "@effect-ts-demo/todo-types/shared"
 import React from "react"
 
-import TasksScreen from "@/features/Tasks/TasksScreen"
+import TasksScreen from "@/features/Tasks"
 import { TaskView, Order, OrderDir } from "@/features/Tasks/data"
 import { useRouteParams } from "@/routing"
 
@@ -10,7 +10,7 @@ function TasksPage() {
     category: TaskView,
     order: Order,
     orderDirection: OrderDir,
-    tasks: NonEmptyString,
+    tasks: UUID,
   })
   return (
     <TasksScreen

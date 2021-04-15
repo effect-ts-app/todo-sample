@@ -3,7 +3,7 @@ import * as T from "@effect-ts-demo/todo-types/ext/Effect"
 import * as EO from "@effect-ts-demo/todo-types/ext/EffectOption"
 import { NonEmptyString } from "@effect-ts-demo/todo-types/shared"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
-import { constant, flow, pipe } from "@effect-ts/core/Function"
+import { constant, flow, identity, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import * as ORD from "@effect-ts/core/Ord"
 import { Lens } from "@effect-ts/monocle"
@@ -301,3 +301,30 @@ export type Order = AType<typeof Order>
 const orderDir = ["up", "down"] as const
 export const OrderDir = make((F) => F.keysOf(makeKeys(orderDir)))
 export type OrderDir = AType<typeof OrderDir>
+
+export function filterByCategory(category: TaskView) {
+  switch (category) {
+    case "important":
+      return A.filter((t: Todo.Task) => t.isFavorite)
+    case "my-day": {
+      const isToday = isSameDay(new Date())
+      return A.filter((t: Todo.Task) =>
+        t.myDay["|>"](O.map(isToday))["|>"](O.getOrElse(() => false))
+      )
+    }
+    default:
+      return identity
+  }
+}
+
+function isSameDay(today: Date) {
+  return (someDate: Date) => {
+    return (
+      someDate.getDate() == today.getDate() &&
+      someDate.getMonth() == today.getMonth() &&
+      someDate.getFullYear() == today.getFullYear()
+    )
+  }
+}
+
+export const emptyTasks = [] as readonly Todo.Task[]
