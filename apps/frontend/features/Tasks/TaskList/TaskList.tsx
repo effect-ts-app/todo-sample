@@ -18,8 +18,8 @@ import { TaskCard, Task } from "./Task"
 const CardList = styled.div`
   > ${TaskCard} {
     padding: 4px;
-    margin-top: 8px;
-    margin-bottom: 8px;
+    margin-top: 1px;
+    margin-bottom: 1px;
   }
 `
 

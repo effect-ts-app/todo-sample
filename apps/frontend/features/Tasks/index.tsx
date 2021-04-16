@@ -1,5 +1,5 @@
 import * as O from "@effect-ts/core/Option"
-import { Box } from "@material-ui/core"
+import { Box, Link, Typography } from "@material-ui/core"
 import React from "react"
 
 import { memo } from "@/data"
@@ -22,42 +22,56 @@ const TasksScreen = memo(function ({
   taskId: O.Option<UUID>
 }) {
   return (
-    <Box display="flex" height="100%">
-      <Box
-        flexBasis="200px"
-        style={{ backgroundColor: "#efefef" }}
-        paddingX={1}
-        paddingTop={7}
-        paddingBottom={2}
-        overflow="auto"
-      >
-        <FolderList category={category} />
+    <Box display="flex" flexDirection="column" height="100%">
+      <Box sx={{ bgcolor: "primary.main", color: "primary.contrastText" }} p={2}>
+        <Typography>
+          To Do: An Effect-TS Demo, clone of MS To Do.{" "}
+          <Link
+            sx={{ color: "primary.contrastText" }}
+            href="http://github.com/patroza/effect-ts-demo-todo"
+            target="_blank"
+          >
+            <i>Fork Me</i>
+          </Link>
+        </Typography>
       </Box>
-
-      <Box
-        display="flex"
-        flexDirection="column"
-        flexGrow={1}
-        paddingX={2}
-        paddingBottom={2}
-        bgcolor="info.main"
-      >
-        <TaskList category={category} order={order} />
-      </Box>
-
-      {renderIf_(O.struct({ taskId, category }), ({ category, taskId }) => (
+      <Box display="flex" height="100%">
         <Box
-          display="flex"
-          flexBasis="300px"
-          paddingX={2}
-          paddingTop={2}
-          paddingBottom={1}
-          width="400px"
+          flexBasis="200px"
+          paddingX={1}
+          paddingTop={7}
+          paddingBottom={2}
+          overflow="auto"
           style={{ backgroundColor: "#efefef" }}
         >
-          <TaskDetail taskId={taskId} category={category} order={order} />
+          <FolderList category={category} />
         </Box>
-      ))}
+
+        <Box
+          display="flex"
+          flexDirection="column"
+          flexGrow={1}
+          paddingX={2}
+          paddingBottom={2}
+          sx={{ bgcolor: "info.main", color: "info.contrastText" }}
+        >
+          <TaskList category={category} order={order} />
+        </Box>
+
+        {renderIf_(O.struct({ taskId, category }), ({ category, taskId }) => (
+          <Box
+            display="flex"
+            flexBasis="300px"
+            paddingX={2}
+            paddingTop={2}
+            paddingBottom={1}
+            width="400px"
+            style={{ backgroundColor: "#efefef" }}
+          >
+            <TaskDetail taskId={taskId} category={category} order={order} />
+          </Box>
+        ))}
+      </Box>
     </Box>
   )
 })

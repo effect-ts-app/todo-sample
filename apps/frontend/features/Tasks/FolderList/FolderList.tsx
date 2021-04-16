@@ -1,5 +1,8 @@
 import * as O from "@effect-ts/core/Option"
-import { List, ListItem, ListItemText } from "@material-ui/core"
+import { List, ListItem, ListItemIcon, ListItemText } from "@material-ui/core"
+import CalendarToday from "@material-ui/icons/CalendarToday"
+import Home from "@material-ui/icons/Home"
+import Star from "@material-ui/icons/Star"
 import Link from "next/link"
 import React from "react"
 
@@ -7,6 +10,12 @@ import * as Todo from "@/Todo"
 import { memo } from "@/data"
 
 import { TaskView } from "../data"
+
+const icons: Record<string, JSX.Element> = {
+  tasks: <Home />,
+  important: <Star />,
+  "my-day": <CalendarToday />,
+}
 
 export const FolderList = memo(function ({
   category,
@@ -25,6 +34,7 @@ export const FolderList = memo(function ({
             TaskListView: (c) => (
               <Link href={`/${c.slug}`} passHref>
                 <ListItem component="a" button selected={c.slug === cat}>
+                  {icons[c.slug] && <ListItemIcon>{icons[c.slug]}</ListItemIcon>}
                   <ListItemText>
                     {c.title} ({c.count})
                   </ListItemText>
