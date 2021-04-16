@@ -43,7 +43,7 @@ const TasksScreen = memo(function ({
         <TaskList category={category} order={order} />
       </Box>
 
-      {O.isSome(taskId) && (
+      {O.isSome(taskId) && O.isSome(category) && (
         <Box
           display="flex"
           flexBasis="300px"
@@ -53,7 +53,7 @@ const TasksScreen = memo(function ({
           width="400px"
           style={{ backgroundColor: "#efefef" }}
         >
-          <TaskDetail taskId={taskId.value} category={category} order={order} />
+          <TaskDetail taskId={taskId.value} category={category.value} order={order} />
         </Box>
       )}
     </Box>

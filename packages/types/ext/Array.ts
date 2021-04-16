@@ -1,6 +1,8 @@
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
-import { flow, Predicate } from "@effect-ts/core/Function"
+import * as NA from "@effect-ts/core/Collections/Immutable/NonEmptyArray"
+import { flow, identity, Predicate } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
+import { Ord } from "@effect-ts/core/Ord"
 
 export const findIndexOrElse_ = flow(
   A.findIndex_,
@@ -48,6 +50,12 @@ export function deleteAtOrOriginal<A>(i: number) {
 
 export function deleteOrOriginal<A>(a: A) {
   return (as: A.Array<A>) => deleteOrOriginal_(as, a)
+}
+
+export function sortByO<A>(
+  ords: O.Option<NA.NonEmptyArray<Ord<A>>>
+): (a: A.Array<A>) => A.Array<A> {
+  return ords["|>"](O.fold(() => identity, A.sortBy))
 }
 
 export * from "@effect-ts/core/Collections/Immutable/Array"

@@ -1,6 +1,7 @@
+import * as A from "@effect-ts-demo/todo-types/ext/Array"
 import * as T from "@effect-ts-demo/todo-types/ext/Effect"
 import * as EO from "@effect-ts-demo/todo-types/ext/EffectOption"
-import * as A from "@effect-ts/core/Collections/Immutable/Array"
+import * as NA from "@effect-ts/core/Collections/Immutable/NonEmptyArray"
 import { flow } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import * as ORD from "@effect-ts/core/Ord"
@@ -21,6 +22,7 @@ import { toUpperCaseFirst } from "@/utils"
 
 import {
   filterByCategory,
+  OrderDir,
   orders,
   Ordery,
   TaskView,
@@ -42,9 +44,7 @@ const AddTask = memo(function ({
 }) {
   const { runPromise } = useServiceContext()
   const [newResult, addNewTask] = useNewTask(category)
-
   const [findResult, getTask] = useGetTask()
-
   const addTask = withLoading(
     flow(
       addNewTask,
@@ -55,6 +55,7 @@ const AddTask = memo(function ({
     // TODO: or refreshing
     datumEither.isPending(newResult) || datumEither.isPending(findResult)
   )
+
   return (
     <div>
       <Field
@@ -76,28 +77,29 @@ const TaskListView = memo(function ({
   order: O.Option<Ordery>
 }) {
   const [tasksResult, , refetchTasks] = useTasks()
-
   useInterval(() => refetchTasks, 30 * 1000)
-
   // testing for multi-call relying on same network-call/cache.
   //   useTasks()
   //   useTasks()
 
-  const filter = filterByCategory(category)
-
-  const ordering = order["|>"](
-    O.map((o) => {
-      return orders[o.kind]
-        ["|>"](A.single)
-        ["|>"](A.map((ord) => (o.dir === "down" ? ORD.inverted(ord) : ord)))
-    })
-  )["|>"](O.getOrElse(() => [] as A.Array<ORD.Ord<Todo.Task>>))
-
   const { setDirection, setOrder, setSelectedTaskId } = useRouting(category, order)
   const isRefreshing = datumEither.isRefresh(tasksResult)
+  function toggleDirection(dir: OrderDir) {
+    setDirection(dir === "up" ? "down" : "up")
+  }
 
   function renderTasks(unfilteredTasks: A.Array<Todo.Task>) {
-    const tasks = unfilteredTasks["|>"](filter)["|>"](A.sortBy(ordering))
+    const tasks = unfilteredTasks["|>"](filterByCategory(category))["|>"](
+      A.sortByO(
+        order["|>"](
+          O.map((o) =>
+            orders[o.kind]
+              ["|>"](NA.single)
+              ["|>"](NA.map((ord) => (o.dir === "down" ? ORD.inverted(ord) : ord)))
+          )
+        )
+      )
+    )
 
     return (
       <>
@@ -108,7 +110,7 @@ const TaskListView = memo(function ({
 
           <Box marginLeft="auto" marginTop={1}>
             <TaskListMenu
-              setOrder={setOrder}
+              setOrder={(o) => setOrder(O.some(o))}
               order={order["|>"](O.map((x) => x.kind))}
             />
           </Box>
@@ -117,9 +119,7 @@ const TaskListView = memo(function ({
         {O.isSome(order) && (
           <div>
             {order.value.kind}
-            <IconButton
-              onClick={() => setDirection(order.value.dir === "up" ? "down" : "up")}
-            >
+            <IconButton onClick={() => toggleDirection(order.value.dir)}>
               {order.value.dir === "up" ? <ArrowUp /> : <ArrowDown />}
             </IconButton>
             <Button onClick={() => setOrder(O.none)}>X</Button>

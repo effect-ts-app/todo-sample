@@ -13,7 +13,7 @@ export const TaskListMenu = memo(function ({
   setOrder,
 }: {
   order: O.Option<Orders>
-  setOrder: (o: O.Option<Orders>) => void
+  setOrder: (o: Orders) => void
 }) {
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null)
 
@@ -43,7 +43,7 @@ export const TaskListMenu = memo(function ({
             key={o}
             selected={order_ === o}
             onClick={() => {
-              setOrder(O.some(o))
+              setOrder(o)
               handleClose()
             }}
           >

@@ -15,7 +15,7 @@ export function useRouting(category: TaskView, order: O.Option<Ordery>) {
   const s = useRef({ category, order, push: r.push })
   s.current = { category, order, push: r.push }
 
-  const { setDirection, setOrder, setSelectedTaskId } = useMemo(
+  return useMemo(
     () => ({
       setDirection: (dir: OrderDir) =>
         s.current.push(
@@ -38,12 +38,6 @@ export function useRouting(category: TaskView, order: O.Option<Ordery>) {
     }),
     []
   )
-
-  return {
-    setDirection,
-    setOrder,
-    setSelectedTaskId,
-  }
 }
 
 function makeSearch(o: O.Option<Ordery>) {

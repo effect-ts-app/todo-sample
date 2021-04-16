@@ -15,7 +15,7 @@ const TaskDetailView = ({
   taskId,
 }: {
   taskId: UUID
-  category: O.Option<TaskView>
+  category: TaskView
   order: O.Option<Ordery>
 }) => {
   const [tasksResult] = useTasks()
@@ -23,10 +23,7 @@ const TaskDetailView = ({
     ? tasksResult.value.right
     : emptyTasks
 
-  const { setSelectedTaskId } = useRouting(
-    O.getOrElse_(category, () => "tasks"),
-    order
-  )
+  const { setSelectedTaskId } = useRouting(category, order)
 
   const closeTaskDetail = useCallback(() => setSelectedTaskId(null), [
     setSelectedTaskId,
