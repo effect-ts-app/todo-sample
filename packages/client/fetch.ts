@@ -26,7 +26,7 @@ export function fetchApi(path: string, options?: Omit<RequestInit, "signal">) {
     pipe(
       makeAbort,
       T.chain((abort) =>
-        T.fromPromiseWithInterrupt(
+        T.tryCatchPromiseWithInterrupt(
           () =>
             fetch(`${apiUrl}${path}`, {
               ...options,

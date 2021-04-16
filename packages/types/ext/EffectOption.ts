@@ -43,7 +43,7 @@ export const fromEffect = <R, E, A>(eff: T.Effect<R, E, A>) => pipe(eff, T.map(O
 export const encaseNullableTask = <T>(
   taskCreator: F.Lazy<Promise<T | null>>
 ): T.Effect<unknown, never, O.Option<NonNullable<T>>> =>
-  T.map_(T.fromPromiseDie(taskCreator), O.fromNullable)
+  pipe(T.tryPromise(taskCreator), T.orDie, T.map(O.fromNullable))
 
 export const encaseNullableTaskErrorIfNull = <T, E>(
   taskCreator: F.Lazy<Promise<T | null>>,

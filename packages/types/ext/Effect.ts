@@ -4,7 +4,7 @@ import { effectAsyncInterrupt } from "@effect-ts/core/Effect"
 import { Lazy } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 
-export function fromPromiseWithInterrupt<E, A>(
+export function tryCatchPromiseWithInterrupt<E, A>(
   promise: Lazy<Promise<A>>,
   onReject: (reason: unknown) => E,
   canceller: () => void,
