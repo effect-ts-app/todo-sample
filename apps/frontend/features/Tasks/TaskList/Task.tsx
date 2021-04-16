@@ -20,6 +20,7 @@ import {
 } from "@/components"
 import { useServiceContext } from "@/context"
 import { memo, withLoading } from "@/data"
+import { renderIf_ } from "@/utils"
 
 import { useTaskCommandsResolved } from "../data"
 
@@ -101,19 +102,17 @@ export const Task = memo(function ({
                   )}
                   {makeStepCount(t.steps)}
                   &nbsp;
-                  {t.due["|>"](
-                    O.map((d) => (
-                      // eslint-disable-next-line react/jsx-key
-                      <State
-                        state={t["|>"](Todo.Task.dueInPast)
-                          ["|>"](O.map(() => "error" as const))
-                          ["|>"](O.toNullable)}
-                      >
-                        <CalendarToday />
-                        {d.toLocaleDateString()}
-                      </State>
-                    ))
-                  )["|>"](O.toNullable)}
+                  {renderIf_(t.due, (d) => (
+                    // eslint-disable-next-line react/jsx-key
+                    <State
+                      state={t["|>"](Todo.Task.dueInPast)
+                        ["|>"](O.map(() => "error" as const))
+                        ["|>"](O.toUndefined)}
+                    >
+                      <CalendarToday />
+                      {d.toLocaleDateString()}
+                    </State>
+                  ))}
                   &nbsp;
                   {O.isSome(t.reminder) && <Alarm />}
                 </div>

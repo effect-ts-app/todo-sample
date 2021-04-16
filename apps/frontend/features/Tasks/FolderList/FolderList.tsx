@@ -15,6 +15,7 @@ export const FolderList = memo(function ({
   folders: readonly Todo.FolderListADT[]
   category: O.Option<TaskView>
 }) {
+  const cat = O.toNullable(category)
   // TODO: dynamic TaskViews should show count
   return (
     <List component="nav">
@@ -23,11 +24,7 @@ export const FolderList = memo(function ({
           {Todo.FolderListADT.matchStrict({
             TaskListView: (c) => (
               <Link href={`/${c.slug}`} passHref>
-                <ListItem
-                  component="a"
-                  button
-                  selected={c.slug === O.toNullable(category)}
-                >
+                <ListItem component="a" button selected={c.slug === cat}>
                   <ListItemText>
                     {c.title} ({c.count})
                   </ListItemText>

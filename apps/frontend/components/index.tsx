@@ -125,7 +125,7 @@ export function ClickableMixin<El>({ onClick }: ClickableMixinProps<El>) {
 }
 
 export interface StateMixinProps {
-  state?: "warn" | "error" | null
+  state?: "warn" | "error"
 }
 export function StateMixin({ state }: StateMixinProps) {
   return css`

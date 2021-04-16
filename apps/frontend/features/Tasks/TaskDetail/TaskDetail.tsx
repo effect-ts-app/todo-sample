@@ -160,7 +160,7 @@ export const TaskDetail = memo(function ({
                 <StateTextField
                   state={t["|>"](Todo.Task.reminderInPast)
                     ["|>"](O.map(() => "error" as const))
-                    ["|>"](O.toNullable)}
+                    ["|>"](O.toUndefined)}
                   {...p}
                 />
               )}
@@ -179,7 +179,7 @@ export const TaskDetail = memo(function ({
                 <StateTextField
                   state={t["|>"](Todo.Task.dueInPast)
                     ["|>"](O.map(() => "error" as const))
-                    ["|>"](O.toNullable)}
+                    ["|>"](O.toUndefined)}
                   {...p}
                 />
               )}
