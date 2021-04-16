@@ -23,4 +23,11 @@ function TasksPage() {
   return <TasksScreen category={category} order={o} taskId={taskId} />
 }
 
+// disable static generation :/
+export async function getServerSideProps() {
+  return {
+    props: {}, // will be passed to the page component as props
+  }
+}
+
 export default TasksPage

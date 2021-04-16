@@ -29,6 +29,10 @@ const TaskDetailView = ({
     setSelectedTaskId,
   ])
 
+  if (!datumEither.isSuccess(tasksResult)) {
+    return <>Loading Task...</>
+  }
+
   const t = unfilteredTasks["|>"](A.findFirst((x) => x.id === taskId))
 
   return O.fold_(
