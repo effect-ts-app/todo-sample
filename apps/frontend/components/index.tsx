@@ -1,4 +1,5 @@
 import { NonEmptyString } from "@effect-ts-demo/todo-types/shared"
+import { constant } from "@effect-ts/core/Function"
 import { Box, IconButton, TextField, TextFieldProps } from "@material-ui/core"
 import Favorite from "@material-ui/icons/Favorite"
 import FavoriteBorder from "@material-ui/icons/FavoriteBorder"
@@ -127,8 +128,11 @@ export function ClickableMixin<El>({ onClick }: ClickableMixinProps<El>) {
 export interface StateMixinProps {
   state?: "warn" | "error"
 }
-export function StateMixin({ state }: StateMixinProps) {
+function StateMixin({ state }: StateMixinProps) {
   return css`
     color: ${state === "warn" ? "yellow" : state === "error" ? "red" : "inherit"};
   `
 }
+StateMixin.error = constant("error" as const)
+
+export { StateMixin }

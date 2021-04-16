@@ -105,9 +105,7 @@ export const Task = memo(function ({
                   {renderIf_(t.due, (d) => (
                     // eslint-disable-next-line react/jsx-key
                     <State
-                      state={t["|>"](Todo.Task.dueInPast)
-                        ["|>"](O.map(() => "error" as const))
-                        ["|>"](O.toUndefined)}
+                      state={renderIf_(Todo.Task.dueInPast(t), () => "error" as const)}
                     >
                       <CalendarToday />
                       {d.toLocaleDateString()}

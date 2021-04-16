@@ -40,6 +40,7 @@ const TasksScreen = memo(function ({
         flexGrow={1}
         paddingX={2}
         paddingBottom={2}
+        bgcolor="info.main"
       >
         <TaskList category={category} order={order} />
       </Box>

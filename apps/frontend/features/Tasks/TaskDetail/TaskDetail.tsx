@@ -29,7 +29,7 @@ import {
 } from "@/components"
 import { useServiceContext } from "@/context"
 import { memo, onSuccess, withLoading } from "@/data"
-import { constEmptyString } from "@/utils"
+import { constEmptyString, renderIf_ } from "@/utils"
 
 import { useDeleteTask, useTaskCommandsResolved } from "../data"
 
@@ -158,9 +158,7 @@ export const TaskDetail = memo(function ({
               disabled={f.setReminder.loading}
               renderInput={(p) => (
                 <StateTextField
-                  state={t["|>"](Todo.Task.reminderInPast)
-                    ["|>"](O.map(() => "error" as const))
-                    ["|>"](O.toUndefined)}
+                  state={renderIf_(Todo.Task.reminderInPast(t), StateMixin.error)}
                   {...p}
                 />
               )}
@@ -177,16 +175,12 @@ export const TaskDetail = memo(function ({
               disabled={f.setDue.loading}
               renderInput={(p) => (
                 <StateTextField
-                  state={t["|>"](Todo.Task.dueInPast)
-                    ["|>"](O.map(() => "error" as const))
-                    ["|>"](O.toUndefined)}
+                  state={renderIf_(Todo.Task.dueInPast(t), StateMixin.error)}
                   {...p}
                 />
               )}
               value={O.toNullable(t.due)}
-              onChange={(value) => {
-                f.setDue(value)
-              }}
+              onChange={f.setDue}
             />
           </div>
 
