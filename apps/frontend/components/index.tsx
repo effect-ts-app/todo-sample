@@ -1,17 +1,18 @@
 import { NonEmptyString } from "@effect-ts-demo/todo-types/shared"
-import { IconButton, TextField, TextFieldProps } from "@material-ui/core"
+import { Box, IconButton, TextField, TextFieldProps } from "@material-ui/core"
 import Favorite from "@material-ui/icons/Favorite"
 import FavoriteBorder from "@material-ui/icons/FavoriteBorder"
 import React, { useState, useRef, useEffect, MouseEventHandler } from "react"
 import styled, { css } from "styled-components"
 
-import { onSuccess, PromiseExit } from "@/data"
+import { memo, onSuccess, PromiseExit } from "@/data"
+import { constEmptyString } from "@/utils"
 
-export const Clickable = styled.div`
+export const Clickable = styled(Box)`
   ${ClickableMixin}
 `
 
-export const Completable = styled.div<{ completed: boolean }>`
+export const Completable = styled(Box)<{ completed: boolean }>`
   ${({ completed }) =>
     completed &&
     css`
@@ -60,22 +61,22 @@ export function TextFieldWithEditor({
       onChange={(evt) => setText(evt.target.value)}
     />
   ) : (
-    <Clickable style={{ display: "inline" }} onClick={() => setEditing(true)}>
+    <Clickable display="inline" onClick={() => setEditing(true)}>
       {children}
     </Clickable>
   )
 }
 
-export const Field = ({
+export const Field = memo(function ({
   onChange,
   state,
   ...rest
 }: {
   onChange: (t: NonEmptyString) => PromiseExit
   state?: unknown
-} & Omit<TextFieldProps, "onChange">) => {
-  const [text, setText] = useState("")
-  const clearText = () => setText("")
+} & Omit<TextFieldProps, "onChange">) {
+  const [text, setText] = useState(constEmptyString)
+  const clearText = () => setText(constEmptyString)
   useEffect(() => {
     clearText()
   }, [state])
@@ -92,7 +93,7 @@ export const Field = ({
       {...rest}
     />
   )
-}
+})
 
 export function FavoriteButton({
   disabled,

@@ -2,7 +2,14 @@ import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as T from "@effect-ts/core/Effect"
 import { flow, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
-import { Box, Button, Checkbox, IconButton, TextField } from "@material-ui/core"
+import {
+  Box,
+  Button,
+  Checkbox,
+  IconButton,
+  TextField,
+  Typography,
+} from "@material-ui/core"
 import ArrowRight from "@material-ui/icons/ArrowRight"
 import Delete from "@material-ui/icons/Delete"
 import { DatePicker, DateTimePicker } from "@material-ui/lab"
@@ -71,8 +78,9 @@ export const TaskDetail = memo(function ({
               }}
             >
               <Completable
-                as="h2"
-                style={{ display: "inline" }}
+                as={Typography}
+                variant="h5"
+                display="inline"
                 completed={O.isSome(t.completed)}
               >
                 {t.title}
@@ -145,7 +153,7 @@ export const TaskDetail = memo(function ({
           </div>
 
           <div>
-            <h3>Reminder</h3>
+            <Typography variant="h5">Reminder</Typography>
             <DateTimePicker
               disabled={f.setReminder.loading}
               renderInput={(p) => (
@@ -164,7 +172,7 @@ export const TaskDetail = memo(function ({
           </div>
 
           <div>
-            <h3>Due Date</h3>
+            <Typography variant="h5">Due Date</Typography>
             <DatePicker
               disabled={f.setDue.loading}
               renderInput={(p) => (
@@ -182,7 +190,7 @@ export const TaskDetail = memo(function ({
             />
           </div>
 
-          <h3>Note</h3>
+          <Typography variant="h5">Note</Typography>
           <TextFieldWithEditor
             multiline={true}
             loading={f.editNote.loading}

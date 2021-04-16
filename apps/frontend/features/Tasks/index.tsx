@@ -3,6 +3,7 @@ import { Box } from "@material-ui/core"
 import React from "react"
 
 import { memo } from "@/data"
+import { renderIf_ } from "@/utils"
 
 import FolderList from "./FolderList"
 import TaskDetail from "./TaskDetail"
@@ -43,7 +44,7 @@ const TasksScreen = memo(function ({
         <TaskList category={category} order={order} />
       </Box>
 
-      {O.isSome(taskId) && O.isSome(category) && (
+      {renderIf_(O.struct({ taskId, category }), ({ category, taskId }) => (
         <Box
           display="flex"
           flexBasis="300px"
@@ -53,9 +54,9 @@ const TasksScreen = memo(function ({
           width="400px"
           style={{ backgroundColor: "#efefef" }}
         >
-          <TaskDetail taskId={taskId.value} category={category.value} order={order} />
+          <TaskDetail taskId={taskId} category={category} order={order} />
         </Box>
-      )}
+      ))}
     </Box>
   )
 })

@@ -2,6 +2,7 @@ import * as TodoClient from "@effect-ts-demo/todo-client"
 import * as A from "@effect-ts-demo/todo-types/ext/Array"
 import * as O from "@effect-ts/core/Option"
 import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
+import { Typography } from "@material-ui/core"
 import React, { useEffect, useState } from "react"
 import { Droppable, DragDropContext } from "react-beautiful-dnd"
 import styled from "styled-components"
@@ -77,7 +78,7 @@ const TaskList = memo(function ({
 
       {Boolean(completedTasks.length) && (
         <div>
-          <h3>Completed</h3>
+          <Typography variant="h5">Completed</Typography>
           <Droppable droppableId={"tasks-completed"}>
             {(provided) => (
               <CardList ref={provided.innerRef} {...provided.droppableProps}>

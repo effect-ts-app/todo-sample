@@ -1,6 +1,7 @@
 import { stringify, ParsedUrlQueryInput } from "querystring"
 
 import { constant } from "@effect-ts/core/Function"
+import * as O from "@effect-ts/core/Option"
 
 export function toUpperCaseFirst(s: string) {
   const f = (s[0] ?? "").toUpperCase()
@@ -17,3 +18,10 @@ export function makeQueryString(pq: ParsedUrlQueryInput) {
 }
 
 export const constEmptyString = constant("")
+export function renderIf<A, B>(f: (a: A) => B) {
+  return (o: O.Option<A>) => renderIf_(o, f)
+}
+
+export function renderIf_<A, B>(o: O.Option<A>, f: (a: A) => B) {
+  return O.map_(o, f)["|>"](O.toUndefined)
+}

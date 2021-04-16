@@ -5,8 +5,7 @@ import * as NA from "@effect-ts/core/Collections/Immutable/NonEmptyArray"
 import { flow } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import * as ORD from "@effect-ts/core/Ord"
-import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
-import { Box, Button, IconButton } from "@material-ui/core"
+import { Box, Button, IconButton, Typography } from "@material-ui/core"
 import ArrowDown from "@material-ui/icons/ArrowDownward"
 import ArrowUp from "@material-ui/icons/ArrowUpward"
 import Refresh from "@material-ui/icons/Refresh"
@@ -18,7 +17,7 @@ import * as Todo from "@/Todo"
 import { Field } from "@/components"
 import { useServiceContext } from "@/context"
 import { memo, withLoading } from "@/data"
-import { toUpperCaseFirst } from "@/utils"
+import { renderIf_, toUpperCaseFirst } from "@/utils"
 
 import {
   filterByCategory,
@@ -35,40 +34,6 @@ import { useRouting } from "../routing"
 import TaskList from "./TaskList"
 import { TaskListMenu } from "./TaskListMenu"
 
-const AddTask = memo(function ({
-  category,
-  setSelectedTaskId,
-}: {
-  category: TaskView
-  setSelectedTaskId: (i: UUID) => void
-}) {
-  const { runPromise } = useServiceContext()
-  const [newResult, addNewTask] = useNewTask(category)
-  const [findResult, getTask] = useGetTask()
-  const addTask = withLoading(
-    flow(
-      addNewTask,
-      T.chain((r) => getTask(r.id)),
-      EO.map((t) => setSelectedTaskId(t.id)),
-      runPromise
-    ),
-    // TODO: or refreshing
-    datumEither.isPending(newResult) || datumEither.isPending(findResult)
-  )
-
-  return (
-    <div>
-      <Field
-        size="small"
-        fullWidth
-        placeholder="Add a Task"
-        disabled={addTask.loading}
-        onChange={addTask}
-      />
-    </div>
-  )
-})
-
 const TaskListView = memo(function ({
   category,
   order,
@@ -81,8 +46,27 @@ const TaskListView = memo(function ({
   // testing for multi-call relying on same network-call/cache.
   //   useTasks()
   //   useTasks()
-
+  const { runPromise } = useServiceContext()
+  const [newResult, addNewTask] = useNewTask(category)
+  const [findResult, getTask] = useGetTask()
+  const isLoading =
+    datumEither.isPending(newResult) || datumEither.isPending(findResult)
   const { setDirection, setOrder, setSelectedTaskId } = useRouting(category, order)
+
+  const addTask = React.useMemo(
+    () =>
+      withLoading(
+        flow(
+          addNewTask,
+          T.chain((r) => getTask(r.id)),
+          EO.map((t) => setSelectedTaskId(t.id)),
+          runPromise
+        ),
+        // TODO: or refreshing
+        isLoading
+      ),
+    [addNewTask, getTask, isLoading, runPromise, setSelectedTaskId]
+  )
   const isRefreshing = datumEither.isRefresh(tasksResult)
   function toggleDirection(dir: OrderDir) {
     setDirection(dir === "up" ? "down" : "up")
@@ -93,9 +77,9 @@ const TaskListView = memo(function ({
       A.sortByO(
         order["|>"](
           O.map((o) =>
-            orders[o.kind]
-              ["|>"](NA.single)
-              ["|>"](NA.map((ord) => (o.dir === "down" ? ORD.inverted(ord) : ord)))
+            NA.single(orders[o.kind])["|>"](
+              NA.map((ord) => (o.dir === "down" ? ORD.inverted(ord) : ord))
+            )
           )
         )
       )
@@ -104,9 +88,9 @@ const TaskListView = memo(function ({
     return (
       <>
         <Box display="flex">
-          <h1>
+          <Typography variant="h3">
             {toUpperCaseFirst(category)} {isRefreshing && <Refresh />}
-          </h1>
+          </Typography>
 
           <Box marginLeft="auto" marginTop={1}>
             <TaskListMenu
@@ -116,20 +100,29 @@ const TaskListView = memo(function ({
           </Box>
         </Box>
 
-        {O.isSome(order) && (
+        {renderIf_(order, (o) => (
           <div>
-            {order.value.kind}
-            <IconButton onClick={() => toggleDirection(order.value.dir)}>
-              {order.value.dir === "up" ? <ArrowUp /> : <ArrowDown />}
+            {o.kind}
+            <IconButton onClick={() => toggleDirection(o.dir)}>
+              {o.dir === "up" ? <ArrowUp /> : <ArrowDown />}
             </IconButton>
             <Button onClick={() => setOrder(O.none)}>X</Button>
           </div>
-        )}
+        ))}
 
         <Box flexGrow={1} overflow="auto">
           <TaskList setSelectedTaskId={setSelectedTaskId} tasks={tasks} />
         </Box>
-        <AddTask category={category} setSelectedTaskId={setSelectedTaskId} />
+
+        <Box>
+          <Field
+            size="small"
+            fullWidth
+            placeholder="Add a Task"
+            disabled={addTask.loading}
+            onChange={addTask}
+          />
+        </Box>
       </>
     )
   }
