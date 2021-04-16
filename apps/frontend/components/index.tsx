@@ -1,8 +1,8 @@
 import { NonEmptyString } from "@effect-ts-demo/todo-types/shared"
 import { constant } from "@effect-ts/core/Function"
 import { Box, IconButton, TextField, TextFieldProps } from "@material-ui/core"
-import Favorite from "@material-ui/icons/Favorite"
-import FavoriteBorder from "@material-ui/icons/FavoriteBorder"
+import Star from "@material-ui/icons/Star"
+import StarBorder from "@material-ui/icons/StarBorder"
 import React, { useState, useRef, useEffect, MouseEventHandler } from "react"
 import styled, { css } from "styled-components"
 
@@ -107,7 +107,7 @@ export function FavoriteButton({
 }) {
   return (
     <IconButton disabled={disabled} onClick={onClick}>
-      {isFavorite ? <Favorite /> : <FavoriteBorder />}
+      {isFavorite ? <Star /> : <StarBorder />}
     </IconButton>
   )
 }
