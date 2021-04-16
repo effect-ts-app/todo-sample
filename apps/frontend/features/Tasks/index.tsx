@@ -25,7 +25,7 @@ const TasksScreen = memo(function ({
     <Box display="flex" flexDirection="column" height="100%">
       <Box sx={{ bgcolor: "primary.main", color: "primary.contrastText" }} p={2}>
         <Typography>
-          To Do: An Effect-TS Demo, clone of MS To Do.{" "}
+          To Do: An Effect-TS full-stack demo, clone of Microsoft To Do.{" "}
           <Link
             sx={{ color: "primary.contrastText" }}
             href="http://github.com/patroza/effect-ts-demo-todo"

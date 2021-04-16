@@ -17,7 +17,7 @@ const program = pipe(
     Ex.use(Ex.classic(json()))
   ),
   T.zipRight(taskRoutes),
-  T.tap(() => T.effectTotal(() => console.log(`Running on ${HOST}:${PORT}`))),
+  T.tap(() => T.succeedWith(() => console.log(`Running on ${HOST}:${PORT}`))),
   T.tap(() => T.never)
 )
 

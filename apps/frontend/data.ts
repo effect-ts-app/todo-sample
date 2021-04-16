@@ -26,10 +26,10 @@ export function useFetch<R, E, A, Args extends readonly unknown[]>(
     function (...args: Args) {
       return pipe(
         // for mutations, we don't care about a refreshing state.
-        T.effectTotal(() => setResult(datumEither.constPending())),
+        T.succeedWith(() => setResult(datumEither.constPending())),
         T.zipRight(fetchFnc(...args)),
         T.tap((a) =>
-          T.effectTotal(() => {
+          T.succeedWith(() => {
             setResult(datumEither.success(a))
           })
         ),
@@ -58,7 +58,7 @@ export function useLimitToOne<R, E, A, Args extends readonly unknown[]>(
 function limitToOne(cancel: () => void, setCancel: (cnl: () => void) => void) {
   return <R, E, A>(self: T.Effect<R, E, A>) =>
     pipe(
-      T.effectTotal(() => {
+      T.succeedWith(() => {
         console.log("cancel", cancel)
         cancel()
       }),
@@ -68,7 +68,7 @@ function limitToOne(cancel: () => void, setCancel: (cnl: () => void) => void) {
           T.fork,
           // NOTE; actually the cancellation means that running to Promise will also not resolve on the success channel.
           // thus additional callbacks will fail.
-          T.tap((f) => T.effectTotal(() => setCancel(() => T.run(Fiber.interrupt(f)))))
+          T.tap((f) => T.succeedWith(() => setCancel(() => T.run(Fiber.interrupt(f)))))
         )
       ),
       T.chain(Fiber.join)
@@ -151,7 +151,7 @@ export function useQuery<R, E, A, Args extends ReadonlyArray<unknown>>(
   const ff = useCallback(
     function (...args: Args) {
       return pipe(
-        T.effectTotal(() => {
+        T.succeedWith(() => {
           fetcher.modify((r) =>
             datumEither.isInitial(r)
               ? datumEither.constPending()
@@ -160,7 +160,7 @@ export function useQuery<R, E, A, Args extends ReadonlyArray<unknown>>(
         }),
         T.zipRight(fetcher.fetch(...args)),
         T.chain((a) =>
-          T.effectTotal(() => {
+          T.succeedWith(() => {
             fetcher.update(datumEither.success(a))
             return a
           })
@@ -194,10 +194,10 @@ export function useQuery<R, E, A, Args extends ReadonlyArray<unknown>>(
   const exec = useCallback(
     function (...args: Args) {
       return pipe(
-        T.effectTotal(() => fetcher.fiber),
+        T.succeedWith(() => fetcher.fiber),
         T.chain((f) =>
           f
-            ? T.effectTotal(() => {
+            ? T.succeedWith(() => {
                 console.log("Joining existing fiber", f.id)
                 return f
               })
@@ -205,7 +205,7 @@ export function useQuery<R, E, A, Args extends ReadonlyArray<unknown>>(
                 ff(...args),
                 T.fork,
                 T.tap((f) =>
-                  T.effectTotal(() => {
+                  T.succeedWith(() => {
                     console.log("setting fiber", f.id)
                     fetcher.fiber = f
                   })
@@ -230,7 +230,7 @@ export function useQuery<R, E, A, Args extends ReadonlyArray<unknown>>(
           if (runFib) {
             console.log("interrupting fiber", runFib.id)
           }
-          const setFiber = T.effectTotal(() => {
+          const setFiber = T.succeedWith(() => {
             console.log("setting fiber", f.id)
             fetcher.fiber = f
           })

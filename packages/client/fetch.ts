@@ -20,7 +20,7 @@ export class ResponseError {
 
 export const mapResponseError = T.mapError((err: Errors) => new ResponseError(err))
 
-const makeAbort = T.effectTotal(() => new AbortController())
+const makeAbort = T.succeedWith(() => new AbortController())
 export function fetchApi(path: string, options?: Omit<RequestInit, "signal">) {
   return getConfig(({ apiUrl }) =>
     pipe(

@@ -7,7 +7,7 @@ import * as TaskContext from "./TaskContext"
 
 export const handle = (_: Request) =>
   pipe(
-    T.effectTotal(() => Task.create({ ..._, steps: [] })),
+    T.succeedWith(() => Task.create({ ..._, steps: [] })),
     T.tap(TaskContext.add),
     T.map((t) => ({ id: t.id }))
   )

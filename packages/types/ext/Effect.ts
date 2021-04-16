@@ -14,7 +14,7 @@ export function fromPromiseWithInterrupt<E, A>(
     promise()
       .then((x) => pipe(x, T.succeed, resolve))
       .catch((x) => pipe(x, onReject, T.fail, resolve))
-    return T.effectTotal(canceller)
+    return T.succeedWith(canceller)
   }, __trace)
 }
 

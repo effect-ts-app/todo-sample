@@ -6,11 +6,11 @@
     "dependencies": {
         "@effect-ts-demo/todo-client": "*",
         "@effect-ts-demo/todo-types": "*",
-        "@effect-ts/core": "^0.30.3",
-        "@effect-ts/express": "^0.14.0",
-        "@effect-ts/monocle": "^0.27.0",
-        "@effect-ts/morphic": "^0.30.0",
-        "@effect-ts/node": "^0.19.2",
+        "@effect-ts/core": "^0.31.0",
+        "@effect-ts/express": "^0.15.0",
+        "@effect-ts/monocle": "^0.28.0",
+        "@effect-ts/morphic": "^0.31.0",
+        "@effect-ts/node": "^0.20.0",
         "body-parser": "^1.19.0",
         "cors": "^2.8.5",
         "express": "^4.17.1"

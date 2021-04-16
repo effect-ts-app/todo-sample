@@ -20,9 +20,9 @@ class ValidationError {
 function parseRequestParams<A>(decodeRequest: Decode<A>) {
   return (req: express.Request) =>
     pipe(
-      T.effectTotal(() => ({ ...req.query, ...req.body, ...req.params })),
+      T.succeedWith(() => ({ ...req.query, ...req.body, ...req.params })),
       T.tap((pars) =>
-        T.effectTotal(() =>
+        T.succeedWith(() =>
           console.log(
             `${new Date().toISOString()} ${req.method} ${
               req.originalUrl
@@ -41,7 +41,7 @@ function respondSuccess<A, E>(encodeResponse: Encode<A, E>) {
     flow(
       encodeResponse,
       T.chain((r) =>
-        T.effectTotal(() => {
+        T.succeedWith(() => {
           r === undefined
             ? res.status(204).send()
             : res.status(200).send(r === null ? JSON.stringify(null) : r)
@@ -63,12 +63,12 @@ function handleRequest<R, ReqA, ResA, ResE>(
       T.chain(handle),
       T.chain(respond(res)),
       T.catch("_tag", "ValidationError", (err) =>
-        T.effectTotal(() => {
+        T.succeedWith(() => {
           res.status(400).send(err.error)
         })
       ),
       T.catch("_tag", "NotFoundError", (err) =>
-        T.effectTotal(() => {
+        T.succeedWith(() => {
           res.status(404).send(err)
         })
       )

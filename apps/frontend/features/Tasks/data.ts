@@ -93,7 +93,7 @@ export function useGetTask() {
         pipe(
           findTask(id),
           EO.tap((t) =>
-            T.effectTotal(() =>
+            T.succeedWith(() =>
               modifyTasks((tasks) =>
                 pipe(
                   A.findIndex_(tasks, (x) => x.id === t.id),
@@ -158,21 +158,21 @@ export function useTaskCommands(id: UUID) {
 
     function toggleTaskChecked(t: Todo.Task) {
       return pipe(
-        T.effectTotal(() => t["|>"](Todo.Task.toggleCompleted)),
+        T.succeedWith(() => t["|>"](Todo.Task.toggleCompleted)),
         T.chain(updateAndRefreshTask)
       )
     }
 
     function toggleTaskMyDay(t: Todo.Task) {
       return pipe(
-        T.effectTotal(() => t["|>"](Todo.Task.toggleMyDay)),
+        T.succeedWith(() => t["|>"](Todo.Task.toggleMyDay)),
         T.chain(updateAndRefreshTask)
       )
     }
 
     function toggleTaskFavorite(t: Todo.Task) {
       return pipe(
-        T.effectTotal(() => Todo.Task.toggleFavorite(t)),
+        T.succeedWith(() => Todo.Task.toggleFavorite(t)),
         T.tap(updateTask),
         T.chain(refreshTask)
       )
@@ -198,7 +198,7 @@ export function useTaskCommands(id: UUID) {
     function toggleTaskStepChecked(t: Todo.Task) {
       return (s: Todo.Step) =>
         pipe(
-          T.effectTotal(() => t["|>"](Todo.Task.toggleStepCompleted(s))),
+          T.succeedWith(() => t["|>"](Todo.Task.toggleStepCompleted(s))),
           T.chain(updateAndRefreshTask)
         )
     }
@@ -247,7 +247,7 @@ export function useTaskCommands(id: UUID) {
     function deleteTaskStep(t: Todo.Task) {
       return (s: Todo.Step) =>
         pipe(
-          T.effectTotal(() => t["|>"](Todo.Task.deleteStep(s))),
+          T.succeedWith(() => t["|>"](Todo.Task.deleteStep(s))),
           T.chain(updateAndRefreshTask)
         )
     }
