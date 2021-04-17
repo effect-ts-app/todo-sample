@@ -42,7 +42,7 @@ const TasksScreen = memo(function ({
         <Hidden only={view === "folders" ? undefined : "xs"}>
           <Box
             flexBasis="200px"
-            flexGrow={{ xs: view === "folders" ? 1 : undefined, sm: undefined }}
+            flexGrow={view === "folders" ? { xs: 1, sm: 0 } : undefined}
             paddingX={1}
             paddingTop={7}
             paddingBottom={2}
@@ -64,16 +64,18 @@ const TasksScreen = memo(function ({
               </RouterLink>
             </Box>
           </Hidden>
-          <Box
-            display="flex"
-            flexDirection="column"
-            flexGrow={1}
-            paddingX={2}
-            paddingBottom={2}
-            sx={{ bgcolor: "info.main", color: "info.contrastText" }}
-          >
-            <TaskList category={category} order={order} />
-          </Box>
+          {renderIf_(category, () => (
+            <Box
+              display="flex"
+              flexDirection="column"
+              flexGrow={1}
+              paddingX={2}
+              paddingBottom={2}
+              sx={{ bgcolor: "info.main", color: "info.contrastText" }}
+            >
+              <TaskList category={category} order={order} />
+            </Box>
+          ))}
         </Hidden>
 
         {renderIf_(O.struct({ taskId, category }), ({ category, taskId }) => (
@@ -94,7 +96,7 @@ const TasksScreen = memo(function ({
               paddingX={2}
               paddingTop={2}
               paddingBottom={1}
-              flexGrow={{ xs: view === "task" ? 1 : undefined, sm: undefined }}
+              flexGrow={view === "task" ? { xs: 1, sm: 0 } : undefined}
               width={{ xs: view === "task" ? undefined : "400px", sm: "400px" }}
               style={{ backgroundColor: "#efefef" }}
             >
