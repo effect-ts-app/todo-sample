@@ -1,5 +1,7 @@
+import * as EO from "@effect-ts-demo/todo-types/ext/EffectOption"
 import * as T from "@effect-ts/core/Effect"
 import { flow, pipe } from "@effect-ts/core/Function"
+import * as O from "@effect-ts/core/Option"
 import * as Sy from "@effect-ts/core/Sync"
 import { M } from "@effect-ts/morphic"
 import { Decode, Errors } from "@effect-ts/morphic/Decoder"
@@ -29,15 +31,9 @@ class ValidationError {
   constructor(public readonly error: Errors) {}
 }
 
-export declare function parseReq<
-  APath,
-  AQuery,
-  ABody,
-  AHeader,
-  AReq extends APath & AQuery & ABody & AHeader
->(req: AReq): any
-
-function parseRequestParams<A>(decodeRequest: Decode<A>) {
+function parseRequestParams<PathA, QueryA, BodyA, HeaderA>(
+  parsers: RequestParsers<PathA, QueryA, BodyA, HeaderA>
+) {
   return (req: express.Request) =>
     pipe(
       T.succeedWith(() => ({ ...req.query, ...req.body, ...req.params })),
@@ -51,7 +47,23 @@ function parseRequestParams<A>(decodeRequest: Decode<A>) {
           )
         )
       ),
-      T.chain(decodeRequest),
+      T.chain(() =>
+        T.structPar({
+          body: parsers.parseBody(req.body),
+          headers: parsers.parseHeaders(req.headers),
+          query: parsers.parseQuery(req.query),
+          path: parsers.parsePath(req.params),
+        })
+      ),
+      T.map(
+        ({ body, headers, path, query }) =>
+          ({
+            ...O.toUndefined(body),
+            ...O.toUndefined(query),
+            ...O.toUndefined(headers),
+            ...O.toUndefined(path),
+          } as PathA & QueryA & BodyA & HeaderA)
+      ),
       T.mapError((err) => new ValidationError(err))
     )
 }
@@ -70,12 +82,12 @@ function respondSuccess<A, E>(encodeResponse: Encode<A, E>) {
     )
 }
 
-function handleRequest<R, ReqA, ResA, ResE>(
-  decodeRequest: Decode<ReqA>,
+function handleRequest<R, PathA, QueryA, BodyA, HeaderA, ResA, ResE>(
+  requestParsers: RequestParsers<PathA, QueryA, BodyA, HeaderA>,
   encodeResponse: Encode<ResA, ResE>,
-  handle: (r: ReqA) => T.Effect<R, NotFoundError, ResA>
+  handle: (r: PathA & QueryA & BodyA & HeaderA) => T.Effect<R, NotFoundError, ResA>
 ) {
-  const parseRequest = parseRequestParams(decodeRequest)
+  const parseRequest = parseRequestParams(requestParsers)
   const respond = respondSuccess(encodeResponse)
   return (req: express.Request, res: express.Response) =>
     pipe(
@@ -106,7 +118,7 @@ export interface RequestHandler<
 > {
   Request: Request<PathA, QueryA, BodyA, HeaderA, ReqA>
   Response: M<{}, unknown, ResA>
-  handle: (i: ReqA) => T.Effect<R, NotFoundError, ResA>
+  handle: (i: PathA & QueryA & BodyA & HeaderA) => T.Effect<R, NotFoundError, ResA>
 }
 
 export function makeRequestHandler<
@@ -122,13 +134,64 @@ export function makeRequestHandler<
   Response,
   handle,
 }: RequestHandler<R, PathA, QueryA, BodyA, HeaderA, ReqA, ResA>) {
-  const { decode: decodeRequest } = strictDecoder(Request)
   const encodeResponse = encode(Response)
   const { shrink: shrinkResponse } = strict(Response)
 
   return handleRequest(
-    decodeRequest,
+    makeRequestParsers(Request),
     flow(shrinkResponse, Sy.chain(encodeResponse)),
     handle
   )
+}
+
+function makeRequestParsers<
+  R,
+  PathA,
+  QueryA,
+  BodyA,
+  HeaderA,
+  ReqA extends PathA & QueryA & BodyA & HeaderA,
+  ResA
+>(
+  Request: RequestHandler<R, PathA, QueryA, BodyA, HeaderA, ReqA, ResA>["Request"]
+): RequestParsers<PathA, QueryA, BodyA, HeaderA> {
+  const ph = O.fromNullable(Request.Headers)
+    ["|>"](O.map(strictDecoder))
+    ["|>"](O.map((x) => x.decode))
+    ["|>"](EO.fromOption)
+  const parseHeaders = (u: unknown) =>
+    ph["|>"](EO.chain((d) => d(u)["|>"](EO.fromEffect)))
+
+  const pq = O.fromNullable(Request.Query)
+    ["|>"](O.map(strictDecoder))
+    ["|>"](O.map((x) => x.decode))
+    ["|>"](EO.fromOption)
+  const parseQuery = (u: unknown) =>
+    pq["|>"](EO.chain((d) => d(u)["|>"](EO.fromEffect)))
+
+  const pb = O.fromNullable(Request.Body)
+    ["|>"](O.map(strictDecoder))
+    ["|>"](O.map((x) => x.decode))
+    ["|>"](EO.fromOption)
+  const parseBody = (u: unknown) => pb["|>"](EO.chain((d) => d(u)["|>"](EO.fromEffect)))
+
+  const pp = O.fromNullable(Request.Path)
+    ["|>"](O.map(strictDecoder))
+    ["|>"](O.map((x) => x.decode))
+    ["|>"](EO.fromOption)
+  const parsePath = (u: unknown) => pp["|>"](EO.chain((d) => d(u)["|>"](EO.fromEffect)))
+
+  return {
+    parseBody,
+    parseHeaders,
+    parsePath,
+    parseQuery,
+  }
+}
+
+interface RequestParsers<PathA, QueryA, BodyA, HeaderA> {
+  parseHeaders: Decode<O.Option<HeaderA>>
+  parseQuery: Decode<O.Option<QueryA>>
+  parseBody: Decode<O.Option<BodyA>>
+  parsePath: Decode<O.Option<PathA>>
 }
