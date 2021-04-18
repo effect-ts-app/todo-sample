@@ -1,4 +1,6 @@
+import { JSONSchema, SubSchema } from "@atlas-ts/plutus/JsonSchema"
 import { schema } from "@atlas-ts/plutus/Schema"
+import { Void } from "@effect-ts-demo/todo-types/shared"
 import { pipe } from "@effect-ts/core"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as T from "@effect-ts/core/Effect"
@@ -112,18 +114,45 @@ function del<
 }
 export { del as delete }
 
+/**
+ * Work in progress JSONSchema generator.
+ */
 export function makeSchema(r: A.Array<RouteDescriptor<any, any, any, any, any, any>>) {
   return T.forEach_(r, (e) => {
     const makeReqSchema = schema(e.handler.Request)
     const makeResSchema = schema(e.handler.Response)
 
-    // TODO: Response status code and error modeling (200, 204, 400, 404, 500).
-    // TODO: void type - 204 response
+    // TODO: custom void type - 204 response
     // https://github.com/Effect-TS/morphic/commit/da3a02fb527089807bcd5253652ee5a5b1efa371
 
-    return T.struct({
-      req: makeReqSchema,
-      res: makeResSchema,
-    })["|>"](T.map((_) => ({ path: e.path, method: e.method, ..._ })))
+    return pipe(
+      T.struct({
+        req: makeReqSchema,
+        res: makeResSchema,
+      }),
+      T.map((_) => ({
+        path: e.path,
+        method: e.method,
+        request: _.req,
+        responses: A.concat_(
+          [
+            e.handler.Response === Void
+              ? new Response(204, "Empty")
+              : new Response(200, _.res),
+            new Response(400, "ValidationError"),
+          ],
+          e.path.includes(":") && e.handler.Response === Void
+            ? [new Response(404, "NotFoundError")]
+            : []
+        ),
+      }))
+    )
   })
+}
+
+class Response {
+  constructor(
+    public readonly statusCode: number,
+    public readonly type: string | JSONSchema | SubSchema
+  ) {}
 }
