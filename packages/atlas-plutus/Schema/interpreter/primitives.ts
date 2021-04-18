@@ -126,10 +126,8 @@ export const SchemaPrimitiveInterpreter = interpreter<X.SchemaURI, PrimitivesURI
             _getSchema(env).Schema,
             X.chain((a) =>
               X.succeed({
-                oneOf: [
-                  a,
-                  {"type": "null"}
-                ]
+                  ...a,
+                  nullable: true
               })
             )
           ),
@@ -153,11 +151,9 @@ export const SchemaPrimitiveInterpreter = interpreter<X.SchemaURI, PrimitivesURI
             _getSchema(env).Schema,
             X.chain((a) =>
               X.succeed({
-                oneOf: [
-                  a,
-                  {"type": "null"}
-                ]
-              })
+                ...a,
+                nullable: true
+            })
             )
           ),
           env,

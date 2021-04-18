@@ -15,119 +15,83 @@
       ]
     },
     "res": {
-      "oneOf": [
-        {
-          "type": "object",
-          "properties": {
-            "completed": {
-              "oneOf": [
-                {
-                  "type": "string",
-                  "format": "date-time"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "createdAt": {
-              "type": "string",
-              "format": "date-time"
-            },
-            "due": {
-              "oneOf": [
-                {
-                  "type": "string",
-                  "format": "date-time"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "id": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "isFavorite": {
-              "type": "boolean"
-            },
-            "myDay": {
-              "oneOf": [
-                {
-                  "type": "string",
-                  "format": "date-time"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "note": {
-              "oneOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "reminder": {
-              "oneOf": [
-                {
-                  "type": "string",
-                  "format": "date-time"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "steps": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "completed": {
-                    "type": "boolean"
-                  },
-                  "title": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "completed",
-                  "title"
-                ]
+      "type": "object",
+      "properties": {
+        "completed": {
+          "type": "string",
+          "format": "date-time",
+          "nullable": true
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "due": {
+          "type": "string",
+          "format": "date-time",
+          "nullable": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "isFavorite": {
+          "type": "boolean"
+        },
+        "myDay": {
+          "type": "string",
+          "format": "date-time",
+          "nullable": true
+        },
+        "note": {
+          "type": "string",
+          "nullable": true
+        },
+        "reminder": {
+          "type": "string",
+          "format": "date-time",
+          "nullable": true
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "completed": {
+                "type": "boolean"
+              },
+              "title": {
+                "type": "string"
               }
             },
-            "title": {
-              "type": "string"
-            },
-            "updatedAt": {
-              "type": "string",
-              "format": "date-time"
-            }
-          },
-          "required": [
-            "completed",
-            "createdAt",
-            "due",
-            "id",
-            "isFavorite",
-            "myDay",
-            "note",
-            "reminder",
-            "steps",
-            "title",
-            "updatedAt"
-          ]
+            "required": [
+              "completed",
+              "title"
+            ]
+          }
         },
-        {
-          "type": "null"
+        "title": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
         }
-      ]
+      },
+      "required": [
+        "completed",
+        "createdAt",
+        "due",
+        "id",
+        "isFavorite",
+        "myDay",
+        "note",
+        "reminder",
+        "steps",
+        "title",
+        "updatedAt"
+      ],
+      "nullable": true
     }
   },
   {
@@ -145,30 +109,18 @@
             "type": "object",
             "properties": {
               "completed": {
-                "oneOf": [
-                  {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
+                "type": "string",
+                "format": "date-time",
+                "nullable": true
               },
               "createdAt": {
                 "type": "string",
                 "format": "date-time"
               },
               "due": {
-                "oneOf": [
-                  {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
+                "type": "string",
+                "format": "date-time",
+                "nullable": true
               },
               "id": {
                 "type": "string",
@@ -178,36 +130,18 @@
                 "type": "boolean"
               },
               "myDay": {
-                "oneOf": [
-                  {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
+                "type": "string",
+                "format": "date-time",
+                "nullable": true
               },
               "note": {
-                "oneOf": [
-                  {
-                    "type": "string"
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
+                "type": "string",
+                "nullable": true
               },
               "reminder": {
-                "oneOf": [
-                  {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
+                "type": "string",
+                "format": "date-time",
+                "nullable": true
               },
               "steps": {
                 "type": "array",
@@ -263,61 +197,31 @@
       "type": "object",
       "properties": {
         "completed": {
-          "oneOf": [
-            {
-              "type": "string",
-              "format": "date-time"
-            },
-            {
-              "type": "null"
-            }
-          ]
+          "type": "string",
+          "format": "date-time",
+          "nullable": true
         },
         "due": {
-          "oneOf": [
-            {
-              "type": "string",
-              "format": "date-time"
-            },
-            {
-              "type": "null"
-            }
-          ]
+          "type": "string",
+          "format": "date-time",
+          "nullable": true
         },
         "isFavorite": {
           "type": "boolean"
         },
         "myDay": {
-          "oneOf": [
-            {
-              "type": "string",
-              "format": "date-time"
-            },
-            {
-              "type": "null"
-            }
-          ]
+          "type": "string",
+          "format": "date-time",
+          "nullable": true
         },
         "note": {
-          "oneOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ]
+          "type": "string",
+          "nullable": true
         },
         "reminder": {
-          "oneOf": [
-            {
-              "type": "string",
-              "format": "date-time"
-            },
-            {
-              "type": "null"
-            }
-          ]
+          "type": "string",
+          "format": "date-time",
+          "nullable": true
         },
         "steps": {
           "type": "array",
@@ -382,15 +286,9 @@
           "type": "boolean"
         },
         "myDay": {
-          "oneOf": [
-            {
-              "type": "string",
-              "format": "date-time"
-            },
-            {
-              "type": "null"
-            }
-          ]
+          "type": "string",
+          "format": "date-time",
+          "nullable": true
         },
         "title": {
           "type": "string"

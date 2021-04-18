@@ -10,6 +10,7 @@ import * as Prism from "@effect-ts/monocle/Prism"
 export interface DescriptionSchema {
   description?: string
   title?: string
+  nullable?: boolean
 }
 
 export interface StringSchema extends DescriptionSchema {
