@@ -1,6 +1,7 @@
 {
   "/tasks": {
     "GET": {
+      "parameters": {},
       "responses": {
         "200": {
           "description": "OK",
@@ -104,6 +105,7 @@
       }
     },
     "POST": {
+      "parameters": {},
       "requestBody": {
         "content": {
           "application/json": {
@@ -160,16 +162,18 @@
   "/tasks/:id": {
     "GET": {
       "parameters": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          }
-        },
-        "required": [
-          "id"
-        ]
+        "path": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "required": [
+            "id"
+          ]
+        }
       },
       "responses": {
         "200": {
@@ -265,16 +269,18 @@
     },
     "PATCH": {
       "parameters": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          }
-        },
-        "required": [
-          "id"
-        ]
+        "path": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "required": [
+            "id"
+          ]
+        }
       },
       "requestBody": {
         "content": {
@@ -359,16 +365,18 @@
     },
     "DELETE": {
       "parameters": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          }
-        },
-        "required": [
-          "id"
-        ]
+        "path": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "required": [
+            "id"
+          ]
+        }
       },
       "responses": {
         "204": {
@@ -385,6 +393,7 @@
   },
   "/tasks-order": {
     "POST": {
+      "parameters": {},
       "requestBody": {
         "content": {
           "application/json": {

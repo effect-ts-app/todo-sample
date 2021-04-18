@@ -138,7 +138,12 @@ export function makeSchema(
     T.forEach_(r, (e) => {
       const { Request: Req, Response: Res } = e.handler
       // TODO: use the path vs body etc serialisation also in the Client.
-      // we can also use them to separately deserialise Path, Query, Body, Headers.
+      const makeReqQuerySchema = EO.fromNullable(Req.Query)["|>"](
+        EO.chainEffect(schema)
+      )
+      const makeReqHeadersSchema = EO.fromNullable(Req.Headers)["|>"](
+        EO.chainEffect(schema)
+      )
       const makeReqPathSchema = EO.fromNullable(Req.Path)["|>"](EO.chainEffect(schema))
       const makeReqBodySchema = EO.fromNullable(Req.Body)["|>"](EO.chainEffect(schema))
       //const makeReqSchema = schema(Req)
@@ -151,6 +156,8 @@ export function makeSchema(
       return pipe(
         T.struct({
           //req: makeReqSchema,
+          reqQuery: makeReqQuerySchema,
+          reqHeaders: makeReqHeadersSchema,
           reqBody: makeReqBodySchema,
           reqPath: makeReqPathSchema,
           res: makeResSchema,
@@ -158,7 +165,11 @@ export function makeSchema(
         T.map((_) => ({
           path: e.path,
           method: e.method,
-          parameters: O.toUndefined(_.reqPath), // TODO: "in path"  "in query" "in headers"
+          parameters: {
+            path: O.toUndefined(_.reqPath),
+            query: O.toUndefined(_.reqQuery),
+            headers: O.toUndefined(_.reqHeaders),
+          }, // TODO: "in path"  "in query" "in headers"
           requestBody: O.toUndefined(
             _.reqBody["|>"](
               O.map((schema) => ({ content: { "application/json": { schema } } }))
