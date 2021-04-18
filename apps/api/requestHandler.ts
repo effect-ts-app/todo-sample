@@ -10,12 +10,32 @@ import express from "express"
 
 import { NotFoundError } from "./errors"
 
+export type Request<
+  PathA,
+  QueryA,
+  BodyA,
+  HeaderA,
+  ReqA extends PathA & QueryA & BodyA & HeaderA
+> = M<{}, any, ReqA> & {
+  Path?: M<{}, any, PathA>
+  Body?: M<{}, any, BodyA>
+  Query?: M<{}, any, QueryA>
+  Headers?: M<{}, any, HeaderA>
+}
 type Encode<A, E> = Encoder<A, E>["encode"]
 
 class ValidationError {
   public readonly _tag = "ValidationError"
   constructor(public readonly error: Errors) {}
 }
+
+export declare function parseReq<
+  APath,
+  AQuery,
+  ABody,
+  AHeader,
+  AReq extends APath & AQuery & ABody & AHeader
+>(req: AReq): any
 
 function parseRequestParams<A>(decodeRequest: Decode<A>) {
   return (req: express.Request) =>
@@ -76,13 +96,17 @@ function handleRequest<R, ReqA, ResA, ResE>(
 }
 
 export interface RequestHandler<
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  Req extends M<{}, unknown, ReqA>,
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  Res extends M<{}, unknown, ResA>,
   R,
-  ReqA,
-  ResA
+  ReqA extends PathA & QueryA & BodyA & HeaderA,
+  PathA,
+  QueryA,
+  BodyA,
+  HeaderA,
+  ResA,
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  Req extends Request<PathA, QueryA, BodyA, HeaderA, ReqA>,
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  Res extends M<{}, unknown, ResA>
 > {
   Request: Req
   Response: Res
@@ -90,14 +114,29 @@ export interface RequestHandler<
 }
 
 export function makeRequestHandler<
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  Req extends M<{}, unknown, ReqA>,
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  Res extends M<{}, unknown, ResA>,
+  R,
+  ReqA extends PathA & QueryA & BodyA & HeaderA,
+  BodyA,
+  PathA,
+  QueryA,
+  HeaderA,
+  ResA
+>({
+  Request,
+  Response,
+  handle,
+}: RequestHandler<
   R,
   ReqA,
-  ResA
->({ Request, Response, handle }: RequestHandler<Req, Res, R, ReqA, ResA>) {
+  PathA,
+  QueryA,
+  BodyA,
+  HeaderA,
+  ResA, // eslint-disable-next-line @typescript-eslint/ban-types
+  Request<PathA, QueryA, BodyA, HeaderA, ReqA>,
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  M<{}, unknown, ResA>
+>) {
   const { decode: decodeRequest } = strictDecoder(Request)
   const encodeResponse = encode(Response)
   const { shrink: shrinkResponse } = strict(Response)
