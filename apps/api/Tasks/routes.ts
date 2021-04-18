@@ -10,10 +10,10 @@ import * as SetTasksOrder from "./SetTasksOrder"
 import * as UpdateTask from "./UpdateTask"
 
 export const routes = T.tuple(
-  R.get("/tasks/:id", GetTask),
   R.get("/tasks", GetTasks),
+  R.post("/tasks", CreateTask),
+  R.get("/tasks/:id", GetTask),
   R.patch("/tasks/:id", UpdateTask),
   R.delete("/tasks/:id", DeleteTask),
-  R.post("/tasks", CreateTask),
   R.post("/tasks-order", SetTasksOrder)
 )

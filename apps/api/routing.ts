@@ -118,36 +118,50 @@ export { del as delete }
  * Work in progress JSONSchema generator.
  */
 export function makeSchema(r: A.Array<RouteDescriptor<any, any, any, any, any, any>>) {
-  return T.forEach_(r, (e) => {
-    const makeReqSchema = schema(e.handler.Request)
-    const makeResSchema = schema(e.handler.Response)
+  return pipe(
+    T.forEach_(r, (e) => {
+      const makeReqSchema = schema(e.handler.Request)
+      const makeResSchema = schema(e.handler.Response)
 
-    // TODO: custom void type - 204 response
-    // https://github.com/Effect-TS/morphic/commit/da3a02fb527089807bcd5253652ee5a5b1efa371
+      // TODO: Split between route params, body/query params: `parameters` `in` path, query, header
+      // TODO: custom void type - 204 response
+      // https://github.com/Effect-TS/morphic/commit/da3a02fb527089807bcd5253652ee5a5b1efa371
 
-    return pipe(
-      T.struct({
-        req: makeReqSchema,
-        res: makeResSchema,
-      }),
-      T.map((_) => ({
-        path: e.path,
-        method: e.method,
-        request: _.req,
-        responses: A.concat_(
-          [
-            e.handler.Response === Void
-              ? new Response(204, "Empty")
-              : new Response(200, _.res),
-            new Response(400, "ValidationError"),
-          ],
-          e.path.includes(":") && e.handler.Response === Void
-            ? [new Response(404, "NotFoundError")]
-            : []
-        ),
-      }))
+      return pipe(
+        T.struct({
+          req: makeReqSchema,
+          res: makeResSchema,
+        }),
+        T.map((_) => ({
+          path: e.path,
+          method: e.method,
+          parameters: {}, //
+          requestBody: _.req,
+          responses: A.concat_(
+            [
+              e.handler.Response === Void
+                ? new Response(204, "Empty")
+                : new Response(200, _.res),
+              new Response(400, "ValidationError"),
+            ],
+            e.path.includes(":") && e.handler.Response === Void
+              ? [new Response(404, "NotFoundError")]
+              : []
+          ),
+        }))
+      )
+    }),
+    T.map((e) =>
+      e.reduce((prev, { method, path, ...rest }) => {
+        prev[path] = {
+          ...prev[path],
+          [method]: rest,
+        }
+
+        return prev
+      }, {})
     )
-  })
+  )
 }
 
 class Response {

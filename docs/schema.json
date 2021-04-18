@@ -1,394 +1,394 @@
-[
-  {
-    "path": "/tasks/:id",
-    "method": "GET",
-    "request": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "format": "uuid"
-        }
+{
+  "/tasks": {
+    "GET": {
+      "parameters": {},
+      "requestBody": {
+        "type": "object"
       },
-      "required": [
-        "id"
-      ]
-    },
-    "responses": [
-      {
-        "statusCode": 200,
-        "type": {
-          "type": "object",
-          "properties": {
-            "completed": {
-              "type": "string",
-              "format": "date-time",
-              "nullable": true
-            },
-            "createdAt": {
-              "type": "string",
-              "format": "date-time"
-            },
-            "due": {
-              "type": "string",
-              "format": "date-time",
-              "nullable": true
-            },
-            "id": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "isFavorite": {
-              "type": "boolean"
-            },
-            "myDay": {
-              "type": "string",
-              "format": "date-time",
-              "nullable": true
-            },
-            "note": {
-              "type": "string",
-              "nullable": true
-            },
-            "reminder": {
-              "type": "string",
-              "format": "date-time",
-              "nullable": true
-            },
-            "steps": {
-              "type": "array",
+      "responses": [
+        {
+          "statusCode": 200,
+          "type": {
+            "type": "object",
+            "properties": {
               "items": {
-                "type": "object",
-                "properties": {
-                  "completed": {
-                    "type": "boolean"
-                  },
-                  "title": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "completed",
-                  "title"
-                ]
-              }
-            },
-            "title": {
-              "type": "string"
-            },
-            "updatedAt": {
-              "type": "string",
-              "format": "date-time"
-            }
-          },
-          "required": [
-            "completed",
-            "createdAt",
-            "due",
-            "id",
-            "isFavorite",
-            "myDay",
-            "note",
-            "reminder",
-            "steps",
-            "title",
-            "updatedAt"
-          ],
-          "nullable": true
-        }
-      },
-      {
-        "statusCode": 400,
-        "type": "ValidationError"
-      }
-    ]
-  },
-  {
-    "path": "/tasks",
-    "method": "GET",
-    "request": {
-      "type": "object"
-    },
-    "responses": [
-      {
-        "statusCode": 200,
-        "type": {
-          "type": "object",
-          "properties": {
-            "items": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "completed": {
-                    "type": "string",
-                    "format": "date-time",
-                    "nullable": true
-                  },
-                  "createdAt": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "due": {
-                    "type": "string",
-                    "format": "date-time",
-                    "nullable": true
-                  },
-                  "id": {
-                    "type": "string",
-                    "format": "uuid"
-                  },
-                  "isFavorite": {
-                    "type": "boolean"
-                  },
-                  "myDay": {
-                    "type": "string",
-                    "format": "date-time",
-                    "nullable": true
-                  },
-                  "note": {
-                    "type": "string",
-                    "nullable": true
-                  },
-                  "reminder": {
-                    "type": "string",
-                    "format": "date-time",
-                    "nullable": true
-                  },
-                  "steps": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "completed": {
-                          "type": "boolean"
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "completed": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "due": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "isFavorite": {
+                      "type": "boolean"
+                    },
+                    "myDay": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true
+                    },
+                    "note": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "reminder": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true
+                    },
+                    "steps": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "completed": {
+                            "type": "boolean"
+                          },
+                          "title": {
+                            "type": "string"
+                          }
                         },
-                        "title": {
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "completed",
-                        "title"
-                      ]
+                        "required": [
+                          "completed",
+                          "title"
+                        ]
+                      }
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
                     }
                   },
-                  "title": {
-                    "type": "string"
-                  },
-                  "updatedAt": {
-                    "type": "string",
-                    "format": "date-time"
-                  }
-                },
-                "required": [
-                  "completed",
-                  "createdAt",
-                  "due",
-                  "id",
-                  "isFavorite",
-                  "myDay",
-                  "note",
-                  "reminder",
-                  "steps",
-                  "title",
-                  "updatedAt"
-                ]
+                  "required": [
+                    "completed",
+                    "createdAt",
+                    "due",
+                    "id",
+                    "isFavorite",
+                    "myDay",
+                    "note",
+                    "reminder",
+                    "steps",
+                    "title",
+                    "updatedAt"
+                  ]
+                }
               }
-            }
-          },
-          "required": [
-            "items"
-          ]
+            },
+            "required": [
+              "items"
+            ]
+          }
+        },
+        {
+          "statusCode": 400,
+          "type": "ValidationError"
         }
+      ]
+    },
+    "POST": {
+      "parameters": {},
+      "requestBody": {
+        "type": "object",
+        "properties": {
+          "isFavorite": {
+            "type": "boolean"
+          },
+          "myDay": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "isFavorite",
+          "myDay",
+          "title"
+        ]
       },
-      {
-        "statusCode": 400,
-        "type": "ValidationError"
-      }
-    ]
+      "responses": [
+        {
+          "statusCode": 200,
+          "type": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "id"
+            ]
+          }
+        },
+        {
+          "statusCode": 400,
+          "type": "ValidationError"
+        }
+      ]
+    }
   },
-  {
-    "path": "/tasks/:id",
-    "method": "PATCH",
-    "request": {
-      "type": "object",
-      "properties": {
-        "completed": {
-          "type": "string",
-          "format": "date-time",
-          "nullable": true
+  "/tasks/:id": {
+    "GET": {
+      "parameters": {},
+      "requestBody": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          }
         },
-        "due": {
-          "type": "string",
-          "format": "date-time",
-          "nullable": true
-        },
-        "isFavorite": {
-          "type": "boolean"
-        },
-        "myDay": {
-          "type": "string",
-          "format": "date-time",
-          "nullable": true
-        },
-        "note": {
-          "type": "string",
-          "nullable": true
-        },
-        "reminder": {
-          "type": "string",
-          "format": "date-time",
-          "nullable": true
-        },
-        "steps": {
-          "type": "array",
-          "items": {
+        "required": [
+          "id"
+        ]
+      },
+      "responses": [
+        {
+          "statusCode": 200,
+          "type": {
             "type": "object",
             "properties": {
               "completed": {
+                "type": "string",
+                "format": "date-time",
+                "nullable": true
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "due": {
+                "type": "string",
+                "format": "date-time",
+                "nullable": true
+              },
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "isFavorite": {
                 "type": "boolean"
+              },
+              "myDay": {
+                "type": "string",
+                "format": "date-time",
+                "nullable": true
+              },
+              "note": {
+                "type": "string",
+                "nullable": true
+              },
+              "reminder": {
+                "type": "string",
+                "format": "date-time",
+                "nullable": true
+              },
+              "steps": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "completed": {
+                      "type": "boolean"
+                    },
+                    "title": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "completed",
+                    "title"
+                  ]
+                }
               },
               "title": {
                 "type": "string"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time"
               }
             },
             "required": [
               "completed",
-              "title"
-            ]
+              "createdAt",
+              "due",
+              "id",
+              "isFavorite",
+              "myDay",
+              "note",
+              "reminder",
+              "steps",
+              "title",
+              "updatedAt"
+            ],
+            "nullable": true
           }
         },
-        "title": {
-          "type": "string"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid"
+        {
+          "statusCode": 400,
+          "type": "ValidationError"
         }
-      },
-      "required": [
-        "id"
       ]
     },
-    "responses": [
-      {
-        "statusCode": 204,
-        "type": "Empty"
-      },
-      {
-        "statusCode": 400,
-        "type": "ValidationError"
-      },
-      {
-        "statusCode": 404,
-        "type": "NotFoundError"
-      }
-    ]
-  },
-  {
-    "path": "/tasks/:id",
-    "method": "DELETE",
-    "request": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "format": "uuid"
-        }
-      },
-      "required": [
-        "id"
-      ]
-    },
-    "responses": [
-      {
-        "statusCode": 204,
-        "type": "Empty"
-      },
-      {
-        "statusCode": 400,
-        "type": "ValidationError"
-      },
-      {
-        "statusCode": 404,
-        "type": "NotFoundError"
-      }
-    ]
-  },
-  {
-    "path": "/tasks",
-    "method": "POST",
-    "request": {
-      "type": "object",
-      "properties": {
-        "isFavorite": {
-          "type": "boolean"
-        },
-        "myDay": {
-          "type": "string",
-          "format": "date-time",
-          "nullable": true
-        },
-        "title": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "isFavorite",
-        "myDay",
-        "title"
-      ]
-    },
-    "responses": [
-      {
-        "statusCode": 200,
-        "type": {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "string",
-              "format": "uuid"
+    "PATCH": {
+      "parameters": {},
+      "requestBody": {
+        "type": "object",
+        "properties": {
+          "completed": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "due": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "isFavorite": {
+            "type": "boolean"
+          },
+          "myDay": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "reminder": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "completed": {
+                  "type": "boolean"
+                },
+                "title": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "completed",
+                "title"
+              ]
             }
           },
-          "required": [
-            "id"
-          ]
-        }
-      },
-      {
-        "statusCode": 400,
-        "type": "ValidationError"
-      }
-    ]
-  },
-  {
-    "path": "/tasks-order",
-    "method": "POST",
-    "request": {
-      "type": "object",
-      "properties": {
-        "order": {
-          "type": "array",
-          "items": {
+          "title": {
+            "type": "string"
+          },
+          "id": {
             "type": "string",
             "format": "uuid"
           }
-        }
+        },
+        "required": [
+          "id"
+        ]
       },
-      "required": [
-        "order"
+      "responses": [
+        {
+          "statusCode": 204,
+          "type": "Empty"
+        },
+        {
+          "statusCode": 400,
+          "type": "ValidationError"
+        },
+        {
+          "statusCode": 404,
+          "type": "NotFoundError"
+        }
       ]
     },
-    "responses": [
-      {
-        "statusCode": 204,
-        "type": "Empty"
+    "DELETE": {
+      "parameters": {},
+      "requestBody": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "id"
+        ]
       },
-      {
-        "statusCode": 400,
-        "type": "ValidationError"
-      }
-    ]
+      "responses": [
+        {
+          "statusCode": 204,
+          "type": "Empty"
+        },
+        {
+          "statusCode": 400,
+          "type": "ValidationError"
+        },
+        {
+          "statusCode": 404,
+          "type": "NotFoundError"
+        }
+      ]
+    }
+  },
+  "/tasks-order": {
+    "POST": {
+      "parameters": {},
+      "requestBody": {
+        "type": "object",
+        "properties": {
+          "order": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        },
+        "required": [
+          "order"
+        ]
+      },
+      "responses": [
+        {
+          "statusCode": 204,
+          "type": "Empty"
+        },
+        {
+          "statusCode": 400,
+          "type": "ValidationError"
+        }
+      ]
+    }
   }
-]
+}
