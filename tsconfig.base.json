@@ -32,6 +32,7 @@
         "strict": true,
         "resolveJsonModule": true,
         "moduleResolution": "node",
+        "downlevelIteration": true
     },
     // NEW: Options for file/directory watching
     "watchOptions": {
