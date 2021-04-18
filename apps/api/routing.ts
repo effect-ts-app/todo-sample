@@ -54,9 +54,9 @@ export function makeRouteDescriptor<
 
 export function get<
   R,
-  BodyA,
   PathA,
   QueryA,
+  BodyA,
   HeaderA,
   ReqA extends PathA & QueryA & HeaderA & BodyA,
   ResA
@@ -69,9 +69,9 @@ export function get<
 
 export function post<
   R,
-  BodyA,
   PathA,
   QueryA,
+  BodyA,
   HeaderA,
   ReqA extends PathA & QueryA & HeaderA & BodyA,
   ResA
@@ -84,9 +84,9 @@ export function post<
 
 export function put<
   R,
-  BodyA,
   PathA,
   QueryA,
+  BodyA,
   HeaderA,
   ReqA extends PathA & QueryA & HeaderA & BodyA,
   ResA
@@ -99,9 +99,9 @@ export function put<
 
 export function patch<
   R,
-  BodyA,
   PathA,
   QueryA,
+  BodyA,
   HeaderA,
   ReqA extends PathA & QueryA & HeaderA & BodyA,
   ResA
@@ -114,9 +114,9 @@ export function patch<
 
 function del<
   R,
-  BodyA,
   PathA,
   QueryA,
+  BodyA,
   HeaderA,
   ReqA extends PathA & QueryA & HeaderA & BodyA,
   ResA

@@ -19,10 +19,10 @@ export type Request<
   HeaderA,
   ReqA extends PathA & QueryA & BodyA & HeaderA
 > = M<{}, any, ReqA> & {
-  Path?: M<{}, any, PathA>
-  Body?: M<{}, any, BodyA>
-  Query?: M<{}, any, QueryA>
-  Headers?: M<{}, any, HeaderA>
+  Path?: M<{}, Record<string, string>, PathA>
+  Body?: M<{}, unknown, BodyA>
+  Query?: M<{}, Record<string, string>, QueryA>
+  Headers?: M<{}, Record<string, string>, HeaderA>
 }
 type Encode<A, E> = Encoder<A, E>["encode"]
 
@@ -85,7 +85,7 @@ function respondSuccess<A, E>(encodeResponse: Encode<A, E>) {
 function handleRequest<R, PathA, QueryA, BodyA, HeaderA, ResA, ResE>(
   requestParsers: RequestParsers<PathA, QueryA, BodyA, HeaderA>,
   encodeResponse: Encode<ResA, ResE>,
-  handle: (r: PathA & QueryA & BodyA & HeaderA) => T.Effect<R, NotFoundError, ResA>
+  handle: (r: PathA & QueryA & BodyA & HeaderA & {}) => T.Effect<R, NotFoundError, ResA>
 ) {
   const parseRequest = parseRequestParams(requestParsers)
   const respond = respondSuccess(encodeResponse)
@@ -118,7 +118,7 @@ export interface RequestHandler<
 > {
   Request: Request<PathA, QueryA, BodyA, HeaderA, ReqA>
   Response: M<{}, unknown, ResA>
-  handle: (i: PathA & QueryA & BodyA & HeaderA) => T.Effect<R, NotFoundError, ResA>
+  handle: (i: PathA & QueryA & BodyA & HeaderA & {}) => T.Effect<R, NotFoundError, ResA>
 }
 
 export function makeRequestHandler<
