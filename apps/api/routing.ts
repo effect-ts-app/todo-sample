@@ -7,28 +7,7 @@ import { M } from "@effect-ts/morphic"
 
 import { makeRequestHandler, RequestHandler } from "@/requestHandler"
 
-// Mutable test
-export function getRM(routeMap: any[]) {
-  return <
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    Req extends M<{}, unknown, ReqA>,
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    Res extends M<{}, unknown, ResA>,
-    R,
-    ReqA,
-    ResA
-  >(
-    path: string,
-    r: RequestHandler<Req, Res, R, ReqA, ResA>
-  ) => {
-    return pipe(
-      Ex.get(path, makeRequestHandler(r)),
-      // TODO: path + method.
-      T.tap(() => T.succeed(() => routeMap.push({ path, method: "GET", r })))
-    )
-  }
-}
-
+type Methods = "GET" | "PUT" | "POST" | "PATCH" | "DELETE"
 export interface RouteDescriptor<
   // eslint-disable-next-line @typescript-eslint/ban-types
   Req extends M<{}, unknown, ReqA>,
@@ -36,14 +15,27 @@ export interface RouteDescriptor<
   Res extends M<{}, unknown, ResA>,
   R,
   ReqA,
-  ResA
+  ResA,
+  METHOD extends Methods
 > {
   path: string
-  method: "GET" | "PUT" | "POST" | "PATCH" | "DELETE"
-  r: RequestHandler<Req, Res, R, ReqA, ResA>
+  method: METHOD
+  handler: RequestHandler<Req, Res, R, ReqA, ResA>
 }
 
-// Return value
+export function makeRouteDescriptor<
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  Req extends M<{}, unknown, ReqA>,
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  Res extends M<{}, unknown, ResA>,
+  R,
+  ReqA,
+  ResA,
+  METHOD extends Methods
+>(path: string, method: METHOD, handler: RequestHandler<Req, Res, R, ReqA, ResA>) {
+  return { path, method, handler } as RouteDescriptor<Req, Res, R, ReqA, ResA, METHOD>
+}
+
 export function get<
   // eslint-disable-next-line @typescript-eslint/ban-types
   Req extends M<{}, unknown, ReqA>,
@@ -55,11 +47,7 @@ export function get<
 >(path: string, r: RequestHandler<Req, Res, R, ReqA, ResA>) {
   return pipe(
     Ex.get(path, makeRequestHandler(r)),
-    T.zipRight(
-      T.succeedWith(
-        () => ({ path, method: "GET", r } as RouteDescriptor<Req, Res, R, ReqA, ResA>)
-      )
-    )
+    T.zipRight(T.succeedWith(() => makeRouteDescriptor(path, "GET", r)))
   )
 }
 
@@ -74,11 +62,7 @@ export function post<
 >(path: string, r: RequestHandler<Req, Res, R, ReqA, ResA>) {
   return pipe(
     Ex.post(path, makeRequestHandler(r)),
-    T.zipRight(
-      T.succeedWith(
-        () => ({ path, method: "POST", r } as RouteDescriptor<Req, Res, R, ReqA, ResA>)
-      )
-    )
+    T.zipRight(T.succeedWith(() => makeRouteDescriptor(path, "POST", r)))
   )
 }
 
@@ -93,11 +77,7 @@ export function put<
 >(path: string, r: RequestHandler<Req, Res, R, ReqA, ResA>) {
   return pipe(
     Ex.put(path, makeRequestHandler(r)),
-    T.zipRight(
-      T.succeedWith(
-        () => ({ path, method: "PUT", r } as RouteDescriptor<Req, Res, R, ReqA, ResA>)
-      )
-    )
+    T.zipRight(T.succeedWith(() => makeRouteDescriptor(path, "PUT", r)))
   )
 }
 
@@ -112,11 +92,7 @@ export function patch<
 >(path: string, r: RequestHandler<Req, Res, R, ReqA, ResA>) {
   return pipe(
     Ex.patch(path, makeRequestHandler(r)),
-    T.zipRight(
-      T.succeedWith(
-        () => ({ path, method: "PATCH", r } as RouteDescriptor<Req, Res, R, ReqA, ResA>)
-      )
-    )
+    T.zipRight(T.succeedWith(() => makeRouteDescriptor(path, "PATCH", r)))
   )
 }
 
@@ -131,19 +107,19 @@ function del<
 >(path: string, r: RequestHandler<Req, Res, R, ReqA, ResA>) {
   return pipe(
     Ex.delete(path, makeRequestHandler(r)),
-    T.zipRight(
-      T.succeedWith(
-        () =>
-          ({ path, method: "DELETE", r } as RouteDescriptor<Req, Res, R, ReqA, ResA>)
-      )
-    )
+    T.zipRight(T.succeedWith(() => makeRouteDescriptor(path, "DELETE", r)))
   )
 }
 export { del as delete }
-export function makeSchema(r: A.Array<RouteDescriptor<any, any, any, any, any>>) {
+
+export function makeSchema(r: A.Array<RouteDescriptor<any, any, any, any, any, any>>) {
   return T.forEach_(r, (e) => {
-    const makeReqSchema = schema(e.r.Request)
-    const makeResSchema = schema(e.r.Response)
+    const makeReqSchema = schema(e.handler.Request)
+    const makeResSchema = schema(e.handler.Response)
+
+    // TODO: Response status code and error modeling (200, 204, 400, 404, 500).
+    // TODO: void type - 204 response
+    // https://github.com/Effect-TS/morphic/commit/da3a02fb527089807bcd5253652ee5a5b1efa371
 
     return T.struct({
       req: makeReqSchema,

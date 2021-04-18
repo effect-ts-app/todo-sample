@@ -24,7 +24,7 @@ const program = pipe(
     Ex.use(Ex.classic(json()))
   ),
   T.zipRight(taskRoutes),
-  T.tap((r) =>
+  T.tap((rdescs) =>
     pipe(
       T.succeedWith(() => {
         console.log(`Running on ${HOST}:${PORT}`)
@@ -33,20 +33,22 @@ const program = pipe(
         T.gen(function* ($) {
           const ref = yield* $(makeRef<Map<string, JSONSchema | SubSchema>>(new Map()))
           const withRef = T.provideService(References)({ ref })
-          const _ = yield* $(makeSchema(r)["|>"](withRef))
-          const js = JSON.stringify(_, undefined, 2)
-          return js
+          const schema = yield* $(makeSchema(rdescs)["|>"](withRef))
+          return schema
         })
       ),
       T.tap((_) =>
         T.effectAsync((cb) =>
-          fs.writeFile("../../docs/schema.json", _, "utf-8", (err) =>
-            err ? cb(T.fail(err)) : cb(T.succeed(constVoid()))
+          fs.writeFile(
+            "../../docs/schema.json",
+            JSON.stringify(_, undefined, 2),
+            "utf-8",
+            (err) => (err ? cb(T.fail(err)) : cb(T.succeed(constVoid())))
           )
         )["|>"](T.orDie)
       ),
-      T.map((jsSchema) => {
-        console.log("Available routes: ", jsSchema)
+      T.map((_) => {
+        console.log("Available routes: ", JSON.stringify(_, undefined, 2))
       })
     )
   ),
