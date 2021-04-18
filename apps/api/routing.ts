@@ -1,4 +1,6 @@
+import { schema } from "@atlas-ts/plutus/Schema"
 import { pipe } from "@effect-ts/core"
+import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as T from "@effect-ts/core/Effect"
 import * as Ex from "@effect-ts/express"
 import { M } from "@effect-ts/morphic"
@@ -137,5 +139,15 @@ function del<
     )
   )
 }
-
 export { del as delete }
+export function makeSchema(r: A.Array<RouteDescriptor<any, any, any, any, any>>) {
+  return T.forEach_(r, (e) => {
+    const makeReqSchema = schema(e.r.Request)
+    const makeResSchema = schema(e.r.Response)
+
+    return T.struct({
+      req: makeReqSchema,
+      res: makeResSchema,
+    })["|>"](T.map((_) => ({ path: e.path, method: e.method, ..._ })))
+  })
+}

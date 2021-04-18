@@ -1,0 +1,440 @@
+[
+  {
+    "path": "/tasks/:id",
+    "method": "GET",
+    "req": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "required": [
+        "id"
+      ]
+    },
+    "res": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "completed": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "createdAt": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "due": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "isFavorite": {
+              "type": "boolean"
+            },
+            "myDay": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "note": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "reminder": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "steps": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "completed": {
+                    "type": "boolean"
+                  },
+                  "title": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "completed",
+                  "title"
+                ]
+              }
+            },
+            "title": {
+              "type": "string"
+            },
+            "updatedAt": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          "required": [
+            "completed",
+            "createdAt",
+            "due",
+            "id",
+            "isFavorite",
+            "myDay",
+            "note",
+            "reminder",
+            "steps",
+            "title",
+            "updatedAt"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  {
+    "path": "/tasks",
+    "method": "GET",
+    "req": {
+      "type": "object"
+    },
+    "res": {
+      "type": "object",
+      "properties": {
+        "tasks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "completed": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "due": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "isFavorite": {
+                "type": "boolean"
+              },
+              "myDay": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "note": {
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "reminder": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "steps": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "completed": {
+                      "type": "boolean"
+                    },
+                    "title": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "completed",
+                    "title"
+                  ]
+                }
+              },
+              "title": {
+                "type": "string"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "completed",
+              "createdAt",
+              "due",
+              "id",
+              "isFavorite",
+              "myDay",
+              "note",
+              "reminder",
+              "steps",
+              "title",
+              "updatedAt"
+            ]
+          }
+        }
+      },
+      "required": [
+        "tasks"
+      ]
+    }
+  },
+  {
+    "path": "/tasks/:id",
+    "method": "PATCH",
+    "req": {
+      "type": "object",
+      "properties": {
+        "completed": {
+          "oneOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "due": {
+          "oneOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "isFavorite": {
+          "type": "boolean"
+        },
+        "myDay": {
+          "oneOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "note": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "reminder": {
+          "oneOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "completed": {
+                "type": "boolean"
+              },
+              "title": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "completed",
+              "title"
+            ]
+          }
+        },
+        "title": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "required": [
+        "id"
+      ]
+    },
+    "res": {
+      "type": "object"
+    }
+  },
+  {
+    "path": "/tasks/:id",
+    "method": "DELETE",
+    "req": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "required": [
+        "id"
+      ]
+    },
+    "res": {
+      "type": "object"
+    }
+  },
+  {
+    "path": "/tasks",
+    "method": "POST",
+    "req": {
+      "type": "object",
+      "properties": {
+        "isFavorite": {
+          "type": "boolean"
+        },
+        "myDay": {
+          "oneOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "title": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "isFavorite",
+        "myDay",
+        "title"
+      ]
+    },
+    "res": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "required": [
+        "id"
+      ]
+    }
+  },
+  {
+    "path": "/tasks-order",
+    "method": "POST",
+    "req": {
+      "type": "object",
+      "properties": {
+        "order": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "required": [
+        "order"
+      ]
+    },
+    "res": {
+      "type": "object"
+    }
+  }
+]
