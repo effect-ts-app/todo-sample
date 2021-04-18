@@ -1,4 +1,9 @@
-import { ParameterLocation } from "@atlas-ts/plutus"
+import {
+  isObjectSchema,
+  JSONSchema,
+  ParameterLocation,
+  SubSchema,
+} from "@atlas-ts/plutus"
 import { schema } from "@atlas-ts/plutus/Schema"
 import * as EO from "@effect-ts-demo/todo-types/ext/EffectOption"
 import { Void } from "@effect-ts-demo/todo-types/shared"
@@ -15,35 +20,38 @@ type Methods = "GET" | "PUT" | "POST" | "PATCH" | "DELETE"
 export interface RouteDescriptor<
   R,
   PathA,
+  CookieA,
   QueryA,
   BodyA,
   HeaderA,
-  ReqA extends PathA & QueryA & BodyA & HeaderA,
+  ReqA extends PathA & CookieA & QueryA & HeaderA & BodyA,
   ResA,
   METHOD extends Methods = Methods
 > {
   path: string
   method: METHOD
-  handler: RequestHandler<R, PathA, QueryA, BodyA, HeaderA, ReqA, ResA>
+  handler: RequestHandler<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA>
 }
 
 export function makeRouteDescriptor<
   R,
   PathA,
+  CookieA,
   QueryA,
   BodyA,
   HeaderA,
-  ReqA extends PathA & QueryA & HeaderA & BodyA,
+  ReqA extends PathA & CookieA & QueryA & HeaderA & BodyA,
   ResA,
   METHOD extends Methods = Methods
 >(
   path: string,
   method: METHOD,
-  handler: RequestHandler<R, PathA, QueryA, BodyA, HeaderA, ReqA, ResA>
+  handler: RequestHandler<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA>
 ) {
   return { path, method, handler } as RouteDescriptor<
     R,
     PathA,
+    CookieA,
     QueryA,
     BodyA,
     HeaderA,
@@ -56,12 +64,16 @@ export function makeRouteDescriptor<
 export function get<
   R,
   PathA,
+  CookieA,
   QueryA,
   BodyA,
   HeaderA,
-  ReqA extends PathA & QueryA & HeaderA & BodyA,
+  ReqA extends PathA & CookieA & QueryA & HeaderA & BodyA,
   ResA
->(path: string, r: RequestHandler<R, PathA, QueryA, BodyA, HeaderA, ReqA, ResA>) {
+>(
+  path: string,
+  r: RequestHandler<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA>
+) {
   return pipe(
     Ex.get(path, makeRequestHandler(r)),
     T.zipRight(T.succeedWith(() => makeRouteDescriptor(path, "GET", r)))
@@ -71,12 +83,16 @@ export function get<
 export function post<
   R,
   PathA,
+  CookieA,
   QueryA,
   BodyA,
   HeaderA,
-  ReqA extends PathA & QueryA & HeaderA & BodyA,
+  ReqA extends PathA & CookieA & QueryA & HeaderA & BodyA,
   ResA
->(path: string, r: RequestHandler<R, PathA, QueryA, BodyA, HeaderA, ReqA, ResA>) {
+>(
+  path: string,
+  r: RequestHandler<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA>
+) {
   return pipe(
     Ex.post(path, makeRequestHandler(r)),
     T.zipRight(T.succeedWith(() => makeRouteDescriptor(path, "POST", r)))
@@ -86,12 +102,16 @@ export function post<
 export function put<
   R,
   PathA,
+  CookieA,
   QueryA,
   BodyA,
   HeaderA,
-  ReqA extends PathA & QueryA & HeaderA & BodyA,
+  ReqA extends PathA & CookieA & QueryA & HeaderA & BodyA,
   ResA
->(path: string, r: RequestHandler<R, PathA, QueryA, BodyA, HeaderA, ReqA, ResA>) {
+>(
+  path: string,
+  r: RequestHandler<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA>
+) {
   return pipe(
     Ex.put(path, makeRequestHandler(r)),
     T.zipRight(T.succeedWith(() => makeRouteDescriptor(path, "PUT", r)))
@@ -101,12 +121,16 @@ export function put<
 export function patch<
   R,
   PathA,
+  CookieA,
   QueryA,
   BodyA,
   HeaderA,
-  ReqA extends PathA & QueryA & HeaderA & BodyA,
+  ReqA extends PathA & CookieA & QueryA & HeaderA & BodyA,
   ResA
->(path: string, r: RequestHandler<R, PathA, QueryA, BodyA, HeaderA, ReqA, ResA>) {
+>(
+  path: string,
+  r: RequestHandler<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA>
+) {
   return pipe(
     Ex.patch(path, makeRequestHandler(r)),
     T.zipRight(T.succeedWith(() => makeRouteDescriptor(path, "PATCH", r)))
@@ -116,12 +140,16 @@ export function patch<
 function del<
   R,
   PathA,
+  CookieA,
   QueryA,
   BodyA,
   HeaderA,
-  ReqA extends PathA & QueryA & HeaderA & BodyA,
+  ReqA extends PathA & CookieA & QueryA & HeaderA & BodyA,
   ResA
->(path: string, r: RequestHandler<R, PathA, QueryA, BodyA, HeaderA, ReqA, ResA>) {
+>(
+  path: string,
+  r: RequestHandler<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA>
+) {
   return pipe(
     Ex.delete(path, makeRequestHandler(r)),
     T.zipRight(T.succeedWith(() => makeRouteDescriptor(path, "DELETE", r)))
@@ -134,7 +162,7 @@ export { del as delete }
  */
 export function makeSchema(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  r: A.Array<RouteDescriptor<any, any, any, any, any, any, any>>
+  r: A.Array<RouteDescriptor<any, any, any, any, any, any, any, any>>
 ) {
   return pipe(
     T.forEach_(r, (e) => {
@@ -146,6 +174,9 @@ export function makeSchema(
       const makeReqHeadersSchema = EO.fromNullable(Req.Headers)["|>"](
         EO.chainEffect(schema)
       )
+      const makeReqCookieSchema = EO.fromNullable(Req.Cookie)["|>"](
+        EO.chainEffect(schema)
+      )
       const makeReqPathSchema = EO.fromNullable(Req.Path)["|>"](EO.chainEffect(schema))
       const makeReqBodySchema = EO.fromNullable(Req.Body)["|>"](EO.chainEffect(schema))
       //const makeReqSchema = schema(Req)
@@ -155,16 +186,18 @@ export function makeSchema(
       // https://github.com/Effect-TS/morphic/commit/da3a02fb527089807bcd5253652ee5a5b1efa371
 
       function makeParameters(inn: ParameterLocation) {
-        return (a) => {
-          return a["|>"](
-            O.map((x) => {
-              return Object.keys(x.properties).map((p) => {
-                const schema = x.properties[p]
-                const required = x.required.includes(p)
-                return { name: p, in: inn, required, schema }
+        return (a: O.Option<JSONSchema | SubSchema>) => {
+          return a["|>"](O.chain((o) => (isObjectSchema(o) ? O.some(o) : O.none)))
+            ["|>"](
+              O.map((x) => {
+                return Object.keys(x.properties!).map((p) => {
+                  const schema = x.properties![p]
+                  const required = Boolean(x.required?.includes(p))
+                  return { name: p, in: inn, required, schema }
+                })
               })
-            })
-          )["|>"](O.getOrElse(() => []))
+            )
+            ["|>"](O.getOrElse(() => []))
         }
       }
 
@@ -174,6 +207,7 @@ export function makeSchema(
           reqHeaders: makeReqHeadersSchema,
           reqBody: makeReqBodySchema,
           reqPath: makeReqPathSchema,
+          reqCookie: makeReqCookieSchema,
           res: makeResSchema,
         }),
         T.map((_) => ({
@@ -183,6 +217,7 @@ export function makeSchema(
             ..._.reqPath["|>"](makeParameters("path")),
             ..._.reqQuery["|>"](makeParameters("query")),
             ..._.reqHeaders["|>"](makeParameters("header")),
+            ..._.reqCookie["|>"](makeParameters("cookie")),
           ],
           requestBody: O.toUndefined(
             _.reqBody["|>"](
