@@ -1,11 +1,15 @@
 import fs from "fs"
 
+import * as Plutus from "@atlas-ts/plutus"
+import { generateMerged } from "@atlas-ts/plutus/Gen"
 import { JSONSchema, SubSchema } from "@atlas-ts/plutus/JsonSchema"
 import { References } from "@atlas-ts/plutus/Schema"
+import { NonEmptyString } from "@effect-ts-demo/todo-types/shared"
 import * as T from "@effect-ts/core/Effect"
 import { makeRef } from "@effect-ts/core/Effect/Ref"
 import { constVoid, pipe } from "@effect-ts/core/Function"
 import * as Ex from "@effect-ts/express"
+import { make } from "@effect-ts/morphic"
 import * as N from "@effect-ts/node/Runtime"
 import { urlencoded, json } from "body-parser"
 import cors from "cors"
@@ -13,6 +17,9 @@ import cors from "cors"
 import { makeSchema } from "@/routing"
 
 import { routes as taskRoutes } from "./Tasks/routes"
+import { generatePlutus } from "./plutus-test"
+
+import pkg from "package.json"
 
 const HOST = "127.0.0.1"
 const PORT = 3330
@@ -33,8 +40,44 @@ const program = pipe(
         T.gen(function* ($) {
           const ref = yield* $(makeRef<Map<string, JSONSchema | SubSchema>>(new Map()))
           const withRef = T.provideService(References)({ ref })
-          const schema = yield* $(makeSchema(rdescs)["|>"](withRef))
-          return schema
+          const paths = yield* $(makeSchema(rdescs)["|>"](withRef))
+
+          //const test = yield* $(generatePlutus)
+
+          const info = Plutus.info({
+            title: pkg.name,
+            version: pkg.version,
+            pageTitle: pkg.name,
+          })
+          //            tags: Plutus.tags(Plutus.tag({ name: "Who", description: "Who dunnut" })),
+          //        })
+
+          return {
+            openapi: "3.0.0",
+            info: {
+              title: info.title,
+              description: info.description,
+              termsOfService: info.tos,
+              contact: info.contact
+                ? {
+                    name: info.contact.name,
+                    email: info.contact.email,
+                    url: info.contact.url,
+                  }
+                : undefined,
+              license: info.license
+                ? {
+                    name: info.license.name,
+                    url: info.license.url,
+                  }
+                : undefined,
+              version: info.version,
+            },
+            //tags,
+            paths,
+            //components: { schemas: refsSchemas, parameters: refsParameters },
+            //test,
+          }
         })
       ),
       T.tap((_) =>

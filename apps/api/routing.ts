@@ -1,3 +1,4 @@
+import { ParameterLocation } from "@atlas-ts/plutus"
 import { schema } from "@atlas-ts/plutus/Schema"
 import * as EO from "@effect-ts-demo/todo-types/ext/EffectOption"
 import { Void } from "@effect-ts-demo/todo-types/shared"
@@ -150,13 +151,25 @@ export function makeSchema(
       //const makeReqSchema = schema(Req)
       const makeResSchema = schema(Res)
 
-      // TODO: Split between route params, body/query params: `parameters` `in` path, query, header
       // TODO: custom void type - 204 response
       // https://github.com/Effect-TS/morphic/commit/da3a02fb527089807bcd5253652ee5a5b1efa371
 
+      function makeParameters(inn: ParameterLocation) {
+        return (a) => {
+          return a["|>"](
+            O.map((x) => {
+              return Object.keys(x.properties).map((p) => {
+                const schema = x.properties[p]
+                const required = x.required.includes(p)
+                return { name: p, in: inn, required, schema }
+              })
+            })
+          )["|>"](O.getOrElse(() => []))
+        }
+      }
+
       return pipe(
         T.struct({
-          //req: makeReqSchema,
           reqQuery: makeReqQuerySchema,
           reqHeaders: makeReqHeadersSchema,
           reqBody: makeReqBodySchema,
@@ -166,11 +179,11 @@ export function makeSchema(
         T.map((_) => ({
           path: e.path,
           method: e.method,
-          parameters: {
-            path: O.toUndefined(_.reqPath),
-            query: O.toUndefined(_.reqQuery),
-            headers: O.toUndefined(_.reqHeaders),
-          }, // TODO: "in path"  "in query" "in headers"
+          parameters: [
+            ..._.reqPath["|>"](makeParameters("path")),
+            ..._.reqQuery["|>"](makeParameters("query")),
+            ..._.reqHeaders["|>"](makeParameters("header")),
+          ],
           requestBody: O.toUndefined(
             _.reqBody["|>"](
               O.map((schema) => ({ content: { "application/json": { schema } } }))
