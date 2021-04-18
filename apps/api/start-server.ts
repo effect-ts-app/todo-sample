@@ -40,7 +40,7 @@ const program = pipe(
       ),
       T.tap((_) =>
         T.effectAsync((cb) =>
-          fs.writeFile("./schema.json", _, "utf-8", (err) =>
+          fs.writeFile("../../docs/schema.json", _, "utf-8", (err) =>
             err ? cb(T.fail(err)) : cb(T.succeed(constVoid()))
           )
         )["|>"](T.orDie)
