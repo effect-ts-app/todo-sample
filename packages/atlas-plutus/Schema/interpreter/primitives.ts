@@ -93,11 +93,11 @@ export const SchemaPrimitiveInterpreter = interpreter<X.SchemaURI, PrimitivesURI
           {}
         )
       ),
-    oneOfLiterals: (_, __, config) => (env) =>
+    oneOfLiterals: (..._ls) => (config) => (env) =>
       new X.SchemaType(
         X.SchemaApplyConfig(config?.conf)(
           X.succeed({
-            oneOf: _.map((x): EnumSchema | NumberEnumSchema => ({
+            oneOf: _ls.map((x): EnumSchema | NumberEnumSchema => ({
               type: typeof x === "string" ? "string" : "number",
               description: `${x}`,
               enum: [x] as any
@@ -121,7 +121,18 @@ export const SchemaPrimitiveInterpreter = interpreter<X.SchemaURI, PrimitivesURI
     nullable: (_getSchema, config) => (env) =>
       new X.SchemaType(
         X.SchemaApplyConfig(config?.conf)(
-          X.dieMessage("nullable is not upported"),
+          //X.dieMessage("nullable is not upported"),
+          pipe(
+            _getSchema(env).Schema,
+            X.chain((a) =>
+              X.succeed({
+                oneOf: [
+                  a,
+                  {"type": "null"}
+                ]
+              })
+            )
+          ),
           env,
           {
             Schema: _getSchema(env).Schema
@@ -137,7 +148,18 @@ export const SchemaPrimitiveInterpreter = interpreter<X.SchemaURI, PrimitivesURI
     optional: (_getSchema, config) => (env) =>
       new X.SchemaType(
         X.SchemaApplyConfig(config?.conf)(
-          X.dieMessage("optional is not supported"),
+          //X.dieMessage("optional is not supported"),
+          pipe(
+            _getSchema(env).Schema,
+            X.chain((a) =>
+              X.succeed({
+                oneOf: [
+                  a,
+                  {"type": "null"}
+                ]
+              })
+            )
+          ),
           env,
           {
             Schema: _getSchema(env).Schema
@@ -196,6 +218,12 @@ export const SchemaPrimitiveInterpreter = interpreter<X.SchemaURI, PrimitivesURI
           }
         )
       ),
+      tuple: (...types) => (cfg) => (env) =>       new X.SchemaType(
+        X.SchemaApplyConfig(cfg?.conf)(
+          X.dieMessage("tuple is not supported"),
+          env,
+          {}
+        )),
     uuid: (config) => (env) =>
       new X.SchemaType(
         X.SchemaApplyConfig(config?.conf)(
