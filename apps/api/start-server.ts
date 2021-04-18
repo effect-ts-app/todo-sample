@@ -17,7 +17,12 @@ const program = pipe(
     Ex.use(Ex.classic(json()))
   ),
   T.zipRight(taskRoutes),
-  T.tap(() => T.succeedWith(() => console.log(`Running on ${HOST}:${PORT}`))),
+  T.tap((r) =>
+    T.succeedWith(() => {
+      console.log(`Running on ${HOST}:${PORT}`)
+      console.log("Available routes: ", JSON.stringify(r, undefined, 2))
+    })
+  ),
   T.tap(() => T.never)
 )
 

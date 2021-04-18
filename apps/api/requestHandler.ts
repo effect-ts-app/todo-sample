@@ -75,6 +75,20 @@ function handleRequest<R, ReqA, ResA, ResE>(
     )
 }
 
+export interface RequestHandler<
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  Req extends M<{}, unknown, ReqA>,
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  Res extends M<{}, unknown, ResA>,
+  R,
+  ReqA,
+  ResA
+> {
+  Request: Req
+  Response: Res
+  handle: (i: ReqA) => T.Effect<R, NotFoundError, ResA>
+}
+
 export function makeRequestHandler<
   // eslint-disable-next-line @typescript-eslint/ban-types
   Req extends M<{}, unknown, ReqA>,
@@ -83,15 +97,7 @@ export function makeRequestHandler<
   R,
   ReqA,
   ResA
->({
-  Request,
-  Response,
-  handle,
-}: {
-  Request: Req
-  Response: Res
-  handle: (i: ReqA) => T.Effect<R, NotFoundError, ResA>
-}) {
+>({ Request, Response, handle }: RequestHandler<Req, Res, R, ReqA, ResA>) {
   const { decode: decodeRequest } = strictDecoder(Request)
   const encodeResponse = encode(Response)
   const { shrink: shrinkResponse } = strict(Response)
