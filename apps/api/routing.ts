@@ -164,10 +164,16 @@ export function makeSchema(r: A.Array<RouteDescriptor<any, any, any, any, any, a
       )
     }),
     T.map((e) =>
-      e.reduce((prev, { method, path, ...rest }) => {
+      e.reduce((prev, { method, path, responses, ...rest }) => {
         prev[path] = {
           ...prev[path],
-          [method]: rest,
+          [method]: {
+            ...rest,
+            responses: responses.reduce((prev, cur) => {
+              prev[cur.statusCode] = cur.type
+              return prev
+            }, {}),
+          },
         }
 
         return prev
