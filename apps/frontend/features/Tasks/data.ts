@@ -17,7 +17,7 @@ import { useFetch, useModify, useQuery } from "@/data"
 import { typedKeysOf } from "@/utils"
 
 const fetchLatestTasks = constant(
-  TodoClient.Tasks.getTasks["|>"](T.map((r) => r.tasks))
+  TodoClient.Tasks.getTasks["|>"](T.map((r) => r.items))
 )
 
 export function useTasks() {

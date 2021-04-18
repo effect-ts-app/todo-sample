@@ -5,10 +5,10 @@ import * as TaskContext from "./TaskContext"
 
 export const handle = (_: Request) =>
   T.gen(function* ($) {
-    const tasks = yield* $(TaskContext.allOrdered)
+    const items = yield* $(TaskContext.allOrdered)
 
     return {
-      tasks,
+      items,
     }
   })
 

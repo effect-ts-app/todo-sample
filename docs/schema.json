@@ -139,7 +139,7 @@
     "res": {
       "type": "object",
       "properties": {
-        "tasks": {
+        "items": {
           "type": "array",
           "items": {
             "type": "object",
@@ -252,7 +252,7 @@
         }
       },
       "required": [
-        "tasks"
+        "items"
       ]
     }
   },
