@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import * as EO from "@effect-ts-demo/todo-types/ext/EffectOption"
 import * as T from "@effect-ts/core/Effect"
 import { flow, pipe } from "@effect-ts/core/Function"
@@ -18,7 +19,7 @@ export type Request<
   BodyA,
   HeaderA,
   ReqA extends PathA & QueryA & BodyA & HeaderA
-> = M<{}, any, ReqA> & {
+> = M<{}, unknown, ReqA> & {
   Path?: M<{}, Record<string, string>, PathA>
   Body?: M<{}, unknown, BodyA>
   Query?: M<{}, Record<string, string>, QueryA>

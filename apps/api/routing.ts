@@ -19,7 +19,7 @@ export interface RouteDescriptor<
   HeaderA,
   ReqA extends PathA & QueryA & BodyA & HeaderA,
   ResA,
-  METHOD extends Methods
+  METHOD extends Methods = Methods
 > {
   path: string
   method: METHOD
@@ -34,7 +34,7 @@ export function makeRouteDescriptor<
   HeaderA,
   ReqA extends PathA & QueryA & HeaderA & BodyA,
   ResA,
-  METHOD extends Methods
+  METHOD extends Methods = Methods
 >(
   path: string,
   method: METHOD,
@@ -132,7 +132,8 @@ export { del as delete }
  * Work in progress JSONSchema generator.
  */
 export function makeSchema(
-  r: A.Array<RouteDescriptor<any, any, any, any, any, any, any, any>>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  r: A.Array<RouteDescriptor<any, any, any, any, any, any, any>>
 ) {
   return pipe(
     T.forEach_(r, (e) => {
@@ -192,22 +193,25 @@ export function makeSchema(
         }))
       )
     }),
-    T.map((e) =>
-      e.reduce((prev, { method, path, responses, ...rest }) => {
-        prev[path] = {
-          ...prev[path],
-          [method]: {
-            ...rest,
-            responses: responses.reduce((prev, cur) => {
-              prev[cur.statusCode] = cur.type
-              return prev
-            }, {}),
-          },
+    T.map((e) => {
+      const f = ({ method, path, responses, ...rest }: typeof e[number]) => ({
+        [method]: {
+          ...rest,
+          responses: responses.reduce((prev, cur) => {
+            prev[cur.statusCode] = cur.type
+            return prev
+          }, {} as Record<Response["statusCode"], Response["type"]>),
+        },
+      })
+      type R = ReturnType<typeof f>
+      return e.reduce((prev, e) => {
+        prev[e.path] = {
+          ...prev[e.path],
+          ...f(e),
         }
-
         return prev
-      }, {})
-    )
+      }, {} as Record<string, Record<Methods, R>>)
+    })
   )
 }
 
