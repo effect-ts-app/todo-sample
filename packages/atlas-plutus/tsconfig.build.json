@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.build.json",
+  "compilerOptions": {
+    "outDir": "lib",
+    "noEmit": false,
+    "plugins": [
+      {
+        "transform": "@effect-ts/tracing-plugin",
+        "moduleMap": {
+          "^src/(.*)": "packages/plutus/src/$1"
+        }
+      },
+      { "transform": "typescript-transform-paths" }
+    ]
+  },
+  "include": ["src/**/*.ts"]
+}

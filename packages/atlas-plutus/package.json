@@ -1,0 +1,18 @@
+{
+  "name": "@atlas-ts/plutus",
+  "version": "0.0.0",
+  "license": "UNLICENSED",
+  "private": "true",
+  "author": "Michael Arnaldi",
+  "scripts": {
+    "build": "rimraf lib; ttsc --p tsconfig.build.json; yarn prettier:lib;",
+    "type-check": "tsc --noEmit",
+    "autofix": "yarn prettier && yarn lint --fix && yarn prettier",
+    "prettier": "prettier --write \"./{src,test,demo}/**/*.ts\"",
+    "prettier:lib": "prettier --write \"./lib/**/*.js\"",
+    "lint": "eslint . --ext .ts,.tsx"
+  },
+  "dependencies": {
+    "@atlas-ts/express": "^0.0.0"
+  }
+}
