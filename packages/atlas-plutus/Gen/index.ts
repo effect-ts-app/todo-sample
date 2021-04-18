@@ -223,7 +223,7 @@ export function generateMerged(info: GeneralInfo) {
     OpenApiSpec
   > =>
     T.gen(function* (_) {
-      const schemas = yield* _(T.foreach_(specs, generate))
+      const schemas = yield* _(T.forEach_(specs, generate))
       const paths: Record<string, any> = {}
       const tags: any[] = []
       const refsSchemas = {}

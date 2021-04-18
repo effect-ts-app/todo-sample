@@ -11,5 +11,8 @@
     "prettier": "prettier --write \"./{src,test,demo}/**/*.ts\"",
     "prettier:lib": "prettier --write \"./lib/**/*.js\"",
     "lint": "eslint . --ext .ts,.tsx"
+  },
+  "dependencies": {
+    "node-match-path": "^0.6.3"
   }
 }

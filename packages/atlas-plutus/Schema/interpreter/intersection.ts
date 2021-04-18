@@ -15,7 +15,7 @@ export const SchemaIntersectionInterpreter = interpreter<
       X.SchemaApplyConfig(config?.conf)(
         pipe(
           Schemaes,
-          X.foreach(identity),
+          X.forEach(identity),
           X.chain((allOf) => X.succeed({ allOf }))
         ),
         env,

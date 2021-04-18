@@ -6,13 +6,13 @@ import * as X from "../base"
 
 export const SchemaUnionInterpreter = interpreter<X.SchemaURI, UnionURI>()(() => ({
   _F: X.SchemaURI,
-  union: (...types) => (_, config) => (env) => {
+  union: (...types) => (config) => (env) => {
     const Schemaes = types.map((a) => a(env).Schema)
     return new X.SchemaType(
       X.SchemaApplyConfig(config?.conf)(
         pipe(
           types.map((t) => t(env).Schema),
-          X.foreach(identity),
+          X.forEach(identity),
           X.chain((oneOf) => X.succeed({ oneOf }))
         ),
         env,

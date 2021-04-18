@@ -6,7 +6,7 @@ import * as X from "../base"
 
 export const SchemaSetInterpreter = interpreter<X.SchemaURI, SetURI>()(() => ({
   _F: X.SchemaURI,
-  set: (getSchema, _ord, config) => (env) =>
+  set: (getSchema, _ord, _eq, config) => (env) =>
     pipe(
       getSchema(env).Schema,
       (Schema) =>

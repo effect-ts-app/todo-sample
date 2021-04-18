@@ -2,7 +2,7 @@
 // https://github.com/sledorze/morphic-ts/blob/master/packages/morphic-json-schema-interpreters/src/json-schema/json-schema.ts
 
 /* eslint-disable no-prototype-builtins */
-import type * as A from "@effect-ts/core/Classic/Array"
+import type * as A from "@effect-ts/core/Collections/Immutable/Array"
 import { pipe } from "@effect-ts/core/Function"
 import * as Lens from "@effect-ts/monocle/Lens"
 import * as Prism from "@effect-ts/monocle/Prism"

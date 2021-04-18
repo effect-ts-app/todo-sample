@@ -42,7 +42,7 @@ export const LiveExpressConfig = L.fromEffect(ExpressConfig)(
 )
 
 export const makeExpress = M.gen(function* (_) {
-  const expressApp = yield* _(T.effectTotal(() => express()))
+  const expressApp = yield* _(T.succeedWith(() => express()))
   const { host, port } = yield* _(ExpressConfig)
   const nodeServer = yield* _(
     pipe(
@@ -53,7 +53,7 @@ export const makeExpress = M.gen(function* (_) {
         const s = expressApp
           .listen(port, host, () => {
             cb(
-              T.effectTotal(() => {
+              T.succeedWith(() => {
                 s.removeListener("error", onError)
                 console.log("Listening")
                 return s
@@ -69,7 +69,7 @@ export const makeExpress = M.gen(function* (_) {
               cb(T.die(new ExpressCloseError(err)))
             } else {
               cb(
-                T.effectTotal(() => {
+                T.succeedWith(() => {
                   console.log("Closed")
                 })
               )
@@ -113,13 +113,13 @@ export const makeRouter = M.gen(function* (_) {
   const table: Record<
     string,
     Partial<Record<HttpMethod, T.RIO<Has<RequestContext>, void>[]>>
-  > = yield* _(T.effectTotal(() => ({})))
+  > = yield* _(T.succeedWith(() => ({})))
 
   const { expressApp } = yield* _(ExpressService)
   const scope = yield* _(T.forkScope)
 
   yield* _(
-    T.effectTotal(() => {
+    T.succeedWith(() => {
       expressApp.use(
         express.json(),
         express.urlencoded({ extended: true }),
@@ -159,7 +159,7 @@ export const makeRouter = M.gen(function* (_) {
       handler: T.RIO<Has<RequestContext> & R, void>
     ) =>
       T.accessM((r: R) =>
-        T.effectTotal(() => {
+        T.succeedWith(() => {
           if (!table[path]) {
             table[path] = {}
           }
@@ -198,7 +198,7 @@ function unsafeRouterProcess(
           T.collectAllUnit(table[path][method]!)
         ),
         T.catchAllCause((cause) =>
-          T.effectTotal(() => {
+          T.succeedWith(() => {
             res.status(500).send(cause)
           })
         )

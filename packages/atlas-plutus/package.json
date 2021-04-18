@@ -13,6 +13,7 @@
     "lint": "eslint . --ext .ts,.tsx"
   },
   "dependencies": {
-    "@atlas-ts/express": "^0.0.0"
+    "@atlas-ts/express": "^0.0.0",
+    "redoc-express": "^1.0.0"
   }
 }

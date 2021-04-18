@@ -1,4 +1,4 @@
-import type * as A from "@effect-ts/core/Classic/Array"
+import type * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as T from "@effect-ts/core/Effect"
 import * as TRef from "@effect-ts/core/Effect/Ref"
 import type { Has } from "@effect-ts/core/Has"
@@ -92,4 +92,4 @@ export function titled(title: string) {
   )
 }
 
-export { chain, foreach, struct, chain_, foreach_ } from "@effect-ts/core/Effect"
+export { chain, forEach, struct, chain_, forEach_ } from "@effect-ts/core/Effect"

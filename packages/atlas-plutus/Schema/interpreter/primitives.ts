@@ -93,7 +93,7 @@ export const SchemaPrimitiveInterpreter = interpreter<X.SchemaURI, PrimitivesURI
           {}
         )
       ),
-    oneOfLiterals: (_, config) => (env) =>
+    oneOfLiterals: (_, __, config) => (env) =>
       new X.SchemaType(
         X.SchemaApplyConfig(config?.conf)(
           X.succeed({

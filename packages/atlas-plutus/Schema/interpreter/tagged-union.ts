@@ -18,7 +18,7 @@ export const SchemaTaggedUnionInterpreter = interpreter<X.SchemaURI, TaggedUnion
         X.SchemaApplyConfig(config?.conf)(
           pipe(
             Schemaes,
-            X.foreach((s) =>
+            X.forEach((s) =>
               T.chain_(s, (a) =>
                 isTypeRef(a)
                   ? T.succeed(a)

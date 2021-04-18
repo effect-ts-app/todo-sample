@@ -130,14 +130,14 @@ export function setupApiDoc<A extends Api<any, any>>(
   return T.gen(function* (_) {
     const { addRoute } = yield* _(Router)
     const spec = yield* _(generate(api))
-    const jsonSpec = yield* _(T.effectTotal(() => JSON.stringify(spec, null, 2)))
+    const jsonSpec = yield* _(T.succeedWith(() => JSON.stringify(spec, null, 2)))
 
     yield* _(
       addRoute(
         "GET",
         config.docsUrl,
         T.accessServiceM(RequestContext)(({ next, req, res }) =>
-          T.effectTotal(() => {
+          T.succeedWith(() => {
             redoc({
               title: api.info.pageTitle,
               specUrl: config.jsonUrl
@@ -152,7 +152,7 @@ export function setupApiDoc<A extends Api<any, any>>(
         "GET",
         config.jsonUrl,
         T.accessServiceM(RequestContext)(({ res }) =>
-          T.effectTotal(() => {
+          T.succeedWith(() => {
             res.set({
               "Content-Disposition": 'attachment; filename="openapi.json"',
               "Content-Type": "text/plain",
@@ -174,14 +174,14 @@ export function setupMergedApiDoc(
     T.gen(function* (_) {
       const { addRoute } = yield* _(Router)
       const spec = yield* _(generateMerged(info)(...specs))
-      const jsonSpec = yield* _(T.effectTotal(() => JSON.stringify(spec, null, 2)))
+      const jsonSpec = yield* _(T.succeedWith(() => JSON.stringify(spec, null, 2)))
 
       yield* _(
         addRoute(
           "GET",
           config.docsUrl,
           T.accessServiceM(RequestContext)(({ next, req, res }) =>
-            T.effectTotal(() => {
+            T.succeedWith(() => {
               redoc({
                 title: info.pageTitle,
                 specUrl: config.jsonUrl
@@ -196,7 +196,7 @@ export function setupMergedApiDoc(
           "GET",
           config.jsonUrl,
           T.accessServiceM(RequestContext)(({ res }) =>
-            T.effectTotal(() => {
+            T.succeedWith(() => {
               res.set({
                 "Content-Disposition": 'attachment; filename="openapi.json"',
                 "Content-Type": "text/plain",
@@ -390,7 +390,7 @@ export function server<A extends Api<any, any>>(api: A): ServerCreator<A> {
                         pipe(
                           E.encode(operation["responses"][code]["content"])(body),
                           T.chain((b) =>
-                            T.effectTotal(() => {
+                            T.succeedWith(() => {
                               _res.status(parseInt(code as string)).send(b)
                             })
                           )
@@ -406,7 +406,7 @@ export function server<A extends Api<any, any>>(api: A): ServerCreator<A> {
                 }),
                 T.catchAll((e) =>
                   T.accessServiceM(RequestContext)(({ res }) =>
-                    T.effectTotal(() => {
+                    T.succeedWith(() => {
                       res.status(400).send(e)
                     })
                   )
