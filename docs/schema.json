@@ -3,11 +3,180 @@
     "GET": {
       "responses": {
         "200": {
-          "type": "object",
-          "properties": {
-            "items": {
-              "type": "array",
-              "items": {
+          "description": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "completed": {
+                          "type": "string",
+                          "format": "date-time",
+                          "nullable": true
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "due": {
+                          "type": "string",
+                          "format": "date-time",
+                          "nullable": true
+                        },
+                        "id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "isFavorite": {
+                          "type": "boolean"
+                        },
+                        "myDay": {
+                          "type": "string",
+                          "format": "date-time",
+                          "nullable": true
+                        },
+                        "note": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "reminder": {
+                          "type": "string",
+                          "format": "date-time",
+                          "nullable": true
+                        },
+                        "steps": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "completed": {
+                                "type": "boolean"
+                              },
+                              "title": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "completed",
+                              "title"
+                            ]
+                          }
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "updatedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      },
+                      "required": [
+                        "completed",
+                        "createdAt",
+                        "due",
+                        "id",
+                        "isFavorite",
+                        "myDay",
+                        "note",
+                        "reminder",
+                        "steps",
+                        "title",
+                        "updatedAt"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "items"
+                ]
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "ValidationError"
+        }
+      }
+    },
+    "POST": {
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "isFavorite": {
+                  "type": "boolean"
+                },
+                "myDay": {
+                  "type": "string",
+                  "format": "date-time",
+                  "nullable": true
+                },
+                "title": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "isFavorite",
+                "myDay",
+                "title"
+              ]
+            }
+          }
+        }
+      },
+      "responses": {
+        "200": {
+          "description": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            }
+          }
+        },
+        "400": {
+          "description": "ValidationError"
+        }
+      }
+    }
+  },
+  "/tasks/:id": {
+    "GET": {
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "responses": {
+        "200": {
+          "description": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
                 "type": "object",
                 "properties": {
                   "completed": {
@@ -83,151 +252,15 @@
                   "steps",
                   "title",
                   "updatedAt"
-                ]
+                ],
+                "nullable": true
               }
             }
-          },
-          "required": [
-            "items"
-          ]
-        },
-        "400": "ValidationError"
-      }
-    },
-    "POST": {
-      "requestBody": {
-        "type": "object",
-        "properties": {
-          "isFavorite": {
-            "type": "boolean"
-          },
-          "myDay": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "title": {
-            "type": "string"
           }
         },
-        "required": [
-          "isFavorite",
-          "myDay",
-          "title"
-        ]
-      },
-      "responses": {
-        "200": {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          "required": [
-            "id"
-          ]
-        },
-        "400": "ValidationError"
-      }
-    }
-  },
-  "/tasks/:id": {
-    "GET": {
-      "parameters": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          }
-        },
-        "required": [
-          "id"
-        ]
-      },
-      "responses": {
-        "200": {
-          "type": "object",
-          "properties": {
-            "completed": {
-              "type": "string",
-              "format": "date-time",
-              "nullable": true
-            },
-            "createdAt": {
-              "type": "string",
-              "format": "date-time"
-            },
-            "due": {
-              "type": "string",
-              "format": "date-time",
-              "nullable": true
-            },
-            "id": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "isFavorite": {
-              "type": "boolean"
-            },
-            "myDay": {
-              "type": "string",
-              "format": "date-time",
-              "nullable": true
-            },
-            "note": {
-              "type": "string",
-              "nullable": true
-            },
-            "reminder": {
-              "type": "string",
-              "format": "date-time",
-              "nullable": true
-            },
-            "steps": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "completed": {
-                    "type": "boolean"
-                  },
-                  "title": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "completed",
-                  "title"
-                ]
-              }
-            },
-            "title": {
-              "type": "string"
-            },
-            "updatedAt": {
-              "type": "string",
-              "format": "date-time"
-            }
-          },
-          "required": [
-            "completed",
-            "createdAt",
-            "due",
-            "id",
-            "isFavorite",
-            "myDay",
-            "note",
-            "reminder",
-            "steps",
-            "title",
-            "updatedAt"
-          ],
-          "nullable": true
-        },
-        "400": "ValidationError"
+        "400": {
+          "description": "ValidationError"
+        }
       }
     },
     "PATCH": {
@@ -244,42 +277,55 @@
         ]
       },
       "requestBody": {
-        "type": "object",
-        "properties": {
-          "completed": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "due": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "isFavorite": {
-            "type": "boolean"
-          },
-          "myDay": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "note": {
-            "type": "string",
-            "nullable": true
-          },
-          "reminder": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "steps": {
-            "type": "array",
-            "items": {
+        "content": {
+          "application/json": {
+            "schema": {
               "type": "object",
               "properties": {
                 "completed": {
+                  "type": "string",
+                  "format": "date-time",
+                  "nullable": true
+                },
+                "due": {
+                  "type": "string",
+                  "format": "date-time",
+                  "nullable": true
+                },
+                "isFavorite": {
                   "type": "boolean"
+                },
+                "myDay": {
+                  "type": "string",
+                  "format": "date-time",
+                  "nullable": true
+                },
+                "note": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "reminder": {
+                  "type": "string",
+                  "format": "date-time",
+                  "nullable": true
+                },
+                "steps": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "completed": {
+                        "type": "boolean"
+                      },
+                      "title": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "completed",
+                      "title"
+                    ]
+                  }
                 },
                 "title": {
                   "type": "string"
@@ -287,29 +333,28 @@
               },
               "required": [
                 "completed",
+                "due",
+                "isFavorite",
+                "myDay",
+                "note",
+                "reminder",
+                "steps",
                 "title"
               ]
             }
-          },
-          "title": {
-            "type": "string"
           }
-        },
-        "required": [
-          "completed",
-          "due",
-          "isFavorite",
-          "myDay",
-          "note",
-          "reminder",
-          "steps",
-          "title"
-        ]
+        }
       },
       "responses": {
-        "204": "Empty",
-        "400": "ValidationError",
-        "404": "NotFoundError"
+        "204": {
+          "description": "Empty"
+        },
+        "400": {
+          "description": "ValidationError"
+        },
+        "404": {
+          "description": "NotFoundError"
+        }
       }
     },
     "DELETE": {
@@ -326,32 +371,48 @@
         ]
       },
       "responses": {
-        "204": "Empty",
-        "400": "ValidationError",
-        "404": "NotFoundError"
+        "204": {
+          "description": "Empty"
+        },
+        "400": {
+          "description": "ValidationError"
+        },
+        "404": {
+          "description": "NotFoundError"
+        }
       }
     }
   },
   "/tasks-order": {
     "POST": {
       "requestBody": {
-        "type": "object",
-        "properties": {
-          "order": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "format": "uuid"
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "order": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                }
+              },
+              "required": [
+                "order"
+              ]
             }
           }
-        },
-        "required": [
-          "order"
-        ]
+        }
       },
       "responses": {
-        "204": "Empty",
-        "400": "ValidationError"
+        "204": {
+          "description": "Empty"
+        },
+        "400": {
+          "description": "ValidationError"
+        }
       }
     }
   }

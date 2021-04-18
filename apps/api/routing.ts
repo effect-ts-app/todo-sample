@@ -148,16 +148,23 @@ export function makeSchema(r: A.Array<RouteDescriptor<any, any, any, any, any, a
           path: e.path,
           method: e.method,
           parameters: O.toUndefined(_.reqPath), // TODO: "in path"  "in query" "in headers"
-          requestBody: O.toUndefined(_.reqBody),
+          requestBody: O.toUndefined(
+            _.reqBody["|>"](
+              O.map((schema) => ({ content: { "application/json": { schema } } }))
+            )
+          ),
           responses: A.concat_(
             [
               e.handler.Response === Void
-                ? new Response(204, "Empty")
-                : new Response(200, _.res),
-              new Response(400, "ValidationError"),
+                ? new Response(204, { description: "Empty" })
+                : new Response(200, {
+                    description: "OK",
+                    content: { "application/json": { schema: _.res } },
+                  }),
+              new Response(400, { description: "ValidationError" }),
             ],
             e.path.includes(":") && e.handler.Response === Void
-              ? [new Response(404, "NotFoundError")]
+              ? [new Response(404, { description: "NotFoundError" })]
               : []
           ),
         }))
@@ -185,6 +192,6 @@ export function makeSchema(r: A.Array<RouteDescriptor<any, any, any, any, any, a
 class Response {
   constructor(
     public readonly statusCode: number,
-    public readonly type: string | JSONSchema | SubSchema
+    public readonly type: any //string | JSONSchema | SubSchema
   ) {}
 }
