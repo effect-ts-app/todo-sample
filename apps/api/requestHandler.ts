@@ -97,46 +97,31 @@ function handleRequest<R, ReqA, ResA, ResE>(
 
 export interface RequestHandler<
   R,
-  ReqA extends PathA & QueryA & BodyA & HeaderA,
   PathA,
   QueryA,
   BodyA,
   HeaderA,
-  ResA,
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  Req extends Request<PathA, QueryA, BodyA, HeaderA, ReqA>,
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  Res extends M<{}, unknown, ResA>
+  ReqA extends PathA & QueryA & BodyA & HeaderA,
+  ResA
 > {
-  Request: Req
-  Response: Res
+  Request: Request<PathA, QueryA, BodyA, HeaderA, ReqA>
+  Response: M<{}, unknown, ResA>
   handle: (i: ReqA) => T.Effect<R, NotFoundError, ResA>
 }
 
 export function makeRequestHandler<
   R,
-  ReqA extends PathA & QueryA & BodyA & HeaderA,
-  BodyA,
   PathA,
   QueryA,
+  BodyA,
   HeaderA,
+  ReqA extends PathA & QueryA & BodyA & HeaderA,
   ResA
 >({
   Request,
   Response,
   handle,
-}: RequestHandler<
-  R,
-  ReqA,
-  PathA,
-  QueryA,
-  BodyA,
-  HeaderA,
-  ResA, // eslint-disable-next-line @typescript-eslint/ban-types
-  Request<PathA, QueryA, BodyA, HeaderA, ReqA>,
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  M<{}, unknown, ResA>
->) {
+}: RequestHandler<R, PathA, QueryA, BodyA, HeaderA, ReqA, ResA>) {
   const { decode: decodeRequest } = strictDecoder(Request)
   const encodeResponse = encode(Response)
   const { shrink: shrinkResponse } = strict(Response)

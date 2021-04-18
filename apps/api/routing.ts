@@ -6,72 +6,47 @@ import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as T from "@effect-ts/core/Effect"
 import * as O from "@effect-ts/core/Option"
 import * as Ex from "@effect-ts/express"
-import { M } from "@effect-ts/morphic"
 
-import { makeRequestHandler, Request, RequestHandler } from "@/requestHandler"
+import { makeRequestHandler, RequestHandler } from "@/requestHandler"
 
 type Methods = "GET" | "PUT" | "POST" | "PATCH" | "DELETE"
 
 export interface RouteDescriptor<
   R,
-  ReqA extends PathA & QueryA & BodyA & HeaderA,
   PathA,
   QueryA,
   BodyA,
   HeaderA,
+  ReqA extends PathA & QueryA & BodyA & HeaderA,
   ResA,
   METHOD extends Methods
 > {
   path: string
   method: METHOD
-  handler: RequestHandler<
-    R,
-    ReqA,
-    PathA,
-    QueryA,
-    BodyA,
-    HeaderA,
-    ResA,
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    Request<PathA, QueryA, BodyA, HeaderA, ReqA>,
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    M<{}, unknown, ResA>
-  >
+  handler: RequestHandler<R, PathA, QueryA, BodyA, HeaderA, ReqA, ResA>
 }
 
 export function makeRouteDescriptor<
   R,
-  ReqA extends BodyA & PathA & QueryA & HeaderA,
   PathA,
   QueryA,
   BodyA,
   HeaderA,
+  ReqA extends PathA & QueryA & HeaderA & BodyA,
   ResA,
   METHOD extends Methods
 >(
   path: string,
   method: METHOD,
-  handler: RequestHandler<
-    R,
-    ReqA,
-    PathA,
-    QueryA,
-    BodyA,
-    HeaderA,
-    ResA,
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    Request<PathA, QueryA, BodyA, HeaderA, ReqA>,
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    M<{}, unknown, ResA>
-  >
+  handler: RequestHandler<R, PathA, QueryA, BodyA, HeaderA, ReqA, ResA>
 ) {
   return { path, method, handler } as RouteDescriptor<
     R,
-    ReqA,
-    BodyA,
     PathA,
     QueryA,
+    BodyA,
     HeaderA,
+    ReqA,
     ResA,
     METHOD
   >
@@ -83,23 +58,9 @@ export function get<
   PathA,
   QueryA,
   HeaderA,
-  ReqA extends BodyA & PathA & QueryA & HeaderA,
+  ReqA extends PathA & QueryA & HeaderA & BodyA,
   ResA
->(
-  path: string,
-  r: RequestHandler<
-    R,
-    ReqA,
-    PathA,
-    QueryA,
-    BodyA,
-    HeaderA,
-    ResA,
-    Request<PathA, QueryA, BodyA, HeaderA, ReqA>,
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    M<{}, unknown, ResA>
-  >
-) {
+>(path: string, r: RequestHandler<R, PathA, QueryA, BodyA, HeaderA, ReqA, ResA>) {
   return pipe(
     Ex.get(path, makeRequestHandler(r)),
     T.zipRight(T.succeedWith(() => makeRouteDescriptor(path, "GET", r)))
@@ -112,23 +73,9 @@ export function post<
   PathA,
   QueryA,
   HeaderA,
-  ReqA extends BodyA & PathA & QueryA & HeaderA,
+  ReqA extends PathA & QueryA & HeaderA & BodyA,
   ResA
->(
-  path: string,
-  r: RequestHandler<
-    R,
-    ReqA,
-    PathA,
-    QueryA,
-    BodyA,
-    HeaderA,
-    ResA,
-    Request<PathA, QueryA, BodyA, HeaderA, ReqA>,
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    M<{}, unknown, ResA>
-  >
-) {
+>(path: string, r: RequestHandler<R, PathA, QueryA, BodyA, HeaderA, ReqA, ResA>) {
   return pipe(
     Ex.post(path, makeRequestHandler(r)),
     T.zipRight(T.succeedWith(() => makeRouteDescriptor(path, "POST", r)))
@@ -141,23 +88,9 @@ export function put<
   PathA,
   QueryA,
   HeaderA,
-  ReqA extends BodyA & PathA & QueryA & HeaderA,
+  ReqA extends PathA & QueryA & HeaderA & BodyA,
   ResA
->(
-  path: string,
-  r: RequestHandler<
-    R,
-    ReqA,
-    PathA,
-    QueryA,
-    BodyA,
-    HeaderA,
-    ResA,
-    Request<PathA, QueryA, BodyA, HeaderA, ReqA>,
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    M<{}, unknown, ResA>
-  >
-) {
+>(path: string, r: RequestHandler<R, PathA, QueryA, BodyA, HeaderA, ReqA, ResA>) {
   return pipe(
     Ex.put(path, makeRequestHandler(r)),
     T.zipRight(T.succeedWith(() => makeRouteDescriptor(path, "PUT", r)))
@@ -170,23 +103,9 @@ export function patch<
   PathA,
   QueryA,
   HeaderA,
-  ReqA extends BodyA & PathA & QueryA & HeaderA,
+  ReqA extends PathA & QueryA & HeaderA & BodyA,
   ResA
->(
-  path: string,
-  r: RequestHandler<
-    R,
-    ReqA,
-    PathA,
-    QueryA,
-    BodyA,
-    HeaderA,
-    ResA,
-    Request<PathA, QueryA, BodyA, HeaderA, ReqA>,
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    M<{}, unknown, ResA>
-  >
-) {
+>(path: string, r: RequestHandler<R, PathA, QueryA, BodyA, HeaderA, ReqA, ResA>) {
   return pipe(
     Ex.patch(path, makeRequestHandler(r)),
     T.zipRight(T.succeedWith(() => makeRouteDescriptor(path, "PATCH", r)))
@@ -199,23 +118,9 @@ function del<
   PathA,
   QueryA,
   HeaderA,
-  ReqA extends BodyA & PathA & QueryA & HeaderA,
+  ReqA extends PathA & QueryA & HeaderA & BodyA,
   ResA
->(
-  path: string,
-  r: RequestHandler<
-    R,
-    ReqA,
-    PathA,
-    QueryA,
-    BodyA,
-    HeaderA,
-    ResA,
-    Request<PathA, QueryA, BodyA, HeaderA, ReqA>,
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    M<{}, unknown, ResA>
-  >
-) {
+>(path: string, r: RequestHandler<R, PathA, QueryA, BodyA, HeaderA, ReqA, ResA>) {
   return pipe(
     Ex.delete(path, makeRequestHandler(r)),
     T.zipRight(T.succeedWith(() => makeRouteDescriptor(path, "DELETE", r)))
