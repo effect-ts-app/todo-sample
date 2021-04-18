@@ -1,7 +1,8 @@
 import { Task } from "@effect-ts-demo/todo-types"
+import { Void } from "@effect-ts-demo/todo-types/shared"
 import { make, AType, EType, opaque } from "@effect-ts/morphic"
 
-export const Request = make((F) => F.unknown())
+export const Request = make((F) => Void(F))
 export type Request = AType<typeof Request>
 export type RequestE = EType<typeof Request>
 

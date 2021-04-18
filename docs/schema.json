@@ -1,10 +1,6 @@
 {
   "/tasks": {
     "GET": {
-      "parameters": {},
-      "requestBody": {
-        "type": "object"
-      },
       "responses": [
         {
           "statusCode": 200,
@@ -105,7 +101,6 @@
       ]
     },
     "POST": {
-      "parameters": {},
       "requestBody": {
         "type": "object",
         "properties": {
@@ -152,8 +147,7 @@
   },
   "/tasks/:id": {
     "GET": {
-      "parameters": {},
-      "requestBody": {
+      "parameters": {
         "type": "object",
         "properties": {
           "id": {
@@ -255,7 +249,18 @@
       ]
     },
     "PATCH": {
-      "parameters": {},
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
       "requestBody": {
         "type": "object",
         "properties": {
@@ -306,14 +311,17 @@
           },
           "title": {
             "type": "string"
-          },
-          "id": {
-            "type": "string",
-            "format": "uuid"
           }
         },
         "required": [
-          "id"
+          "completed",
+          "due",
+          "isFavorite",
+          "myDay",
+          "note",
+          "reminder",
+          "steps",
+          "title"
         ]
       },
       "responses": [
@@ -332,8 +340,7 @@
       ]
     },
     "DELETE": {
-      "parameters": {},
-      "requestBody": {
+      "parameters": {
         "type": "object",
         "properties": {
           "id": {
@@ -363,7 +370,6 @@
   },
   "/tasks-order": {
     "POST": {
-      "parameters": {},
       "requestBody": {
         "type": "object",
         "properties": {

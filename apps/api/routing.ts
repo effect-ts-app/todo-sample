@@ -1,18 +1,24 @@
 import { JSONSchema, SubSchema } from "@atlas-ts/plutus/JsonSchema"
 import { schema } from "@atlas-ts/plutus/Schema"
+import * as EO from "@effect-ts-demo/todo-types/ext/EffectOption"
 import { Void } from "@effect-ts-demo/todo-types/shared"
 import { pipe } from "@effect-ts/core"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as T from "@effect-ts/core/Effect"
+import * as O from "@effect-ts/core/Option"
 import * as Ex from "@effect-ts/express"
 import { M } from "@effect-ts/morphic"
 
 import { makeRequestHandler, RequestHandler } from "@/requestHandler"
 
+type Request<ReqA> = M<{}, unknown, ReqA> & {
+  Path?: M<{}, any, any>
+  Body?: M<{}, any, any>
+}
 type Methods = "GET" | "PUT" | "POST" | "PATCH" | "DELETE"
 export interface RouteDescriptor<
   // eslint-disable-next-line @typescript-eslint/ban-types
-  Req extends M<{}, unknown, ReqA>,
+  Req extends Request<ReqA>,
   // eslint-disable-next-line @typescript-eslint/ban-types
   Res extends M<{}, unknown, ResA>,
   R,
@@ -27,7 +33,7 @@ export interface RouteDescriptor<
 
 export function makeRouteDescriptor<
   // eslint-disable-next-line @typescript-eslint/ban-types
-  Req extends M<{}, unknown, ReqA>,
+  Req extends Request<ReqA>,
   // eslint-disable-next-line @typescript-eslint/ban-types
   Res extends M<{}, unknown, ResA>,
   R,
@@ -40,7 +46,7 @@ export function makeRouteDescriptor<
 
 export function get<
   // eslint-disable-next-line @typescript-eslint/ban-types
-  Req extends M<{}, unknown, ReqA>,
+  Req extends Request<ReqA>,
   // eslint-disable-next-line @typescript-eslint/ban-types
   Res extends M<{}, unknown, ResA>,
   R,
@@ -55,7 +61,7 @@ export function get<
 
 export function post<
   // eslint-disable-next-line @typescript-eslint/ban-types
-  Req extends M<{}, unknown, ReqA>,
+  Req extends Request<ReqA>,
   // eslint-disable-next-line @typescript-eslint/ban-types
   Res extends M<{}, unknown, ResA>,
   R,
@@ -70,7 +76,7 @@ export function post<
 
 export function put<
   // eslint-disable-next-line @typescript-eslint/ban-types
-  Req extends M<{}, unknown, ReqA>,
+  Req extends Request<ReqA>,
   // eslint-disable-next-line @typescript-eslint/ban-types
   Res extends M<{}, unknown, ResA>,
   R,
@@ -85,7 +91,7 @@ export function put<
 
 export function patch<
   // eslint-disable-next-line @typescript-eslint/ban-types
-  Req extends M<{}, unknown, ReqA>,
+  Req extends Request<ReqA>,
   // eslint-disable-next-line @typescript-eslint/ban-types
   Res extends M<{}, unknown, ResA>,
   R,
@@ -100,7 +106,7 @@ export function patch<
 
 function del<
   // eslint-disable-next-line @typescript-eslint/ban-types
-  Req extends M<{}, unknown, ReqA>,
+  Req extends Request<ReqA>,
   // eslint-disable-next-line @typescript-eslint/ban-types
   Res extends M<{}, unknown, ResA>,
   R,
@@ -113,15 +119,19 @@ function del<
   )
 }
 export { del as delete }
-
 /**
  * Work in progress JSONSchema generator.
  */
 export function makeSchema(r: A.Array<RouteDescriptor<any, any, any, any, any, any>>) {
   return pipe(
     T.forEach_(r, (e) => {
-      const makeReqSchema = schema(e.handler.Request)
-      const makeResSchema = schema(e.handler.Response)
+      const { Request: Req, Response: Res } = e.handler
+      // TODO: use the path vs body etc serialisation also in the Client.
+      // we can also use them to separately deserialise Path, Query, Body, Headers.
+      const makeReqPathSchema = EO.fromNullable(Req.Path)["|>"](EO.chainEffect(schema))
+      const makeReqBodySchema = EO.fromNullable(Req.Body)["|>"](EO.chainEffect(schema))
+      //const makeReqSchema = schema(Req)
+      const makeResSchema = schema(Res)
 
       // TODO: Split between route params, body/query params: `parameters` `in` path, query, header
       // TODO: custom void type - 204 response
@@ -129,14 +139,16 @@ export function makeSchema(r: A.Array<RouteDescriptor<any, any, any, any, any, a
 
       return pipe(
         T.struct({
-          req: makeReqSchema,
+          //req: makeReqSchema,
+          reqBody: makeReqBodySchema,
+          reqPath: makeReqPathSchema,
           res: makeResSchema,
         }),
         T.map((_) => ({
           path: e.path,
           method: e.method,
-          parameters: {}, //
-          requestBody: _.req,
+          parameters: O.toUndefined(_.reqPath), // TODO: "in path"  "in query" "in headers"
+          requestBody: O.toUndefined(_.reqBody),
           responses: A.concat_(
             [
               e.handler.Response === Void
