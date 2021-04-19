@@ -359,19 +359,6 @@ export function shallowEqual(objA: any, objB: any) {
   return true
 }
 
-// The HasHash.equals function is actually called recursively
-// so overriding it here only takes care of top-level
-// function equals(a: unknown, b: unknown): boolean {
-//   if (hash(a) !== hash(b)) {
-//     return false
-//   } else if (hasEquals(a)) {
-//     return a[equalsSym](b)
-//   } else if (hasEquals(b)) {
-//     return b[equalsSym](a)
-//   }
-//   return Object.is(a, b)
-// }
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function memo<T extends React.ComponentType<any>>(f: T) {
   return React.memo(f, shallowEqual)

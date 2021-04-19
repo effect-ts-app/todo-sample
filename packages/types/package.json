@@ -4,7 +4,7 @@
     "main": "src/index.ts",
     "license": "MIT",
     "dependencies": {
-        "@effect-ts/core": "^0.33.4",
+        "@effect-ts/core": "^0.33.6",
         "@effect-ts/monocle": "^0.29.0",
         "@effect-ts/morphic": "^0.32.0",
         "uuid": "^8.3.2"
