@@ -7,6 +7,8 @@ import { Exit } from "@effect-ts/core/Effect/Exit"
 import * as E from "@effect-ts/core/Either"
 import { pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
+import { hasEquals, equalsSym } from "@effect-ts/system/Structural/HasEquals"
+import { hash } from "@effect-ts/system/Structural/HasHash"
 import { datumEither } from "@nll/datum"
 import { DatumEither } from "@nll/datum/DatumEither"
 import React, { useState } from "react"
@@ -346,36 +348,26 @@ export function shallowEqual(objA: any, objB: any) {
 
   // Test for A's keys different from B.
   for (let i = 0; i < keysA.length; i++) {
-    const propA = objA[keysA[i]]
-    const propB = objB[keysA[i]]
     if (!Object.hasOwnProperty.call(objB, keysA[i])) {
       return false
     }
-    if (!Object.is(propA, propB)) {
-      if (
-        typeof propA !== "object" ||
-        typeof propB !== "object" ||
-        propA === null ||
-        propB === null ||
-        !propA._tag ||
-        propA._tag !== propB._tag
-      ) {
-        return false
-      }
-
-      if (
-        O.isNone(propA) ||
-        (O.isSome(propA) && Object.is(propA.value, propB.value)) ||
-        (E.isLeft(propA) && Object.is(propA.left, propB.left)) ||
-        (E.isRight(propA) && Object.is(propA.right, propB.right))
-      ) {
-        continue
-      }
+    if (!equals(objA[keysA[i]], objB[keysA[i]])) {
       return false
     }
   }
 
   return true
+}
+
+function equals(a: unknown, b: unknown): boolean {
+  if (hash(a) !== hash(b)) {
+    return false
+  } else if (hasEquals(a)) {
+    return a[equalsSym](b)
+  } else if (hasEquals(b)) {
+    return b[equalsSym](a)
+  }
+  return Object.is(a, b)
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
