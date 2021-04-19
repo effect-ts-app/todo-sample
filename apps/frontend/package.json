@@ -4,7 +4,7 @@
     "private": true,
     "dependencies": {
         "@babel/core": "7.13.15",
-        "@effect-ts/core": "^0.33.0",
+        "@effect-ts/core": "^0.33.4",
         "@effect-ts/monocle": "^0.29.0",
         "@effect-ts/morphic": "^0.32.0",
         "@emotion/react": "^11.1.5",
@@ -69,7 +69,7 @@
         "eslint-plugin-react": "^7.23.2",
         "eslint-plugin-react-hooks": "^4.2.0",
         "eslint-plugin-testing-library": "^4.1.0",
-        "eslint-webpack-plugin": "^2.5.3"
+        "eslint-webpack-plugin": "^2.5.4"
     },
     "scripts": {
         "compile": "tsc --noEmit",
