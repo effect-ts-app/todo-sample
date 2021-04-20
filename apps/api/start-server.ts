@@ -79,7 +79,7 @@ const program = pipe(
       T.tap((_) =>
         T.effectAsync((cb) =>
           fs.writeFile(
-            "../../docs/schema.json",
+            "./schema.json",
             JSON.stringify(_, undefined, 2),
             "utf-8",
             (err) => (err ? cb(T.fail(err)) : cb(T.succeed(constVoid())))
