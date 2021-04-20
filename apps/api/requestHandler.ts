@@ -7,6 +7,7 @@ import * as T from "@effect-ts/core/Effect"
 import { flow, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import * as Sy from "@effect-ts/core/Sync"
+import * as EU from "@effect-ts/core/Utils"
 import { M } from "@effect-ts/morphic"
 import { ContextEntry, Decode, Errors } from "@effect-ts/morphic/Decoder"
 import { Encoder, encode } from "@effect-ts/morphic/Encoder"
@@ -111,20 +112,42 @@ function parseRequestParams<PathA, CookieA, QueryA, BodyA, HeaderA>(
         )
       ),
       T.chain(() => {
-        const result = structValidation({
-          body: parsers.parseBody(body)["|>"](T.mapError(makeError("body"))),
-          cookie: parsers.parseCookie(cookies)["|>"](T.mapError(makeError("cookie"))),
-          headers: parsers
-            .parseHeaders(headers)
-            ["|>"](T.mapError(makeError("headers"))),
-          query: parsers.parseQuery(query)["|>"](T.mapError(makeError("query"))),
-          path: parsers.parsePath(params)["|>"](T.mapError(makeError("path"))),
-        })
+        const result = structValidation(
+          mapErrors_(
+            {
+              body: parsers.parseBody(body),
+              cookie: parsers.parseCookie(cookies),
+              headers: parsers.parseHeaders(headers),
+              query: parsers.parseQuery(query),
+              path: parsers.parsePath(params),
+            },
+            makeError
+          )
+        )
         return result
       }),
       T.mapError((err) => new ValidationError(err))
     )
 }
+
+function mapErrors_<E, NER extends Record<string, T.Effect<any, Errors, any>>>(
+  t: NER, // enforce non empty
+  mapErrors: (k: keyof NER) => (err: Errors) => E
+): {
+  [K in keyof NER]: T.Effect<EU._R<NER[K]>, E, EU._A<NER[K]>>
+} {
+  return typedKeysOf(t).reduce(
+    (prev, cur) => {
+      prev[cur] = t[cur]["|>"](T.mapError(mapErrors(cur)))
+      return prev
+    },
+    {} as {
+      [K in keyof NER]: T.Effect<EU._R<NER[K]>, E, EU._A<NER[K]>>
+    }
+  )
+}
+
+export const typedKeysOf = <T>(obj: T) => Object.keys(obj) as (keyof T)[]
 
 function makeError(type: string) {
   return (e: Errors) => [{ type, errors: decodeErrors(e) }]
