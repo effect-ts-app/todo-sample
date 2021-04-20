@@ -214,7 +214,7 @@ export const SchemaPrimitiveInterpreter = interpreter<X.SchemaURI, PrimitivesURI
           }
         )
       ),
-      tuple: (...types) => (cfg) => (env) =>       new X.SchemaType(
+      tuple: (..._types) => (cfg) => (env) =>       new X.SchemaType(
         X.SchemaApplyConfig(cfg?.conf)(
           X.dieMessage("tuple is not supported"),
           env,
