@@ -9,6 +9,7 @@ import * as EO from "@effect-ts-demo/todo-types/ext/EffectOption"
 import { Void } from "@effect-ts-demo/todo-types/shared"
 import { pipe } from "@effect-ts/core"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
+import * as Chunk from "@effect-ts/core/Collections/Immutable/Chunk"
 import * as T from "@effect-ts/core/Effect"
 import * as O from "@effect-ts/core/Option"
 import * as Ex from "@effect-ts/express"
@@ -241,6 +242,7 @@ export function makeSchema(
         }))
       )
     }),
+    T.map(Chunk.toArray),
     T.map((e) => {
       const f = ({ method, path, responses, ...rest }: typeof e[number]) => ({
         [method]: {

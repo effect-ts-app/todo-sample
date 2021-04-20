@@ -3,6 +3,7 @@ import { pipe } from "@effect-ts/core/Function"
 import type { TaggedUnionURI } from "@effect-ts/morphic/Algebra/TaggedUnion"
 import { interpreter } from "@effect-ts/morphic/HKT"
 import { mapRecord } from "@effect-ts/morphic/Utils"
+import * as Chunk from "@effect-ts/core/Collections/Immutable/Chunk"
 
 import { isTypeRef } from "../../JsonSchema"
 import * as X from "../base"
@@ -29,7 +30,7 @@ export const SchemaTaggedUnionInterpreter = interpreter<X.SchemaURI, TaggedUnion
             ),
             X.chain((oneOf) => {
               return X.succeed({
-                oneOf,
+                oneOf: Chunk.toArray(oneOf),
                 discriminator: { propertyName: _tag }
               })
             })

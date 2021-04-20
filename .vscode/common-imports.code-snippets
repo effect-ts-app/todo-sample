@@ -48,6 +48,13 @@
         ],
         "description": "RefM"
     },
+    "Chunk": {
+        "prefix": "+Chunk",
+        "body": [
+            "import * as Chunk from \"@effect-ts/core/Collections/Immutable/Chunk\""
+        ],
+        "description": "Chunk"
+    },
     "Map": {
         "prefix": "+Map",
         "body": [

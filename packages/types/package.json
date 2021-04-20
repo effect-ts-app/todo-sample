@@ -4,7 +4,7 @@
     "main": "src/index.ts",
     "license": "MIT",
     "dependencies": {
-        "@effect-ts/core": "^0.33.6",
+        "@effect-ts/core": "^0.34.1",
         "@effect-ts/monocle": "^0.29.0",
         "@effect-ts/morphic": "^0.32.0",
         "uuid": "^8.3.2"
@@ -13,9 +13,10 @@
         "@types/uuid": "^8.3.0"
     },
     "scripts": {
+        "circular": "madge --circular --ts-config ./tsconfig.json --extensions ts ./",
         "compile": "tsc --noEmit",
         "lint": "eslint .",
         "test": "echo 'no tests yet'",
-        "testsuite": "yarn compile && yarn lint && yarn test"
+        "testsuite": "yarn compile && yarn lint && yarn test && yarn circular"
     }
 }

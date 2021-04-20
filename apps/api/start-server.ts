@@ -1,15 +1,12 @@
 import fs from "fs"
 
 import * as Plutus from "@atlas-ts/plutus"
-import { generateMerged } from "@atlas-ts/plutus/Gen"
 import { JSONSchema, SubSchema } from "@atlas-ts/plutus/JsonSchema"
 import { References } from "@atlas-ts/plutus/Schema"
-import { NonEmptyString } from "@effect-ts-demo/todo-types/shared"
 import * as T from "@effect-ts/core/Effect"
 import { makeRef } from "@effect-ts/core/Effect/Ref"
 import { constVoid, pipe } from "@effect-ts/core/Function"
 import * as Ex from "@effect-ts/express"
-import { make } from "@effect-ts/morphic"
 import * as N from "@effect-ts/node/Runtime"
 import { urlencoded, json } from "body-parser"
 import cors from "cors"
@@ -17,7 +14,6 @@ import cors from "cors"
 import { makeSchema } from "@/routing"
 
 import { routes as taskRoutes } from "./Tasks/routes"
-import { generatePlutus } from "./plutus-test"
 
 import pkg from "package.json"
 
