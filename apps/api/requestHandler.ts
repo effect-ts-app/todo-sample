@@ -130,11 +130,11 @@ function parseRequestParams<PathA, CookieA, QueryA, BodyA, HeaderA>(
     )
 }
 
-function mapErrors_<E, NER extends Record<string, T.Effect<any, Errors, any>>>(
-  t: NER, // enforce non empty
-  mapErrors: (k: keyof NER) => (err: Errors) => E
+function mapErrors_<E, NE, NER extends Record<string, T.Effect<any, E, any>>>(
+  t: NER, // TODO: enforce non empty
+  mapErrors: (k: keyof NER) => (err: E) => NE
 ): {
-  [K in keyof NER]: T.Effect<EU._R<NER[K]>, E, EU._A<NER[K]>>
+  [K in keyof NER]: T.Effect<EU._R<NER[K]>, NE, EU._A<NER[K]>>
 } {
   return typedKeysOf(t).reduce(
     (prev, cur) => {
@@ -142,7 +142,7 @@ function mapErrors_<E, NER extends Record<string, T.Effect<any, Errors, any>>>(
       return prev
     },
     {} as {
-      [K in keyof NER]: T.Effect<EU._R<NER[K]>, E, EU._A<NER[K]>>
+      [K in keyof NER]: T.Effect<EU._R<NER[K]>, NE, EU._A<NER[K]>>
     }
   )
 }
