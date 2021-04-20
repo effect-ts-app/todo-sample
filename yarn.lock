@@ -987,12 +987,12 @@
   dependencies:
     "@date-io/core" "^2.10.7"
 
-"@effect-ts/core@^0.34.1":
-  version "0.34.1"
-  resolved "https://registry.yarnpkg.com/@effect-ts/core/-/core-0.34.1.tgz#c083404caea98953bed924d85d096c5efd06f7d5"
-  integrity sha512-+mwcG8cGXCzzHK948wW4A9xz0BDfGz8KFeltobbP8cNBQT/QTXrP/55zhYnxSq7Q4zEO15A52e2MYvqBPce2+A==
+"@effect-ts/core@^0.35.0":
+  version "0.35.0"
+  resolved "https://registry.yarnpkg.com/@effect-ts/core/-/core-0.35.0.tgz#067816f28e8ebd2cf864a0122e56bed6b2e7c038"
+  integrity sha512-vXm8jMS9nNr0g97iMoDX1UfqJB0r50dY/VQfgeJ6FOXJXbvc4C9FQ59BuOd1Shmk4wPIxr7WJ+Rxs1fvLVjn2g==
   dependencies:
-    "@effect-ts/system" "^0.31.1"
+    "@effect-ts/system" "^0.32.0"
 
 "@effect-ts/express@^0.16.0":
   version "0.16.0"
@@ -1014,10 +1014,10 @@
   resolved "https://registry.yarnpkg.com/@effect-ts/node/-/node-0.21.0.tgz#8874f6c7bfed3e1d36e2042c201995fb8aa546e4"
   integrity sha512-cso0Gfk8AWAN1MqIQvaC64pdaUArqA7zNShsRrrFKUygcK8KrYAGDlxem4KcsTrfzg7vhkZCrmAc4AfWtWF/+g==
 
-"@effect-ts/system@^0.31.1":
-  version "0.31.1"
-  resolved "https://registry.yarnpkg.com/@effect-ts/system/-/system-0.31.1.tgz#b87730b2e3027ac127d86d6543398ddd49a38a3c"
-  integrity sha512-WGSvzEKorUrqo7Cf1y0Xq7Yj2p7mreIdjIov3P2adKv9P9PiI5LlXAJZNCBEv7wusIAN25ZzYoVm/fntxhBK1w==
+"@effect-ts/system@^0.32.0":
+  version "0.32.0"
+  resolved "https://registry.yarnpkg.com/@effect-ts/system/-/system-0.32.0.tgz#3fa99cb79f72fee73b5c84c31cfe456d9edb69da"
+  integrity sha512-AXklmPK2cqwM/3JxGeuc2q1RaSGkazYswLL4qFb059GRYPHjsOSCwA/8NFyqrz4GPqapj3zJnbMyFRYDjl4v7Q==
 
 "@effect-ts/tracing-plugin@^0.10.1":
   version "0.10.1"
@@ -7848,11 +7848,6 @@ node-int64@^0.4.0:
     url "^0.11.0"
     util "^0.11.0"
     vm-browserify "^1.0.1"
-
-node-match-path@^0.6.3:
-  version "0.6.3"
-  resolved "https://registry.yarnpkg.com/node-match-path/-/node-match-path-0.6.3.tgz#55dd8443d547f066937a0752dce462ea7dc27551"
-  integrity sha512-fB1reOHKLRZCJMAka28hIxCwQLxGmd7WewOCBDYKpyA1KXi68A7vaGgdZAPhY2E6SXoYt3KqYCCvXLJ+O0Fu/Q==
 
 node-modules-regexp@^1.0.0:
   version "1.0.0"

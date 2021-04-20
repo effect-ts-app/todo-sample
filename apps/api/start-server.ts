@@ -36,7 +36,7 @@ const program = pipe(
         T.gen(function* ($) {
           const ref = yield* $(makeRef<Map<string, JSONSchema | SubSchema>>(new Map()))
           const withRef = T.provideService(References)({ ref })
-          const paths = yield* $(makeSchema(rdescs)["|>"](withRef))
+          const paths = yield* $(makeSchema(rdescs.tuple)["|>"](withRef))
 
           //const test = yield* $(generatePlutus)
 
