@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import * as EO from "@effect-ts-demo/todo-types/ext/EffectOption"
+import { DSL } from "@effect-ts/core"
+import { makeAssociative } from "@effect-ts/core/Associative"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as T from "@effect-ts/core/Effect"
-import * as E from "@effect-ts/core/Either"
 import { flow, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import * as Sy from "@effect-ts/core/Sync"
@@ -33,7 +34,7 @@ type Encode<A, E> = Encoder<A, E>["encode"]
 
 class ValidationError {
   public readonly _tag = "ValidationError"
-  constructor(public readonly error: unknown[]) {}
+  constructor(public readonly error: A.Array<unknown>) {}
 }
 
 function getErrorMessage(current: ContextEntry) {
@@ -79,6 +80,14 @@ export function decodeErrors(x: Errors) {
   )
 }
 
+const ValidationApplicative = T.getValidationApplicative(
+  makeAssociative<A.Array<{ type: string; errors: ReturnType<typeof decodeErrors> }>>(
+    (l, r) => l.concat(r)
+  )
+)
+
+const structValidation = DSL.structF(ValidationApplicative)
+
 function parseRequestParams<PathA, CookieA, QueryA, BodyA, HeaderA>(
   parsers: RequestParsers<PathA, CookieA, QueryA, BodyA, HeaderA>
 ) {
@@ -101,49 +110,24 @@ function parseRequestParams<PathA, CookieA, QueryA, BodyA, HeaderA>(
           )
         )
       ),
-      T.chain(() =>
-        T.structPar({
-          body: parsers.parseBody(body)["|>"](T.mapError(decodeErrors))["|>"](T.either),
-          cookie: parsers
-            .parseCookie(cookies)
-            ["|>"](T.mapError(decodeErrors))
-            ["|>"](T.either),
+      T.chain(() => {
+        const result = structValidation({
+          body: parsers.parseBody(body)["|>"](T.mapError(makeError("body"))),
+          cookie: parsers.parseCookie(cookies)["|>"](T.mapError(makeError("cookie"))),
           headers: parsers
             .parseHeaders(headers)
-            ["|>"](T.mapError(decodeErrors))
-            ["|>"](T.either),
-          query: parsers
-            .parseQuery(query)
-            ["|>"](T.mapError(decodeErrors))
-            ["|>"](T.either),
-          path: parsers
-            .parsePath(params)
-            ["|>"](T.mapError(decodeErrors))
-            ["|>"](T.either),
+            ["|>"](T.mapError(makeError("headers"))),
+          query: parsers.parseQuery(query)["|>"](T.mapError(makeError("query"))),
+          path: parsers.parsePath(params)["|>"](T.mapError(makeError("path"))),
         })
-      ),
-      T.chain((r: any) => {
-        // todo; proper
-        const errors = Object.keys(r).reduce((prev, cur) => {
-          const v = r[cur]
-          if (E.isLeft(v)) {
-            prev.push({ type: cur, errors: v.left })
-          }
-          return prev
-        }, [] as any[])
-
-        if (errors.length) {
-          return T.fail(new ValidationError(errors))
-        }
-        return T.succeed({
-          body: r.body.right,
-          cookie: r.cookie.right,
-          headers: r.headers.right,
-          query: r.query.right,
-          path: r.path.right,
-        } as { body: O.Option<BodyA>; cookie: O.Option<CookieA>; headers: O.Option<HeaderA>; query: O.Option<QueryA>; path: O.Option<PathA> })
-      })
+        return result
+      }),
+      T.mapError((err) => new ValidationError(err))
     )
+}
+
+function makeError(type: string) {
+  return (e: Errors) => [{ type, errors: decodeErrors(e) }]
 }
 
 function respondSuccess<A, E>(encodeResponse: Encode<A, E>) {
