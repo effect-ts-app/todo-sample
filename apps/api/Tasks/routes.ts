@@ -1,7 +1,6 @@
 import * as T from "@effect-ts/core/Effect"
-import * as Ex from "@effect-ts/express"
 
-import { makeRequestHandler } from "@/requestHandler"
+import * as R from "@/routing"
 
 import * as CreateTask from "./CreateTask"
 import * as DeleteTask from "./DeleteTask"
@@ -11,10 +10,10 @@ import * as SetTasksOrder from "./SetTasksOrder"
 import * as UpdateTask from "./UpdateTask"
 
 export const routes = T.tuple(
-  Ex.get("/tasks/:id", makeRequestHandler(GetTask)),
-  Ex.get("/tasks", makeRequestHandler(GetTasks)),
-  Ex.patch("/tasks/:id", makeRequestHandler(UpdateTask)),
-  Ex.delete("/tasks/:id", makeRequestHandler(DeleteTask)),
-  Ex.post("/tasks", makeRequestHandler(CreateTask)),
-  Ex.post("/tasks-order", makeRequestHandler(SetTasksOrder))
+  R.get("/tasks", GetTasks),
+  R.post("/tasks", CreateTask),
+  R.get("/tasks/:id", GetTask),
+  R.patch("/tasks/:id", UpdateTask),
+  R.delete("/tasks/:id", DeleteTask),
+  R.post("/tasks-order", SetTasksOrder)
 )

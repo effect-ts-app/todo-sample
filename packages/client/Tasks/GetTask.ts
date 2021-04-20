@@ -1,10 +1,17 @@
 import { Task } from "@effect-ts-demo/todo-types"
 import { make, AType, EType, opaque } from "@effect-ts/morphic"
 
-const Request_ = make((F) => F.interface({ id: F.uuid() }))
+const RequestPath_ = make((F) =>
+  F.interface({
+    id: F.uuid(),
+  })
+)
+const Request_ = make((F) => F.intersection(RequestPath_(F))())
 export interface Request extends AType<typeof Request_> {}
 export interface RequestE extends EType<typeof Request_> {}
-export const Request = opaque<RequestE, Request>()(Request_)
+export const Request = Object.assign(opaque<RequestE, Request>()(Request_), {
+  Path: RequestPath_,
+})
 
 export const Response = make((F) => F.nullable(Task(F)))
 export type Response = AType<typeof Response>

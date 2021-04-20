@@ -2,6 +2,7 @@ import { Step, Task, TaskE } from "@effect-ts-demo/todo-types"
 import * as EO from "@effect-ts-demo/todo-types/ext/EffectOption"
 import { NonEmptyString } from "@effect-ts-demo/todo-types/shared"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
+import * as Chunk from "@effect-ts/core/Collections/Immutable/Chunk"
 import * as Map from "@effect-ts/core/Collections/Immutable/Map"
 import * as T from "@effect-ts/core/Effect"
 import * as Ref from "@effect-ts/core/Effect/Ref"
@@ -153,10 +154,9 @@ export function remove(t: Task) {
 
 export const getOrder = orderRef.get
 export const setOrder = orderRef.set
-
 export const allOrdered = pipe(
   T.structPar({ tasks: all, order: getOrder }),
-  T.map(({ order, tasks }) => orderTasks(tasks, order))
+  T.map(({ order, tasks }) => orderTasks(tasks["|>"](Chunk.toArray), order))
 )
 
 function orderTasks(a: A.Array<Task>, order: A.Array<UUID>) {
