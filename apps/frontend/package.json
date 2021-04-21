@@ -4,9 +4,9 @@
     "private": true,
     "dependencies": {
         "@babel/core": "7.13.16",
-        "@effect-ts/core": "^0.35.0",
-        "@effect-ts/monocle": "^0.29.0",
-        "@effect-ts/morphic": "^0.32.0",
+        "@effect-ts/core": "^0.36.2",
+        "@effect-ts/monocle": "^0.30.0",
+        "@effect-ts/morphic": "^0.33.0",
         "@emotion/react": "^11.1.5",
         "@emotion/styled": "^11.3.0",
         "@material-ui/core": "next",
@@ -58,7 +58,7 @@
         "typescript": "^4.2.4",
         "use-interval": "^1.3.0",
         "web-vitals": "^1.1.1",
-        "webpack": "^5.34.0"
+        "webpack": "^5.35.0"
     },
     "devDependencies": {
         "@types/react-beautiful-dnd": "^13.0.0",
@@ -68,7 +68,7 @@
         "eslint-plugin-jsx-a11y": "^6.4.1",
         "eslint-plugin-react": "^7.23.2",
         "eslint-plugin-react-hooks": "^4.2.0",
-        "eslint-plugin-testing-library": "^4.1.0",
+        "eslint-plugin-testing-library": "^4.1.1",
         "eslint-webpack-plugin": "^2.5.4"
     },
     "scripts": {
