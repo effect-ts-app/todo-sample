@@ -10,6 +10,8 @@ import * as Ex from "@effect-ts/express"
 import * as N from "@effect-ts/node/Runtime"
 import { urlencoded, json } from "body-parser"
 import cors from "cors"
+import redoc from "redoc-express"
+import { setup, serve } from "swagger-ui-express"
 
 import { makeSchema } from "@/routing"
 
@@ -20,11 +22,44 @@ import pkg from "package.json"
 const HOST = "127.0.0.1"
 const PORT = 3330
 
+const readOpenApiDoc = T.effectAsync((cb) =>
+  fs.readFile("./openapi.json", "utf-8", (err, d) =>
+    err ? cb(T.fail(err)) : cb(T.succeed(d))
+  )
+)["|>"](T.orDie)
+
 const program = pipe(
   T.tuple(
     Ex.use(Ex.classic(cors())),
     Ex.use(Ex.classic(urlencoded({ extended: false }))),
     Ex.use(Ex.classic(json()))
+  ),
+  T.zipRight(
+    T.tuple(
+      Ex.get("/openapi.json", (_req, res) =>
+        readOpenApiDoc["|>"](T.map((js) => res.send(js)))
+      ),
+      Ex.get(
+        "/docs",
+        Ex.classic(
+          redoc({
+            title: "API Docs",
+            specUrl: "./openapi.json",
+          })
+        )
+      ),
+
+      Ex.use(...serve.map(Ex.classic)),
+      Ex.get("/swagger", (req, res, next) =>
+        readOpenApiDoc["|>"](
+          T.chain((docs) =>
+            T.succeedWith(() =>
+              setup(docs, { swaggerOptions: { url: "./openapi.json" } })(req, res, next)
+            )
+          )
+        )
+      )
+    )
   ),
   T.zipRight(taskRoutes),
   T.tap((rdescs) =>
@@ -79,7 +114,7 @@ const program = pipe(
       T.tap((_) =>
         T.effectAsync((cb) =>
           fs.writeFile(
-            "./schema.json",
+            "./openapi.json",
             JSON.stringify(_, undefined, 2),
             "utf-8",
             (err) => (err ? cb(T.fail(err)) : cb(T.succeed(constVoid())))

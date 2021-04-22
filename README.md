@@ -23,6 +23,7 @@ From repo root:
 - `yarn`
 - `yarn dev`
 - visit `http://localhost:3133`
+- for api docs, visit: `http://localhost:3330/docs` or `http://localhost:3330/swagger`
 
 Interesting bits are in:
 - `apps/api`

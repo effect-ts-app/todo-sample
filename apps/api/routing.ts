@@ -213,7 +213,7 @@ export function makeSchema(
         }),
         T.map((_) => ({
           path: e.path,
-          method: e.method,
+          method: e.method.toLowerCase(),
           parameters: [
             ..._.reqPath["|>"](makeParameters("path")),
             ..._.reqQuery["|>"](makeParameters("query")),

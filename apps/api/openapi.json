@@ -6,7 +6,7 @@
   },
   "paths": {
     "/tasks": {
-      "GET": {
+      "get": {
         "parameters": [],
         "responses": {
           "200": {
@@ -110,7 +110,7 @@
           }
         }
       },
-      "POST": {
+      "post": {
         "parameters": [],
         "requestBody": {
           "content": {
@@ -166,7 +166,7 @@
       }
     },
     "/tasks/:id": {
-      "GET": {
+      "get": {
         "parameters": [
           {
             "name": "id",
@@ -270,7 +270,7 @@
           }
         }
       },
-      "PATCH": {
+      "patch": {
         "parameters": [
           {
             "name": "id",
@@ -363,7 +363,7 @@
           }
         }
       },
-      "DELETE": {
+      "delete": {
         "parameters": [
           {
             "name": "id",
@@ -389,7 +389,7 @@
       }
     },
     "/tasks-order": {
-      "POST": {
+      "post": {
         "parameters": [],
         "requestBody": {
           "content": {
