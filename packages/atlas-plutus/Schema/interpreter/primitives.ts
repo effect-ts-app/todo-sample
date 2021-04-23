@@ -24,7 +24,9 @@ export const SchemaPrimitiveInterpreter = interpreter<X.SchemaURI, PrimitivesURI
         X.SchemaApplyConfig(config?.conf)(
           X.succeed({
             type: "string",
-            format: "date-time"
+            format: "date-time",
+            title: config?.name,
+            ...config?.extensions?.openapiMeta,
           }),
           env,
           {}
@@ -34,7 +36,7 @@ export const SchemaPrimitiveInterpreter = interpreter<X.SchemaURI, PrimitivesURI
       new X.SchemaType(
         X.SchemaApplyConfig(config?.conf)(
           X.succeed({
-            type: "boolean"
+            type: "boolean",
           }),
           env,
           {}
@@ -44,7 +46,13 @@ export const SchemaPrimitiveInterpreter = interpreter<X.SchemaURI, PrimitivesURI
       new X.SchemaType(
         X.SchemaApplyConfig(config?.conf)(
           X.succeed({
-            type: "string"
+            type: "string",
+            title: config?.name,
+            ...config?.extensions?.openapiMeta,
+            //minLength
+            //maxLength
+            // format; "uri"
+            // pattern regex
           }),
           env,
           {}
@@ -54,7 +62,11 @@ export const SchemaPrimitiveInterpreter = interpreter<X.SchemaURI, PrimitivesURI
       new X.SchemaType(
         X.SchemaApplyConfig(config?.conf)(
           X.succeed({
-            type: "number"
+            type: "number",
+            title: config?.name,
+            ...config?.extensions?.openapiMeta,
+            // minimum
+            // maximum
           }),
           env,
           {}
@@ -65,7 +77,7 @@ export const SchemaPrimitiveInterpreter = interpreter<X.SchemaURI, PrimitivesURI
         X.SchemaApplyConfig(config?.conf)(
           X.succeed({
             type: "string",
-            format: "bigint"
+            format: "bigint",
           }),
           env,
           {}
@@ -76,7 +88,7 @@ export const SchemaPrimitiveInterpreter = interpreter<X.SchemaURI, PrimitivesURI
         X.SchemaApplyConfig(config?.conf)(
           X.succeed({
             type: "string",
-            enum: [_]
+            enum: [_],
           }),
           env,
           {}
@@ -87,7 +99,9 @@ export const SchemaPrimitiveInterpreter = interpreter<X.SchemaURI, PrimitivesURI
         X.SchemaApplyConfig(config?.conf)(
           X.succeed({
             type: "number",
-            enum: [_]
+            enum: [_],
+            title: config?.name,
+            ...config?.extensions?.openapiMeta,
           }),
           env,
           {}
@@ -100,8 +114,10 @@ export const SchemaPrimitiveInterpreter = interpreter<X.SchemaURI, PrimitivesURI
             oneOf: _ls.map((x): EnumSchema | NumberEnumSchema => ({
               type: typeof x === "string" ? "string" : "number",
               description: `${x}`,
-              enum: [x] as any
-            }))
+              enum: [x] as any,
+              title: config?.name,
+              ...config?.extensions?.openapiMeta,
+            })),
           }),
           env,
           {}
@@ -112,7 +128,9 @@ export const SchemaPrimitiveInterpreter = interpreter<X.SchemaURI, PrimitivesURI
         X.SchemaApplyConfig(config?.conf)(
           X.succeed({
             type: "string",
-            enum: Object.keys(_keys)
+            enum: Object.keys(_keys),
+            title: config?.name,
+            ...config?.extensions?.openapiMeta,
           }),
           env,
           {}
@@ -126,21 +144,23 @@ export const SchemaPrimitiveInterpreter = interpreter<X.SchemaURI, PrimitivesURI
             _getSchema(env).Schema,
             X.chain((a) =>
               X.succeed({
-                  ...a,
-                  nullable: true
+                ...a,
+                nullable: true,
+                ...(config?.name ? { title: config?.name } : undefined),
+                ...config?.extensions?.openapiMeta,
               })
             )
           ),
           env,
           {
-            Schema: _getSchema(env).Schema
+            Schema: _getSchema(env).Schema,
           }
         )
       ),
     mutable: (_getSchema, config) => (env) =>
       new X.SchemaType(
         X.SchemaApplyConfig(config?.conf)(_getSchema(env).Schema, env, {
-          Schema: _getSchema(env).Schema
+          Schema: _getSchema(env).Schema,
         })
       ),
     optional: (_getSchema, config) => (env) =>
@@ -152,13 +172,15 @@ export const SchemaPrimitiveInterpreter = interpreter<X.SchemaURI, PrimitivesURI
             X.chain((a) =>
               X.succeed({
                 ...a,
-                nullable: true
-            })
+                nullable: true,
+                ...(config?.name ? { title: config?.name } : undefined),
+                ...config?.extensions?.openapiMeta,
+              })
             )
           ),
           env,
           {
-            Schema: _getSchema(env).Schema
+            Schema: _getSchema(env).Schema,
           }
         )
       ),
@@ -170,13 +192,15 @@ export const SchemaPrimitiveInterpreter = interpreter<X.SchemaURI, PrimitivesURI
             X.chain((items) =>
               X.succeed({
                 type: "array",
-                items
+                items,
+                ...(config?.name ? { title: config?.name } : undefined),
+                ...config?.extensions?.openapiMeta,
               })
             )
           ),
           env,
           {
-            Schema: _getSchema(env).Schema
+            Schema: _getSchema(env).Schema,
           }
         )
       ),
@@ -188,7 +212,9 @@ export const SchemaPrimitiveInterpreter = interpreter<X.SchemaURI, PrimitivesURI
             X.chain((items) =>
               X.succeed({
                 type: "array",
-                items
+                items,
+                ...(config?.name ? { title: config?.name } : undefined),
+                ...config?.extensions?.openapiMeta,
               })
             )
           ),
@@ -204,28 +230,31 @@ export const SchemaPrimitiveInterpreter = interpreter<X.SchemaURI, PrimitivesURI
             X.chain((items) =>
               X.succeed({
                 type: "array",
-                items
+                items,
+                minItems: 1,
+                ...(config?.name ? { title: config?.name } : undefined),
+                ...config?.extensions?.openapiMeta,
               })
             )
           ),
           env,
           {
-            Schema: _getSchema(env).Schema
+            Schema: _getSchema(env).Schema,
           }
         )
       ),
-      tuple: (..._types) => (cfg) => (env) =>       new X.SchemaType(
-        X.SchemaApplyConfig(cfg?.conf)(
-          X.dieMessage("tuple is not supported"),
-          env,
-          {}
-        )),
+    tuple: (..._types) => (cfg) => (env) =>
+      new X.SchemaType(
+        X.SchemaApplyConfig(cfg?.conf)(X.dieMessage("tuple is not supported"), env, {})
+      ),
     uuid: (config) => (env) =>
       new X.SchemaType(
         X.SchemaApplyConfig(config?.conf)(
           X.succeed({
             type: "string",
-            format: "uuid"
+            format: "uuid",
+            ...(config?.name ? { title: config?.name } : undefined),
+            ...config?.extensions?.openapiMeta,
           }),
           env,
           {}
@@ -238,14 +267,16 @@ export const SchemaPrimitiveInterpreter = interpreter<X.SchemaURI, PrimitivesURI
             X.struct({ e: _e(env).Schema, a: _a(env).Schema }),
             X.chain(({ a, e }) =>
               X.succeed({
-                oneOf: [e, a]
+                oneOf: [e, a],
+                ...(config?.name ? { title: config?.name } : undefined),
+                ...config?.extensions?.openapiMeta,
               })
             )
           ),
           env,
           {
             left: _e(env).Schema,
-            right: _a(env).Schema
+            right: _a(env).Schema,
           }
         )
       ),
@@ -260,17 +291,19 @@ export const SchemaPrimitiveInterpreter = interpreter<X.SchemaURI, PrimitivesURI
                   a,
                   {
                     type: "object",
-                    properties: { _tag: { type: "string", description: "None" } }
-                  }
-                ]
+                    properties: { _tag: { type: "string", description: "None" } },
+                  },
+                ],
+                ...(config?.name ? { title: config?.name } : undefined),
+                ...config?.extensions?.openapiMeta,
               })
             )
           ),
           env,
           {
-            Schema: _a(env).Schema
+            Schema: _a(env).Schema,
           }
         )
-      )
+      ),
   })
 )

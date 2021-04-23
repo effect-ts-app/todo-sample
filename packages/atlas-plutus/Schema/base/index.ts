@@ -24,8 +24,12 @@ export interface ConfigExtensionRef {
   openapiRef?: string
 }
 
+export interface ConfigExtensionMeta {
+  openapiMeta?: any
+}
+
 declare module "@effect-ts/morphic/HKT" {
-  interface ConfigExtensions extends ConfigExtensionRef {}
+  interface ConfigExtensions extends ConfigExtensionRef, ConfigExtensionMeta {}
 }
 
 export type Schema = T.RIO<Has<References>, JSONSchema | SubSchema>
@@ -36,7 +40,7 @@ export type SchemaURI = typeof SchemaURI
 export function referenced(x?: ConfigExtensionRef) {
   return (schema: Schema): Schema => {
     if (x && typeof x.openapiRef !== "undefined") {
-      const openapiRef = x.openapiRef
+      const { openapiRef } = x
       return T.gen(function* (_) {
         const { ref } = yield* _(References)
         const jsonSchema = yield* _(schema)
@@ -78,7 +82,7 @@ export function described(description: string) {
   return T.map(
     (schema: SubSchema): SubSchema => ({
       ...schema,
-      description
+      description,
     })
   )
 }
@@ -87,7 +91,7 @@ export function titled(title: string) {
   return T.map(
     (schema: SubSchema): SubSchema => ({
       ...schema,
-      title
+      title,
     })
   )
 }

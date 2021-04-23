@@ -60,7 +60,7 @@ export const EnumSchema = (p: {
   description?: string
 }): EnumSchema => ({
   type: "string",
-  ...p
+  ...p,
 })
 
 export const isEnumSchema = (x: JSONSchema): x is EnumSchema =>
@@ -90,12 +90,15 @@ export interface BooleanSchema extends DescriptionSchema {
 
 export const BooleanSchema = (p: { description?: string }) => ({
   type: "boolean",
-  ...p
+  ...p,
 })
 
 export interface ArraySchema extends DescriptionSchema {
   type: "array"
   items: SubSchema | A.Array<SubSchema>
+  minItems?: number
+  maxItems?: number
+  description?: string
 }
 
 export const ArraySchema = (p: {
@@ -105,7 +108,7 @@ export const ArraySchema = (p: {
   maxItems?: number
 }) => ({
   type: "array" as const,
-  ...p
+  ...p,
 })
 
 export interface Ref {
