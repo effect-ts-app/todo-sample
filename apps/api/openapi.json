@@ -346,17 +346,7 @@
                     "type": "string",
                     "title": "NonEmptyString"
                   }
-                },
-                "required": [
-                  "completed",
-                  "due",
-                  "isFavorite",
-                  "myDay",
-                  "note",
-                  "reminder",
-                  "steps",
-                  "title"
-                ]
+                }
               }
             }
           }

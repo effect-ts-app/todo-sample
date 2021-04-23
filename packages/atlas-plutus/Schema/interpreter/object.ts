@@ -18,13 +18,13 @@ export const SchemaObjectInterpreter = interpreter<X.SchemaURI, ObjectURI>()(() 
                 X.succeed({
                   type: "object",
                   properties,
-                  required: Object.keys(properties)
+                  required: Object.keys(properties),
                 })
               )
             ),
             env,
             {
-              Schema: Schema as any
+              Schema: Schema as any,
             }
           )
         )
@@ -41,13 +41,13 @@ export const SchemaObjectInterpreter = interpreter<X.SchemaURI, ObjectURI>()(() 
                 X.succeed({
                   type: "object",
                   properties,
-                  required: Object.keys(properties)
+                  //required: Object.keys(properties)
                 })
               )
             ),
             env,
             {
-              Schema: Schema as any
+              Schema: Schema as any,
             }
           )
         )
@@ -62,24 +62,24 @@ export const SchemaObjectInterpreter = interpreter<X.SchemaURI, ObjectURI>()(() 
               pipe(
                 X.struct({
                   req: X.struct((Schema as any) as { x: X.Schema }),
-                  par: X.struct((SchemaPartial as any) as { x: X.Schema })
+                  par: X.struct((SchemaPartial as any) as { x: X.Schema }),
                 }),
                 X.chain(({ par, req }) =>
                   X.succeed({
                     type: "object",
                     properties: { ...par, ...req },
-                    required: Object.keys(req)
+                    required: Object.keys(req),
                   })
                 )
               ),
               env,
               {
                 Schema: Schema as any,
-                SchemaPartial: SchemaPartial as any
+                SchemaPartial: SchemaPartial as any,
               }
             )
           )
         )
       )
-    ) as any
+    ) as any,
 }))
