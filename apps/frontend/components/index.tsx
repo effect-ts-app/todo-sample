@@ -13,9 +13,9 @@ export const Clickable = styled(Box)`
   ${ClickableMixin}
 `
 
-export const Completable = styled(Box)<{ completed: boolean }>`
-  ${({ completed }) =>
-    completed &&
+export const Completable = styled(Box)<{ $completed: boolean }>`
+  ${({ $completed }) =>
+    $completed &&
     css`
       text-decoration: line-through;
     `}
@@ -126,11 +126,11 @@ export function ClickableMixin<El>({ onClick }: ClickableMixinProps<El>) {
 }
 
 export interface StateMixinProps {
-  state?: "warn" | "error"
+  $state?: "warn" | "error"
 }
-function StateMixin({ state }: StateMixinProps) {
+function StateMixin({ $state }: StateMixinProps) {
   return css`
-    color: ${state === "warn" ? "yellow" : state === "error" ? "red" : "inherit"};
+    color: ${$state === "warn" ? "yellow" : $state === "error" ? "red" : "inherit"};
   `
 }
 StateMixin.error = constant("error" as const)

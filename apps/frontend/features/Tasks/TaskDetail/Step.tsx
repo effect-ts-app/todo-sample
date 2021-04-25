@@ -42,7 +42,7 @@ export function Step({
                 updateTitle(title).then(onSuccess(onSuc))
               }}
             >
-              <Completable as="span" completed={s.completed}>
+              <Completable as="span" $completed={s.completed}>
                 {s.title}
               </Completable>
             </TextFieldWithEditor>

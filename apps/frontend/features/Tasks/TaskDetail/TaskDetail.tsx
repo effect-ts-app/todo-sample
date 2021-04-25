@@ -81,7 +81,7 @@ export const TaskDetail = memo(function ({
                 as={Typography}
                 variant="h5"
                 display="inline"
-                completed={O.isSome(t.completed)}
+                $completed={O.isSome(t.completed)}
               >
                 {t.title}
               </Completable>
@@ -158,7 +158,7 @@ export const TaskDetail = memo(function ({
               disabled={f.setReminder.loading}
               renderInput={(p) => (
                 <StateTextField
-                  state={renderIf_(Todo.Task.reminderInPast(t), StateMixin.error)}
+                  $state={renderIf_(Todo.Task.reminderInPast(t), StateMixin.error)}
                   {...p}
                 />
               )}
@@ -175,7 +175,7 @@ export const TaskDetail = memo(function ({
               disabled={f.setDue.loading}
               renderInput={(p) => (
                 <StateTextField
-                  state={renderIf_(Todo.Task.dueInPast(t), StateMixin.error)}
+                  $state={renderIf_(Todo.Task.dueInPast(t), StateMixin.error)}
                   {...p}
                 />
               )}

@@ -93,7 +93,7 @@ export const Task = memo(function ({
                 }}
               />
               <div>
-                <Completable completed={O.isSome(t.completed)}>{t.title}</Completable>
+                <Completable $completed={O.isSome(t.completed)}>{t.title}</Completable>
                 <div>
                   {O.isSome(t.myDay) && (
                     <>
@@ -105,7 +105,7 @@ export const Task = memo(function ({
                   {renderIf_(t.due, (d) => (
                     // eslint-disable-next-line react/jsx-key
                     <State
-                      state={renderIf_(Todo.Task.dueInPast(t), () => "error" as const)}
+                      $state={renderIf_(Todo.Task.dueInPast(t), () => "error" as const)}
                     >
                       <CalendarToday />
                       {d.toLocaleDateString()}
