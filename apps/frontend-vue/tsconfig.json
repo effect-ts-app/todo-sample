@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "baseUrl": "./",
     "target": "ES2018",
     "module": "ESNext",
     "moduleResolution": "Node",
@@ -8,13 +9,16 @@
       "ESNext.AsyncIterable",
       "DOM"
     ],
-    "esModuleInterop": true,
     "allowJs": true,
-    "sourceMap": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
     "noEmit": true,
-    "experimentalDecorators": true,
-    "baseUrl": ".",
     "paths": {
       "~/*": [
         "./*"

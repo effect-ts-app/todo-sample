@@ -34,5 +34,12 @@ export default {
   modules: [],
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
-  build: {},
+  build: {
+    transpile: [
+      'fp-ts',
+      '@nll/datum',
+      '@effect-ts-demo/todo-client',
+      '@effect-ts-demo/todo-types',
+    ],
+  },
 }
