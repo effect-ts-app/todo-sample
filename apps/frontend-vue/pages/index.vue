@@ -2,33 +2,42 @@
   <div class="container">
     <div>
       <Logo />
-      <h1 class="title">@effect-ts-demo/todo-frontend-vue</h1>
-      <div class="links">
-        <a
-          href="https://nuxtjs.org/"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="button--green"
-        >
-          Documentation
-        </a>
-        <a
-          href="https://github.com/nuxt/nuxt.js"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="button--grey"
-        >
-          GitHub
-        </a>
-      </div>
+      <ul id="example-1">
+        <li v-for="task in tasks" :key="task.id">
+          {{ task.title }}
+        </li>
+      </ul>
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
+import * as Todo from '@effect-ts-demo/todo-types'
+import * as TodoClient from '@effect-ts-demo/todo-client'
+import { pipe } from '@effect-ts/core/Function'
+import * as T from '@effect-ts/core/Effect'
 
-export default Vue.extend({})
+const config = Object.freeze({
+  apiUrl: 'http://localhost:3330', // '/api'
+})
+
+export default Vue.extend({
+  data() {
+    return {
+      tasks: [] as readonly Todo.Task[],
+    }
+  },
+
+  async fetch() {
+    await pipe(
+      TodoClient.Tasks.getTasks,
+      T.chain((r) => T.succeedWith(() => (this.tasks = r.items))),
+      T.provideLayer(TodoClient.LiveApiConfig(config)),
+      T.runPromise
+    )
+  },
+})
 </script>
 
 <style>
