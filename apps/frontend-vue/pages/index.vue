@@ -15,12 +15,11 @@
 import Vue from 'vue'
 import * as Todo from '@effect-ts-demo/todo-types'
 import * as TodoClient from '@effect-ts-demo/todo-client'
+
 import { pipe } from '@effect-ts/core/Function'
 import * as T from '@effect-ts/core/Effect'
 
-const config = Object.freeze({
-  apiUrl: 'http://localhost:3330', // '/api'
-})
+import { runPromise } from '../context'
 
 export default Vue.extend({
   data() {
@@ -33,8 +32,7 @@ export default Vue.extend({
     await pipe(
       TodoClient.Tasks.getTasks,
       T.chain((r) => T.succeedWith(() => (this.tasks = r.items))),
-      T.provideLayer(TodoClient.LiveApiConfig(config)),
-      T.runPromise
+      runPromise
     )
   },
 })
