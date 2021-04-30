@@ -5,6 +5,7 @@ import { M } from "@effect-ts/morphic"
 import { Decode, decode, Errors } from "@effect-ts/morphic/Decoder"
 import { encode, Encoder } from "@effect-ts/morphic/Encoder"
 import fetch from "cross-fetch"
+import AbortController from "node-abort-controller"
 
 import { getConfig } from "./config"
 
