@@ -6,7 +6,8 @@
         "sourceMap": false,
         "rootDir": "./",
         "noEmit": false,
-        "incremental": false
+        "incremental": false,
+        "moduleResolution": "node"
     },
     "include": [
         "./"

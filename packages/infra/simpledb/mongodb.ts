@@ -8,8 +8,8 @@ import * as O from "@effect-ts/core/Option"
 import { _A } from "@effect-ts/core/Utils"
 import { MongoClient, IndexSpecification, CollectionInsertOneOptions } from "mongodb"
 
-import { DBRecord, CachedRecord, OptimisticLockException } from "../shared"
-import * as simpledb from "../simpledb"
+import { DBRecord, CachedRecord, OptimisticLockException } from "./shared"
+import * as simpledb from "./simpledb"
 
 // TODO: we should probably share a single client...
 

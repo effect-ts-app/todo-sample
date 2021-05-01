@@ -8,7 +8,7 @@ import { _A } from "@effect-ts/core/Utils"
 import { createClient as createRedisClient } from "redis"
 import Redlock from "redlock"
 
-import { ConnectionException } from "../simpledb/shared"
+import { ConnectionException } from "./simpledb/shared"
 
 const makeRedisClientEnv = (redisUrl: string) =>
   M.make_(
