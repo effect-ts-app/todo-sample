@@ -13,7 +13,7 @@
         "@effect-ts/monocle": "^0.30.0",
         "@effect-ts/morphic": "^0.33.0",
         "@effect-ts/node": "^0.22.0",
-        "@effect-ts/schema": "^0.1.8",
+        "@effect-ts/schema": "^0.1.9",
         "body-parser": "^1.19.0",
         "cors": "^2.8.5",
         "express": "^4.17.1",
