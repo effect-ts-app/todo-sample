@@ -1,4 +1,4 @@
-import * as A from "@effect-ts-demo/todo-types/ext/Array"
+import * as A from "@effect-ts-demo/core/ext/Array"
 import { Fiber, Semaphore } from "@effect-ts/core"
 import * as T from "@effect-ts/core/Effect"
 import { Cause } from "@effect-ts/core/Effect/Cause"

@@ -5,7 +5,7 @@ import type { TaggedUnionURI } from "@effect-ts/morphic/Algebra/TaggedUnion"
 import { interpreter } from "@effect-ts/morphic/HKT"
 import { mapRecord } from "@effect-ts/morphic/Utils"
 
-import { isTypeRef } from "../../JsonSchema"
+//import { isTypeRef } from "../../JsonSchema"
 import * as X from "../base"
 
 export const SchemaTaggedUnionInterpreter = interpreter<X.SchemaURI, TaggedUnionURI>()(

@@ -7,7 +7,6 @@
     "scripts": {
         "build": "rimraf lib; ttsc --p tsconfig.build.json; yarn prettier:lib;",
         "type-check": "tsc --noEmit",
-        "autofix": "yarn prettier && yarn lint --fix && yarn prettier",
         "prettier": "prettier --write \"./{src,test,demo}/**/*.ts\"",
         "prettier:lib": "prettier --write \"./lib/**/*.js\"",
         "lint": "eslint . --ext .ts,.tsx"

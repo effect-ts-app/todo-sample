@@ -1,4 +1,10 @@
-const withTM = require('next-transpile-modules')(['fp-ts', '@nll/datum', '@effect-ts-demo/todo-client', '@effect-ts-demo/todo-types']);
+const withTM = require('next-transpile-modules')([
+    'fp-ts',
+    '@nll/datum',
+    '@effect-ts-demo/core',
+    '@effect-ts-demo/todo-client',
+    '@effect-ts-demo/todo-types'
+]);
 
 const { API_ROOT = "http://localhost:3330" } = process.env
 

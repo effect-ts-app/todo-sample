@@ -4,6 +4,7 @@
     "main": "index.js",
     "license": "MIT",
     "dependencies": {
+        "@effect-ts-demo/core": "*",
         "@effect-ts-demo/todo-types": "*",
         "@effect-ts/core": "^0.37.3",
         "@effect-ts/monocle": "^0.30.0",
@@ -14,6 +15,8 @@
         "circular": "madge --circular --ts-config ./tsconfig.json --extensions ts ./",
         "compile": "tsc --noEmit",
         "lint": "eslint .",
+        "prettier": "prettier \"**/*.ts\"",
+        "autofix": "yarn lint --fix && yarn prettier --write",
         "test": "echo 'no tests yet'",
         "testsuite": "yarn compile && yarn lint && yarn test && yarn circular"
     }

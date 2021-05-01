@@ -1,10 +1,11 @@
-import * as T from "@effect-ts/core/Effect"
-import { pipe, flow } from "@effect-ts/core/Function"
-import * as F from "@effect-ts/core/Function"
-import * as O from "@effect-ts/core/Option"
 import * as OptionT from "@effect-ts/core/OptionT"
 import * as P from "@effect-ts/core/Prelude"
 import { intersect } from "@effect-ts/core/Utils"
+
+import * as T from "./Effect"
+import { pipe, flow } from "./Function"
+import * as F from "./Function"
+import * as O from "./Option"
 
 export const Monad = OptionT.monad(T.Monad)
 export const Applicative = OptionT.applicative(T.Applicative)
@@ -43,7 +44,7 @@ export const fromEffect = <R, E, A>(eff: T.Effect<R, E, A>) => pipe(eff, T.map(O
 export const encaseNullableTask = <T>(
   taskCreator: F.Lazy<Promise<T | null>>
 ): T.Effect<unknown, never, O.Option<NonNullable<T>>> =>
-  pipe(T.tryPromise(taskCreator), T.orDie, T.map(O.fromNullable))
+  T.map_(T.tryPromise(taskCreator)["|>"](T.orDie), O.fromNullable)
 
 export const encaseNullableTaskErrorIfNull = <T, E>(
   taskCreator: F.Lazy<Promise<T | null>>,
@@ -53,7 +54,7 @@ export const encaseNullableTaskErrorIfNull = <T, E>(
     encaseNullableTask(taskCreator),
     T.chain(O.fold(() => T.fail(makeError()), T.succeed))
   )
-//export const encaseEither = flow(T.encaseEither, fromEffect)
+export const encaseEither = flow(T.encaseEither, fromEffect)
 
 export const map_ = <R, E, A, B>(
   fa: EffectOption<R, E, A>,

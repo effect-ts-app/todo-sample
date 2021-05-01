@@ -14,16 +14,16 @@ const A = MO.make((F) =>
       a: F.string({
         conf: {
           [Api.SchemaURI]: (_) =>
-            Api.succeed({ type: "string", description: "my description" })
-        }
+            Api.succeed({ type: "string", description: "my description" }),
+        },
       }),
       b: F.number(),
-      c: F.date()
+      c: F.date(),
     },
     {
       extensions: {
-        openapiRef: "RefA"
-      }
+        openapiRef: "RefA",
+      },
     }
   )
 )
@@ -33,12 +33,12 @@ const B = MO.make((F) =>
       _tag: F.stringLiteral("B"),
       a: F.string(),
       b: F.number(),
-      c: F.date()
+      c: F.date(),
     },
     {
       extensions: {
-        openapiRef: "RefB"
-      }
+        openapiRef: "RefB",
+      },
     }
   )
 )
@@ -58,7 +58,7 @@ describe("Morphic OpenAPI Schemas", () => {
         T.runPromise
       )
     ).toEqual({
-      $ref: "#/components/schemas/RefA"
+      $ref: "#/components/schemas/RefA",
     })
   })
   it("should derive schema union", async () => {
@@ -76,15 +76,15 @@ describe("Morphic OpenAPI Schemas", () => {
     ).toEqual({
       oneOf: [
         {
-          $ref: "#/components/schemas/RefA"
+          $ref: "#/components/schemas/RefA",
         },
         {
-          $ref: "#/components/schemas/RefB"
-        }
+          $ref: "#/components/schemas/RefB",
+        },
       ],
       discriminator: {
-        propertyName: "_tag"
-      }
+        propertyName: "_tag",
+      },
     })
   })
 })

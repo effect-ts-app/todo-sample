@@ -1,3 +1,4 @@
+/* eslint-disable react/display-name */
 import * as O from "@effect-ts/core/Option"
 import { List, ListItem, ListItemIcon, ListItemText } from "@material-ui/core"
 import CalendarToday from "@material-ui/icons/CalendarToday"

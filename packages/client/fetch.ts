@@ -1,4 +1,4 @@
-import * as T from "@effect-ts-demo/todo-types/ext/Effect"
+import * as T from "@effect-ts-demo/core/ext/Effect"
 import { pipe } from "@effect-ts/core"
 import { flow } from "@effect-ts/core/Function"
 import { M } from "@effect-ts/morphic"

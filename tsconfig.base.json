@@ -22,10 +22,6 @@
         "noUnusedLocals": true,
         "noUnusedParameters": true,
         "outDir": "build/dist",
-        "types": [
-            "node",
-            "jest"
-        ],
         "esModuleInterop": true,
         "removeComments": true,
         "sourceMap": true,

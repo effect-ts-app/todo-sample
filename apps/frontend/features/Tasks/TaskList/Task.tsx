@@ -1,4 +1,4 @@
-import * as A from "@effect-ts-demo/todo-types/ext/Array"
+import * as A from "@effect-ts-demo/core/ext/Array"
 import * as O from "@effect-ts/core/Option"
 import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
 import { Box, Card, Checkbox } from "@material-ui/core"

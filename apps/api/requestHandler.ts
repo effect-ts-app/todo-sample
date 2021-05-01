@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import * as EO from "@effect-ts-demo/todo-types/ext/EffectOption"
+import * as SO from "@effect-ts-demo/core/ext/SyncOption"
 import { DSL } from "@effect-ts/core"
 import { makeAssociative } from "@effect-ts/core/Associative"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
@@ -267,35 +267,35 @@ function makeRequestParsers<
   const ph = O.fromNullable(Request.Headers)
     ["|>"](O.map(strictDecoder))
     ["|>"](O.map((x) => x.decode))
-    ["|>"](EO.fromOption)
+    ["|>"](SO.fromOption)
   const parseHeaders = (u: unknown) =>
-    ph["|>"](EO.chain((d) => d(u)["|>"](EO.fromEffect)))
+    ph["|>"](SO.chain((d) => d(u)["|>"](SO.fromEffect)))
 
   const pq = O.fromNullable(Request.Query)
     ["|>"](O.map(strictDecoder))
     ["|>"](O.map((x) => x.decode))
-    ["|>"](EO.fromOption)
+    ["|>"](SO.fromOption)
   const parseQuery = (u: unknown) =>
-    pq["|>"](EO.chain((d) => d(u)["|>"](EO.fromEffect)))
+    pq["|>"](SO.chain((d) => d(u)["|>"](SO.fromEffect)))
 
   const pb = O.fromNullable(Request.Body)
     ["|>"](O.map(strictDecoder))
     ["|>"](O.map((x) => x.decode))
-    ["|>"](EO.fromOption)
-  const parseBody = (u: unknown) => pb["|>"](EO.chain((d) => d(u)["|>"](EO.fromEffect)))
+    ["|>"](SO.fromOption)
+  const parseBody = (u: unknown) => pb["|>"](SO.chain((d) => d(u)["|>"](SO.fromEffect)))
 
   const pp = O.fromNullable(Request.Path)
     ["|>"](O.map(strictDecoder))
     ["|>"](O.map((x) => x.decode))
-    ["|>"](EO.fromOption)
-  const parsePath = (u: unknown) => pp["|>"](EO.chain((d) => d(u)["|>"](EO.fromEffect)))
+    ["|>"](SO.fromOption)
+  const parsePath = (u: unknown) => pp["|>"](SO.chain((d) => d(u)["|>"](SO.fromEffect)))
 
   const pc = O.fromNullable(Request.Cookie)
     ["|>"](O.map(strictDecoder))
     ["|>"](O.map((x) => x.decode))
-    ["|>"](EO.fromOption)
+    ["|>"](SO.fromOption)
   const parseCookie = (u: unknown) =>
-    pc["|>"](EO.chain((d) => d(u)["|>"](EO.fromEffect)))
+    pc["|>"](SO.chain((d) => d(u)["|>"](SO.fromEffect)))
 
   return {
     parseBody,

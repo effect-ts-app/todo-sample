@@ -4,6 +4,9 @@
     "private": true,
     "dependencies": {
         "@babel/core": "7.14.0",
+        "@effect-ts-demo/core": "*",
+        "@effect-ts-demo/todo-client": "*",
+        "@effect-ts-demo/todo-types": "*",
         "@effect-ts/core": "^0.37.3",
         "@effect-ts/monocle": "^0.30.0",
         "@effect-ts/morphic": "^0.33.0",
@@ -74,12 +77,12 @@
         "circular": "madge --circular --ts-config ./tsconfig.json --extensions ts ./",
         "compile": "tsc --noEmit",
         "lint": "eslint .",
-        "test": "yarn test:runner --watchAll=false",
-        "testsuite": "yarn compile && yarn lint && yarn test && yarn circular",
+        "prettier": "prettier \"**/*.ts\"",
+        "autofix": "yarn lint --fix && yarn prettier --write",
+        "testsuite": "yarn compile && yarn lint && yarn circular",
         "dev": "next dev -p 3133",
         "build": "next build",
-        "start": "next start",
-        "test:runner": "node scripts/test.js"
+        "start": "next start"
     },
     "browserslist": {
         "production": [

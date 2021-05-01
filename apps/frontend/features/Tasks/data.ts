@@ -1,6 +1,6 @@
+import * as T from "@effect-ts-demo/core/ext/Effect"
+import * as EO from "@effect-ts-demo/core/ext/EffectOption"
 import * as TodoClient from "@effect-ts-demo/todo-client"
-import * as T from "@effect-ts-demo/todo-types/ext/Effect"
-import * as EO from "@effect-ts-demo/todo-types/ext/EffectOption"
 import { NonEmptyString } from "@effect-ts-demo/todo-types/shared"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import { constant, flow, identity, pipe } from "@effect-ts/core/Function"

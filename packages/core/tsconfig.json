@@ -1,0 +1,18 @@
+{
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+        //"baseUrl": "./",
+        "outDir": "./",
+        "sourceMap": false,
+        "rootDir": "./",
+        "noEmit": false,
+        "incremental": false
+    },
+    "include": [
+        "./"
+    ],
+    "exclude": [
+        "node_modules",
+        "../../node_modules"
+    ]
+}

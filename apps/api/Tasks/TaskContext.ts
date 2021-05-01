@@ -1,5 +1,5 @@
+import * as EO from "@effect-ts-demo/core/ext/EffectOption"
 import { Step, Task, TaskE } from "@effect-ts-demo/todo-types"
-import * as EO from "@effect-ts-demo/todo-types/ext/EffectOption"
 import { NonEmptyString } from "@effect-ts-demo/todo-types/shared"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as Chunk from "@effect-ts/core/Collections/Immutable/Chunk"

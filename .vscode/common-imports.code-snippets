@@ -2,14 +2,35 @@
     "EffectOption": {
         "prefix": "+EO",
         "body": [
-            "import * as EO from \"@effect-ts-demo/todo-types/ext/EffectOption\""
+            "import * as EO from \"@effect-ts-demo/core/ext/EffectOption\""
         ],
         "description": "EffectOption as EO"
+    },
+    "SyncOption": {
+        "prefix": "+SO",
+        "body": [
+            "import * as SO from \"@effect-ts-demo/core/ext/SyncOption\""
+        ],
+        "description": "SyncOption as SO"
+    },
+    "Equal": {
+        "prefix": "+Eq",
+        "body": [
+            "import * as Eq from \"@effect-ts/core/Equal\""
+        ],
+        "description": "Equal as Eq"
+    },
+    "Order": {
+        "prefix": "+Ord",
+        "body": [
+            "import * as Ord from \"@effect-ts/core/Ord\""
+        ],
+        "description": "Order as Ord"
     },
     "Model": {
         "prefix": "+MO",
         "body": [
-            "import * as MO from \"@effect-ts/morphic\""
+            "import * as MO from \"@effect-ts-demo/core/ext/Model\""
         ],
         "description": "Morphic as MO"
     },

@@ -1,5 +1,5 @@
+import * as A from "@effect-ts-demo/core/ext/Array"
 import * as Todo from "@effect-ts-demo/todo-types"
-import * as A from "@effect-ts-demo/todo-types/ext/Array"
 import { NonEmptyString } from "@effect-ts-demo/todo-types/shared"
 import { flow } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"

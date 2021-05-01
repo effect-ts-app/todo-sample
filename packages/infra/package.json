@@ -1,0 +1,31 @@
+{
+    "name": "@effect-ts-demo/infra",
+    "version": "0.0.1",
+    "main": "index.js",
+    "license": "MIT",
+    "dependencies": {
+        "@effect-ts-demo/core": "*",
+        "mongodb": "^3.6.6",
+        "proper-lockfile": "^4.1.2",
+        "query-string": "^7.0.0",
+        "redis": "^3.1.2",
+        "redlock": "^4.2.0",
+        "winston": "^3.3.3"
+    },
+    "devDependencies": {
+        "@types/mongodb": "^3.6.12",
+        "@types/proper-lockfile": "^4.1.1",
+        "@types/redis": "^2.8.28",
+        "@types/redlock": "^4.0.1",
+        "@types/winston": "^2.4.4"
+    },
+    "scripts": {
+        "circular": "madge --circular --ts-config ./tsconfig.json --extensions ts ./",
+        "compile": "tsc --noEmit",
+        "lint": "eslint .",
+        "prettier": "prettier \"**/*.ts\"",
+        "autofix": "yarn lint --fix && yarn prettier --write",
+        "test": "echo 'no tests yet'",
+        "testsuite": "yarn compile && yarn lint && yarn test && yarn circular"
+    }
+}
