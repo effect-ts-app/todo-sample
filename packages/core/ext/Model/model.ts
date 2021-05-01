@@ -215,6 +215,14 @@ export function describeValue(v: unknown) {
   })`
 }
 
+export const toValidationError = flow(decodeErrors, (errors) =>
+  ValidationError.build({
+    _tag: "ValidationError",
+    message: "One or more Validation errors ocurred",
+    errors,
+  })
+)
+
 export const makeStrict = <E, A>(dec: (i: unknown, mode?: Mode) => T.IO<E, A>) => (
   i: unknown
 ) => dec(i, "strict")
@@ -272,67 +280,6 @@ export function createValidatorFromDecoder<TDec, TInput = unknown>(
     )
 }
 
-const extn = <T, X>(a: T, ext: X) => {
-  Object.assign(a, ext)
-  return a as T & X
-}
-
-type GetE<TM> = TM extends M<{}, infer E, any> ? E : never
-type GetA<TM> = TM extends M<{}, any, infer A> ? A : never
-
-export function extend<TM extends M<{}, any, any>>(m: TM) {
-  type E = GetE<TM>
-  type A = GetA<TM>
-  const { decode: decodeClassic, name, validate: validateClassic } = decoder(m)
-  const { encode: encodeClassic } = encoder(m)
-
-  const str = strict(m)
-  const { decode: decodeStrict, validate: validateStrict } = strictDecoder(m)
-
-  const encodeStrict = (a: A) => pipe(str.shrink(a), T.chain(encodeClassic))
-
-  const decode_ = (e: unknown, mode: Mode = "classic") =>
-    mode === "classic" ? decodeClassic(e) : decodeStrict(e)
-
-  const build = (a: A) => a
-
-  const parse_: (e: E, mode?: Mode) => Validation<A> = decode_
-
-  const encode_ = (a: A, mode: Mode = "classic") =>
-    mode === "classic" ? encodeClassic(a) : encodeStrict(a)
-
-  const validate_ = (e: unknown, context: Context, mode: Mode = "classic") =>
-    mode === "classic" ? validateClassic(e, context) : validateStrict(e, context)
-
-  const validate = (mode: Mode) => (e: unknown, context: Context) =>
-    validate_(e, context, mode)
-
-  const decode = (mode: Mode) => (i: unknown) => decode_(i, mode)
-  const parse = (mode: Mode) => (e: E) => parse_(e, mode)
-  const encode = (mode: Mode) => (a: A) => encode_(a, mode)
-
-  if (!name) {
-    throw new Error("you should really set a name!")
-  }
-
-  const interpreter: Interpreter<E, A> = {
-    meta: { name },
-    build,
-
-    validate_,
-    decode_,
-    parse_,
-    encode_,
-
-    validate,
-    decode,
-    parse,
-    encode,
-  }
-  const mn = extn(m, interpreter)
-  return extn(mn, ext(mn))
-}
-
 export const ValidationErrorEntry = make((F) =>
   F.both(
     {
@@ -363,14 +310,6 @@ export interface ValidationErrorE extends EType<typeof ValidationError_> {}
 
 export const ValidationError = opaque<ValidationErrorE, ValidationError>()(
   ValidationError_
-)
-
-export const toValidationError = flow(decodeErrors, (errors) =>
-  ValidationError.build({
-    _tag: "ValidationError",
-    message: "One or more Validation errors ocurred",
-    errors,
-  })
 )
 
 // const asInvalidContract = (context: unknown) => <A>(a: T.IO<ValidationError, A>) =>
@@ -584,6 +523,67 @@ export interface Extensions<E, A> {
   encodeM: (strict: Mode) => (a: A) => T.UIO<E>
   decodeM: (strict: Mode) => (i: unknown) => T.IO<Errors, A>
   parseM: (strict: Mode) => (i: E) => T.IO<Errors, A>
+}
+
+function extn<T, X>(a: T, ext: X) {
+  Object.assign(a, ext)
+  return a as T & X
+}
+
+type GetE<TM> = TM extends M<{}, infer E, any> ? E : never
+type GetA<TM> = TM extends M<{}, any, infer A> ? A : never
+
+export function extend<TM extends M<{}, any, any>>(m: TM) {
+  type E = GetE<TM>
+  type A = GetA<TM>
+  const { decode: decodeClassic, name, validate: validateClassic } = decoder(m)
+  const { encode: encodeClassic } = encoder(m)
+
+  const str = strict(m)
+  const { decode: decodeStrict, validate: validateStrict } = strictDecoder(m)
+
+  const encodeStrict = (a: A) => pipe(str.shrink(a), T.chain(encodeClassic))
+
+  const decode_ = (e: unknown, mode: Mode = "classic") =>
+    mode === "classic" ? decodeClassic(e) : decodeStrict(e)
+
+  const build = (a: A) => a
+
+  const parse_: (e: E, mode?: Mode) => Validation<A> = decode_
+
+  const encode_ = (a: A, mode: Mode = "classic") =>
+    mode === "classic" ? encodeClassic(a) : encodeStrict(a)
+
+  const validate_ = (e: unknown, context: Context, mode: Mode = "classic") =>
+    mode === "classic" ? validateClassic(e, context) : validateStrict(e, context)
+
+  const validate = (mode: Mode) => (e: unknown, context: Context) =>
+    validate_(e, context, mode)
+
+  const decode = (mode: Mode) => (i: unknown) => decode_(i, mode)
+  const parse = (mode: Mode) => (e: E) => parse_(e, mode)
+  const encode = (mode: Mode) => (a: A) => encode_(a, mode)
+
+  if (!name) {
+    throw new Error("you should really set a name!")
+  }
+
+  const interpreter: Interpreter<E, A> = {
+    meta: { name },
+    build,
+
+    validate_,
+    decode_,
+    parse_,
+    encode_,
+
+    validate,
+    decode,
+    parse,
+    encode,
+  }
+  const mn = extn(m, interpreter)
+  return extn(mn, ext(mn))
 }
 
 export function opaque<E, A>() {
