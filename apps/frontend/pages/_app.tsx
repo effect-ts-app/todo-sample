@@ -2,7 +2,10 @@ import { StyledEngineProvider, useMediaQuery } from "@material-ui/core"
 import { createMuiTheme, StylesProvider, ThemeProvider } from "@material-ui/core/styles"
 import AdapterDateFns from "@material-ui/lab/AdapterDateFns"
 import LocalizationProvider from "@material-ui/lab/LocalizationProvider"
-import React from "react"
+import "nprogress/nprogress.css"
+import { useRouter } from "next/router"
+import NProgress from "nprogress"
+import React, { useEffect } from "react"
 
 import GlobalStyle from "@/GlobalStyle"
 import { LiveFetchContext, LiveServiceContext } from "@/context"
@@ -20,6 +23,22 @@ function MyApp({ Component, pageProps }: any) {
       }),
     [prefersDarkMode]
   )
+
+  const router = useRouter()
+
+  useEffect(() => {
+    const routeChangeStart = () => NProgress.start()
+    const routeChangeComplete = () => NProgress.done()
+
+    router.events.on("routeChangeStart", routeChangeStart)
+    router.events.on("routeChangeComplete", routeChangeComplete)
+    router.events.on("routeChangeError", routeChangeComplete)
+    return () => {
+      router.events.off("routeChangeStart", routeChangeStart)
+      router.events.off("routeChangeComplete", routeChangeComplete)
+      router.events.off("routeChangeError", routeChangeComplete)
+    }
+  }, [])
 
   return (
     <StyledEngineProvider injectFirst>
