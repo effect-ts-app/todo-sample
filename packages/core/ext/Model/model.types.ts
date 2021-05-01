@@ -4,7 +4,7 @@ import type { Arbitrary, FC } from "../FastCheck"
 import { flow, pipe } from "../Function"
 import * as V from "../validation"
 
-import { castBrand, DecoderURI, withMessage } from "./model"
+import { castBrand, DecoderURI, extend, withMessage } from "./model"
 import { AType, make, FastCheckURI } from "./model"
 
 // TODO: Arbitraries should still be cut/filtered on max and min lengths
@@ -18,23 +18,25 @@ export const isNonEmptyString = (
 /**
  * A string of Min 1 and Max 256KB characters
  */
-export const NonEmptyString = make((F) =>
-  F.refined(F.string(), isNonEmptyString, {
-    name: "NonEmptyString",
-    conf: {
-      [FastCheckURI]: (_c, fc) =>
-        fc.module
-          // let's be reasonable
-          .string({ minLength: MIN }) // DONT DO THIS!!!!  maxLength: 256 * 1024
-          .map((x) => x as Branded<string, NonEmptyStringBrand>),
-      [DecoderURI]: withMessage(() => "is not a NonEmpty String"),
-    },
-    extensions: {
-      openapiMeta: {
-        minLength: MIN,
+export const NonEmptyString = extend(
+  make((F) =>
+    F.refined(F.string(), isNonEmptyString, {
+      name: "NonEmptyString",
+      conf: {
+        [FastCheckURI]: (_c, fc) =>
+          fc.module
+            // let's be reasonable
+            .string({ minLength: MIN }) // DONT DO THIS!!!!  maxLength: 256 * 1024
+            .map((x) => x as Branded<string, NonEmptyStringBrand>),
+        [DecoderURI]: withMessage(() => "is not a NonEmpty String"),
       },
-    },
-  })
+      extensions: {
+        openapiMeta: {
+          minLength: MIN,
+        },
+      },
+    })
+  )
 )
 export interface NonEmptyStringBrand {
   readonly NonEmptyString: unique symbol
@@ -244,26 +246,28 @@ export const isPositiveInt = (v: number): v is Branded<number, PositiveIntBrand>
 export function makePositiveInt(
   arbF: (c: Arbitrary<Branded<number, PositiveIntBrand>>, fc_: FC) => Arbitrary<number>
 ) {
-  return make((F) =>
-    F.refined(F.number(), isPositiveInt, {
-      name: "PositiveInt",
-      conf: {
-        [FastCheckURI]: (c, fc) =>
-          pipe(arbF(c, fc.module), (a) =>
-            a.map(
-              flow(
-                (a) => (isPositiveInt(a) ? a : 0),
-                castBrand<number, PositiveIntBrand>()
+  return extend(
+    make((F) =>
+      F.refined(F.number(), isPositiveInt, {
+        name: "PositiveInt",
+        conf: {
+          [FastCheckURI]: (c, fc) =>
+            pipe(arbF(c, fc.module), (a) =>
+              a.map(
+                flow(
+                  (a) => (isPositiveInt(a) ? a : 0),
+                  castBrand<number, PositiveIntBrand>()
+                )
               )
-            )
-          ),
-      },
-      extensions: {
-        openapiMeta: {
-          minimum: 0,
+            ),
         },
-      },
-    })
+        extensions: {
+          openapiMeta: {
+            minimum: 0,
+          },
+        },
+      })
+    )
   )
 }
 

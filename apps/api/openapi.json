@@ -50,6 +50,7 @@
                           "note": {
                             "type": "string",
                             "title": "NonEmptyString",
+                            "minLength": 1,
                             "nullable": true
                           },
                           "reminder": {
@@ -67,7 +68,8 @@
                                 },
                                 "title": {
                                   "type": "string",
-                                  "title": "NonEmptyString"
+                                  "title": "NonEmptyString",
+                                  "minLength": 1
                                 }
                               },
                               "required": [
@@ -78,7 +80,8 @@
                           },
                           "title": {
                             "type": "string",
-                            "title": "NonEmptyString"
+                            "title": "NonEmptyString",
+                            "minLength": 1
                           },
                           "updatedAt": {
                             "type": "string",
@@ -131,7 +134,8 @@
                   },
                   "title": {
                     "type": "string",
-                    "title": "NonEmptyString"
+                    "title": "NonEmptyString",
+                    "minLength": 1
                   }
                 },
                 "required": [
@@ -219,6 +223,7 @@
                     "note": {
                       "type": "string",
                       "title": "NonEmptyString",
+                      "minLength": 1,
                       "nullable": true
                     },
                     "reminder": {
@@ -236,7 +241,8 @@
                           },
                           "title": {
                             "type": "string",
-                            "title": "NonEmptyString"
+                            "title": "NonEmptyString",
+                            "minLength": 1
                           }
                         },
                         "required": [
@@ -247,7 +253,8 @@
                     },
                     "title": {
                       "type": "string",
-                      "title": "NonEmptyString"
+                      "title": "NonEmptyString",
+                      "minLength": 1
                     },
                     "updatedAt": {
                       "type": "string",
@@ -316,6 +323,7 @@
                   "note": {
                     "type": "string",
                     "title": "NonEmptyString",
+                    "minLength": 1,
                     "nullable": true
                   },
                   "reminder": {
@@ -333,7 +341,8 @@
                         },
                         "title": {
                           "type": "string",
-                          "title": "NonEmptyString"
+                          "title": "NonEmptyString",
+                          "minLength": 1
                         }
                       },
                       "required": [
@@ -344,7 +353,8 @@
                   },
                   "title": {
                     "type": "string",
-                    "title": "NonEmptyString"
+                    "title": "NonEmptyString",
+                    "minLength": 1
                   }
                 }
               }
