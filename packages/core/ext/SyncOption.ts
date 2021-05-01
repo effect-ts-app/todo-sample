@@ -38,9 +38,9 @@ export const none: UIO<never> =
   /*#__PURE__*/
   (() => T.succeed(O.none))()
 
-export const fromEffect = <R, E, A>(eff: T.Sync<R, E, A>) => pipe(eff, T.map(O.some))
+export const fromSync = <R, E, A>(eff: T.Sync<R, E, A>) => pipe(eff, T.map(O.some))
 
-export const encaseEither = flow(T.encaseEither, fromEffect)
+export const encaseEither = flow(T.encaseEither, fromSync)
 
 export const map_ = <R, E, A, B>(
   fa: EffectOption<R, E, A>,
@@ -141,10 +141,10 @@ export const fromOptionS = <R, E, A>(
   onNone: T.Sync<R, E, O.Option<A>>
 ): ((opt: O.Option<A>) => EffectOption<R, E, A>) => O.fold(() => onNone, some)
 
-export const fromEffectOptionS = <R, R2, E, E2, A>(onNone: EffectOption<R, E, A>) => (
+export const fromSyncOptionS = <R, R2, E, E2, A>(onNone: EffectOption<R, E, A>) => (
   eff: EffectOption<R2, E2, A>
 ) => T.chain_(eff, fromOptionS(onNone))
 
 export const chainEffect = <R, R2, E, E2, A, A2>(eff: (a: A) => T.Sync<R2, E2, A2>) => (
   eo: EffectOption<R, E, A>
-) => chain_(eo, flow(eff, fromEffect))
+) => chain_(eo, flow(eff, fromSync))

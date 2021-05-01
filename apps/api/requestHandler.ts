@@ -269,33 +269,31 @@ function makeRequestParsers<
     ["|>"](O.map((x) => x.decode))
     ["|>"](SO.fromOption)
   const parseHeaders = (u: unknown) =>
-    ph["|>"](SO.chain((d) => d(u)["|>"](SO.fromEffect)))
+    ph["|>"](SO.chain((d) => d(u)["|>"](SO.fromSync)))
 
   const pq = O.fromNullable(Request.Query)
     ["|>"](O.map(strictDecoder))
     ["|>"](O.map((x) => x.decode))
     ["|>"](SO.fromOption)
-  const parseQuery = (u: unknown) =>
-    pq["|>"](SO.chain((d) => d(u)["|>"](SO.fromEffect)))
+  const parseQuery = (u: unknown) => pq["|>"](SO.chain((d) => d(u)["|>"](SO.fromSync)))
 
   const pb = O.fromNullable(Request.Body)
     ["|>"](O.map(strictDecoder))
     ["|>"](O.map((x) => x.decode))
     ["|>"](SO.fromOption)
-  const parseBody = (u: unknown) => pb["|>"](SO.chain((d) => d(u)["|>"](SO.fromEffect)))
+  const parseBody = (u: unknown) => pb["|>"](SO.chain((d) => d(u)["|>"](SO.fromSync)))
 
   const pp = O.fromNullable(Request.Path)
     ["|>"](O.map(strictDecoder))
     ["|>"](O.map((x) => x.decode))
     ["|>"](SO.fromOption)
-  const parsePath = (u: unknown) => pp["|>"](SO.chain((d) => d(u)["|>"](SO.fromEffect)))
+  const parsePath = (u: unknown) => pp["|>"](SO.chain((d) => d(u)["|>"](SO.fromSync)))
 
   const pc = O.fromNullable(Request.Cookie)
     ["|>"](O.map(strictDecoder))
     ["|>"](O.map((x) => x.decode))
     ["|>"](SO.fromOption)
-  const parseCookie = (u: unknown) =>
-    pc["|>"](SO.chain((d) => d(u)["|>"](SO.fromEffect)))
+  const parseCookie = (u: unknown) => pc["|>"](SO.chain((d) => d(u)["|>"](SO.fromSync)))
 
   return {
     parseBody,
