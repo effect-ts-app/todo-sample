@@ -15,7 +15,7 @@ import * as Map from "@effect-ts/core/Collections/Immutable/Map"
 import * as T from "@effect-ts/core/Effect"
 import * as Ref from "@effect-ts/core/Effect/Ref"
 import * as E from "@effect-ts/core/Either"
-import { flow, identity } from "@effect-ts/core/Function"
+import { constant, flow, identity } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import * as Sy from "@effect-ts/core/Sync"
 
@@ -430,6 +430,8 @@ export function get(id: UserId) {
   )
 }
 
+const constNone = constant(O.none)
+
 export function findTaskList(id: TaskId) {
   return pipe(
     users.get,
@@ -440,18 +442,19 @@ export function findTaskList(id: TaskId) {
             .reduce(
               (prev, cur) =>
                 prev.concat(
-                  A.filterMap_(cur.lists, (l) => {
-                    if (TaskListOrGroup.is.TaskListGroup(l)) {
-                      return O.some(
-                        A.filterMap_(l.lists, (l) =>
-                          TaskListOrGroup.is.TaskList(l) ? O.some(l) : O.none
-                        )
-                      )
-                    }
-                    return TaskListOrGroup.is.TaskList(l)
-                      ? O.some([l] as const)
-                      : O.none
-                  })["|>"](A.flatten)
+                  A.filterMap_(
+                    cur.lists,
+                    TaskListOrGroup.match({
+                      TaskListGroup: (l) =>
+                        O.some(
+                          A.filterMap_(l.lists, (l) =>
+                            TaskListOrGroup.is.TaskList(l) ? O.some(l) : O.none
+                          )
+                        ),
+                      TaskList: (l) => O.some([l]),
+                      VirtualTaskList: constNone,
+                    })
+                  )["|>"](A.flatten)
                 ),
               [] as SharableTaskList[]
             )
