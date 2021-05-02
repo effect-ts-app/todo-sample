@@ -22,6 +22,7 @@ import {
   orders,
   Ordery,
   TaskView,
+  useFindTaskList,
   useGetTask,
   useNewTask,
   useTasks,
@@ -42,7 +43,12 @@ const TaskListView = memo(function ({
   category: TaskView
   order: O.Option<Ordery>
 }) {
-  const [tasksResult, , refetchTasks] = useTasks()
+  const [tasksResult1] = useTasks()
+  const [tasksResult2, , refetchTasks] = useFindTaskList(category)
+  const isDynamicCategory = category === "my-day" || category === "important"
+  const tasksResult = isDynamicCategory
+    ? tasksResult1
+    : tasksResult2["|>"](datumEither.map((x) => x.items))
   useInterval(() => refetchTasks, 30 * 1000)
   // testing for multi-call relying on same network-call/cache.
   //   useTasks()
@@ -90,7 +96,10 @@ const TaskListView = memo(function ({
       <>
         <Box display="flex">
           <Typography variant="h3">
-            {toUpperCaseFirst(category)} {isRefreshing && <Refresh />}
+            {!isDynamicCategory && datumEither.isSuccess(tasksResult2)
+              ? tasksResult2.value.right.title
+              : toUpperCaseFirst(category)}{" "}
+            {isRefreshing && <Refresh />}
           </Typography>
 
           <Box marginLeft="auto" marginTop={1}>

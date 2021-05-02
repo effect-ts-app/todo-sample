@@ -272,6 +272,229 @@
           }
         }
       }
+    },
+    "/me": {
+      "get": {
+        "parameters": [
+          {
+            "name": "x-user-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "NonEmptyString",
+              "minLength": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "title": "NonEmptyString",
+                      "minLength": 1
+                    },
+                    "taskList": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid"
+                        }
+                      },
+                      "required": [
+                        "id"
+                      ]
+                    },
+                    "taskLists": {
+                      "type": "array",
+                      "items": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "_tag": {
+                                "type": "string",
+                                "enum": [
+                                  "TaskListGroup"
+                                ]
+                              },
+                              "id": {
+                                "type": "string",
+                                "format": "uuid"
+                              },
+                              "lists": {
+                                "type": "array",
+                                "items": {
+                                  "allOf": [
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "id": {
+                                          "type": "string",
+                                          "format": "uuid"
+                                        }
+                                      },
+                                      "required": [
+                                        "id"
+                                      ]
+                                    },
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "_tag": {
+                                          "type": "string",
+                                          "enum": [
+                                            "TaskList"
+                                          ]
+                                        },
+                                        "title": {
+                                          "type": "string",
+                                          "title": "NonEmptyString",
+                                          "minLength": 1
+                                        }
+                                      },
+                                      "required": [
+                                        "_tag",
+                                        "title"
+                                      ]
+                                    }
+                                  ]
+                                }
+                              },
+                              "title": {
+                                "type": "string",
+                                "title": "NonEmptyString",
+                                "minLength": 1
+                              }
+                            },
+                            "required": [
+                              "_tag",
+                              "id",
+                              "lists",
+                              "title"
+                            ]
+                          },
+                          {
+                            "allOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "format": "uuid"
+                                  }
+                                },
+                                "required": [
+                                  "id"
+                                ]
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "_tag": {
+                                    "type": "string",
+                                    "enum": [
+                                      "TaskList"
+                                    ]
+                                  },
+                                  "title": {
+                                    "type": "string",
+                                    "title": "NonEmptyString",
+                                    "minLength": 1
+                                  }
+                                },
+                                "required": [
+                                  "_tag",
+                                  "title"
+                                ]
+                              }
+                            ]
+                          }
+                        ],
+                        "discriminator": {
+                          "propertyName": "_tag"
+                        }
+                      }
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "taskList",
+                    "taskLists"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "ValidationError"
+          }
+        }
+      }
+    },
+    "/task-lists/:listId": {
+      "get": {
+        "parameters": [
+          {
+            "name": "listId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "x-user-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "NonEmptyString",
+              "minLength": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Task"
+                      }
+                    },
+                    "title": {
+                      "type": "string",
+                      "title": "NonEmptyString",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "items",
+                    "title"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "ValidationError"
+          }
+        }
+      }
     }
   },
   "components": {
