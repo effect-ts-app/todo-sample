@@ -59,7 +59,7 @@ const users = pipe(
       User.build({
         id: yield* $(PositiveInt.decode_(1)),
         name: yield* $(NonEmptyString.decode_("Patrick Roza")),
-        taskList: TaskList.build({
+        inbox: TaskList.build({
           id: makeUuid(),
           tasks: [
             Task.create({
@@ -102,7 +102,7 @@ const users = pipe(
             },
           ],
         }),
-        taskLists: [
+        lists: [
           TaskListOrGroup.of.TaskList({
             id: makeUuid(),
             title: yield* $(NonEmptyString.decode_("Some Patrick List")),
@@ -200,7 +200,7 @@ const users = pipe(
       User.build({
         id: yield* $(PositiveInt.decode_(2)),
         name: yield* $(NonEmptyString.decode_("Mike Arnaldi")),
-        taskList: TaskList.build({
+        inbox: TaskList.build({
           id: makeUuid(),
           tasks: [
             Task.create({
@@ -243,7 +243,7 @@ const users = pipe(
             },
           ],
         }),
-        taskLists: [
+        lists: [
           TaskListOrGroup.of.TaskList({
             id: makeUuid(),
             title: yield* $(NonEmptyString.decode_("Some Mike List")),
@@ -306,7 +306,7 @@ const users = pipe(
       User.build({
         id: yield* $(PositiveInt.decode_(3)),
         name: yield* $(NonEmptyString.decode_("Markus Nomizz")),
-        taskList: TaskList.build({
+        inbox: TaskList.build({
           id: makeUuid(),
           tasks: [
             Task.create({
@@ -349,7 +349,7 @@ const users = pipe(
             },
           ],
         }),
-        taskLists: [
+        lists: [
           TaskListOrGroup.of.TaskList({
             id: makeUuid(),
             title: yield* $(NonEmptyString.decode_("Some Markus List")),
@@ -440,7 +440,7 @@ export function findTaskList(id: TaskId) {
             .reduce(
               (prev, cur) =>
                 prev.concat(
-                  A.filterMap_(cur.taskLists, (l) => {
+                  A.filterMap_(cur.lists, (l) => {
                     if (TaskListOrGroup.is.TaskListGroup(l)) {
                       return O.some(
                         A.filterMap_(l.lists, (l) =>

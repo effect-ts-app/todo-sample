@@ -11,10 +11,10 @@ export const handle = (_: Request) =>
   T.gen(function* ($) {
     const u = yield* $(UserSVC.UserEnv)
     const user = yield* $(UserContext.get(u.id))
-    if (user.taskList.id === _.listId) {
+    if (user.inbox.id === _.listId) {
       return {
         title: yield* $(NonEmptyString.decodeV_("Tasks")),
-        items: user.taskList.tasks,
+        items: user.inbox.tasks,
       }
     }
     const list = yield* $(UserContext.getTaskList(_.listId))

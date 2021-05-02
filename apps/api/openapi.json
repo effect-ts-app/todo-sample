@@ -295,12 +295,7 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "name": {
-                      "type": "string",
-                      "title": "NonEmptyString",
-                      "minLength": 1
-                    },
-                    "taskList": {
+                    "inbox": {
                       "type": "object",
                       "properties": {
                         "id": {
@@ -312,7 +307,7 @@
                         "id"
                       ]
                     },
-                    "taskLists": {
+                    "lists": {
                       "type": "array",
                       "items": {
                         "oneOf": [
@@ -422,12 +417,17 @@
                           "propertyName": "_tag"
                         }
                       }
+                    },
+                    "name": {
+                      "type": "string",
+                      "title": "NonEmptyString",
+                      "minLength": 1
                     }
                   },
                   "required": [
-                    "name",
-                    "taskList",
-                    "taskLists"
+                    "inbox",
+                    "lists",
+                    "name"
                   ]
                 }
               }

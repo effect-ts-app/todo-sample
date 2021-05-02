@@ -74,8 +74,8 @@ export type TaskListEntryOrGroup = AType<typeof TaskListEntryOrGroup>
 const Response_ = make((F) =>
   F.interface({
     name: NonEmptyString(F),
-    taskList: TaskListEntry(F),
-    taskLists: F.array(TaskListEntryOrGroup(F)),
+    inbox: TaskListEntry(F),
+    lists: F.array(TaskListEntryOrGroup(F)),
   })
 )
 export interface Response extends AType<typeof Response_> {}

@@ -20,11 +20,11 @@ export const handle = (_: Request) =>
 
     return {
       name: user.name,
-      taskList: { id: user.taskList.id },
-      taskLists: yield* $(
+      inbox: { id: user.inbox.id },
+      lists: yield* $(
         pipe(
           A.map_(
-            user.taskLists,
+            user.lists,
             T.matchMorph(TaskListOrGroup)({
               TaskList: ({ id, title }) =>
                 T.succeed(TaskListEntryOrGroup.of.TaskList({ id, title })),

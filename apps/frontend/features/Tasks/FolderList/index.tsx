@@ -26,10 +26,10 @@ const FolderListView = ({ category }: { category: O.Option<NonEmptyString> }) =>
 
   const [tl, lists] = useMemo(() => {
     const tl = datumEither.isSuccess(meResult)
-      ? [meResult.value.right.taskList]
+      ? [meResult.value.right.inbox]
       : ([] as readonly TaskListEntry[])
     const lists = datumEither.isSuccess(meResult)
-      ? meResult.value.right.taskLists
+      ? meResult.value.right.lists
       : ([] as readonly TaskListEntryOrGroup[])
     return [tl, lists] as const
   }, [meResult])

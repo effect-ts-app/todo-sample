@@ -204,9 +204,9 @@ export type TaskListOrGroup = AType<typeof TaskListOrGroup>
 // so you would have a relationship db; task.listId,  list.groupId etc.
 
 // User
-// - taskList: MainTaskList
+// - inbox: MainTaskList
 // - groups: { lists: TaskList[] /* with ordering */ }[] // in DB: via ids?
-// - otherLists: TaskList[] // ordering
+// - lists: TaskList[] // ordering
 // start payload; only load the list names
 // then load each list, and show the count of the list.
 
@@ -214,8 +214,8 @@ const User_ = make((F) =>
   F.interface({
     id: UserId(F),
     name: NonEmptyString(F),
-    taskList: TaskList(F),
-    taskLists: F.array(TaskListOrGroup(F)), // query also for other user's shared lists im member of ;-)
+    inbox: TaskList(F),
+    lists: F.array(TaskListOrGroup(F)), // query also for other user's shared lists im member of ;-)
   })
 )
 

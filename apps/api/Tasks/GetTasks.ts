@@ -10,7 +10,7 @@ export const handle = (_: Request) =>
   T.gen(function* ($) {
     const u = yield* $(UserSVC.UserEnv)
     const user = yield* $(UserContext.get(u.id))
-    const items = user.taskList.tasks
+    const items = user.inbox.tasks
 
     return {
       items,
