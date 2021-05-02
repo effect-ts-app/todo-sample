@@ -1091,9 +1091,9 @@
   integrity sha512-QmI/oEDrkrSB0qNZxVLHLoVE+f742IlrgRiP3B4EfyYjQtZOXchlCFbfcshHFRZyErZtFBlAUgpaxfwRQyGpPw==
 
 "@effect-ts/schema@^0.1.9":
-  version "0.1.9"
-  resolved "https://registry.yarnpkg.com/@effect-ts/schema/-/schema-0.1.9.tgz#d1bf57a7548964011302c481acdb6713afd364f2"
-  integrity sha512-hhKUQ2VDWc/tRXXCNuMBVtfIMLpmC/cX0/knb6paXny8aWl5XZWTPyVvXjhh53t28hMJxxQRicQCqsbNFuHwmw==
+  version "0.1.14"
+  resolved "https://registry.yarnpkg.com/@effect-ts/schema/-/schema-0.1.14.tgz#81c289fc3b6308261c61f098f6c77656786eeac8"
+  integrity sha512-+x3Q2UXqs7PrcMQZI36HsYLWg9MPJRjkgNhQ47zMiAi08ma8GeVGhVAtePoL2b9eRfeR+HdkMvilUiDMrjakDw==
   dependencies:
     "@effect-ts/core" "^0.37.3"
 
@@ -8444,9 +8444,9 @@ npm-bundled@^1.1.1:
     npm-normalize-package-bin "^1.0.1"
 
 npm-check-updates@^11.5.7:
-  version "11.5.7"
-  resolved "https://registry.yarnpkg.com/npm-check-updates/-/npm-check-updates-11.5.7.tgz#01d0cdf4597696644373f2d4332319a6566ca9e4"
-  integrity sha512-pdsOkBB/Gdl4YmfblZg8QsZLeDP6JveqGlue1WYCbF3TK5AjC2J7ldn5TvXq8SHmaFXi9TETrmbCQ0JEU6O8dA==
+  version "11.5.9"
+  resolved "https://registry.yarnpkg.com/npm-check-updates/-/npm-check-updates-11.5.9.tgz#b7036e6f3f74220fe211d6f5e6ef94aee4425688"
+  integrity sha512-D+FgrBNtBJHl+D1n364CsQy/o6JIrh+7v+SXngNzAeyOVvc8w/1yr5pvqguVQWIvduC3HcRI87amkDp7ipzH7A==
   dependencies:
     chalk "^4.1.1"
     cint "^8.2.1"
@@ -11498,12 +11498,7 @@ typedarray-to-buffer@^3.1.5:
   dependencies:
     is-typedarray "^1.0.0"
 
-typescript@^3.9.5, typescript@^3.9.7:
-  version "3.9.9"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.9.9.tgz#e69905c54bc0681d0518bd4d587cc6f2d0b1a674"
-  integrity sha512-kdMjTiekY+z/ubJCATUPlRDl39vXYiMV9iyeMuEuXZh2we6zz80uovNN2WlAxmmdE/Z/YQe+EbOEXB5RHEED3w==
-
-typescript@^4.2.4:
+typescript@^3.9.5, typescript@^3.9.7, typescript@^4.2.4:
   version "4.2.4"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.2.4.tgz#8610b59747de028fda898a8aef0e103f156d0961"
   integrity sha512-V+evlYHZnQkaz8TRBuxTA92yZBPotr5H+WhQ7bD3hZUndx5tGOa1fuCgeSjxAzM1RiN5IzvadIXTVefuuwZCRg==

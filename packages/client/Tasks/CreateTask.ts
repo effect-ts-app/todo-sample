@@ -1,4 +1,5 @@
-import { NonEmptyString } from "@effect-ts-demo/todo-types/shared"
+import { NonEmptyString } from "@effect-ts-demo/core/ext/Model"
+import { TaskId } from "@effect-ts-demo/todo-types"
 import { make, AType, EType, opaque } from "@effect-ts/morphic"
 
 const RequestBody_ = make((F) =>
@@ -15,7 +16,7 @@ export const Request = Object.assign(opaque<RequestE, Request>()(Request_), {
   Body: RequestBody_,
 })
 
-const Response_ = make((F) => F.interface({ id: F.uuid() }))
+const Response_ = make((F) => F.interface({ id: TaskId(F) }))
 export interface Response extends AType<typeof Response_> {}
 export interface ResponseE extends EType<typeof Response_> {}
 export const Response = opaque<ResponseE, Response>()(Response_)

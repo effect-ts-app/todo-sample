@@ -1,9 +1,18 @@
+import { NonEmptyString } from "@effect-ts-demo/core/ext/Model"
 import { Task } from "@effect-ts-demo/todo-types"
 import { make, AType, EType, opaque } from "@effect-ts/morphic"
 
-export const Request = make((F) => F.interface({}))
-export type Request = AType<typeof Request>
-export type RequestE = EType<typeof Request>
+const RequestHeaders_ = make((F) =>
+  F.interface({
+    "x-user-id": NonEmptyString(F),
+  })
+)
+const Request_ = make((F) => F.interface({}))
+export interface Request extends AType<typeof Request_> {}
+export interface RequestE extends EType<typeof Request_> {}
+export const Request = Object.assign(opaque<RequestE, Request>()(Request_), {
+  Headers: RequestHeaders_,
+})
 
 const Response_ = make((F) => F.interface({ items: F.array(Task(F)) }))
 export interface Response extends AType<typeof Response_> {}

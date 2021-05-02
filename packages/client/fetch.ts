@@ -22,6 +22,8 @@ export const mapResponseError = T.mapError((err: Errors) => new ResponseError(er
 
 const makeAbort = T.succeedWith(() => new AbortController())
 export function fetchApi(path: string, options?: Omit<RequestInit, "signal">) {
+  const userId =
+    (typeof localStorage !== "undefined" && localStorage.getItem("user-id")) || "1"
   return getConfig(({ apiUrl }) =>
     pipe(
       makeAbort,
@@ -33,6 +35,8 @@ export function fetchApi(path: string, options?: Omit<RequestInit, "signal">) {
               headers: {
                 Accept: "application/json",
                 "Content-Type": "application/json",
+                "X-User-Id": `${userId}`, // TODO; Authorization header, parsed by middleware, and passed on via RequestScope?
+
                 ...options?.headers,
               },
               signal: abort.signal,
@@ -81,5 +85,8 @@ export function fetchApi3<RequestA, RequestE, ResponseE, ResponseA>(
 ) {
   const encodeRequest = encode(Request)
   const decodeResponse = decode(Response)
-  return (path: string) => fetchApi2(encodeRequest, decodeResponse)(path, { method })
+  return (path: string) =>
+    fetchApi2(encodeRequest, decodeResponse)(path, {
+      method,
+    })
 }

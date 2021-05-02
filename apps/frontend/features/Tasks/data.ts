@@ -1,7 +1,4 @@
-import * as T from "@effect-ts-demo/core/ext/Effect"
-import * as EO from "@effect-ts-demo/core/ext/EffectOption"
 import * as TodoClient from "@effect-ts-demo/todo-client"
-import { NonEmptyString } from "@effect-ts-demo/todo-types/shared"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import { constant, flow, identity, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
@@ -15,6 +12,10 @@ import * as Todo from "@/Todo"
 import { useServiceContext } from "@/context"
 import { useFetch, useModify, useQuery } from "@/data"
 import { typedKeysOf } from "@/utils"
+
+import * as T from "@effect-ts-demo/core/ext/Effect"
+import * as EO from "@effect-ts-demo/core/ext/EffectOption"
+import { NonEmptyString } from "@effect-ts-demo/core/ext/Model"
 
 const fetchLatestTasks = constant(
   TodoClient.Tasks.getTasks["|>"](T.map((r) => r.items))
@@ -181,7 +182,7 @@ export function useTaskCommands(id: UUID) {
     function updateStepTitle(t: Todo.Task) {
       return (s: Todo.Step) =>
         flow(
-          NonEmptyString.parse,
+          NonEmptyString.parse_,
           T.map((stepTitle) => t["|>"](Todo.Task.updateStep(s, stepTitle))),
           T.chain(updateAndRefreshTask)
         )
@@ -205,7 +206,7 @@ export function useTaskCommands(id: UUID) {
 
     function addNewTaskStep(t: Todo.Task) {
       return flow(
-        NonEmptyString.parse,
+        NonEmptyString.parse_,
         T.map((title) => t["|>"](Todo.Task.addStep(title))),
         T.chain(updateAndRefreshTask)
       )
@@ -221,7 +222,7 @@ export function useTaskCommands(id: UUID) {
 
     function setTitle(t: Todo.Task) {
       return flow(
-        NonEmptyString.parse,
+        NonEmptyString.parse_,
         T.map((v) => t["|>"](Todo.Task.lens["|>"](Lens.prop("title")).set(v))),
         T.chain(updateAndRefreshTask)
       )
@@ -239,7 +240,7 @@ export function useTaskCommands(id: UUID) {
       return (note: string | null) =>
         pipe(
           EO.fromNullable(note),
-          EO.chain(flow(NonEmptyString.parse, EO.fromEffect)),
+          EO.chain(flow(NonEmptyString.parse_, EO.fromEffect)),
           T.chain((note) => updateAndRefreshTask({ id: t.id, note }))
         )
     }

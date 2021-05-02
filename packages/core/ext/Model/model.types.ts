@@ -1,11 +1,28 @@
 import type { Branded } from "@effect-ts/core/Branded"
+import { constVoid } from "@effect-ts/core/Function"
+import * as Sy from "@effect-ts/core/Sync"
+import { v4 } from "uuid"
 
 import type { Arbitrary, FC } from "../FastCheck"
 import { flow, pipe } from "../Function"
 import * as V from "../validation"
 
-import { castBrand, DecoderURI, extend, withMessage } from "./model"
-import { AType, make, FastCheckURI } from "./model"
+import {
+  AType,
+  make,
+  FastCheckURI,
+  castBrand,
+  DecoderURI,
+  extend,
+  withMessage,
+  EncoderURI,
+  opaque,
+} from "./model"
+
+export const UUID = make((F) => F.uuid())
+export type UUID = AType<typeof UUID>
+
+export type { Branded }
 
 // TODO: Arbitraries should still be cut/filtered on max and min lengths
 
@@ -334,3 +351,22 @@ export const NonEmptyTextString = makeTextString((_c, fc) =>
 export const NonEmptyShortString = makeLongString((_c, fc) => fc.lorem({ maxCount: 3 }))
 
 export const Word = makeReasonableString((_c, fc) => fc.lorem({ maxCount: 1 }))
+
+export function makeUuid() {
+  return v4() as UUID
+}
+
+const defaultVoid = Sy.succeed(constVoid())
+const defaultVoidThunk = () => defaultVoid
+const Void_ = make((F) =>
+  F.unknown({
+    conf: {
+      [DecoderURI]: (codec) => codec.with(defaultVoidThunk),
+      [EncoderURI]: () => ({ encode: defaultVoidThunk }),
+    },
+  })
+)
+export type Void = void
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const Void = opaque<Void, Void>()(Void_ as any)

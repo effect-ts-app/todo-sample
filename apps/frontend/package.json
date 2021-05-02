@@ -79,7 +79,7 @@
         "circular": "madge --circular --ts-config ./tsconfig.json --extensions ts ./",
         "compile": "tsc --noEmit",
         "lint": "eslint .",
-        "prettier": "prettier \"**/*.ts\"",
+        "prettier": "prettier \"**/*.ts\" \"**/*.tsx\"",
         "autofix": "yarn lint --fix && yarn prettier --write",
         "testsuite": "yarn compile && yarn lint && yarn circular",
         "dev": "next dev -p 3133",

@@ -1,10 +1,10 @@
-import { EditableTaskProps } from "@effect-ts-demo/todo-types"
-import { Void } from "@effect-ts-demo/todo-types/shared"
+import { Void } from "@effect-ts-demo/core/ext/Model"
+import { EditableTaskProps, TaskId } from "@effect-ts-demo/todo-types"
 import { make, AType, EType, opaque } from "@effect-ts/morphic"
 
 const RequestPath_ = make((F) =>
   F.interface({
-    id: F.uuid(),
+    id: TaskId(F),
   })
 )
 const RequestBody_ = make((F) => F.partial(EditableTaskProps(F)))

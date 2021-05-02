@@ -8,6 +8,15 @@
             "esnext"
         ],
         "paths": {
+            "@effect-ts-demo/core/*": [
+                "../../packages/core/*"
+            ],
+            "@effect-ts-demo/todo-client/*": [
+                "../../packages/client/*"
+            ],
+            "@effect-ts-demo/todo-types/*": [
+                "../../packages/types/*"
+            ],
             "@/*": [
                 "./*"
             ]

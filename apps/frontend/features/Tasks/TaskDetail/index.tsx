@@ -1,4 +1,3 @@
-import { UUID } from "@effect-ts-demo/todo-types/shared"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as O from "@effect-ts/core/Option"
 import { datumEither } from "@nll/datum"
@@ -8,6 +7,8 @@ import { emptyTasks, Ordery, TaskView, useTasks } from "../data"
 import { useRouting } from "../routing"
 
 import { TaskDetail } from "./TaskDetail"
+
+import { UUID } from "@effect-ts-demo/core/ext/Model"
 
 const TaskDetailView = ({
   category,

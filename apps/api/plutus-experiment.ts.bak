@@ -1,6 +1,6 @@
 import * as Plutus from "@atlas-ts/plutus"
 import { generateMerged } from "@atlas-ts/plutus/Gen"
-import { NonEmptyString } from "@effect-ts-demo/todo-types/shared"
+import { NonEmptyString } from "@effect-ts-demo/core/ext/Model"
 import * as T from "@effect-ts/core/Effect"
 import { make } from "@effect-ts/morphic"
 

@@ -5,9 +5,7 @@ import {
   SubSchema,
 } from "@atlas-ts/plutus"
 import { schema } from "@atlas-ts/plutus/Schema"
-import * as EO from "@effect-ts-demo/core/ext/EffectOption"
-import { Void } from "@effect-ts-demo/todo-types/shared"
-import { pipe } from "@effect-ts/core"
+import { Has, pipe } from "@effect-ts/core"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as Chunk from "@effect-ts/core/Collections/Immutable/Chunk"
 import * as T from "@effect-ts/core/Effect"
@@ -15,6 +13,11 @@ import * as O from "@effect-ts/core/Option"
 import * as Ex from "@effect-ts/express"
 
 import { makeRequestHandler, RequestHandler } from "@/requestHandler"
+
+import { UserSVC } from "./services"
+
+import * as EO from "@effect-ts-demo/core/ext/EffectOption"
+import { Void } from "@effect-ts-demo/core/ext/Model"
 
 type Methods = "GET" | "PUT" | "POST" | "PATCH" | "DELETE"
 
@@ -25,7 +28,7 @@ export interface RouteDescriptor<
   QueryA,
   BodyA,
   HeaderA,
-  ReqA extends PathA & CookieA & QueryA & HeaderA & BodyA,
+  ReqA extends PathA & QueryA & BodyA,
   ResA,
   METHOD extends Methods = Methods
 > {
@@ -41,7 +44,7 @@ export function makeRouteDescriptor<
   QueryA,
   BodyA,
   HeaderA,
-  ReqA extends PathA & CookieA & QueryA & HeaderA & BodyA,
+  ReqA extends PathA & QueryA & BodyA,
   ResA,
   METHOD extends Methods = Methods
 >(
@@ -69,11 +72,20 @@ export function get<
   QueryA,
   BodyA,
   HeaderA,
-  ReqA extends PathA & CookieA & QueryA & HeaderA & BodyA,
+  ReqA extends PathA & QueryA & BodyA,
   ResA
 >(
   path: string,
-  r: RequestHandler<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA>
+  r: RequestHandler<
+    R & Has.Has<UserSVC.UserEnv>,
+    PathA,
+    CookieA,
+    QueryA,
+    BodyA,
+    HeaderA,
+    ReqA,
+    ResA
+  >
 ) {
   return pipe(
     Ex.get(path, makeRequestHandler(r)),
@@ -88,7 +100,7 @@ export function post<
   QueryA,
   BodyA,
   HeaderA,
-  ReqA extends PathA & CookieA & QueryA & HeaderA & BodyA,
+  ReqA extends PathA & QueryA & BodyA,
   ResA
 >(
   path: string,
@@ -107,7 +119,7 @@ export function put<
   QueryA,
   BodyA,
   HeaderA,
-  ReqA extends PathA & CookieA & QueryA & HeaderA & BodyA,
+  ReqA extends PathA & QueryA & BodyA,
   ResA
 >(
   path: string,
@@ -126,7 +138,7 @@ export function patch<
   QueryA,
   BodyA,
   HeaderA,
-  ReqA extends PathA & CookieA & QueryA & HeaderA & BodyA,
+  ReqA extends PathA & QueryA & BodyA,
   ResA
 >(
   path: string,
@@ -145,7 +157,7 @@ function del<
   QueryA,
   BodyA,
   HeaderA,
-  ReqA extends PathA & CookieA & QueryA & HeaderA & BodyA,
+  ReqA extends PathA & QueryA & BodyA,
   ResA
 >(
   path: string,

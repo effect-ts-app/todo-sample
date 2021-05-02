@@ -1,10 +1,10 @@
 {
     "extends": "../../tsconfig.base.json",
     "compilerOptions": {
-        //"baseUrl": "./",
+        "baseUrl": "./",
         "outDir": "./",
         "sourceMap": false,
-        "rootDir": "./",
+        "rootDir": "../../",
         "noEmit": false,
         "incremental": false
     },

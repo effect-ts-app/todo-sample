@@ -1,9 +1,9 @@
-import { Task } from "@effect-ts-demo/todo-types"
+import { Task, TaskId } from "@effect-ts-demo/todo-types"
 import { make, AType, EType, opaque } from "@effect-ts/morphic"
 
 const RequestPath_ = make((F) =>
   F.interface({
-    id: F.uuid(),
+    id: TaskId(F),
   })
 )
 const Request_ = make((F) => F.intersection(RequestPath_(F))())

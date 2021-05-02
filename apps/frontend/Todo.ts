@@ -1,10 +1,11 @@
-import * as A from "@effect-ts-demo/core/ext/Array"
 import * as Todo from "@effect-ts-demo/todo-types"
-import { NonEmptyString } from "@effect-ts-demo/todo-types/shared"
 import { flow } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import { Lens } from "@effect-ts/monocle"
 import { AType, make, makeADT } from "@effect-ts/morphic"
+
+import * as A from "@effect-ts-demo/core/ext/Array"
+import { NonEmptyString } from "@effect-ts-demo/core/ext/Model"
 
 const stepCompleted = Todo.Step.lens["|>"](Lens.prop("completed"))
 

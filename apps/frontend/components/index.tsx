@@ -1,4 +1,3 @@
-import { NonEmptyString } from "@effect-ts-demo/todo-types/shared"
 import { constant } from "@effect-ts/core/Function"
 import { Box, IconButton, TextField, TextFieldProps } from "@material-ui/core"
 import Star from "@material-ui/icons/Star"
@@ -8,6 +7,8 @@ import styled, { css } from "styled-components"
 
 import { memo, onSuccess, PromiseExit } from "@/data"
 import { constEmptyString } from "@/utils"
+
+import { NonEmptyString } from "@effect-ts-demo/core/ext/Model"
 
 export const Clickable = styled(Box)`
   ${ClickableMixin}

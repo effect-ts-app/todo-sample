@@ -1,9 +1,10 @@
-import { Void } from "@effect-ts-demo/todo-types/shared"
+import { Void } from "@effect-ts-demo/core/ext/Model"
+import { TaskId } from "@effect-ts-demo/todo-types"
 import { make, AType, EType, opaque } from "@effect-ts/morphic"
 
 const RequestBody_ = make((F) =>
   F.interface({
-    order: F.array(F.uuid()),
+    order: F.array(TaskId(F)),
   })
 )
 const Request_ = make((F) => F.intersection(RequestBody_(F))())

@@ -3,7 +3,7 @@ import type * as fc from "fast-check"
 export type { Arbitrary } from "fast-check"
 type FC = typeof fc
 
-export { FC }
+export type { FC }
 
 export const ALPHABET = "abcdefghijklmnopqrstuvwxyz"
 export const ALPHABET_UC = ALPHABET.toUpperCase()

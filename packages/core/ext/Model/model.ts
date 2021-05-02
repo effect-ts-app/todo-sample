@@ -49,8 +49,6 @@ export const deriveFC = FC.arbitrary
 export const deriveShow = Show.show
 export const deriveGuard = Guard.guard
 
-export type { Branded, UUID }
-
 export declare type Exact<T, X extends T> = T &
   {
     [K in ({
@@ -253,33 +251,6 @@ export type HasEncoder<A, E> = {
   encode: (strict: Mode) => (i: A) => T.UIO<E>
 }
 
-export function createValidatorFromDecoder_<TDec, TInput = unknown>(
-  decoder: (v: TInput, mode?: Mode) => T.IO<Errors, TDec>
-) {
-  return flow(
-    decoder,
-    T.mapError(
-      flow(printErrors, (message) =>
-        ValidationError.build({ _tag: "ValidationError", message })
-      )
-    )
-  )
-}
-
-export function createValidatorFromDecoder<TDec, TInput = unknown>(
-  decoder: (mode: Mode) => (v: TInput) => T.IO<Errors, TDec>
-) {
-  return (mode: Mode) =>
-    flow(
-      decoder(mode),
-      T.mapError(
-        flow(printErrors, (message) =>
-          ValidationError.build({ _tag: "ValidationError", message })
-        )
-      )
-    )
-}
-
 export const ValidationErrorEntry = make((F) =>
   F.both(
     {
@@ -296,12 +267,12 @@ export const ValidationErrorEntry = make((F) =>
 export type ValidationErrorEntry = AType<typeof ValidationErrorEntry>
 
 const ValidationError_ = make((F) =>
-  F.both(
+  F.interface(
     {
       _tag: F.stringLiteral("ValidationError"),
       message: F.string(),
+      errors: F.array(ValidationErrorEntry(F)),
     },
-    { errors: F.array(ValidationErrorEntry(F)) },
     { name: "ValidationError" }
   )
 )
@@ -673,5 +644,5 @@ export function makeKeys<T extends string>(a: readonly T[]) {
   }, {} as { [P in typeof a[number]]: null })
 }
 
-export { Errors }
+export type { Errors }
 export * from "@effect-ts/morphic"

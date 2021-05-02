@@ -1,15 +1,30 @@
 {
     "extends": "../../tsconfig.base.json",
     "compilerOptions": {
-        "baseUrl": ".",
+        "baseUrl": "./",
         "paths": {
+            "@effect-ts-demo/core/*": [
+                "../../packages/core/*"
+            ],
+            "@effect-ts-demo/infra/*": [
+                "../../packages/infra/*"
+            ],
+            "@effect-ts-demo/todo-types/*": [
+                "../../packages/types/*"
+            ],
+            "@effect-ts-demo/todo-client/*": [
+                "../../packages/client/*"
+            ],
+            "@atlas-ts/plutus/*": [
+                "../../packages/atlas-ts/plutus/*"
+            ],
             "@/*": [
                 "./*"
             ]
         },
         "outDir": "./",
         "sourceMap": false,
-        "rootDir": "./",
+        "rootDir": "../../",
         "noEmit": false,
         "incremental": false
     },

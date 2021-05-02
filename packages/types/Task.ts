@@ -1,10 +1,23 @@
+import {
+  AType,
+  EType,
+  make,
+  opaque,
+  PositiveInt,
+  makeUuid,
+  NonEmptyString,
+  UUID,
+} from "@effect-ts-demo/core/ext/Model"
 import * as O from "@effect-ts/core/Option"
 import * as Lens from "@effect-ts/monocle/Lens"
-import { AType, EType, make, opaque } from "@effect-ts/morphic"
 import { CoreAlgebra } from "@effect-ts/morphic/Batteries/program"
 import { BaseFC } from "@effect-ts/morphic/FastCheck/base"
 
-import { makeUuid, NonEmptyString } from "./shared"
+export const UserId = PositiveInt
+export type UserId = AType<typeof UserId>
+
+export const TaskId = UUID
+export type TaskId = AType<typeof TaskId>
 
 export const Step_ = make((F) =>
   F.interface({ title: NonEmptyString(F), completed: F.boolean() })
@@ -31,12 +44,13 @@ export function EditableTaskProps<Env extends BaseFC>(F: CoreAlgebra<"HKT", Env>
     myDay: F.nullable(F.date()),
     note: F.nullable(NonEmptyString(F)),
     steps: Steps(F),
+    assignedTo: F.nullable(UserId(F)),
   }
 }
 
 const Task_ = make((F) =>
   F.interface({
-    id: F.uuid(),
+    id: TaskId(F),
     createdAt: F.date(),
     updatedAt: F.date(),
 
@@ -57,6 +71,7 @@ export const Task = Object.assign(TaskO, {
       due: O.none,
       note: O.none,
       reminder: O.none,
+      assignedTo: O.none,
 
       ...a,
 

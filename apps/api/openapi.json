@@ -7,7 +7,18 @@
   "paths": {
     "/tasks": {
       "get": {
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "x-user-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "NonEmptyString",
+              "minLength": 1
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -21,6 +32,12 @@
                       "items": {
                         "type": "object",
                         "properties": {
+                          "assignedTo": {
+                            "type": "number",
+                            "title": "PositiveInt",
+                            "minimum": 0,
+                            "nullable": true
+                          },
                           "completed": {
                             "type": "string",
                             "format": "date-time",
@@ -89,6 +106,7 @@
                           }
                         },
                         "required": [
+                          "assignedTo",
                           "completed",
                           "createdAt",
                           "due",
@@ -194,6 +212,12 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "assignedTo": {
+                      "type": "number",
+                      "title": "PositiveInt",
+                      "minimum": 0,
+                      "nullable": true
+                    },
                     "completed": {
                       "type": "string",
                       "format": "date-time",
@@ -262,6 +286,7 @@
                     }
                   },
                   "required": [
+                    "assignedTo",
                     "completed",
                     "createdAt",
                     "due",
@@ -302,6 +327,12 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "assignedTo": {
+                    "type": "number",
+                    "title": "PositiveInt",
+                    "minimum": 0,
+                    "nullable": true
+                  },
                   "completed": {
                     "type": "string",
                     "format": "date-time",

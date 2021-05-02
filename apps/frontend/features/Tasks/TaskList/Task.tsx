@@ -1,4 +1,3 @@
-import * as A from "@effect-ts-demo/core/ext/Array"
 import * as O from "@effect-ts/core/Option"
 import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
 import { Box, Card, Checkbox } from "@material-ui/core"
@@ -23,6 +22,8 @@ import { memo, withLoading } from "@/data"
 import { renderIf_ } from "@/utils"
 
 import { useTaskCommandsResolved } from "../data"
+
+import * as A from "@effect-ts-demo/core/ext/Array"
 
 function makeStepCount(steps: Todo.Task["steps"]) {
   if (steps.length === 0) {

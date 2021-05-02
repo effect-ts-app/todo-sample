@@ -1,7 +1,7 @@
 {
     "name": "@effect-ts-demo/infra",
     "version": "0.0.1",
-    "main": "index.js",
+    "main": "index.ts",
     "license": "MIT",
     "dependencies": {
         "@effect-ts-demo/core": "*",

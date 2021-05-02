@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import * as SO from "@effect-ts-demo/core/ext/SyncOption"
-import { DSL } from "@effect-ts/core"
+import { DSL, Has } from "@effect-ts/core"
 import { makeAssociative } from "@effect-ts/core/Associative"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as T from "@effect-ts/core/Effect"
@@ -16,6 +15,9 @@ import { strictDecoder } from "@effect-ts/morphic/StrictDecoder"
 import express from "express"
 
 import { NotFoundError } from "./errors"
+import { UserSVC } from "./services"
+
+import * as SO from "@effect-ts-demo/core/ext/SyncOption"
 
 export type Request<
   PathA,
@@ -23,7 +25,7 @@ export type Request<
   QueryA,
   BodyA,
   HeaderA,
-  ReqA extends PathA & CookieA & QueryA & HeaderA & BodyA
+  ReqA extends PathA & QueryA & BodyA
 > = M<{}, unknown, ReqA> & {
   Cookie?: M<{}, Record<string, string>, CookieA>
   Path?: M<{}, Record<string, string>, PathA>
@@ -35,8 +37,10 @@ type Encode<A, E> = Encoder<A, E>["encode"]
 
 class ValidationError {
   public readonly _tag = "ValidationError"
-  constructor(public readonly error: A.Array<unknown>) {}
+  constructor(public readonly errors: A.Array<unknown>) {}
 }
+
+export type SupportedErrors = ValidationError | NotFoundError
 
 function getErrorMessage(current: ContextEntry) {
   switch (current.type.name) {
@@ -171,27 +175,28 @@ function handleRequest<R, PathA, CookieA, QueryA, BodyA, HeaderA, ResA, ResE>(
   requestParsers: RequestParsers<PathA, CookieA, QueryA, BodyA, HeaderA>,
   encodeResponse: Encode<ResA, ResE>,
   handle: (
-    r: PathA & CookieA & QueryA & HeaderA & BodyA & {}
-  ) => T.Effect<R, NotFoundError, ResA>
+    r: PathA & QueryA & BodyA & {}
+  ) => T.Effect<R & Has.Has<UserSVC.UserEnv>, SupportedErrors, ResA>
 ) {
   const parseRequest = parseRequestParams(requestParsers)
   const respond = respondSuccess(encodeResponse)
   return (req: express.Request, res: express.Response) =>
     pipe(
       parseRequest(req),
-      T.chain(({ body, cookie, headers, path, query }) =>
+      T.chain(({ body, path, query }) =>
         handle({
-          ...O.toUndefined(cookie),
           ...O.toUndefined(body),
           ...O.toUndefined(query),
-          ...O.toUndefined(headers),
           ...O.toUndefined(path),
-        } as PathA & CookieA & QueryA & HeaderA & BodyA)
+        } as PathA & QueryA & BodyA)["|>"](
+          // TODO; able to configure only when needed.
+          T.provideSomeLayer(UserSVC.LiveUserEnv(req.headers["x-user-id"] as string))
+        )
       ),
       T.chain(respond(res)),
       T.catch("_tag", "ValidationError", (err) =>
         T.succeedWith(() => {
-          res.status(400).send(err.error)
+          res.status(400).send(err.errors)
         })
       ),
       T.catch("_tag", "NotFoundError", (err) =>
@@ -209,14 +214,12 @@ export interface RequestHandler<
   QueryA,
   BodyA,
   HeaderA,
-  ReqA extends PathA & CookieA & QueryA & HeaderA & BodyA,
+  ReqA extends PathA & QueryA & BodyA,
   ResA
 > {
   Request: Request<PathA, CookieA, QueryA, BodyA, HeaderA, ReqA>
   Response: M<{}, unknown, ResA>
-  handle: (
-    i: PathA & CookieA & QueryA & HeaderA & BodyA & {}
-  ) => T.Effect<R, NotFoundError, ResA>
+  handle: (i: PathA & QueryA & BodyA & {}) => T.Effect<R, SupportedErrors, ResA>
 }
 
 export function makeRequestHandler<
@@ -226,13 +229,22 @@ export function makeRequestHandler<
   QueryA,
   BodyA,
   HeaderA,
-  ReqA extends PathA & CookieA & QueryA & HeaderA & BodyA,
+  ReqA extends PathA & QueryA & BodyA,
   ResA
 >({
   Request,
   Response,
   handle,
-}: RequestHandler<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA>) {
+}: RequestHandler<
+  R & Has.Has<UserSVC.UserEnv>,
+  PathA,
+  CookieA,
+  QueryA,
+  BodyA,
+  HeaderA,
+  ReqA,
+  ResA
+>) {
   const encodeResponse = encode(Response)
   const { shrink: shrinkResponse } = strict(Response)
 
@@ -250,7 +262,7 @@ function makeRequestParsers<
   QueryA,
   BodyA,
   HeaderA,
-  ReqA extends PathA & CookieA & QueryA & HeaderA & BodyA,
+  ReqA extends PathA & QueryA & BodyA,
   ResA
 >(
   Request: RequestHandler<

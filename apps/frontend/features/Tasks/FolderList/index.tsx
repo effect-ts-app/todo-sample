@@ -1,4 +1,3 @@
-import { NonEmptyString } from "@effect-ts-demo/todo-types/shared"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as O from "@effect-ts/core/Option"
 import { datumEither } from "@nll/datum"
@@ -10,6 +9,8 @@ import { toUpperCaseFirst } from "@/utils"
 import { emptyTasks, filterByCategory, TaskView, TaskViews, useTasks } from "../data"
 
 import { FolderList } from "./FolderList"
+
+import { NonEmptyString } from "@effect-ts-demo/core/ext/Model"
 
 const FolderListView = ({ category }: { category: O.Option<TaskView> }) => {
   const [tasksResult] = useTasks()

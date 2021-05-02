@@ -1,4 +1,3 @@
-import type { UUID } from "@effect-ts-demo/todo-types/shared"
 import * as O from "@effect-ts/core/Option"
 import { Box, Hidden, Link, Typography } from "@material-ui/core"
 import ArrowLeft from "@material-ui/icons/ArrowLeft"
@@ -12,6 +11,8 @@ import FolderList from "./FolderList"
 import TaskDetail from "./TaskDetail"
 import TaskList from "./TaskList"
 import { Ordery, TaskView } from "./data"
+
+import type { UUID } from "@effect-ts-demo/core/ext/Model"
 
 const TasksScreen = memo(function ({
   category,

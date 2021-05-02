@@ -1,6 +1,4 @@
-import * as EO from "@effect-ts-demo/core/ext/EffectOption"
 import { Step, Task, TaskE } from "@effect-ts-demo/todo-types"
-import { NonEmptyString } from "@effect-ts-demo/todo-types/shared"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as Chunk from "@effect-ts/core/Collections/Immutable/Chunk"
 import * as Map from "@effect-ts/core/Collections/Immutable/Map"
@@ -16,6 +14,9 @@ import { strict } from "@effect-ts/morphic/Strict"
 import { strictDecoder } from "@effect-ts/morphic/StrictDecoder"
 
 import { NotFoundError } from "@/errors"
+
+import * as EO from "@effect-ts-demo/core/ext/EffectOption"
+import { NonEmptyString } from "@effect-ts-demo/core/ext/Model"
 
 const encodeTask = flow(strict(Task).shrink, Sy.chain(encode(Task)))
 const runEncodeTask = flow(encodeTask, Sy.run)

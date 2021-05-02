@@ -6,7 +6,7 @@ import * as M from "@effect-ts/core/Effect/Managed"
 import * as O from "@effect-ts/core/Option"
 import * as Sy from "@effect-ts/core/Sync"
 
-import * as RED from "../redis"
+import * as RED from "../redis-client"
 
 import {
   SerializedDBRecord,

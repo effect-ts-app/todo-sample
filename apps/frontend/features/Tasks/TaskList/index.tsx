@@ -1,6 +1,3 @@
-import * as A from "@effect-ts-demo/core/ext/Array"
-import * as T from "@effect-ts-demo/core/ext/Effect"
-import * as EO from "@effect-ts-demo/core/ext/EffectOption"
 import * as NA from "@effect-ts/core/Collections/Immutable/NonEmptyArray"
 import { flow } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
@@ -33,6 +30,10 @@ import { useRouting } from "../routing"
 
 import TaskList from "./TaskList"
 import { TaskListMenu } from "./TaskListMenu"
+
+import * as A from "@effect-ts-demo/core/ext/Array"
+import * as T from "@effect-ts-demo/core/ext/Effect"
+import * as EO from "@effect-ts-demo/core/ext/EffectOption"
 
 const TaskListView = memo(function ({
   category,
