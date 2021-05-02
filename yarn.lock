@@ -1090,7 +1090,12 @@
   resolved "https://registry.yarnpkg.com/@effect-ts/node/-/node-0.22.0.tgz#5d988c871ca2eeb34fac91f04d700088b891471e"
   integrity sha512-QmI/oEDrkrSB0qNZxVLHLoVE+f742IlrgRiP3B4EfyYjQtZOXchlCFbfcshHFRZyErZtFBlAUgpaxfwRQyGpPw==
 
-"@effect-ts/schema@^0.1.9":
+"@effect-ts/react@^0.1.2":
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/@effect-ts/react/-/react-0.1.2.tgz#9c1a8f09a7de25e39fd637b9097c9fb2946b17c3"
+  integrity sha512-AFt0Qoaa9OCaMk1gR+9nR1BLucAEotYeMHbqVB6cYXP26tnnChA2Qr/KNKHya/7xZKEVQDxyYUPgX3lgIhaJcA==
+
+"@effect-ts/schema@^0.1.14":
   version "0.1.14"
   resolved "https://registry.yarnpkg.com/@effect-ts/schema/-/schema-0.1.14.tgz#81c289fc3b6308261c61f098f6c77656786eeac8"
   integrity sha512-+x3Q2UXqs7PrcMQZI36HsYLWg9MPJRjkgNhQ47zMiAi08ma8GeVGhVAtePoL2b9eRfeR+HdkMvilUiDMrjakDw==
@@ -3532,9 +3537,9 @@ camelize@^1.0.0:
   integrity sha1-FkpUg+Yw+kMh5a8HAg5TGDGyYJs=
 
 caniuse-lite@^1.0.30001125, caniuse-lite@^1.0.30001173, caniuse-lite@^1.0.30001179, caniuse-lite@^1.0.30001202, caniuse-lite@^1.0.30001219:
-  version "1.0.30001219"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001219.tgz#5bfa5d0519f41f993618bd318f606a4c4c16156b"
-  integrity sha512-c0yixVG4v9KBc/tQ2rlbB3A/bgBFRvl8h8M4IeUbqCca4gsiCfvtaheUssbnux/Mb66Vjz7x8yYjDgYcNQOhyQ==
+  version "1.0.30001220"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001220.tgz#c080e1c8eefb99f6cc9685da6313840bdbaf4c36"
+  integrity sha512-pjC2T4DIDyGAKTL4dMvGUQaMUHRmhvPpAgNNTa14jaBWHu+bLQgvpFqElxh9L4829Fdx0PlKiMp3wnYldRtECA==
 
 capture-exit@^2.0.0:
   version "2.0.0"
@@ -8443,7 +8448,7 @@ npm-bundled@^1.1.1:
   dependencies:
     npm-normalize-package-bin "^1.0.1"
 
-npm-check-updates@^11.5.7:
+npm-check-updates@^11.5.9:
   version "11.5.9"
   resolved "https://registry.yarnpkg.com/npm-check-updates/-/npm-check-updates-11.5.9.tgz#b7036e6f3f74220fe211d6f5e6ef94aee4425688"
   integrity sha512-D+FgrBNtBJHl+D1n364CsQy/o6JIrh+7v+SXngNzAeyOVvc8w/1yr5pvqguVQWIvduC3HcRI87amkDp7ipzH7A==
