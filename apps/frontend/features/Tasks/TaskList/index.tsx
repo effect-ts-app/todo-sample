@@ -35,6 +35,7 @@ import { TaskListMenu } from "./TaskListMenu"
 import * as A from "@effect-ts-demo/core/ext/Array"
 import * as T from "@effect-ts-demo/core/ext/Effect"
 import * as EO from "@effect-ts-demo/core/ext/EffectOption"
+import { UUID } from "@effect-ts-demo/core/ext/Model"
 
 const TaskListView = memo(function ({
   category,
@@ -54,7 +55,15 @@ const TaskListView = memo(function ({
   //   useTasks()
   //   useTasks()
   const { runPromise } = useServiceContext()
-  const [newResult, addNewTask] = useNewTask(category)
+  const [newResult, addNewTask] = useNewTask(
+    category,
+    !isDynamicCategory &&
+      datumEither.isSuccess(tasksResult2) &&
+      // treating inbox special was probably a bad idea.
+      tasksResult2.value.right.title !== "Tasks"
+      ? O.some((category as any) as UUID)
+      : O.none
+  )
   const [findResult, getTask] = useGetTask()
   const isLoading =
     datumEither.isPending(newResult) || datumEither.isPending(findResult)
@@ -65,7 +74,8 @@ const TaskListView = memo(function ({
       withLoading(
         flow(
           addNewTask,
-          T.chain((r) => getTask(r.id)),
+          T.chain((r) => T.tuplePar(getTask(r.id), refetchTasks(category))),
+          T.map(({ tuple: [t] }) => t),
           EO.map((t) => setSelectedTaskId(t.id)),
           runPromise
         ),

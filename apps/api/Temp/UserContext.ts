@@ -4,6 +4,7 @@ import {
   Task,
   TaskId,
   TaskList,
+  TaskListId,
   TaskListOrGroup,
   TaskListOrVirtual,
   User,
@@ -432,7 +433,53 @@ export function get(id: UserId) {
 
 const constNone = constant(O.none)
 
-export function findTaskList(id: TaskId) {
+export function addTask(userId: UserId, folderId: O.Option<TaskListId>, t: Task) {
+  // we have to traverse all users because of virtuallists :D
+  return pipe(
+    users.get,
+    T.map(
+      Map.map((v) =>
+        User.build({
+          ...v,
+          inbox:
+            v.id === userId && O.isNone(folderId)
+              ? {
+                  ...v.inbox,
+                  tasks: v.inbox.tasks.concat([t]),
+                }
+              : v.inbox,
+          lists: O.isNone(folderId)
+            ? v.lists
+            : v.lists.map(
+                TaskListOrGroup.match({
+                  TaskListGroup: (g) => ({
+                    ...g,
+                    lists: g.lists.map(
+                      TaskListOrVirtual.match({
+                        TaskList: (l) => ({
+                          ...l,
+                          tasks:
+                            l.id === folderId.value ? l.tasks.concat([t]) : l.tasks,
+                        }),
+                        VirtualTaskList: (l) => l,
+                      })
+                    ),
+                  }),
+                  TaskList: (l) => ({
+                    ...l,
+                    tasks: l.id === folderId.value ? l.tasks.concat([t]) : l.tasks,
+                  }),
+                  VirtualTaskList: (l) => l,
+                })
+              ),
+        })
+      )
+    ),
+    T.chain(users.set)
+  )
+}
+
+export function findTaskList(id: TaskListId) {
   return pipe(
     users.get,
     T.map(
@@ -464,11 +511,164 @@ export function findTaskList(id: TaskId) {
   )
 }
 
-export function getTaskList(id: TaskId) {
+export function findTask(taskId: TaskId) {
+  return pipe(
+    users.get,
+    T.map((u) => {
+      return A.findFirstMap_([...u.values()], (v) =>
+        A.findFirst_(v.inbox.tasks, (x) => x.id === taskId)["|>"](
+          O.alt(() =>
+            A.findFirstMap_(
+              v.lists,
+              TaskListOrGroup.match({
+                TaskListGroup: (l) =>
+                  A.filterMap_(l.lists, (l) =>
+                    TaskListOrGroup.is.TaskList(l) ? O.some(l) : O.none
+                  )["|>"]((lists) =>
+                    O.getFirst(
+                      ...A.map_(lists, (l) =>
+                        A.findFirst_(l.tasks, (x) => x.id === taskId)
+                      )
+                    )
+                  ),
+                TaskList: (l) => A.findFirst_(l.tasks, (x) => x.id === taskId),
+                VirtualTaskList: constNone,
+              })
+            )
+          )
+        )
+      )
+    })
+  )
+}
+
+export function getTaskList(id: TaskListId) {
   return pipe(
     findTaskList(id),
     T.chain(
       O.fold(() => T.fail(new NotFoundError("TaskList", id.toString())), T.succeed)
     )
+  )
+}
+
+export function updateTask(taskId: TaskId, mod: (t: Task) => Task) {
+  return pipe(
+    users.get,
+    T.map((u) =>
+      A.findFirstMap_([...u.values()], (v) => {
+        let found = false
+        const nu = User.build({
+          ...v,
+          inbox: {
+            ...v.inbox,
+            tasks: v.inbox.tasks.map((x) => {
+              if (x.id === taskId) {
+                found = true
+                return mod(x)
+              }
+              return x
+            }),
+          },
+          lists: v.lists.map(
+            TaskListOrGroup.match({
+              TaskListGroup: (g) => ({
+                ...g,
+                lists: g.lists.map(
+                  TaskListOrVirtual.match({
+                    TaskList: (l) => ({
+                      ...l,
+                      tasks: l.tasks.map((x) => {
+                        if (x.id === taskId) {
+                          found = true
+                          return mod(x)
+                        }
+                        return x
+                      }),
+                    }),
+                    VirtualTaskList: (l) => l,
+                  })
+                ),
+              }),
+              TaskList: (l) => ({
+                ...l,
+                tasks: l.tasks.map((x) => {
+                  if (x.id === taskId) {
+                    found = true
+                    return mod(x)
+                  }
+                  return x
+                }),
+              }),
+              VirtualTaskList: (l) => l,
+            })
+          ),
+        })
+        return found ? O.some(nu) : O.none
+      })
+        ["|>"](O.map((x) => Map.insert_(u, x.id, x)))
+        ["|>"](O.getOrElse(() => u))
+    ),
+    T.chain(users.set)
+  )
+}
+
+export function deleteTask(taskId: TaskId) {
+  return pipe(
+    users.get,
+    T.map((u) =>
+      A.findFirstMap_([...u.values()], (v) => {
+        let found = false
+        const nu = User.build({
+          ...v,
+          inbox: {
+            ...v.inbox,
+            tasks: v.inbox.tasks.filter((x) => {
+              if (x.id === taskId) {
+                found = true
+                return false
+              }
+              return true
+            }),
+          },
+          lists: v.lists.map(
+            TaskListOrGroup.match({
+              TaskListGroup: (g) => ({
+                ...g,
+                lists: g.lists.map(
+                  TaskListOrVirtual.match({
+                    TaskList: (l) => ({
+                      ...l,
+                      tasks: l.tasks.filter((x) => {
+                        if (x.id === taskId) {
+                          found = true
+                          return false
+                        }
+                        return true
+                      }),
+                    }),
+                    VirtualTaskList: (l) => l,
+                  })
+                ),
+              }),
+              TaskList: (l) => ({
+                ...l,
+                tasks: l.tasks.filter((x) => {
+                  if (x.id === taskId) {
+                    found = true
+                    return false
+                  }
+                  return true
+                }),
+              }),
+              VirtualTaskList: (l) => l,
+            })
+          ),
+        })
+        return found ? O.some(nu) : O.none
+      })
+        ["|>"](O.map((x) => Map.insert_(u, x.id, x)))
+        ["|>"](O.getOrElse(() => u))
+    ),
+    T.chain(users.set)
   )
 }

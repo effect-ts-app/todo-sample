@@ -52,6 +52,9 @@ export function EditableTaskProps<Env extends BaseFC>(F: CoreAlgebra<"HKT", Env>
   }
 }
 
+const EditableTaskPropsM = make((F) => F.interface(EditableTaskProps(F)))
+export type EditableTaskProps = AType<typeof EditableTaskPropsM>
+
 const Task_ = make((F) =>
   F.interface(
     {

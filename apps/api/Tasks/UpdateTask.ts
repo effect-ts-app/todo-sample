@@ -3,14 +3,14 @@ import * as T from "@effect-ts/core/Effect"
 import { pipe } from "@effect-ts/core/Function"
 import { Lens } from "@effect-ts/monocle"
 
-import * as TaskContext from "./TaskContext"
+import * as UserContext from "../Temp/UserContext"
 
 import { Request, Response } from "@effect-ts-demo/todo-client/Tasks/UpdateTask"
 
 export const handle = (_: Request) =>
   pipe(
-    TaskContext.get(_.id),
-    T.map(
+    UserContext.updateTask(
+      _.id,
       Task.lens["|>"](
         Lens.modify((t) => ({
           ...t,
@@ -19,7 +19,6 @@ export const handle = (_: Request) =>
         }))
       )
     ),
-    T.tap(TaskContext.add),
     T.asUnit
   )
 

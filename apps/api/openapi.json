@@ -54,6 +54,11 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "folderId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "nullable": true
+                  },
                   "isFavorite": {
                     "type": "boolean"
                   },
@@ -69,6 +74,7 @@
                   }
                 },
                 "required": [
+                  "folderId",
                   "isFavorite",
                   "myDay",
                   "title"

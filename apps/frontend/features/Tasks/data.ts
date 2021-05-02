@@ -82,11 +82,12 @@ export function useTasks() {
   return r
 }
 
-const newTask = (v: TaskView) => (newTitle: string) =>
+const newTask = (v: TaskView, folderId: O.Option<UUID>) => (newTitle: string) =>
   TodoClient.Tasks.createTaskE({
     title: newTitle,
     isFavorite: false,
     myDay: null,
+    folderId: O.toNullable(folderId),
     ...(v === "important"
       ? { isFavorite: true }
       : v === "my-day"
@@ -105,8 +106,8 @@ export const TaskViews = ["important", "my-day"] as const
 export const TaskView = make((F) => F.keysOf(makeKeys(TaskViews)))
 export type TaskView = AType<typeof TaskView>
 
-export function useNewTask(v: TaskView) {
-  return useFetch(newTask(v))
+export function useNewTask(v: TaskView, folderId: O.Option<UUID>) {
+  return useFetch(newTask(v, folderId))
 }
 
 export function useFindTaskList(id: UUID) {
