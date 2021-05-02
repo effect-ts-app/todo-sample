@@ -30,95 +30,7 @@
                     "items": {
                       "type": "array",
                       "items": {
-                        "type": "object",
-                        "properties": {
-                          "assignedTo": {
-                            "type": "number",
-                            "title": "PositiveInt",
-                            "minimum": 0,
-                            "nullable": true
-                          },
-                          "completed": {
-                            "type": "string",
-                            "format": "date-time",
-                            "nullable": true
-                          },
-                          "createdAt": {
-                            "type": "string",
-                            "format": "date-time"
-                          },
-                          "due": {
-                            "type": "string",
-                            "format": "date-time",
-                            "nullable": true
-                          },
-                          "id": {
-                            "type": "string",
-                            "format": "uuid"
-                          },
-                          "isFavorite": {
-                            "type": "boolean"
-                          },
-                          "myDay": {
-                            "type": "string",
-                            "format": "date-time",
-                            "nullable": true
-                          },
-                          "note": {
-                            "type": "string",
-                            "title": "NonEmptyString",
-                            "minLength": 1,
-                            "nullable": true
-                          },
-                          "reminder": {
-                            "type": "string",
-                            "format": "date-time",
-                            "nullable": true
-                          },
-                          "steps": {
-                            "type": "array",
-                            "items": {
-                              "type": "object",
-                              "properties": {
-                                "completed": {
-                                  "type": "boolean"
-                                },
-                                "title": {
-                                  "type": "string",
-                                  "title": "NonEmptyString",
-                                  "minLength": 1
-                                }
-                              },
-                              "required": [
-                                "completed",
-                                "title"
-                              ]
-                            }
-                          },
-                          "title": {
-                            "type": "string",
-                            "title": "NonEmptyString",
-                            "minLength": 1
-                          },
-                          "updatedAt": {
-                            "type": "string",
-                            "format": "date-time"
-                          }
-                        },
-                        "required": [
-                          "assignedTo",
-                          "completed",
-                          "createdAt",
-                          "due",
-                          "id",
-                          "isFavorite",
-                          "myDay",
-                          "note",
-                          "reminder",
-                          "steps",
-                          "title",
-                          "updatedAt"
-                        ]
+                        "$ref": "#/components/schemas/Task"
                       }
                     }
                   },
@@ -210,95 +122,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "assignedTo": {
-                      "type": "number",
-                      "title": "PositiveInt",
-                      "minimum": 0,
-                      "nullable": true
-                    },
-                    "completed": {
-                      "type": "string",
-                      "format": "date-time",
-                      "nullable": true
-                    },
-                    "createdAt": {
-                      "type": "string",
-                      "format": "date-time"
-                    },
-                    "due": {
-                      "type": "string",
-                      "format": "date-time",
-                      "nullable": true
-                    },
-                    "id": {
-                      "type": "string",
-                      "format": "uuid"
-                    },
-                    "isFavorite": {
-                      "type": "boolean"
-                    },
-                    "myDay": {
-                      "type": "string",
-                      "format": "date-time",
-                      "nullable": true
-                    },
-                    "note": {
-                      "type": "string",
-                      "title": "NonEmptyString",
-                      "minLength": 1,
-                      "nullable": true
-                    },
-                    "reminder": {
-                      "type": "string",
-                      "format": "date-time",
-                      "nullable": true
-                    },
-                    "steps": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "completed": {
-                            "type": "boolean"
-                          },
-                          "title": {
-                            "type": "string",
-                            "title": "NonEmptyString",
-                            "minLength": 1
-                          }
-                        },
-                        "required": [
-                          "completed",
-                          "title"
-                        ]
-                      }
-                    },
-                    "title": {
-                      "type": "string",
-                      "title": "NonEmptyString",
-                      "minLength": 1
-                    },
-                    "updatedAt": {
-                      "type": "string",
-                      "format": "date-time"
-                    }
-                  },
-                  "required": [
-                    "assignedTo",
-                    "completed",
-                    "createdAt",
-                    "due",
-                    "id",
-                    "isFavorite",
-                    "myDay",
-                    "note",
-                    "reminder",
-                    "steps",
-                    "title",
-                    "updatedAt"
-                  ],
+                  "$ref": "#/components/schemas/Task",
                   "nullable": true
                 }
               }
@@ -365,21 +189,7 @@
                   "steps": {
                     "type": "array",
                     "items": {
-                      "type": "object",
-                      "properties": {
-                        "completed": {
-                          "type": "boolean"
-                        },
-                        "title": {
-                          "type": "string",
-                          "title": "NonEmptyString",
-                          "minLength": 1
-                        }
-                      },
-                      "required": [
-                        "completed",
-                        "title"
-                      ]
+                      "$ref": "#/components/schemas/Step"
                     }
                   },
                   "title": {
@@ -463,5 +273,105 @@
         }
       }
     }
+  },
+  "components": {
+    "securitySchemes": {},
+    "schemas": {
+      "Step": {
+        "type": "object",
+        "properties": {
+          "completed": {
+            "type": "boolean"
+          },
+          "title": {
+            "type": "string",
+            "title": "NonEmptyString",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "completed",
+          "title"
+        ]
+      },
+      "Task": {
+        "type": "object",
+        "properties": {
+          "assignedTo": {
+            "type": "number",
+            "title": "PositiveInt",
+            "minimum": 0,
+            "nullable": true
+          },
+          "completed": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "due": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "isFavorite": {
+            "type": "boolean"
+          },
+          "myDay": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "note": {
+            "type": "string",
+            "title": "NonEmptyString",
+            "minLength": 1,
+            "nullable": true
+          },
+          "reminder": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Step"
+            }
+          },
+          "title": {
+            "type": "string",
+            "title": "NonEmptyString",
+            "minLength": 1
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "assignedTo",
+          "completed",
+          "createdAt",
+          "due",
+          "id",
+          "isFavorite",
+          "myDay",
+          "note",
+          "reminder",
+          "steps",
+          "title",
+          "updatedAt"
+        ]
+      }
+    },
+    "parameters": {}
   }
 }

@@ -20,7 +20,10 @@ export const TaskId = UUID
 export type TaskId = AType<typeof TaskId>
 
 export const Step_ = make((F) =>
-  F.interface({ title: NonEmptyString(F), completed: F.boolean() })
+  F.interface(
+    { title: NonEmptyString(F), completed: F.boolean() },
+    { extensions: { openapiRef: "Step" } }
+  )
 )
 export interface Step extends AType<typeof Step_> {}
 export interface StepE extends EType<typeof Step_> {}
@@ -49,13 +52,16 @@ export function EditableTaskProps<Env extends BaseFC>(F: CoreAlgebra<"HKT", Env>
 }
 
 const Task_ = make((F) =>
-  F.interface({
-    id: TaskId(F),
-    createdAt: F.date(),
-    updatedAt: F.date(),
+  F.interface(
+    {
+      id: TaskId(F),
+      createdAt: F.date(),
+      updatedAt: F.date(),
 
-    ...EditableTaskProps(F),
-  })
+      ...EditableTaskProps(F),
+    },
+    { extensions: { openapiRef: "Task" } }
+  )
 )
 
 export interface Task extends AType<typeof Task_> {}

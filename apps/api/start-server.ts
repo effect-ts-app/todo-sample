@@ -72,6 +72,15 @@ const program = pipe(
           const ref = yield* $(makeRef<Map<string, JSONSchema | SubSchema>>(new Map()))
           const withRef = T.provideService(References)({ ref })
           const paths = yield* $(makeSchema(rdescs.tuple)["|>"](withRef))
+          const refs = yield* $(ref.get)
+          const parameterRefs: Record<string, any> = {} // todos
+          const schemas: Record<string, any> = {}
+          const securitySchemes = {} // { basicAuth: { type: "http", scheme: "basic" } }
+          const components = { securitySchemes, schemas, parameters: parameterRefs }
+
+          for (const entry of refs.entries()) {
+            schemas[entry[0]] = entry[1]
+          }
 
           //const test = yield* $(generatePlutus)
 
@@ -106,7 +115,7 @@ const program = pipe(
             },
             //tags,
             paths,
-            //components: { schemas: refsSchemas, parameters: refsParameters },
+            components,
             //test,
           }
         })
@@ -121,9 +130,9 @@ const program = pipe(
           )
         )["|>"](T.orDie)
       ),
-      T.map((_) => {
-        console.log("Available routes: ", JSON.stringify(_, undefined, 2))
-      })
+      T.tap(() =>
+        T.succeedWith(() => console.log("OpenAPI spec written to './openapi.json'"))
+      )
     )
   ),
   T.tap(() => T.never)
