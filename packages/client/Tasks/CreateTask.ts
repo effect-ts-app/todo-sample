@@ -1,9 +1,10 @@
 import { NonEmptyString } from "@effect-ts-demo/core/ext/Model"
-import { TaskId } from "@effect-ts-demo/todo-types"
+import { TaskId, TaskListId } from "@effect-ts-demo/todo-types"
 import { make, AType, EType, opaque } from "@effect-ts/morphic"
 
 const RequestBody_ = make((F) =>
   F.interface({
+    folderId: TaskListId(F),
     title: NonEmptyString(F),
     isFavorite: F.boolean(),
     myDay: F.nullable(F.date()),

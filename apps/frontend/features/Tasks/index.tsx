@@ -10,16 +10,16 @@ import { renderIf_ } from "@/utils"
 import FolderList from "./FolderList"
 import TaskDetail from "./TaskDetail"
 import TaskList from "./TaskList"
-import { Ordery, TaskView } from "./data"
+import { Ordery } from "./data"
 
-import type { UUID } from "@effect-ts-demo/core/ext/Model"
+import type { NonEmptyString, UUID } from "@effect-ts-demo/core/ext/Model"
 
 const TasksScreen = memo(function ({
   category,
   order,
   taskId,
 }: {
-  category: O.Option<TaskView>
+  category: O.Option<NonEmptyString>
   order: O.Option<Ordery>
   taskId: O.Option<UUID>
 }) {

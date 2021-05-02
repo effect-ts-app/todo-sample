@@ -1,6 +1,6 @@
 import * as TodoClient from "@effect-ts-demo/todo-client"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
-import { constant, flow, identity, pipe } from "@effect-ts/core/Function"
+import { constant, flow, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import * as ORD from "@effect-ts/core/Ord"
 import { Lens } from "@effect-ts/monocle"
@@ -16,6 +16,52 @@ import { typedKeysOf } from "@/utils"
 import * as T from "@effect-ts-demo/core/ext/Effect"
 import * as EO from "@effect-ts-demo/core/ext/EffectOption"
 import { NonEmptyString } from "@effect-ts-demo/core/ext/Model"
+
+// export function useModifyTasks() {
+//   return useModify<A.Array<Todo.Task>>("latestTasks")
+// }
+
+// export function useGetTaskList(id: UUID) {
+//   //const modifyTasks = useModifyTasks()
+//   const [findResult, findTaskList] = useFindTaskList()
+//   return [
+//     findResult,
+//     useCallback(
+//       (id: UUID) =>
+//         pipe(
+//           findTaskList(id)
+//           //   EO.tap((t) =>
+//           //     T.succeedWith(() =>
+//           //       modifyTasks((tasks) =>
+//           //         pipe(
+//           //           A.findIndex_(tasks, (x) => x.id === t.id),
+//           //           O.chain((i) => A.modifyAt_(tasks, i, constant(t))),
+//           //           O.getOrElse(() => A.cons_(tasks, t))
+//           //         )
+//           //       )
+//           //     )
+//           //   )
+//         ),
+//       [findTaskList] // , modifyTasks
+//     ),
+//   ] as const
+// }
+
+const fetchMe = constant(TodoClient.Temp.getMe)
+
+export function useMe() {
+  const { runWithErrorLog } = useServiceContext()
+  const r = useQuery("me", fetchMe)
+  const [, , , exec] = r
+
+  useEffect(() => {
+    const cancel = exec()["|>"](runWithErrorLog)
+    return () => {
+      cancel()
+    }
+  }, [exec, runWithErrorLog])
+  return r
+}
 
 const fetchLatestTasks = constant(
   TodoClient.Tasks.getTasks["|>"](T.map((r) => r.items))
@@ -35,11 +81,12 @@ export function useTasks() {
   return r
 }
 
-const newTask = (v: TaskView) => (newTitle: string) =>
+const newTask = (v: TaskView, folderId?: Todo.TaskListId) => (newTitle: string) =>
   TodoClient.Tasks.createTaskE({
     title: newTitle,
     isFavorite: false,
     myDay: null,
+    folderId: folderId ?? "inbox",
     ...(v === "important"
       ? { isFavorite: true }
       : v === "my-day"
@@ -54,13 +101,33 @@ export function makeKeys<T extends string>(a: readonly T[]) {
   }, {} as { [P in typeof a[number]]: null })
 }
 
-export const TaskViews = ["tasks", "important", "my-day"] as const
+export const TaskViews = ["important", "my-day"] as const
 export const TaskView = make((F) => F.keysOf(makeKeys(TaskViews)))
 export type TaskView = AType<typeof TaskView>
 
-export function useNewTask(v: TaskView) {
-  return useFetch(newTask(v))
+export function useNewTask(v: TaskView, folderId?: Todo.TaskListId) {
+  return useFetch(newTask(v, folderId))
 }
+
+// export function useFindTaskList(id: UUID) {
+//   //return useFetch(TodoClient.Temp.findTaskList)
+//   const { runWithErrorLog } = useServiceContext()
+//   const modify = useModifyTasks()
+//   const r = useQuery(`task-list-${id}`, TodoClient.Temp.findTaskList)
+//   const [result, , , exec] = r
+//   useEffect(() => {
+//     const cancel = exec(id)["|>"](runWithErrorLog)
+//     return () => {
+//       cancel()
+//     }
+//   }, [id, exec, runWithErrorLog])
+//   useEffect(() => {
+//     if (datumEither.isSuccess(result)) {
+//       modify(A.concat(result.value.right.items))
+//     }
+//   }, [modify, result._tag])
+//   return r
+// }
 
 export function useFindTask() {
   return useFetch(TodoClient.Tasks.findTask)
@@ -321,8 +388,11 @@ export function filterByCategory(category: TaskView) {
         t.myDay["|>"](O.map(isToday))["|>"](O.getOrElse(() => false))
       )
     }
+    case "tasks": {
+      return A.filter((t: Todo.Task) => t.listId === "inbox")
+    }
     default:
-      return identity
+      return A.filter((t: Todo.Task) => t.listId === category)
   }
 }
 

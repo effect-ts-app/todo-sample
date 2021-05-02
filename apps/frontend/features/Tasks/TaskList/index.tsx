@@ -34,6 +34,7 @@ import { TaskListMenu } from "./TaskListMenu"
 import * as A from "@effect-ts-demo/core/ext/Array"
 import * as T from "@effect-ts-demo/core/ext/Effect"
 import * as EO from "@effect-ts-demo/core/ext/EffectOption"
+import { TaskListId } from "@effect-ts-demo/todo-types/Task"
 
 const TaskListView = memo(function ({
   category,
@@ -42,13 +43,20 @@ const TaskListView = memo(function ({
   category: TaskView
   order: O.Option<Ordery>
 }) {
-  const [tasksResult, , refetchTasks] = useTasks()
+  const [tasksResult1, , refetchTasks] = useTasks()
+  const isDynamicCategory = category === "my-day" || category === "important"
+  const tasksResult = tasksResult1
   useInterval(() => refetchTasks, 30 * 1000)
   // testing for multi-call relying on same network-call/cache.
   //   useTasks()
   //   useTasks()
   const { runPromise } = useServiceContext()
-  const [newResult, addNewTask] = useNewTask(category)
+  const [newResult, addNewTask] = useNewTask(
+    category,
+    !isDynamicCategory && category !== "tasks"
+      ? ((category as any) as TaskListId)
+      : undefined
+  )
   const [findResult, getTask] = useGetTask()
   const isLoading =
     datumEither.isPending(newResult) || datumEither.isPending(findResult)
@@ -90,7 +98,8 @@ const TaskListView = memo(function ({
       <>
         <Box display="flex">
           <Typography variant="h3">
-            {toUpperCaseFirst(category)} {isRefreshing && <Refresh />}
+            {toUpperCaseFirst(category)} {/* TODO */}
+            {isRefreshing && <Refresh />}
           </Typography>
 
           <Box marginLeft="auto" marginTop={1}>

@@ -23,7 +23,7 @@ export const mapResponseError = T.mapError((err: Errors) => new ResponseError(er
 const makeAbort = T.succeedWith(() => new AbortController())
 export function fetchApi(path: string, options?: Omit<RequestInit, "signal">) {
   const userId =
-    (typeof localStorage !== "undefined" && localStorage.getItem("user-id")) || "1"
+    (typeof localStorage !== "undefined" && localStorage.getItem("user-id")) || "0"
   return getConfig(({ apiUrl }) =>
     pipe(
       makeAbort,

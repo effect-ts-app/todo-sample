@@ -1,4 +1,5 @@
 import * as Todo from "@effect-ts-demo/todo-types"
+import { TaskListId } from "@effect-ts-demo/todo-types"
 import { flow } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import { Lens } from "@effect-ts/monocle"
@@ -74,25 +75,32 @@ export const Task = Object.assign({}, Todo.Task, {
 export type Task = Todo.Task
 
 export const TaskList = make((F) =>
-  F.intersection(Todo.TaskList(F), F.interface({ _tag: F.stringLiteral("TaskList") }))()
-)
-
-export const TaskListGroup = make((F) =>
-  F.intersection(
-    Todo.TaskListGroup(F),
-    F.interface({ _tag: F.stringLiteral("TaskListGroup") })
-  )()
-)
-
-export const TaskListView = make((F) =>
   F.intersection(
     Todo.TaskList(F),
     F.interface({
+      title: NonEmptyString(F),
       count: F.number(),
-      slug: NonEmptyString(F),
-      _tag: F.stringLiteral("TaskListView"),
+      _tag: F.stringLiteral("TaskList"),
     })
   )()
+)
+
+export const TaskListGroup = make((F) =>
+  F.interface({
+    id: TaskListId(F),
+    title: NonEmptyString(F),
+    lists: F.array(TaskList(F)),
+    _tag: F.stringLiteral("TaskListGroup"),
+  })
+)
+
+export const TaskListView = make((F) =>
+  F.interface({
+    title: NonEmptyString(F),
+    count: F.number(),
+    slug: NonEmptyString(F),
+    _tag: F.stringLiteral("TaskListView"),
+  })
 )
 
 export const FolderListADT = makeADT("_tag")({ TaskList, TaskListGroup, TaskListView })
