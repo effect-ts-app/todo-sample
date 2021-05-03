@@ -1,4 +1,4 @@
-import { Task, TaskId, User, UserId } from "@effect-ts-demo/todo-types"
+import { Task, TaskId, TaskListOrGroup, User, UserId } from "@effect-ts-demo/todo-types"
 import { Has } from "@effect-ts/core"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as Chunk from "@effect-ts/core/Collections/Immutable/Chunk"
@@ -25,11 +25,13 @@ import * as EO from "@effect-ts-demo/core/ext/EffectOption"
 
 const [decodeUser, encodeUser, encodeUsersToMap] = makeCodec(User)
 const [decodeTask, encodeTask, encodeTasksToMap] = makeCodec(Task)
+const [decodeList, , encodeListsToMap] = makeCodec(TaskListOrGroup)
 
 const makeMockTaskContext = T.gen(function* ($) {
-  const { tasks, users } = yield* $(makeTestData)
+  const { lists, tasks, users } = yield* $(makeTestData)
   const usersRef = yield* $(pipe(encodeUsersToMap(users), T.chain(Ref.makeRef)))
   const tasksRef = yield* $(pipe(encodeTasksToMap(tasks), T.chain(Ref.makeRef)))
+  const listsRef = yield* $(pipe(encodeListsToMap(lists), T.chain(Ref.makeRef)))
 
   const findUser = (id: UserId) =>
     pipe(
@@ -42,6 +44,25 @@ const makeMockTaskContext = T.gen(function* ($) {
     pipe(
       findUser(id),
       T.chain(O.fold(() => T.fail(new NotFoundError("User", id.toString())), T.succeed))
+    )
+
+  const allLists = (id: UserId) =>
+    pipe(
+      T.struct({ user: getUser(id), lists: listsRef.get }),
+      T.chain(({ lists }) =>
+        pipe(
+          Chunk.from(lists.values()),
+          Chunk.map(decodeList),
+          T.collectAll,
+          T.map(
+            Chunk.filter(
+              (l) =>
+                l.ownerId === id ||
+                (TaskListOrGroup.is.TaskList(l) && l.members.some((m) => m.id === id))
+            )
+          )
+        )
+      )
     )
 
   const find = (id: TaskId) =>
@@ -77,14 +98,27 @@ const makeMockTaskContext = T.gen(function* ($) {
 
   const all = (userId: UserId) =>
     pipe(
-      tasksRef.get,
-      T.chain((tasks) =>
+      T.struct({
+        tasks: tasksRef.get,
+        lists: pipe(
+          allLists(userId),
+          T.map(
+            Chunk.filterMap((x) =>
+              TaskListOrGroup.is.TaskList(x) ? O.some(x) : O.none
+            )
+          )
+        ),
+      }),
+      T.chain(({ lists, tasks }) =>
         pipe(
           Chunk.from(tasks.values()),
           Chunk.filter(
             (x) =>
               // TODO: Or task is part of a List that a user is Member of ;-)
-              x.createdBy === userId
+              x.createdBy === userId ||
+              Chunk.find_(lists, (l) => l.id === x.listId)
+                ["|>"](O.map((l) => l.members.some((m) => m.id === userId)))
+                ["|>"](O.getOrElse(() => false))
           ),
           T.forEach(decodeTask)
         )
@@ -92,6 +126,7 @@ const makeMockTaskContext = T.gen(function* ($) {
     )
 
   return {
+    allLists,
     findUser,
     getUser,
     find,
@@ -139,6 +174,7 @@ export const MockTaskContext = L.fromEffect(TaskContext)(makeMockTaskContext)
 
 export const {
   add,
+  allLists,
   allOrdered,
   find,
   get,
@@ -147,7 +183,17 @@ export const {
   setOrder,
   update,
 } = T.deriveLifted(TaskContext)(
-  ["add", "get", "getUser", "find", "remove", "allOrdered", "setOrder", "update"],
+  [
+    "allLists",
+    "add",
+    "get",
+    "getUser",
+    "find",
+    "remove",
+    "allOrdered",
+    "setOrder",
+    "update",
+  ],
   [],
   []
 )

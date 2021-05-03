@@ -167,6 +167,7 @@ const SharableTaskList_ = make((F) =>
     F.interface({
       title: NonEmptyString(F),
       members: F.array(Member(F)),
+      ownerId: UserId(F),
       // tasks: F.array(TaskOrVirtualTask(F))
       _tag: F.stringLiteral("TaskList"),
     })
@@ -201,6 +202,7 @@ const TaskListGroup_ = make((F) =>
   F.interface({
     id: TaskListId(F),
     title: NonEmptyString(F),
+    ownerId: UserId(F),
     //lists: TaskLists(F),
     _tag: F.stringLiteral("TaskListGroup"),
   })
@@ -217,22 +219,10 @@ export const TaskListOrGroup = makeADT("_tag")({
 
 export type TaskListOrGroup = AType<typeof TaskListOrGroup>
 
-// In backend, tasks would be saved separately from lists and list separately from groups.
-// so you would have a relationship db; task.listId,  list.groupId etc.
-
-// User
-// - inbox: MainTaskList
-// - groups: { lists: TaskList[] /* with ordering */ }[] // in DB: via ids?
-// - lists: TaskList[] // ordering
-// start payload; only load the list names
-// then load each list, and show the count of the list.
-
 const User_ = make((F) =>
   F.interface({
     id: UserId(F),
     name: NonEmptyString(F),
-    //inbox: TaskList(F),
-    lists: F.array(TaskListOrGroup(F)), // query also for other user's shared lists im member of ;-)
     order: F.array(TaskId(F)),
   })
 )
