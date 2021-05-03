@@ -1,4 +1,4 @@
-import { Task, TaskId, UserId } from "@effect-ts-demo/todo-types"
+import { Task, TaskId, User, UserId } from "@effect-ts-demo/todo-types"
 import { Has } from "@effect-ts/core"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as Chunk from "@effect-ts/core/Collections/Immutable/Chunk"
@@ -22,17 +22,20 @@ import { makeTestData } from "./TaskContext.testdata"
 
 import * as EO from "@effect-ts-demo/core/ext/EffectOption"
 
+const encodeUser = flow(strict(User).shrink, Sy.chain(encode(User)))
 const encodeTask = flow(strict(Task).shrink, Sy.chain(encode(Task)))
+const { decode: decodeTask } = strictDecoder(Task)
+const { decode: decodeUser } = strictDecoder(User)
 
 const makeMockTaskContext = T.gen(function* ($) {
   const { tasks, users } = yield* $(makeTestData)
-  const { decode: decodeTask } = strictDecoder(Task)
 
   const usersRef = yield* $(
     pipe(
-      A.map_(users, (u) => [u.id, /*encode()*/ u] as const),
-      Map.make,
-      Ref.makeRef
+      A.map_(users, (u) => Sy.tuple(Sy.succeed(u.id), encodeUser(u))),
+      Sy.collectAll,
+      Sy.map(Map.make),
+      T.chain(Ref.makeRef)
     )
   )
 
@@ -45,18 +48,18 @@ const makeMockTaskContext = T.gen(function* ($) {
     )
   )
 
-  const svc = {
+  return {
     findUser(id: UserId) {
       return pipe(
         usersRef.get,
-        T.map((users) => O.fromNullable(users.get(id)))
-        //EO.chain(flow(decodeUser, EO.fromEffect, T.orDie))
+        T.map((users) => O.fromNullable(users.get(id))),
+        EO.chain(flow(decodeUser, EO.fromEffect, T.orDie))
       )
     },
 
     getUser(id: UserId) {
       return pipe(
-        svc.findUser(id),
+        this.findUser(id),
         T.chain(
           O.fold(() => T.fail(new NotFoundError("User", id.toString())), T.succeed)
         )
@@ -73,7 +76,7 @@ const makeMockTaskContext = T.gen(function* ($) {
 
     get(id: TaskId) {
       return pipe(
-        svc.find(id),
+        this.find(id),
         T.chain(O.fold(() => T.fail(new NotFoundError("Task", id)), T.succeed))
       )
     },
@@ -97,11 +100,11 @@ const makeMockTaskContext = T.gen(function* ($) {
     },
 
     update(id: TaskId, mod: (a: Task) => Task) {
-      return pipe(svc.get(id), T.map(mod), T.chain(svc.add))
+      return pipe(this.get(id), T.map(mod), T.chain(this.add))
     },
 
     updateM<R, E>(id: TaskId, mod: (a: Task) => T.Effect<R, E, Task>) {
-      return pipe(svc.get(id), T.chain(mod), T.chain(svc.add))
+      return pipe(this.get(id), T.chain(mod), T.chain(this.add))
     },
 
     add(t: Task) {
@@ -113,38 +116,38 @@ const makeMockTaskContext = T.gen(function* ($) {
 
     delete(id: TaskId) {
       return pipe(
-        T.tuple(tasksRef.get, svc.get(id)),
+        T.tuple(tasksRef.get, this.get(id)),
         T.chain(({ tuple: [tasks] }) => tasksRef.set(tasks["|>"](Map.remove(id))))
       )
     },
 
     remove(t: Task) {
-      return svc.delete(t.id)
+      return this.delete(t.id)
     },
 
     getOrder(uid: UserId) {
       return pipe(
-        svc.getUser(uid),
+        this.getUser(uid),
         T.map((u) => u.order)
       )
     },
     setOrder(uid: UserId, order: A.Array<TaskId>) {
       return pipe(
-        svc.getUser(uid),
+        this.getUser(uid),
         T.map((u) => ({ ...u, order })),
-        T.chain((u) => Ref.update_(usersRef, Map.insert(u.id, u)))
+        T.chain(encodeUser),
+        T.orDie,
+        T.chain((u) => Ref.update_(usersRef, Map.insert(uid, u)))
       )
     },
 
     allOrdered(userId: UserId) {
       return pipe(
-        T.structPar({ tasks: svc.all(userId), order: svc.getOrder(userId) }),
+        T.structPar({ tasks: this.all(userId), order: this.getOrder(userId) }),
         T.map(({ order, tasks }) => orderTasks(tasks["|>"](Chunk.toArray), order))
       )
     },
   }
-
-  return svc
 })
 
 function orderTasks(a: A.Array<Task>, order: A.Array<UUID>) {
