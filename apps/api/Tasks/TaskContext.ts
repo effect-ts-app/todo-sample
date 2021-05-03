@@ -2,6 +2,7 @@ import {
   Step,
   Task,
   TaskE,
+  TaskId,
   TaskListOrGroup,
   TaskListOrVirtual,
   User,
@@ -58,6 +59,7 @@ const users = pipe(
         // inbox: TaskList.build({
         //   id: makeUuid(),
         // }),
+        order: [],
         lists: [
           TaskListOrGroup.as.TaskList({
             id: makeUuid(),
@@ -220,17 +222,15 @@ const tasksRef = Ref.unsafeMakeRef<Map.Map<UUID, TaskE>>(
   )
 )
 
-const orderRef = Ref.unsafeMakeRef<A.Array<UUID>>([])
-
 const { decode: decodeTask } = strictDecoder(Task)
-export function find(id: UUID) {
+export function find(id: TaskId) {
   return pipe(
     tasksRef.get["|>"](T.map((tasks) => O.fromNullable(tasks.get(id)))),
     EO.chain(flow(decodeTask, EO.fromEffect, T.orDie))
   )
 }
 
-export function get(id: UUID) {
+export function get(id: TaskId) {
   return pipe(
     find(id),
     T.chain(O.fold(() => T.fail(new NotFoundError("Task", id)), T.succeed))
@@ -268,11 +268,15 @@ export function remove(t: Task) {
   )
 }
 
-export const getOrder = orderRef.get
-export const setOrder = orderRef.set
+export const getOrder = (uid: UserId) => getUser(uid)["|>"](T.map((u) => u.order))
+export const setOrder = (uid: UserId, order: A.Array<TaskId>) =>
+  getUser(uid)
+    ["|>"](T.map((u) => ({ ...u, order })))
+    ["|>"](T.chain((u) => Ref.update_(users, Map.insert(u.id, u))))
+
 export function allOrdered(userId: UserId) {
   return pipe(
-    T.structPar({ tasks: all(userId), order: getOrder }),
+    T.structPar({ tasks: all(userId), order: getOrder(userId) }),
     T.map(({ order, tasks }) => orderTasks(tasks["|>"](Chunk.toArray), order))
   )
 }

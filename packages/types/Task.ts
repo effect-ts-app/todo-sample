@@ -233,6 +233,7 @@ const User_ = make((F) =>
     name: NonEmptyString(F),
     //inbox: TaskList(F),
     lists: F.array(TaskListOrGroup(F)), // query also for other user's shared lists im member of ;-)
+    order: F.array(TaskId(F)),
   })
 )
 
