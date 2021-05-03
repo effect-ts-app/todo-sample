@@ -6,7 +6,8 @@ import * as ORD from "@effect-ts/core/Ord"
 import { Lens } from "@effect-ts/monocle"
 import { AType, make } from "@effect-ts/morphic"
 import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
-import { useCallback, useEffect, useMemo } from "react"
+import { datumEither } from "@nll/datum"
+import { useCallback, useEffect, useMemo, useRef } from "react"
 
 import * as Todo from "@/Todo"
 import { useServiceContext } from "@/context"
@@ -16,6 +17,7 @@ import { typedKeysOf } from "@/utils"
 import * as T from "@effect-ts-demo/core/ext/Effect"
 import * as EO from "@effect-ts-demo/core/ext/EffectOption"
 import { NonEmptyString } from "@effect-ts-demo/core/ext/Model"
+import { TaskId } from "@effect-ts-demo/todo-types/Task"
 
 // export function useModifyTasks() {
 //   return useModify<A.Array<Todo.Task>>("latestTasks")
@@ -149,6 +151,30 @@ export function useUpdateTask2(id: string) {
 }
 export function useModifyTasks() {
   return useModify<A.Array<Todo.Task>>("latestTasks")
+}
+
+export function useReorder() {
+  const [tasksResult] = useTasks()
+  const modifyTasks = useModifyTasks()
+  const { runWithErrorLog } = useServiceContext()
+  const tref = useRef(datumEither.isSuccess(tasksResult) ? tasksResult.value.right : [])
+  tref.current = datumEither.isSuccess(tasksResult) ? tasksResult.value.right : []
+
+  return useCallback(
+    (tid: TaskId, did: TaskId) => {
+      const tasks = tref.current
+      const t = tasks.find((x) => x.id === tid)!
+      const d = tasks.find((x) => x.id === did)!
+      const didx = tasks.findIndex((x) => x === d)
+      const reorder = Todo.updateTaskIndex(t, didx)
+      modifyTasks(reorder)
+      const reorderedTasks = tasks["|>"](reorder)
+      TodoClient.Tasks.setTasksOrder({
+        order: A.map_(reorderedTasks, (t) => t.id),
+      })["|>"](runWithErrorLog)
+    },
+    [modifyTasks, runWithErrorLog]
+  )
 }
 
 export function useGetTask() {
@@ -378,7 +404,7 @@ export const Ordery = make((F) =>
 )
 export type Ordery = AType<typeof Ordery>
 
-export function filterByCategory(category: TaskView) {
+export function filterByCategory(category: TaskView | string) {
   switch (category) {
     case "important":
       return A.filter((t: Todo.Task) => t.isFavorite)

@@ -29,10 +29,10 @@ const pastDate = (d: Date): O.Option<Date> => (d < new Date() ? O.some(d) : O.no
 
 export function updateTaskIndex(t: Task, newIndex: number) {
   return (tasks: A.Array<Task>) => {
-    const modifiedSteps = tasks["|>"](A.filter((x) => x !== t))["|>"](
+    const modifiedTasks = tasks["|>"](A.filter((x) => x !== t))["|>"](
       A.insertAt(newIndex, t)
     )
-    return modifiedSteps["|>"](O.getOrElse(() => tasks))
+    return modifiedTasks["|>"](O.getOrElse(() => tasks))
   }
 }
 
