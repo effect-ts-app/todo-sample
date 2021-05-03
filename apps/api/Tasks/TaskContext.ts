@@ -11,6 +11,7 @@ import * as O from "@effect-ts/core/Option"
 import { Ord } from "@effect-ts/core/Ord"
 import * as Sy from "@effect-ts/core/Sync"
 import { _A } from "@effect-ts/core/Utils"
+import { M } from "@effect-ts/morphic"
 import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
 import { encode } from "@effect-ts/morphic/Encoder"
 import { strict } from "@effect-ts/morphic/Strict"
@@ -22,37 +23,19 @@ import { makeTestData } from "./TaskContext.testdata"
 
 import * as EO from "@effect-ts-demo/core/ext/EffectOption"
 
-const encodeUser = flow(strict(User).shrink, Sy.chain(encode(User)))
-const encodeTask = flow(strict(Task).shrink, Sy.chain(encode(Task)))
-const { decode: decodeTask } = strictDecoder(Task)
-const { decode: decodeUser } = strictDecoder(User)
+const [decodeUser, encodeUser, encodeUsersToMap] = makeCodec(User)
+const [decodeTask, encodeTask, encodeTasksToMap] = makeCodec(Task)
 
 const makeMockTaskContext = T.gen(function* ($) {
   const { tasks, users } = yield* $(makeTestData)
-
-  const usersRef = yield* $(
-    pipe(
-      A.map_(users, (u) => Sy.tuple(Sy.succeed(u.id), encodeUser(u))),
-      Sy.collectAll,
-      Sy.map(Map.make),
-      T.chain(Ref.makeRef)
-    )
-  )
-
-  const tasksRef = yield* $(
-    pipe(
-      A.map_(tasks, (task) => Sy.tuple(Sy.succeed(task.id), encodeTask(task))),
-      Sy.collectAll,
-      Sy.map(Map.make),
-      T.chain(Ref.makeRef)
-    )
-  )
+  const usersRef = yield* $(pipe(encodeUsersToMap(users), T.chain(Ref.makeRef)))
+  const tasksRef = yield* $(pipe(encodeTasksToMap(tasks), T.chain(Ref.makeRef)))
 
   const findUser = (id: UserId) =>
     pipe(
       usersRef.get,
       T.map((users) => O.fromNullable(users.get(id))),
-      EO.chain(flow(decodeUser, EO.fromEffect, T.orDie))
+      EO.chain(flow(decodeUser, EO.fromEffect))
     )
 
   const getUser = (id: UserId) =>
@@ -65,7 +48,7 @@ const makeMockTaskContext = T.gen(function* ($) {
     pipe(
       tasksRef.get,
       T.map((tasks) => O.fromNullable(tasks.get(id))),
-      EO.chain(flow(decodeTask, EO.fromEffect, T.orDie))
+      EO.chain(flow(decodeTask, EO.fromEffect))
     )
 
   const get = (id: TaskId) =>
@@ -105,8 +88,7 @@ const makeMockTaskContext = T.gen(function* ($) {
             )
           )
           ["|>"](T.forEach(decodeTask))
-      ),
-      T.orDie
+      )
     )
 
   return {
@@ -139,10 +121,10 @@ const makeMockTaskContext = T.gen(function* ($) {
 })
 
 function orderTasks(a: A.Array<Task>, order: A.Array<UUID>) {
-  return A.reverse(a)["|>"](A.sort(makeOrd(order)))
+  return A.reverse(a)["|>"](A.sort(makeOrderBySortingArrOrd(order)))
 }
 
-function makeOrd(sortingArr: A.Array<UUID>): Ord<Task> {
+function makeOrderBySortingArrOrd(sortingArr: A.Array<UUID>): Ord<Task> {
   return {
     compare: (a, b) => {
       const diff = sortingArr.indexOf(a.id) - sortingArr.indexOf(b.id)
@@ -180,4 +162,30 @@ export function updateM<R, E>(id: TaskId, mod: (a: Task) => T.Effect<R, E, Task>
     const { updateM } = yield* $(TaskContext)
     return updateM(id, mod)
   })
+}
+
+//// Helpers
+// eslint-disable-next-line @typescript-eslint/ban-types
+function makeCodec<E, A extends { id: Id }, Id>(t: M<{}, E, A>) {
+  const { decode } = strictDecoder(t)
+  const decodeOrDie = flow(decode, T.orDie)
+  const encode = strictEncode(t)
+  const encodeToMap = toMap(encode)
+  return [decodeOrDie, encode, encodeToMap] as const
+}
+
+// eslint-disable-next-line @typescript-eslint/ban-types
+function strictEncode<E, A>(t: M<{}, E, A>) {
+  const { shrink } = strict(t)
+  const enc = encode(t)
+  return (u: A) => pipe(shrink(u), Sy.chain(enc))
+}
+
+function toMap<E, A extends { id: Id }, Id>(encode: (a: A) => Sy.UIO<E>) {
+  return (a: A.Array<A>) =>
+    pipe(
+      A.map_(a, (task) => Sy.tuple(Sy.succeed(task.id as A["id"]), encode(task))),
+      Sy.collectAll,
+      Sy.map(Map.make)
+    )
 }
