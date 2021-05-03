@@ -3,6 +3,7 @@ import fs from "fs"
 import * as Plutus from "@atlas-ts/plutus"
 import { JSONSchema, SubSchema } from "@atlas-ts/plutus/JsonSchema"
 import { References } from "@atlas-ts/plutus/Schema"
+import * as Tuple from "@effect-ts/core/Collections/Immutable/Tuple"
 import * as T from "@effect-ts/core/Effect"
 import { makeRef } from "@effect-ts/core/Effect/Ref"
 import { constVoid, pipe } from "@effect-ts/core/Function"
@@ -64,7 +65,7 @@ const program = pipe(
     )
   ),
   T.zipRight(T.tuple(taskRoutes, tempRoutes)),
-  T.map(({ tuple: [tr, tr2] }) => [...tr.tuple, ...tr2.tuple]),
+  T.map(({ tuple: [tr, tr2] }) => Tuple.concat_(tr, tr2)),
   T.tap((rdescs) =>
     pipe(
       T.succeedWith(() => {

@@ -79,15 +79,15 @@ const makeMockTaskContext = T.gen(function* ($) {
     pipe(
       tasksRef.get,
       T.chain((tasks) =>
-        [...tasks.values()]
-          ["|>"](
-            A.filter(
-              (x) =>
-                // TODO: Or task is part of a List that a user is Member of ;-)
-                x.createdBy === userId
-            )
-          )
-          ["|>"](T.forEach(decodeTask))
+        pipe(
+          Chunk.from(tasks.values()),
+          Chunk.filter(
+            (x) =>
+              // TODO: Or task is part of a List that a user is Member of ;-)
+              x.createdBy === userId
+          ),
+          T.forEach(decodeTask)
+        )
       )
     )
 

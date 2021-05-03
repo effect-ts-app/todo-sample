@@ -10,6 +10,7 @@ import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as Chunk from "@effect-ts/core/Collections/Immutable/Chunk"
 import * as T from "@effect-ts/core/Effect"
 import * as O from "@effect-ts/core/Option"
+import { _A } from "@effect-ts/core/Utils"
 import * as Ex from "@effect-ts/express"
 
 import { makeRequestHandler, RequestHandler } from "@/requestHandler"
@@ -229,7 +230,7 @@ export { del as delete }
  */
 export function makeSchema(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  r: A.Array<RouteDescriptor<any, any, any, any, any, any, any, any>>
+  r: Iterable<RouteDescriptor<any, any, any, any, any, any, any, any>>
 ) {
   return pipe(
     T.forEach_(r, (e) => {
@@ -308,25 +309,31 @@ export function makeSchema(
         }))
       )
     }),
-    T.map(Chunk.toArray),
     T.map((e) => {
-      const f = ({ method, path, responses, ...rest }: typeof e[number]) => ({
+      const map = ({ method, path, responses, ...rest }: _A<typeof e>) => ({
         [method]: {
           ...rest,
-          responses: responses.reduce((prev, cur) => {
-            prev[cur.statusCode] = cur.type
-            return prev
-          }, {} as Record<Response["statusCode"], Response["type"]>),
+          responses: A.reduce_(
+            responses,
+            {} as Record<Response["statusCode"], Response["type"]>,
+            (prev, cur) => {
+              prev[cur.statusCode] = cur.type
+              return prev
+            }
+          ),
         },
       })
-      type R = ReturnType<typeof f>
-      return e.reduce((prev, e) => {
-        prev[e.path] = {
-          ...prev[e.path],
-          ...f(e),
+      return Chunk.reduce_(
+        e,
+        {} as Record<string, Record<Methods, ReturnType<typeof map>>>,
+        (prev, e) => {
+          prev[e.path] = {
+            ...prev[e.path],
+            ...map(e),
+          }
+          return prev
         }
-        return prev
-      }, {} as Record<string, Record<Methods, R>>)
+      )
     })
   )
 }
