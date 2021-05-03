@@ -15,6 +15,7 @@ import { setup, serve } from "swagger-ui-express"
 
 import { makeSchema } from "@/routing"
 
+import { MockTaskContext } from "./Tasks/TaskContext"
 import { routes as taskRoutes } from "./Tasks/routes"
 import { routes as tempRoutes } from "./Temp/routes"
 
@@ -140,4 +141,9 @@ const program = pipe(
   T.tap(() => T.never)
 )
 
-pipe(program, T.provideSomeLayer(Ex.LiveExpress(HOST, PORT)), N.runMain)
+pipe(
+  program,
+  T.provideSomeLayer(Ex.LiveExpress(HOST, PORT)),
+  T.provideSomeLayer(MockTaskContext),
+  N.runMain
+)
