@@ -1,12 +1,4 @@
-import {
-  Step,
-  Task,
-  TaskId,
-  TaskListOrGroup,
-  TaskListOrVirtual,
-  User,
-  UserId,
-} from "@effect-ts-demo/todo-types"
+import { Task, TaskId, UserId } from "@effect-ts-demo/todo-types"
 import { Has } from "@effect-ts/core"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as Chunk from "@effect-ts/core/Collections/Immutable/Chunk"
@@ -26,231 +18,29 @@ import { strictDecoder } from "@effect-ts/morphic/StrictDecoder"
 
 import { NotFoundError } from "@/errors"
 
+import { makeTestData } from "./TaskContext.testdata"
+
 import * as EO from "@effect-ts-demo/core/ext/EffectOption"
-import { makeUuid, NonEmptyString } from "@effect-ts-demo/core/ext/Model"
-import { unsafe } from "@effect-ts-demo/core/ext/utils"
 
 const encodeTask = flow(strict(Task).shrink, Sy.chain(encode(Task)))
 
-const patrickId = UserId.parse_(0)["|>"](unsafe)
-// const mikeId = UserId.parse_(1)["|>"](unsafe)
-// const markusId = UserId.parse_(2)["|>"](unsafe)
-// todo; or via user["|>"](User.createTask(..))
-
 const makeMockTaskContext = T.gen(function* ($) {
-  const PatricksSharedListUUid = makeUuid()
-  // const MikesSharedListID = makeUuid()
-  // const MarkusSharedListId = makeUuid()
+  const { tasks, users } = yield* $(makeTestData)
+  const { decode: decodeTask } = strictDecoder(Task)
 
   const usersRef = yield* $(
     pipe(
-      Sy.gen(function* ($) {
-        const groupId = makeUuid()
-        const users = [
-          User.build({
-            id: patrickId,
-            name: yield* $(NonEmptyString.decode_("Patrick Roza")),
-            // inbox: TaskList.build({
-            //   id: makeUuid(),
-            // }),
-            order: [],
-            lists: [
-              TaskListOrGroup.as.TaskList({
-                id: makeUuid(),
-                title: yield* $(NonEmptyString.decode_("Some Patrick List")),
-                members: [],
-                parentListId: O.none,
-              }),
-              ////////
-              TaskListOrGroup.as.TaskListGroup({
-                id: groupId,
-                title: yield* $(NonEmptyString.decode_("Some group")),
-              }),
-              TaskListOrVirtual.as.TaskList({
-                id: PatricksSharedListUUid,
-                parentListId: O.some(groupId),
-                title: yield* $(NonEmptyString.decode_("Another Patrick List")),
-                members: [
-                  {
-                    id: yield* $(UserId.decode_(2)),
-                    name: yield* $(NonEmptyString.decode_("Mike Arnaldi")),
-                  },
-                  {
-                    id: yield* $(UserId.decode_(3)),
-                    name: yield* $(NonEmptyString.decode_("Markus Nomizz")),
-                  },
-                ],
-              }),
-              //   TaskListOrVirtual.of.VirtualTaskList({
-              //     id: MikesSharedListID,
-              //   }),
-              ////////
-              //TaskListOrGroup.of.VirtualTaskList({ id: MarkusSharedListId }),
-              ////////
-            ],
-          }),
-        ]
-        return users
-      }),
-      Sy.map(A.map((u) => [u.id, /*encode()*/ u] as const)),
-      Sy.map(Map.make),
-      T.chain(Ref.makeRef)
+      A.map_(users, (u) => [u.id, /*encode()*/ u] as const),
+      Map.make,
+      Ref.makeRef
     )
   )
 
-  const { decode: decodeTask } = strictDecoder(Task)
-  const createPatrickTask = createTask(patrickId, "Patrick")
-  // const createMikeTask = createTask(mikeId, "Mike")
-  // const createMarkusTask = createTask(markusId, "Markus")
-
   const tasksRef = yield* $(
     pipe(
-      Sy.gen(function* ($) {
-        const tasks = [
-          createPatrickTask({
-            title: yield* $(NonEmptyString.decode_("My first Task")),
-            steps: [
-              Step.create({ title: yield* $(NonEmptyString.decode_("first step")) }),
-            ],
-          }),
-          createPatrickTask({
-            title: yield* $(NonEmptyString.decode_("My second Task")),
-            steps: [],
-          }),
-          createPatrickTask({
-            title: yield* $(NonEmptyString.decode_("My third Task")),
-            steps: [
-              Step.build({
-                title: yield* $(NonEmptyString.decode_("first step")),
-                completed: true,
-              }),
-              Step.create({ title: yield* $(NonEmptyString.decode_("second step")) }),
-            ],
-          })["|>"](Task.complete),
-          {
-            ...createPatrickTask({
-              title: yield* $(NonEmptyString.decode_("My third Task")),
-              steps: [
-                Step.build({
-                  title: yield* $(NonEmptyString.decode_("first step")),
-                  completed: true,
-                }),
-                Step.create({
-                  title: yield* $(NonEmptyString.decode_("second step")),
-                }),
-              ],
-            }),
-            due: O.some(new Date(2021, 1, 1)),
-          },
-          {
-            ...createPatrickTask({
-              title: yield* $(NonEmptyString.decode_("My third Task")),
-              steps: [
-                Step.build({
-                  title: yield* $(NonEmptyString.decode_("first step")),
-                  completed: true,
-                }),
-                Step.create({
-                  title: yield* $(NonEmptyString.decode_("second step")),
-                }),
-              ],
-            }),
-            due: O.some(new Date(2021, 2, 1)),
-          },
-
-          {
-            ...createPatrickTask({
-              title: yield* $(NonEmptyString.decode_("My fourth Task")),
-              steps: [
-                Step.build({
-                  title: yield* $(NonEmptyString.decode_("first step")),
-                  completed: true,
-                }),
-                Step.create({
-                  title: yield* $(NonEmptyString.decode_("second step")),
-                }),
-              ],
-            }),
-            reminder: O.some(new Date(2021, 1, 1)),
-          },
-
-          {
-            ...createPatrickTask({
-              title: yield* $(NonEmptyString.decode_("My fifth Task")),
-              steps: [
-                Step.build({
-                  title: yield* $(NonEmptyString.decode_("first step")),
-                  completed: true,
-                }),
-                Step.create({
-                  title: yield* $(NonEmptyString.decode_("second step")),
-                }),
-              ],
-              listId: PatricksSharedListUUid,
-            }),
-            due: O.some(new Date(2021, 2, 1)),
-          },
-
-          {
-            ...createPatrickTask({
-              title: yield* $(NonEmptyString.decode_("My sixth Task")),
-              steps: [
-                Step.build({
-                  title: yield* $(NonEmptyString.decode_("first step")),
-                  completed: true,
-                }),
-                Step.create({
-                  title: yield* $(NonEmptyString.decode_("second step")),
-                }),
-              ],
-              listId: PatricksSharedListUUid,
-            }),
-            isFavorite: true,
-          },
-
-          {
-            ...createPatrickTask({
-              title: yield* $(NonEmptyString.decode_("My seventh Task")),
-              steps: [
-                Step.build({
-                  title: yield* $(NonEmptyString.decode_("first step")),
-                  completed: true,
-                }),
-                Step.create({
-                  title: yield* $(NonEmptyString.decode_("second step")),
-                }),
-              ],
-              listId: PatricksSharedListUUid,
-            }),
-            isFavorite: true,
-          },
-
-          {
-            ...createPatrickTask({
-              title: yield* $(NonEmptyString.decode_("My eight Task")),
-              steps: [
-                Step.build({
-                  title: yield* $(NonEmptyString.decode_("first step")),
-                  completed: true,
-                }),
-                Step.create({
-                  title: yield* $(NonEmptyString.decode_("second step")),
-                }),
-              ],
-              listId: PatricksSharedListUUid,
-            }),
-            myDay: O.some(new Date()),
-          },
-        ]
-        return tasks
-      }),
-      Sy.chain(
-        flow(
-          A.map((task) => Sy.tuple(Sy.succeed(task.id), encodeTask(task))),
-          Sy.collectAll,
-          Sy.map(Map.make)
-        )
-      ),
+      A.map_(tasks, (task) => Sy.tuple(Sy.succeed(task.id), encodeTask(task))),
+      Sy.collectAll,
+      Sy.map(Map.make),
       T.chain(Ref.makeRef)
     )
   )
@@ -258,7 +48,8 @@ const makeMockTaskContext = T.gen(function* ($) {
   const svc = {
     findUser(id: UserId) {
       return pipe(
-        usersRef.get["|>"](T.map((users) => O.fromNullable(users.get(id))))
+        usersRef.get,
+        T.map((users) => O.fromNullable(users.get(id)))
         //EO.chain(flow(decodeUser, EO.fromEffect, T.orDie))
       )
     },
@@ -274,7 +65,8 @@ const makeMockTaskContext = T.gen(function* ($) {
 
     find(id: TaskId) {
       return pipe(
-        tasksRef.get["|>"](T.map((tasks) => O.fromNullable(tasks.get(id)))),
+        tasksRef.get,
+        T.map((tasks) => O.fromNullable(tasks.get(id))),
         EO.chain(flow(decodeTask, EO.fromEffect, T.orDie))
       )
     },
@@ -304,6 +96,14 @@ const makeMockTaskContext = T.gen(function* ($) {
       )
     },
 
+    update(id: TaskId, mod: (a: Task) => Task) {
+      return pipe(svc.get(id), T.map(mod), T.chain(svc.add))
+    },
+
+    updateM<R, E>(id: TaskId, mod: (a: Task) => T.Effect<R, E, Task>) {
+      return pipe(svc.get(id), T.chain(mod), T.chain(svc.add))
+    },
+
     add(t: Task) {
       return pipe(
         T.structPar({ encT: encodeTask(t), tasks: tasksRef.get }),
@@ -311,20 +111,29 @@ const makeMockTaskContext = T.gen(function* ($) {
       )
     },
 
-    remove(t: Task) {
-      return tasksRef.get["|>"](
-        T.chain((tasks) => tasksRef.set(tasks["|>"](Map.remove(t.id))))
+    delete(id: TaskId) {
+      return pipe(
+        T.tuple(tasksRef.get, svc.get(id)),
+        T.chain(({ tuple: [tasks] }) => tasksRef.set(tasks["|>"](Map.remove(id))))
       )
     },
 
+    remove(t: Task) {
+      return svc.delete(t.id)
+    },
+
     getOrder(uid: UserId) {
-      return svc.getUser(uid)["|>"](T.map((u) => u.order))
+      return pipe(
+        svc.getUser(uid),
+        T.map((u) => u.order)
+      )
     },
     setOrder(uid: UserId, order: A.Array<TaskId>) {
-      return svc
-        .getUser(uid)
-        ["|>"](T.map((u) => ({ ...u, order })))
-        ["|>"](T.chain((u) => Ref.update_(usersRef, Map.insert(u.id, u))))
+      return pipe(
+        svc.getUser(uid),
+        T.map((u) => ({ ...u, order })),
+        T.chain((u) => Ref.update_(usersRef, Map.insert(u.id, u)))
+      )
     },
 
     allOrdered(userId: UserId) {
@@ -353,20 +162,31 @@ function makeOrd(sortingArr: A.Array<UUID>): Ord<Task> {
 
 export interface TaskContext extends _A<typeof makeMockTaskContext> {}
 export const TaskContext = Has.tag<TaskContext>()
-
-export const { add, allOrdered, find, get, getUser, remove, setOrder } = T.deriveLifted(
-  TaskContext
-)(["add", "get", "getUser", "find", "remove", "allOrdered", "setOrder"], [], [])
-
 export const MockTaskContext = L.fromEffect(TaskContext)(makeMockTaskContext)
 
-function createTask(id: UserId, name: string) {
-  return (a: Omit<Parameters<typeof Task.create>[0], "createdBy">) =>
-    Sy.gen(function* ($) {
-      return Task.create({
-        ...a,
-        title: yield* $(NonEmptyString.decode_(`${name} - ${a.title}`)),
-        createdBy: id,
-      })
-    })["|>"](unsafe)
+export const {
+  add,
+  allOrdered,
+  find,
+  get,
+  getUser,
+  remove,
+  setOrder,
+  update,
+} = T.deriveLifted(TaskContext)(
+  ["add", "get", "getUser", "find", "remove", "allOrdered", "setOrder", "update"],
+  [],
+  []
+)
+// delete is a reserved keyword :S
+const _ = T.deriveLifted(TaskContext)(["delete"], [], [])
+const del = _.delete
+export { del as delete }
+
+// generics cannot be derived
+export function updateM<R, E>(id: TaskId, mod: (a: Task) => T.Effect<R, E, Task>) {
+  return T.gen(function* ($) {
+    const { updateM } = yield* $(TaskContext)
+    return updateM(id, mod)
+  })
 }
