@@ -1,7 +1,6 @@
 import {
   Step,
   Task,
-  TaskE,
   TaskId,
   TaskListOrGroup,
   TaskListOrVirtual,
@@ -29,7 +28,6 @@ import { makeUuid, NonEmptyString } from "@effect-ts-demo/core/ext/Model"
 import { unsafe } from "@effect-ts-demo/core/ext/utils"
 
 const encodeTask = flow(strict(Task).shrink, Sy.chain(encode(Task)))
-const runEncodeTask = flow(encodeTask, Sy.run)
 
 const patrickId = UserId.parse_(0)["|>"](unsafe)
 // const mikeId = UserId.parse_(1)["|>"](unsafe)
@@ -122,37 +120,49 @@ const createPatrickTask = createTask(patrickId, "Patrick")
 // const createMikeTask = createTask(mikeId, "Mike")
 // const createMarkusTask = createTask(markusId, "Markus")
 
-const tasksRef = Ref.unsafeMakeRef<Map.Map<UUID, TaskE>>(
-  pipe(
-    [
+const tasksRef = pipe(
+  Sy.gen(function* ($) {
+    const tasks = [
       createPatrickTask({
-        title: "My first Task" as NonEmptyString,
-        steps: [Step.create({ title: "first step" as NonEmptyString })],
+        title: yield* $(NonEmptyString.decode_("My first Task")),
+        steps: [Step.create({ title: yield* $(NonEmptyString.decode_("first step")) })],
       }),
-      createPatrickTask({ title: "My second Task" as NonEmptyString, steps: [] }),
       createPatrickTask({
-        title: "My third Task" as NonEmptyString,
+        title: yield* $(NonEmptyString.decode_("My second Task")),
+        steps: [],
+      }),
+      createPatrickTask({
+        title: yield* $(NonEmptyString.decode_("My third Task")),
         steps: [
-          Step.build({ title: "first step" as NonEmptyString, completed: true }),
-          Step.create({ title: "second step" as NonEmptyString }),
+          Step.build({
+            title: yield* $(NonEmptyString.decode_("first step")),
+            completed: true,
+          }),
+          Step.create({ title: yield* $(NonEmptyString.decode_("second step")) }),
         ],
       })["|>"](Task.complete),
       {
         ...createPatrickTask({
-          title: "My third Task" as NonEmptyString,
+          title: yield* $(NonEmptyString.decode_("My third Task")),
           steps: [
-            Step.build({ title: "first step" as NonEmptyString, completed: true }),
-            Step.create({ title: "second step" as NonEmptyString }),
+            Step.build({
+              title: yield* $(NonEmptyString.decode_("first step")),
+              completed: true,
+            }),
+            Step.create({ title: yield* $(NonEmptyString.decode_("second step")) }),
           ],
         }),
         due: O.some(new Date(2021, 1, 1)),
       },
       {
         ...createPatrickTask({
-          title: "My third Task" as NonEmptyString,
+          title: yield* $(NonEmptyString.decode_("My third Task")),
           steps: [
-            Step.build({ title: "first step" as NonEmptyString, completed: true }),
-            Step.create({ title: "second step" as NonEmptyString }),
+            Step.build({
+              title: yield* $(NonEmptyString.decode_("first step")),
+              completed: true,
+            }),
+            Step.create({ title: yield* $(NonEmptyString.decode_("second step")) }),
           ],
         }),
         due: O.some(new Date(2021, 2, 1)),
@@ -160,10 +170,13 @@ const tasksRef = Ref.unsafeMakeRef<Map.Map<UUID, TaskE>>(
 
       {
         ...createPatrickTask({
-          title: "My fourth Task" as NonEmptyString,
+          title: yield* $(NonEmptyString.decode_("My fourth Task")),
           steps: [
-            Step.build({ title: "first step" as NonEmptyString, completed: true }),
-            Step.create({ title: "second step" as NonEmptyString }),
+            Step.build({
+              title: yield* $(NonEmptyString.decode_("first step")),
+              completed: true,
+            }),
+            Step.create({ title: yield* $(NonEmptyString.decode_("second step")) }),
           ],
         }),
         reminder: O.some(new Date(2021, 1, 1)),
@@ -171,10 +184,13 @@ const tasksRef = Ref.unsafeMakeRef<Map.Map<UUID, TaskE>>(
 
       {
         ...createPatrickTask({
-          title: "My fifth Task" as NonEmptyString,
+          title: yield* $(NonEmptyString.decode_("My fifth Task")),
           steps: [
-            Step.build({ title: "first step" as NonEmptyString, completed: true }),
-            Step.create({ title: "second step" as NonEmptyString }),
+            Step.build({
+              title: yield* $(NonEmptyString.decode_("first step")),
+              completed: true,
+            }),
+            Step.create({ title: yield* $(NonEmptyString.decode_("second step")) }),
           ],
           listId: PatricksSharedListUUid,
         }),
@@ -183,10 +199,13 @@ const tasksRef = Ref.unsafeMakeRef<Map.Map<UUID, TaskE>>(
 
       {
         ...createPatrickTask({
-          title: "My sixth Task" as NonEmptyString,
+          title: yield* $(NonEmptyString.decode_("My sixth Task")),
           steps: [
-            Step.build({ title: "first step" as NonEmptyString, completed: true }),
-            Step.create({ title: "second step" as NonEmptyString }),
+            Step.build({
+              title: yield* $(NonEmptyString.decode_("first step")),
+              completed: true,
+            }),
+            Step.create({ title: yield* $(NonEmptyString.decode_("second step")) }),
           ],
           listId: PatricksSharedListUUid,
         }),
@@ -195,10 +214,13 @@ const tasksRef = Ref.unsafeMakeRef<Map.Map<UUID, TaskE>>(
 
       {
         ...createPatrickTask({
-          title: "My seventh Task" as NonEmptyString,
+          title: yield* $(NonEmptyString.decode_("My seventh Task")),
           steps: [
-            Step.build({ title: "first step" as NonEmptyString, completed: true }),
-            Step.create({ title: "second step" as NonEmptyString }),
+            Step.build({
+              title: yield* $(NonEmptyString.decode_("first step")),
+              completed: true,
+            }),
+            Step.create({ title: yield* $(NonEmptyString.decode_("second step")) }),
           ],
           listId: PatricksSharedListUUid,
         }),
@@ -207,22 +229,34 @@ const tasksRef = Ref.unsafeMakeRef<Map.Map<UUID, TaskE>>(
 
       {
         ...createPatrickTask({
-          title: "My eight Task" as NonEmptyString,
+          title: yield* $(NonEmptyString.decode_("My eight Task")),
           steps: [
-            Step.build({ title: "first step" as NonEmptyString, completed: true }),
-            Step.create({ title: "second step" as NonEmptyString }),
+            Step.build({
+              title: yield* $(NonEmptyString.decode_("first step")),
+              completed: true,
+            }),
+            Step.create({ title: yield* $(NonEmptyString.decode_("second step")) }),
           ],
           listId: PatricksSharedListUUid,
         }),
         myDay: O.some(new Date()),
       },
-    ],
-    A.map((task) => [task.id, runEncodeTask(task)] as const),
-    Map.make
-  )
+    ]
+    return tasks
+  }),
+  Sy.chain(
+    flow(
+      A.map((task) => Sy.tuple(Sy.succeed(task.id), encodeTask(task))),
+      Sy.collectAll,
+      Sy.map(Map.make)
+    )
+  ),
+  Sy.map(Ref.unsafeMakeRef),
+  unsafe
 )
 
 const { decode: decodeTask } = strictDecoder(Task)
+
 export function find(id: TaskId) {
   return pipe(
     tasksRef.get["|>"](T.map((tasks) => O.fromNullable(tasks.get(id)))),
