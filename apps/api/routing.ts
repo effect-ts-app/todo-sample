@@ -34,7 +34,16 @@ export interface RouteDescriptor<
 > {
   path: string
   method: METHOD
-  handler: RequestHandler<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA>
+  handler: RequestHandler<
+    R & Has.Has<UserSVC.UserEnv>,
+    PathA,
+    CookieA,
+    QueryA,
+    BodyA,
+    HeaderA,
+    ReqA,
+    ResA
+  >
 }
 
 export function makeRouteDescriptor<
@@ -50,7 +59,16 @@ export function makeRouteDescriptor<
 >(
   path: string,
   method: METHOD,
-  handler: RequestHandler<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA>
+  handler: RequestHandler<
+    R & Has.Has<UserSVC.UserEnv>,
+    PathA,
+    CookieA,
+    QueryA,
+    BodyA,
+    HeaderA,
+    ReqA,
+    ResA
+  >
 ) {
   return { path, method, handler } as RouteDescriptor<
     R,
@@ -104,7 +122,16 @@ export function post<
   ResA
 >(
   path: string,
-  r: RequestHandler<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA>
+  r: RequestHandler<
+    R & Has.Has<UserSVC.UserEnv>,
+    PathA,
+    CookieA,
+    QueryA,
+    BodyA,
+    HeaderA,
+    ReqA,
+    ResA
+  >
 ) {
   return pipe(
     Ex.post(path, makeRequestHandler(r)),
@@ -123,7 +150,16 @@ export function put<
   ResA
 >(
   path: string,
-  r: RequestHandler<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA>
+  r: RequestHandler<
+    R & Has.Has<UserSVC.UserEnv>,
+    PathA,
+    CookieA,
+    QueryA,
+    BodyA,
+    HeaderA,
+    ReqA,
+    ResA
+  >
 ) {
   return pipe(
     Ex.put(path, makeRequestHandler(r)),
@@ -142,7 +178,16 @@ export function patch<
   ResA
 >(
   path: string,
-  r: RequestHandler<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA>
+  r: RequestHandler<
+    R & Has.Has<UserSVC.UserEnv>,
+    PathA,
+    CookieA,
+    QueryA,
+    BodyA,
+    HeaderA,
+    ReqA,
+    ResA
+  >
 ) {
   return pipe(
     Ex.patch(path, makeRequestHandler(r)),
@@ -161,7 +206,16 @@ function del<
   ResA
 >(
   path: string,
-  r: RequestHandler<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA>
+  r: RequestHandler<
+    R & Has.Has<UserSVC.UserEnv>,
+    PathA,
+    CookieA,
+    QueryA,
+    BodyA,
+    HeaderA,
+    ReqA,
+    ResA
+  >
 ) {
   return pipe(
     Ex.delete(path, makeRequestHandler(r)),

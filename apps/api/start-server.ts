@@ -16,6 +16,7 @@ import { setup, serve } from "swagger-ui-express"
 import { makeSchema } from "@/routing"
 
 import { routes as taskRoutes } from "./Tasks/routes"
+import { routes as tempRoutes } from "./Temp/routes"
 
 import pkg from "package.json"
 
@@ -61,7 +62,8 @@ const program = pipe(
       )
     )
   ),
-  T.zipRight(taskRoutes),
+  T.zipRight(T.tuple(taskRoutes, tempRoutes)),
+  T.map(({ tuple: [tr, tr2] }) => [...tr.tuple, ...tr2.tuple]),
   T.tap((rdescs) =>
     pipe(
       T.succeedWith(() => {
@@ -71,7 +73,7 @@ const program = pipe(
         T.gen(function* ($) {
           const ref = yield* $(makeRef<Map<string, JSONSchema | SubSchema>>(new Map()))
           const withRef = T.provideService(References)({ ref })
-          const paths = yield* $(makeSchema(rdescs.tuple)["|>"](withRef))
+          const paths = yield* $(makeSchema(rdescs)["|>"](withRef))
           const refs = yield* $(ref.get)
           const parameterRefs: Record<string, any> = {} // todos
           const schemas: Record<string, any> = {}

@@ -2,11 +2,19 @@
 import * as D from "@effect-ts/core/Collections/Immutable/Dictionary"
 import { Dictionary } from "@effect-ts/core/Collections/Immutable/Dictionary"
 import * as E from "@effect-ts/core/Either"
+import * as Sy from "@effect-ts/core/Sync"
 
-import { pipe } from "../Function"
+import { flow, identity, pipe } from "../Function"
 import * as O from "../Option"
 
 export * from "./extend"
+
+export const unsafe = flow(
+  Sy.runEither,
+  E.fold(() => {
+    throw new Error("Invalid data")
+  }, identity)
+)
 
 export const unsafeRight = <E, A>(ei: E.Either<E, A>) => {
   if (E.isLeft(ei)) {

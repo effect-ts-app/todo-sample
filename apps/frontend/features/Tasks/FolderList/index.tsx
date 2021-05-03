@@ -6,22 +6,35 @@ import React from "react"
 import * as Todo from "@/Todo"
 import { toUpperCaseFirst } from "@/utils"
 
-import { emptyTasks, filterByCategory, TaskView, TaskViews, useTasks } from "../data"
+import { emptyTasks, filterByCategory, TaskViews, useMe, useTasks } from "../data"
 
 import { FolderList } from "./FolderList"
 
 import { NonEmptyString } from "@effect-ts-demo/core/ext/Model"
+import { TaskListEntryOrGroup } from "@effect-ts-demo/todo-client/Temp/GetMe"
 
-const FolderListView = ({ category }: { category: O.Option<TaskView> }) => {
+const defaultLists = [] as readonly TaskListEntryOrGroup[]
+
+const FolderListView = ({ category }: { category: O.Option<NonEmptyString> }) => {
+  const [meResult] = useMe()
   const [tasksResult] = useTasks()
+  // TODO: the total tasksResults, should be from all loaded folders.
   const unfilteredTasks = datumEither.isSuccess(tasksResult)
     ? tasksResult.value.right
     : emptyTasks
-  // TODO: count
-  // only change when counts change..
+
+  const lists = datumEither.isSuccess(meResult)
+    ? meResult.value.right.lists
+    : defaultLists
+
   const folders = React.useMemo(
     () =>
       [
+        Todo.FolderListADT.of.TaskListView({
+          title: "Tasks" as NonEmptyString,
+          slug: "tasks",
+          count: unfilteredTasks["|>"](filterByCategory("inbox")).length,
+        }),
         ...TaskViews["|>"](
           A.map((c) => ({
             slug: c as NonEmptyString,
@@ -32,37 +45,53 @@ const FolderListView = ({ category }: { category: O.Option<TaskView> }) => {
             Todo.FolderListADT.of.TaskListView({
               title: toUpperCaseFirst(slug) as NonEmptyString,
               slug,
-              count: tasks.length, // should not have separate count if tasks would be provided, but we shouldnt need to provide the tasks in the folderlist anyhow.
-              tasks,
+              count: tasks.length,
             })
           )
         ),
-        Todo.FolderListADT.of.TaskList({
-          title: "Some list" as NonEmptyString,
-          tasks: [],
-        }),
-        Todo.FolderListADT.of.TaskListGroup({
-          title: "Leisure" as NonEmptyString,
-          lists: [
-            Todo.FolderListADT.as.TaskList({
-              title: "Leisure 1" as NonEmptyString,
-              tasks: [],
-            }),
-            Todo.FolderListADT.as.TaskList({
-              title: "Leisure 2" as NonEmptyString,
-              tasks: [],
-            }),
-          ],
-        }),
-        Todo.FolderListADT.of.TaskList({
-          title: "Some other list" as NonEmptyString,
-          tasks: [],
-        }),
+        ...lists["|>"](
+          A.filter((x) => x._tag !== "TaskList" || O.isNone(x.parentListId))
+        )["|>"](
+          A.map(
+            TaskListEntryOrGroup.match({
+              TaskList: (l) =>
+                Todo.FolderListADT.of.TaskList({
+                  ...l,
+                  count: unfilteredTasks["|>"](filterByCategory(l.id)).length,
+                }),
+              TaskListGroup: (l) =>
+                Todo.FolderListADT.as.TaskListGroup({
+                  ...l,
+                  lists: lists["|>"](
+                    A.filterMap((x) =>
+                      x._tag === "TaskList" &&
+                      x.parentListId["|>"](O.getOrElse(() => "")) === l.id
+                        ? O.some(x)
+                        : O.none
+                    )
+                  )["|>"](
+                    A.map((l) =>
+                      Todo.FolderListADT.as.TaskList({
+                        ...l,
+                        count: unfilteredTasks["|>"](filterByCategory(l.id)).length,
+                      })
+                    )
+                  ),
+                }),
+            })
+          )
+        ),
       ] as const,
-    [unfilteredTasks]
+    [unfilteredTasks, lists]
   )
 
-  return <FolderList category={category} folders={folders} />
+  return (
+    <FolderList
+      name={datumEither.isSuccess(meResult) ? meResult.value.right.name : null}
+      category={category}
+      folders={folders}
+    />
+  )
 }
 
 export default FolderListView

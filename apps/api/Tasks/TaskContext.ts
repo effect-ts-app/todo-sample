@@ -1,4 +1,12 @@
-import { Step, Task, TaskE } from "@effect-ts-demo/todo-types"
+import {
+  Step,
+  Task,
+  TaskE,
+  TaskListOrGroup,
+  TaskListOrVirtual,
+  User,
+  UserId,
+} from "@effect-ts-demo/todo-types"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as Chunk from "@effect-ts/core/Collections/Immutable/Chunk"
 import * as Map from "@effect-ts/core/Collections/Immutable/Map"
@@ -16,20 +24,111 @@ import { strictDecoder } from "@effect-ts/morphic/StrictDecoder"
 import { NotFoundError } from "@/errors"
 
 import * as EO from "@effect-ts-demo/core/ext/EffectOption"
-import { NonEmptyString } from "@effect-ts-demo/core/ext/Model"
+import { makeUuid, NonEmptyString } from "@effect-ts-demo/core/ext/Model"
+import { unsafe } from "@effect-ts-demo/core/ext/utils"
 
 const encodeTask = flow(strict(Task).shrink, Sy.chain(encode(Task)))
 const runEncodeTask = flow(encodeTask, Sy.run)
 
+const patrickId = UserId.parse_(0)["|>"](unsafe)
+// const mikeId = UserId.parse_(1)["|>"](unsafe)
+// const markusId = UserId.parse_(2)["|>"](unsafe)
+// todo; or via user["|>"](User.createTask(..))
+
+function createTask(id: UserId, name: string) {
+  return (a: Omit<Parameters<typeof Task.create>[0], "createdBy">) =>
+    Task.create({
+      ...a,
+      title: `${name} - ${a.title}` as NonEmptyString,
+      createdBy: id,
+    })
+}
+
+const PatricksSharedListUUid = makeUuid()
+// const MikesSharedListID = makeUuid()
+// const MarkusSharedListId = makeUuid()
+
+const users = pipe(
+  Sy.gen(function* ($) {
+    const groupId = makeUuid()
+    const users = [
+      User.build({
+        id: patrickId,
+        name: yield* $(NonEmptyString.decode_("Patrick Roza")),
+        // inbox: TaskList.build({
+        //   id: makeUuid(),
+        // }),
+        lists: [
+          TaskListOrGroup.as.TaskList({
+            id: makeUuid(),
+            title: yield* $(NonEmptyString.decode_("Some Patrick List")),
+            members: [],
+            parentListId: O.none,
+          }),
+          ////////
+          TaskListOrGroup.as.TaskListGroup({
+            id: groupId,
+            title: yield* $(NonEmptyString.decode_("Some group")),
+          }),
+          TaskListOrVirtual.as.TaskList({
+            id: PatricksSharedListUUid,
+            parentListId: O.some(groupId),
+            title: yield* $(NonEmptyString.decode_("Another Patrick List")),
+            members: [
+              {
+                id: yield* $(UserId.decode_(2)),
+                name: yield* $(NonEmptyString.decode_("Mike Arnaldi")),
+              },
+              {
+                id: yield* $(UserId.decode_(3)),
+                name: yield* $(NonEmptyString.decode_("Markus Nomizz")),
+              },
+            ],
+          }),
+          //   TaskListOrVirtual.of.VirtualTaskList({
+          //     id: MikesSharedListID,
+          //   }),
+          ////////
+          //TaskListOrGroup.of.VirtualTaskList({ id: MarkusSharedListId }),
+          ////////
+        ],
+      }),
+    ]
+    return users
+  }),
+  Sy.map(A.map((u) => [u.id, /*encode()*/ u] as const)),
+  Sy.map(Map.make),
+  Sy.map(Ref.unsafeMakeRef),
+  unsafe
+)
+
+export function findUser(id: UserId) {
+  return pipe(
+    users.get["|>"](T.map((users) => O.fromNullable(users.get(id))))
+    //EO.chain(flow(decodeUser, EO.fromEffect, T.orDie))
+  )
+}
+
+export function getUser(id: UserId) {
+  return pipe(
+    findUser(id),
+    T.chain(O.fold(() => T.fail(new NotFoundError("User", id.toString())), T.succeed))
+  )
+}
+
+const createPatrickTask = createTask(patrickId, "Patrick")
+// const createMikeTask = createTask(mikeId, "Mike")
+// const createMarkusTask = createTask(markusId, "Markus")
+
 const tasksRef = Ref.unsafeMakeRef<Map.Map<UUID, TaskE>>(
   pipe(
     [
-      Task.create({
+      createPatrickTask({
         title: "My first Task" as NonEmptyString,
         steps: [Step.create({ title: "first step" as NonEmptyString })],
       }),
-      Task.create({ title: "My second Task" as NonEmptyString, steps: [] }),
-      Task.create({
+      createPatrickTask({ title: "My second Task" as NonEmptyString, steps: [] }),
+      createPatrickTask({
         title: "My third Task" as NonEmptyString,
         steps: [
           Step.build({ title: "first step" as NonEmptyString, completed: true }),
@@ -37,7 +136,7 @@ const tasksRef = Ref.unsafeMakeRef<Map.Map<UUID, TaskE>>(
         ],
       })["|>"](Task.complete),
       {
-        ...Task.create({
+        ...createPatrickTask({
           title: "My third Task" as NonEmptyString,
           steps: [
             Step.build({ title: "first step" as NonEmptyString, completed: true }),
@@ -47,7 +146,7 @@ const tasksRef = Ref.unsafeMakeRef<Map.Map<UUID, TaskE>>(
         due: O.some(new Date(2021, 1, 1)),
       },
       {
-        ...Task.create({
+        ...createPatrickTask({
           title: "My third Task" as NonEmptyString,
           steps: [
             Step.build({ title: "first step" as NonEmptyString, completed: true }),
@@ -58,7 +157,7 @@ const tasksRef = Ref.unsafeMakeRef<Map.Map<UUID, TaskE>>(
       },
 
       {
-        ...Task.create({
+        ...createPatrickTask({
           title: "My fourth Task" as NonEmptyString,
           steps: [
             Step.build({ title: "first step" as NonEmptyString, completed: true }),
@@ -69,45 +168,49 @@ const tasksRef = Ref.unsafeMakeRef<Map.Map<UUID, TaskE>>(
       },
 
       {
-        ...Task.create({
+        ...createPatrickTask({
           title: "My fifth Task" as NonEmptyString,
           steps: [
             Step.build({ title: "first step" as NonEmptyString, completed: true }),
             Step.create({ title: "second step" as NonEmptyString }),
           ],
+          listId: PatricksSharedListUUid,
         }),
         due: O.some(new Date(2021, 2, 1)),
       },
 
       {
-        ...Task.create({
+        ...createPatrickTask({
           title: "My sixth Task" as NonEmptyString,
           steps: [
             Step.build({ title: "first step" as NonEmptyString, completed: true }),
             Step.create({ title: "second step" as NonEmptyString }),
           ],
+          listId: PatricksSharedListUUid,
         }),
         isFavorite: true,
       },
 
       {
-        ...Task.create({
+        ...createPatrickTask({
           title: "My seventh Task" as NonEmptyString,
           steps: [
             Step.build({ title: "first step" as NonEmptyString, completed: true }),
             Step.create({ title: "second step" as NonEmptyString }),
           ],
+          listId: PatricksSharedListUUid,
         }),
         isFavorite: true,
       },
 
       {
-        ...Task.create({
+        ...createPatrickTask({
           title: "My eight Task" as NonEmptyString,
           steps: [
             Step.build({ title: "first step" as NonEmptyString, completed: true }),
             Step.create({ title: "second step" as NonEmptyString }),
           ],
+          listId: PatricksSharedListUUid,
         }),
         myDay: O.some(new Date()),
       },
@@ -134,11 +237,23 @@ export function get(id: UUID) {
   )
 }
 
-export const all = pipe(
-  tasksRef.get,
-  T.chain((tasks) => T.forEach_(tasks.values(), decodeTask)),
-  T.orDie
-)
+export function all(userId: UserId) {
+  return pipe(
+    tasksRef.get,
+    T.chain((tasks) =>
+      [...tasks.values()]
+        ["|>"](
+          A.filter(
+            (x) =>
+              // TODO: Or task is part of a List that a user is Member of ;-)
+              x.createdBy === userId
+          )
+        )
+        ["|>"](T.forEach(decodeTask))
+    ),
+    T.orDie
+  )
+}
 
 export function add(t: Task) {
   return pipe(
@@ -155,10 +270,12 @@ export function remove(t: Task) {
 
 export const getOrder = orderRef.get
 export const setOrder = orderRef.set
-export const allOrdered = pipe(
-  T.structPar({ tasks: all, order: getOrder }),
-  T.map(({ order, tasks }) => orderTasks(tasks["|>"](Chunk.toArray), order))
-)
+export function allOrdered(userId: UserId) {
+  return pipe(
+    T.structPar({ tasks: all(userId), order: getOrder }),
+    T.map(({ order, tasks }) => orderTasks(tasks["|>"](Chunk.toArray), order))
+  )
+}
 
 function orderTasks(a: A.Array<Task>, order: A.Array<UUID>) {
   return A.reverse(a)["|>"](A.sort(makeOrd(order)))

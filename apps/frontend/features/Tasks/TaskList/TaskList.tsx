@@ -1,4 +1,3 @@
-import * as TodoClient from "@effect-ts-demo/todo-client"
 import * as O from "@effect-ts/core/Option"
 import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
 import { Typography } from "@material-ui/core"
@@ -7,10 +6,9 @@ import { Droppable, DragDropContext } from "react-beautiful-dnd"
 import styled from "styled-components"
 
 import * as Todo from "@/Todo"
-import { useServiceContext } from "@/context"
 import { memo } from "@/data"
 
-import { useModifyTasks } from "../data"
+import { useReorder } from "../data"
 
 import { TaskCard, Task } from "./Task"
 
@@ -31,8 +29,7 @@ const TaskList = memo(function ({
   setSelectedTaskId: (i: UUID) => void
   tasks: A.Array<Todo.Task>
 }) {
-  const { runWithErrorLog } = useServiceContext()
-  const modifyTasks = useModifyTasks()
+  const reorder = useReorder()
   const [{ completedTasks, openTasks }, setFilteredTasks] = useState(() => ({
     completedTasks: [] as A.Array<Todo.Task>,
     openTasks: [] as A.Array<Todo.Task>,
@@ -52,22 +49,23 @@ const TaskList = memo(function ({
           return
         }
         const t = tasks.find((x) => x.id === result.draggableId)!
-        // TODO: Next section aint pretty.
-        const reorder = Todo.updateTaskIndex(t, destination.index)
-        modifyTasks(reorder)
-        const reorderedTasks = tasks["|>"](reorder)
-        TodoClient.Tasks.setTasksOrder({
-          order: A.map_(reorderedTasks, (t) => t.id),
-        })["|>"](runWithErrorLog)
+        const destTasks =
+          result.destination?.droppableId === "tasks-completed"
+            ? completedTasks
+            : openTasks
+        if (!destTasks[destination.index].id) {
+          return
+        }
+        reorder(t.id, destTasks[destination.index].id)
       }}
     >
       <Droppable droppableId={"tasks"}>
         {(provided) => (
           <CardList ref={provided.innerRef} {...provided.droppableProps}>
-            {openTasks.map((t) => (
+            {openTasks.map((t, idx) => (
               <Task
                 task={t}
-                index={tasks.findIndex((ot) => ot === t)}
+                index={idx}
                 setSelectedTaskId={setSelectedTaskId}
                 key={t.id}
               />
@@ -83,10 +81,10 @@ const TaskList = memo(function ({
           <Droppable droppableId={"tasks-completed"}>
             {(provided) => (
               <CardList ref={provided.innerRef} {...provided.droppableProps}>
-                {completedTasks.map((t) => (
+                {completedTasks.map((t, idx) => (
                   <Task
                     task={t}
-                    index={tasks.findIndex((ot) => ot === t)}
+                    index={idx}
                     setSelectedTaskId={setSelectedTaskId}
                     key={t.id}
                   />

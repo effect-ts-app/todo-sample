@@ -286,7 +286,13 @@ export function useQuery<R, E, A, Args extends ReadonlyArray<unknown>>(
   //     }
   //   }, [exec, runWithErrorLog])
 
-  return [result, latestSuccess, refetch, exec, modify] as const
+  return [result, latestSuccess, refetch, exec, modify] as readonly [
+    result: typeof result,
+    latestSuccess: typeof latestSuccess,
+    refetch: typeof refetch,
+    exec: typeof exec,
+    modify: typeof modify
+  ]
 }
 
 export type PromiseExit<E = unknown, A = unknown> = Promise<Exit<E, A>>

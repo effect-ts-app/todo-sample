@@ -1,4 +1,5 @@
 import * as Todo from "@effect-ts-demo/todo-types"
+import { TaskListId } from "@effect-ts-demo/todo-types"
 import { flow } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import { Lens } from "@effect-ts/monocle"
@@ -28,10 +29,10 @@ const pastDate = (d: Date): O.Option<Date> => (d < new Date() ? O.some(d) : O.no
 
 export function updateTaskIndex(t: Task, newIndex: number) {
   return (tasks: A.Array<Task>) => {
-    const modifiedSteps = tasks["|>"](A.filter((x) => x !== t))["|>"](
+    const modifiedTasks = tasks["|>"](A.filter((x) => x !== t))["|>"](
       A.insertAt(newIndex, t)
     )
-    return modifiedSteps["|>"](O.getOrElse(() => tasks))
+    return modifiedTasks["|>"](O.getOrElse(() => tasks))
   }
 }
 
@@ -74,26 +75,36 @@ export const Task = Object.assign({}, Todo.Task, {
 export type Task = Todo.Task
 
 export const TaskList = make((F) =>
-  F.intersection(Todo.TaskList(F), F.interface({ _tag: F.stringLiteral("TaskList") }))()
-)
-
-export const TaskListGroup = make((F) =>
-  F.intersection(
-    Todo.TaskListGroup(F),
-    F.interface({ _tag: F.stringLiteral("TaskListGroup") })
-  )()
-)
-
-export const TaskListView = make((F) =>
   F.intersection(
     Todo.TaskList(F),
     F.interface({
+      title: NonEmptyString(F),
       count: F.number(),
-      slug: NonEmptyString(F),
-      _tag: F.stringLiteral("TaskListView"),
+      _tag: F.stringLiteral("TaskList"),
     })
   )()
 )
+export type TaskList = AType<typeof TaskList>
+
+export const TaskListGroup = make((F) =>
+  F.interface({
+    id: TaskListId(F),
+    title: NonEmptyString(F),
+    lists: F.array(TaskList(F)),
+    _tag: F.stringLiteral("TaskListGroup"),
+  })
+)
+export type TaskListGroup = AType<typeof TaskListGroup>
+
+export const TaskListView = make((F) =>
+  F.interface({
+    title: NonEmptyString(F),
+    count: F.number(),
+    slug: F.string(),
+    _tag: F.stringLiteral("TaskListView"),
+  })
+)
+export type TaskListView = AType<typeof TaskListView>
 
 export const FolderListADT = makeADT("_tag")({ TaskList, TaskListGroup, TaskListView })
 export type FolderListADT = AType<typeof FolderListADT>
