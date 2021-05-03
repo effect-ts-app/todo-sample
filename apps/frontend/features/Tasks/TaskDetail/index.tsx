@@ -3,12 +3,12 @@ import * as O from "@effect-ts/core/Option"
 import { datumEither } from "@nll/datum"
 import React, { useCallback } from "react"
 
-import { emptyTasks, Ordery, TaskView, useTasks } from "../data"
+import { emptyTasks, Ordery, useTasks } from "../data"
 import { useRouting } from "../routing"
 
 import { TaskDetail } from "./TaskDetail"
 
-import { UUID } from "@effect-ts-demo/core/ext/Model"
+import { NonEmptyString, UUID } from "@effect-ts-demo/core/ext/Model"
 
 const TaskDetailView = ({
   category,
@@ -16,7 +16,7 @@ const TaskDetailView = ({
   taskId,
 }: {
   taskId: UUID
-  category: TaskView
+  category: NonEmptyString
   order: O.Option<Ordery>
 }) => {
   const [tasksResult] = useTasks()

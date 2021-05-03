@@ -5,9 +5,11 @@ import { useMemo, useRef } from "react"
 
 import { makeQueryString } from "@/utils"
 
-import { OrderDir, Orders, Ordery, TaskView } from "./data"
+import { OrderDir, Orders, Ordery } from "./data"
 
-export function useRouting(category: TaskView, order: O.Option<Ordery>) {
+import { NonEmptyString } from "@effect-ts-demo/core/ext/Model"
+
+export function useRouting(category: NonEmptyString, order: O.Option<Ordery>) {
   const r = useRouter()
 
   // the functions are not stable when order direction, order, or category changes...

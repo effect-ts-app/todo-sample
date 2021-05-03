@@ -21,7 +21,6 @@ import {
   OrderDir,
   orders,
   Ordery,
-  TaskView,
   useGetTask,
   useNewTask,
   useTasks,
@@ -34,13 +33,14 @@ import { TaskListMenu } from "./TaskListMenu"
 import * as A from "@effect-ts-demo/core/ext/Array"
 import * as T from "@effect-ts-demo/core/ext/Effect"
 import * as EO from "@effect-ts-demo/core/ext/EffectOption"
+import { NonEmptyString } from "@effect-ts-demo/core/ext/Model"
 import { TaskListId } from "@effect-ts-demo/todo-types/Task"
 
 const TaskListView = memo(function ({
   category,
   order,
 }: {
-  category: TaskView
+  category: NonEmptyString
   order: O.Option<Ordery>
 }) {
   const [tasksResult1, , refetchTasks] = useTasks()
@@ -153,7 +153,7 @@ const TaskListOrNone = ({
   category,
   order,
 }: {
-  category: O.Option<TaskView>
+  category: O.Option<NonEmptyString>
   order: O.Option<Ordery>
 }) =>
   O.fold_(

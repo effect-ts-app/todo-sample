@@ -18,7 +18,7 @@ const icons: Record<string, JSX.Element> = {
   "my-day": <CalendarToday />,
 }
 
-function TLV(c) {
+function TLV(c: Todo.TaskListView) {
   const cat = "a"
   return (
     <Link href={`/${c.slug}`} passHref>
@@ -32,21 +32,22 @@ function TLV(c) {
   )
 }
 
-function TLG(g) {
+function TLG(g: Todo.TaskListGroup) {
   return (
     <React.Fragment>
       {g.title}
       <List component="div" disablePadding>
         {g.lists.map((l, idx) => (
           <React.Fragment key={idx}>
-            <TaskListEntry {...l} title={"| -- " + l.title} />
+            <TaskListEntry {...l} title={("| -- " + l.title) as NonEmptyString} />
           </React.Fragment>
         ))}
       </List>
     </React.Fragment>
   )
 }
-function TaskListEntry(l: { id: string; title: string; count: number }) {
+
+function TaskListEntry(l: Todo.TaskList) {
   const cat = "a"
   return (
     <Link href={`/${l.id}`} passHref>

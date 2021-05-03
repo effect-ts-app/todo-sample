@@ -2,7 +2,6 @@ import {
   Step,
   Task,
   TaskE,
-  TaskList,
   TaskListOrGroup,
   TaskListOrVirtual,
   User,
@@ -32,8 +31,8 @@ const encodeTask = flow(strict(Task).shrink, Sy.chain(encode(Task)))
 const runEncodeTask = flow(encodeTask, Sy.run)
 
 const patrickId = UserId.parse_(0)["|>"](unsafe)
-const mikeId = UserId.parse_(1)["|>"](unsafe)
-const markusId = UserId.parse_(2)["|>"](unsafe)
+// const mikeId = UserId.parse_(1)["|>"](unsafe)
+// const markusId = UserId.parse_(2)["|>"](unsafe)
 // todo; or via user["|>"](User.createTask(..))
 
 function createTask(id: UserId, name: string) {
@@ -45,9 +44,9 @@ function createTask(id: UserId, name: string) {
     })
 }
 
-const MikesSharedListID = makeUuid()
 const PatricksSharedListUUid = makeUuid()
-const MarkusSharedListId = makeUuid()
+// const MikesSharedListID = makeUuid()
+// const MarkusSharedListId = makeUuid()
 
 const users = pipe(
   Sy.gen(function* ($) {
@@ -118,8 +117,8 @@ export function getUser(id: UserId) {
 }
 
 const createPatrickTask = createTask(patrickId, "Patrick")
-const createMikeTask = createTask(mikeId, "Mike")
-const createMarkusTask = createTask(markusId, "Markus")
+// const createMikeTask = createTask(mikeId, "Mike")
+// const createMarkusTask = createTask(markusId, "Markus")
 
 const tasksRef = Ref.unsafeMakeRef<Map.Map<UUID, TaskE>>(
   pipe(

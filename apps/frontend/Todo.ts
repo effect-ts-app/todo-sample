@@ -84,6 +84,7 @@ export const TaskList = make((F) =>
     })
   )()
 )
+export type TaskList = AType<typeof TaskList>
 
 export const TaskListGroup = make((F) =>
   F.interface({
@@ -93,15 +94,17 @@ export const TaskListGroup = make((F) =>
     _tag: F.stringLiteral("TaskListGroup"),
   })
 )
+export type TaskListGroup = AType<typeof TaskListGroup>
 
 export const TaskListView = make((F) =>
   F.interface({
     title: NonEmptyString(F),
     count: F.number(),
-    slug: NonEmptyString(F),
+    slug: F.string(),
     _tag: F.stringLiteral("TaskListView"),
   })
 )
+export type TaskListView = AType<typeof TaskListView>
 
 export const FolderListADT = makeADT("_tag")({ TaskList, TaskListGroup, TaskListView })
 export type FolderListADT = AType<typeof FolderListADT>

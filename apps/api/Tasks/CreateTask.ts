@@ -12,7 +12,7 @@ export const handle = (_: Request) =>
     const u = yield* $(UserSVC.UserEnv)
     const t = Task.create({ ..._, createdBy: u.id, steps: [] })
     yield* $(TaskContext.add(t))
-    return t.id
+    return { id: t.id }
   })
 
 export { Request, Response }

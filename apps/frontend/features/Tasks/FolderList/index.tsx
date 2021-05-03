@@ -63,10 +63,11 @@ const FolderListView = ({ category }: { category: O.Option<NonEmptyString> }) =>
                 Todo.FolderListADT.as.TaskListGroup({
                   ...l,
                   lists: lists["|>"](
-                    A.filter(
-                      (x) =>
-                        x._tag === "TaskList" &&
-                        x.parentListId["|>"](O.getOrElse(() => "")) === l.id
+                    A.filterMap((x) =>
+                      x._tag === "TaskList" &&
+                      x.parentListId["|>"](O.getOrElse(() => "")) === l.id
+                        ? O.some(x)
+                        : O.none
                     )
                   )["|>"](
                     A.map((l) =>
