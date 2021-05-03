@@ -48,105 +48,93 @@ const makeMockTaskContext = T.gen(function* ($) {
     )
   )
 
-  return {
-    findUser(id: UserId) {
-      return pipe(
-        usersRef.get,
-        T.map((users) => O.fromNullable(users.get(id))),
-        EO.chain(flow(decodeUser, EO.fromEffect, T.orDie))
-      )
-    },
+  const findUser = (id: UserId) =>
+    pipe(
+      usersRef.get,
+      T.map((users) => O.fromNullable(users.get(id))),
+      EO.chain(flow(decodeUser, EO.fromEffect, T.orDie))
+    )
 
-    getUser(id: UserId) {
-      return pipe(
-        this.findUser(id),
-        T.chain(
-          O.fold(() => T.fail(new NotFoundError("User", id.toString())), T.succeed)
-        )
-      )
-    },
+  const getUser = (id: UserId) =>
+    pipe(
+      findUser(id),
+      T.chain(O.fold(() => T.fail(new NotFoundError("User", id.toString())), T.succeed))
+    )
 
-    find(id: TaskId) {
-      return pipe(
-        tasksRef.get,
-        T.map((tasks) => O.fromNullable(tasks.get(id))),
-        EO.chain(flow(decodeTask, EO.fromEffect, T.orDie))
-      )
-    },
+  const find = (id: TaskId) =>
+    pipe(
+      tasksRef.get,
+      T.map((tasks) => O.fromNullable(tasks.get(id))),
+      EO.chain(flow(decodeTask, EO.fromEffect, T.orDie))
+    )
 
-    get(id: TaskId) {
-      return pipe(
-        this.find(id),
-        T.chain(O.fold(() => T.fail(new NotFoundError("Task", id)), T.succeed))
-      )
-    },
+  const get = (id: TaskId) =>
+    pipe(
+      find(id),
+      T.chain(O.fold(() => T.fail(new NotFoundError("Task", id)), T.succeed))
+    )
 
-    all(userId: UserId) {
-      return pipe(
-        tasksRef.get,
-        T.chain((tasks) =>
-          [...tasks.values()]
-            ["|>"](
-              A.filter(
-                (x) =>
-                  // TODO: Or task is part of a List that a user is Member of ;-)
-                  x.createdBy === userId
-              )
+  const add = (t: Task) =>
+    pipe(
+      T.structPar({ encT: encodeTask(t), tasks: tasksRef.get }),
+      T.chain(({ encT, tasks }) => tasksRef.set(tasks["|>"](Map.insert(t.id, encT))))
+    )
+
+  const del = (id: TaskId) =>
+    pipe(
+      T.tuple(tasksRef.get, get(id)),
+      T.chain(({ tuple: [tasks] }) => tasksRef.set(tasks["|>"](Map.remove(id))))
+    )
+
+  const getOrder = (uid: UserId) =>
+    pipe(
+      getUser(uid),
+      T.map((u) => u.order)
+    )
+
+  const all = (userId: UserId) =>
+    pipe(
+      tasksRef.get,
+      T.chain((tasks) =>
+        [...tasks.values()]
+          ["|>"](
+            A.filter(
+              (x) =>
+                // TODO: Or task is part of a List that a user is Member of ;-)
+                x.createdBy === userId
             )
-            ["|>"](T.forEach(decodeTask))
-        ),
-        T.orDie
-      )
-    },
+          )
+          ["|>"](T.forEach(decodeTask))
+      ),
+      T.orDie
+    )
 
-    update(id: TaskId, mod: (a: Task) => Task) {
-      return pipe(this.get(id), T.map(mod), T.chain(this.add))
-    },
-
-    updateM<R, E>(id: TaskId, mod: (a: Task) => T.Effect<R, E, Task>) {
-      return pipe(this.get(id), T.chain(mod), T.chain(this.add))
-    },
-
-    add(t: Task) {
-      return pipe(
-        T.structPar({ encT: encodeTask(t), tasks: tasksRef.get }),
-        T.chain(({ encT, tasks }) => tasksRef.set(tasks["|>"](Map.insert(t.id, encT))))
-      )
-    },
-
-    delete(id: TaskId) {
-      return pipe(
-        T.tuple(tasksRef.get, this.get(id)),
-        T.chain(({ tuple: [tasks] }) => tasksRef.set(tasks["|>"](Map.remove(id))))
-      )
-    },
-
-    remove(t: Task) {
-      return this.delete(t.id)
-    },
-
-    getOrder(uid: UserId) {
-      return pipe(
-        this.getUser(uid),
-        T.map((u) => u.order)
-      )
-    },
-    setOrder(uid: UserId, order: A.Array<TaskId>) {
-      return pipe(
-        this.getUser(uid),
+  return {
+    findUser,
+    getUser,
+    find,
+    get,
+    all,
+    update: (id: TaskId, mod: (a: Task) => Task) =>
+      pipe(get(id), T.map(mod), T.chain(add)),
+    updateM: <R, E>(id: TaskId, mod: (a: Task) => T.Effect<R, E, Task>) =>
+      pipe(get(id), T.chain(mod), T.chain(add)),
+    add,
+    delete: del,
+    remove: (t: Task) => del(t.id),
+    getOrder,
+    setOrder: (uid: UserId, order: A.Array<TaskId>) =>
+      pipe(
+        getUser(uid),
         T.map((u) => ({ ...u, order })),
         T.chain(encodeUser),
-        T.orDie,
         T.chain((u) => Ref.update_(usersRef, Map.insert(uid, u)))
-      )
-    },
-
-    allOrdered(userId: UserId) {
-      return pipe(
-        T.structPar({ tasks: this.all(userId), order: this.getOrder(userId) }),
+      ),
+    allOrdered: (userId: UserId) =>
+      pipe(
+        T.structPar({ tasks: all(userId), order: getOrder(userId) }),
         T.map(({ order, tasks }) => orderTasks(tasks["|>"](Chunk.toArray), order))
-      )
-    },
+      ),
   }
 })
 
