@@ -11,7 +11,7 @@ import {
 import type * as Ei from "@effect-ts/core/Either"
 import * as O from "@effect-ts/core/Option"
 
-import { Lazy, pipe } from "./Function"
+import { flow, Lazy, pipe } from "./Function"
 
 export const encaseEither = <E, A>(ei: Ei.Either<E, A>) => fromEither(() => ei)
 export const chainEither = <E, A, A2>(ei: (a: A2) => Ei.Either<E, A>) =>
@@ -39,6 +39,10 @@ export function encaseOption_<E, A>(o: O.Option<A>, onError: Lazy<E>): IO<E, A> 
 
 export function encaseOption<E>(onError: Lazy<E>) {
   return <A>(o: O.Option<A>) => encaseOption_<E, A>(o, onError)
+}
+
+export function liftM<A, B>(a: (a: A) => B) {
+  return flow(a, succeed)
 }
 
 export * from "@effect-ts/core/Effect"

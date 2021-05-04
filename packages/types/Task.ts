@@ -25,12 +25,15 @@ export type TaskId = AType<typeof TaskId>
 
 const TaskListIdLiteral = make((F) => F.stringLiteral("inbox"))
 
+export const TaskListIdU = UUID
+export type TaskListIdU = AType<typeof TaskListIdU>
+
 export const TaskListId = make((F) =>
   F.union(
-    F.uuid(),
+    TaskListIdU(F),
     TaskListIdLiteral(F)
   )({
-    guards: [guard(UUID).is, guard(TaskListIdLiteral).is],
+    guards: [guard(TaskListIdU).is, guard(TaskListIdLiteral).is],
   })
 )
 export type TaskListId = AType<typeof TaskListId>
@@ -171,17 +174,16 @@ const Member = make((F) =>
 // export type VirtualTask = AType<typeof VirtualTask>
 
 const SharableTaskList_ = make((F) =>
-  F.intersection(
-    TaskList(F),
-    F.interface({
-      title: NonEmptyString(F),
+  F.interface({
+    id: TaskListIdU(F),
+    title: NonEmptyString(F),
+    order: F.array(TaskId(F)),
 
-      members: F.array(Member(F)),
-      ownerId: UserId(F),
-      // tasks: F.array(TaskOrVirtualTask(F))
-      _tag: F.stringLiteral("TaskList"),
-    })
-  )()
+    members: F.array(Member(F)),
+    ownerId: UserId(F),
+    // tasks: F.array(TaskOrVirtualTask(F))
+    _tag: F.stringLiteral("TaskList"),
+  })
 )
 
 export interface SharableTaskList extends AType<typeof SharableTaskList_> {}
@@ -210,7 +212,7 @@ export type TaskLists = AType<typeof TaskLists>
 // TaskListGroups contains tasklists
 const TaskListGroup_ = make((F) =>
   F.interface({
-    id: TaskListId(F),
+    id: TaskListIdU(F),
     title: NonEmptyString(F),
     ownerId: UserId(F),
     lists: F.array(TaskListId(F)),

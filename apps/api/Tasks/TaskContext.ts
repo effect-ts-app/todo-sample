@@ -1,8 +1,7 @@
 import {
-  SharableTaskList,
   Task,
   TaskId,
-  TaskListId,
+  TaskListIdU,
   TaskListOrGroup,
   User,
   UserId,
@@ -11,14 +10,12 @@ import { Has } from "@effect-ts/core"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as Chunk from "@effect-ts/core/Collections/Immutable/Chunk"
 import * as Map from "@effect-ts/core/Collections/Immutable/Map"
-import * as T from "@effect-ts/core/Effect"
 import * as L from "@effect-ts/core/Effect/Layer"
 import * as Ref from "@effect-ts/core/Effect/Ref"
 import { flow, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import * as Sy from "@effect-ts/core/Sync"
 import { _A } from "@effect-ts/core/Utils"
-import * as Lens from "@effect-ts/monocle/Lens"
 import { M } from "@effect-ts/morphic"
 import { encode } from "@effect-ts/morphic/Encoder"
 import { strict } from "@effect-ts/morphic/Strict"
@@ -28,6 +25,7 @@ import { NotFoundError } from "@/errors"
 
 import { makeTestData } from "./TaskContext.testdata"
 
+import * as T from "@effect-ts-demo/core/ext/Effect"
 import * as EO from "@effect-ts-demo/core/ext/EffectOption"
 
 const [decodeUser, encodeUser, encodeUsersToMap] = makeCodec(User)
@@ -51,6 +49,25 @@ const makeMockTaskContext = T.gen(function* ($) {
     pipe(
       findUser(id),
       T.chain(O.fold(() => T.fail(new NotFoundError("User", id.toString())), T.succeed))
+    )
+
+  const findList = (id: TaskListIdU) =>
+    pipe(
+      listsRef.get,
+      T.map((lists) => O.fromNullable(lists.get(id))),
+      EO.chainEffect(decodeList)
+    )
+
+  const getList = (id: TaskListIdU) =>
+    pipe(
+      findList(id),
+      T.chain(O.fold(() => T.fail(new NotFoundError("List", id.toString())), T.succeed))
+    )
+
+  const addList = (t: TaskListOrGroup) =>
+    pipe(
+      T.structPar({ encT: encodeList(t), lists: listsRef.get }),
+      T.chain(({ encT, lists }) => listsRef.set(lists["|>"](Map.insert(t.id, encT))))
     )
 
   const allLists = (id: UserId) =>
@@ -121,7 +138,6 @@ const makeMockTaskContext = T.gen(function* ($) {
           Chunk.from(tasks.values()),
           Chunk.filter(
             (x) =>
-              // TODO: Or task is part of a List that a user is Member of ;-)
               x.createdBy === userId ||
               Chunk.find_(lists, (l) => l.id === x.listId)
                 ["|>"](O.map((l) => l.members.some((m) => m.id === userId)))
@@ -132,49 +148,36 @@ const makeMockTaskContext = T.gen(function* ($) {
       )
     )
 
+  const updateUserM = <R, E>(id: UserId, mod: (a: User) => T.Effect<R, E, User>) =>
+    pipe(getUser(id), T.chain(mod), T.tap(addUser))
+
+  const updateListM = <R, E>(
+    id: TaskListIdU,
+    mod: (a: TaskListOrGroup) => T.Effect<R, E, TaskListOrGroup>
+  ) => pipe(getList(id), T.chain(mod), T.tap(addList))
+
+  const updateM = <R, E>(id: TaskId, mod: (a: Task) => T.Effect<R, E, Task>) =>
+    pipe(get(id), T.chain(mod), T.tap(add))
+
   return {
     allLists,
+    findList,
+    getList,
     findUser,
     getUser,
     find,
     get,
     all,
-    updateUser: (id: UserId, mod: (a: User) => User) =>
-      pipe(getUser(id), T.map(mod), T.chain(addUser)),
-    updateUserM: <R, E>(id: UserId, mod: (a: User) => T.Effect<R, E, User>) =>
-      pipe(getUser(id), T.chain(mod), T.chain(addUser)),
-    update: (id: TaskId, mod: (a: Task) => Task) =>
-      pipe(get(id), T.map(mod), T.chain(add)),
-    updateM: <R, E>(id: TaskId, mod: (a: Task) => T.Effect<R, E, Task>) =>
-      pipe(get(id), T.chain(mod), T.chain(add)),
+    updateUser: (id: UserId, mod: (a: User) => User) => updateUserM(id, T.liftM(mod)),
+    updateUserM,
+    updateList: (id: TaskListIdU, mod: (a: TaskListOrGroup) => TaskListOrGroup) =>
+      updateListM(id, T.liftM(mod)),
+    updateListM,
+    update: (id: TaskId, mod: (a: Task) => Task) => updateM(id, T.liftM(mod)),
+    updateM,
     add,
     delete: del,
     remove: (t: Task) => del(t.id),
-    // TODO: break this apart to be done in Usecase space?
-    // getList+updateList
-    // getUser+updateUser
-    setOrder: (uid: UserId, tlid: TaskListId, order: A.Array<TaskId>) =>
-      tlid === "inbox"
-        ? pipe(
-            getUser(uid),
-            T.map(User.lens["|>"](Lens.prop("inboxOrder")).set(order)),
-            T.chain(encodeUser),
-            T.chain((u) => Ref.update_(usersRef, Map.insert(uid, u)))
-          )
-        : pipe(
-            allLists(uid),
-            T.map(
-              Chunk.filterMap((x) =>
-                TaskListOrGroup.is.TaskList(x) && x.id === tlid ? O.some(x) : O.none
-              )
-            ),
-            T.map(Chunk.get(0)),
-            EO.map(SharableTaskList.lens["|>"](Lens.prop("order")).set(order)),
-            EO.chainEffect(encodeList),
-            EO.chainEffect((u) =>
-              Ref.update_(listsRef, Map.insert(tlid as TaskListId, u))
-            )
-          ),
   }
 })
 
@@ -190,8 +193,8 @@ export const {
   get,
   getUser,
   remove,
-  setOrder,
   update,
+  updateList,
   updateUser,
 } = T.deriveLifted(TaskContext)(
   [
@@ -202,8 +205,8 @@ export const {
     "getUser",
     "find",
     "remove",
-    "setOrder",
     "update",
+    "updateList",
     "updateUser",
   ],
   [],
@@ -226,6 +229,16 @@ export function updateUserM<R, E>(id: UserId, mod: (a: User) => T.Effect<R, E, U
   return T.gen(function* ($) {
     const { updateUserM } = yield* $(TaskContext)
     return updateUserM(id, mod)
+  })
+}
+
+export function updateListM<R, E>(
+  id: TaskListIdU,
+  mod: (a: TaskListOrGroup) => T.Effect<R, E, TaskListOrGroup>
+) {
+  return T.gen(function* ($) {
+    const { updateListM } = yield* $(TaskContext)
+    return updateListM(id, mod)
   })
 }
 
