@@ -2,9 +2,9 @@ import * as O from "@effect-ts/core/Option"
 import { Box, Hidden, Link, Typography } from "@material-ui/core"
 import ArrowLeft from "@material-ui/icons/ArrowLeft"
 import RouterLink from "next/link"
-import React from "react"
+import React, { useState } from "react"
 
-import { memo } from "@/data"
+import { memo, useEffect } from "@/data"
 import { renderIf_ } from "@/utils"
 
 import FolderList from "./FolderList"
@@ -13,6 +13,21 @@ import TaskList from "./TaskList"
 import { Ordery } from "./data"
 
 import type { NonEmptyString, UUID } from "@effect-ts-demo/core/ext/Model"
+
+const users = [
+  {
+    id: 0,
+    name: "Patrick",
+  },
+  {
+    id: 1,
+    name: "Mike",
+  },
+  {
+    id: 2,
+    name: "Markus",
+  },
+]
 
 const TasksScreen = memo(function ({
   category,
@@ -23,20 +38,40 @@ const TasksScreen = memo(function ({
   order: O.Option<Ordery>
   taskId: O.Option<UUID>
 }) {
+  const userId = useUserId()
   const view = O.isSome(taskId) ? "task" : O.isSome(category) ? "tasks" : "folders"
   return (
     <Box display="flex" flexDirection="column" height="100%">
-      <Box sx={{ bgcolor: "primary.main", color: "primary.contrastText" }} p={2}>
-        <Typography>
-          To Do: An Effect-TS full-stack demo, clone of Microsoft To Do.{" "}
-          <Link
-            sx={{ color: "primary.contrastText" }}
-            href="http://github.com/patroza/effect-ts-demo-todo"
-            target="_blank"
-          >
-            <i>Fork Me</i>
-          </Link>
-        </Typography>
+      <Box
+        sx={{ bgcolor: "primary.main", color: "primary.contrastText" }}
+        p={2}
+        display="flex"
+      >
+        <Box flexGrow={1}>
+          <Typography>
+            To Do: An Effect-TS full-stack demo, clone of Microsoft To Do.{" "}
+            <Link
+              sx={{ color: "primary.contrastText" }}
+              href="http://github.com/patroza/effect-ts-demo-todo"
+              target="_blank"
+            >
+              <i>Fork Me</i>
+            </Link>
+          </Typography>
+        </Box>
+        <Box display="flex">
+          Switch to
+          {users
+            .filter((u) => u.id.toString() !== userId)
+            .map((u, idx) => (
+              <React.Fragment key={u.id}>
+                {idx ? "," : ":"}&nbsp;
+                <Link href={`/set-user/${u.id}`} sx={{ color: "primary.contrastText" }}>
+                  {u.name}
+                </Link>
+              </React.Fragment>
+            ))}
+        </Box>
       </Box>
       <Box display="flex" flexDirection={{ xs: "column", sm: "row" }} height="100%">
         <Hidden only={view === "folders" ? undefined : "xs"}>
@@ -108,5 +143,14 @@ const TasksScreen = memo(function ({
     </Box>
   )
 })
+
+function useUserId() {
+  const [userId, setUserId] = useState("0")
+  useEffect(() => {
+    setUserId(window.localStorage.getItem("user-id") ?? "0")
+  }, [])
+
+  return userId
+}
 
 export default TasksScreen
