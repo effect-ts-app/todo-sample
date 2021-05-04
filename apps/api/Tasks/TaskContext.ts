@@ -140,7 +140,12 @@ const makeMockTaskContext = T.gen(function* ($) {
             (x) =>
               x.createdBy === userId ||
               Chunk.find_(lists, (l) => l.id === x.listId)
-                ["|>"](O.map((l) => l.members.some((m) => m.id === userId)))
+                ["|>"](
+                  O.map(
+                    (l) =>
+                      l.ownerId === userId || l.members.some((m) => m.id === userId)
+                  )
+                )
                 ["|>"](O.getOrElse(() => false))
           ),
           T.forEach(decodeTask)
