@@ -15,6 +15,9 @@ import * as UpdateTask from "./UpdateTask"
 
 export { CreateTask, DeleteTask, GetTask, GetTasks, SetTasksOrder, UpdateTask }
 
+export { TaskView as Task } from "./views"
+export * from "@effect-ts-demo/todo-types"
+
 export const getTasks = pipe(
   fetchApi("/tasks"),
   T.chain(flow(decode(GetTasks.Response), mapResponseError))

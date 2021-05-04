@@ -9,7 +9,7 @@ import { Request, Response } from "@effect-ts-demo/todo-client/Tasks/SetTasksOrd
 export const handle = (_: Request) =>
   T.gen(function* ($) {
     const u = yield* $(UserSVC.UserEnv)
-    yield* $(TaskContext.setOrder(u.id, _.order))
+    yield* $(TaskContext.setOrder(u.id, _.listId, _.order))
   })
 
 export { Request, Response }

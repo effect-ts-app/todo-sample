@@ -2,22 +2,17 @@ import * as TodoClient from "@effect-ts-demo/todo-client"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import { constant, flow, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
-import * as ORD from "@effect-ts/core/Ord"
 import { Lens } from "@effect-ts/monocle"
-import { AType, make } from "@effect-ts/morphic"
 import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
-import { datumEither } from "@nll/datum"
-import { useCallback, useEffect, useMemo, useRef } from "react"
+import { useCallback, useEffect, useMemo } from "react"
 
 import * as Todo from "@/Todo"
 import { useServiceContext } from "@/context"
 import { useFetch, useModify, useQuery } from "@/data"
-import { typedKeysOf } from "@/utils"
 
 import * as T from "@effect-ts-demo/core/ext/Effect"
 import * as EO from "@effect-ts-demo/core/ext/EffectOption"
 import { NonEmptyString } from "@effect-ts-demo/core/ext/Model"
-import { TaskId } from "@effect-ts-demo/todo-types/Task"
 
 // export function useModifyTasks() {
 //   return useModify<A.Array<Todo.Task>>("latestTasks")
@@ -83,34 +78,25 @@ export function useTasks() {
   return r
 }
 
-const newTask = (v: TaskView | NonEmptyString, folderId?: Todo.TaskListId) => (
+const newTask = (v: Todo.TaskView | NonEmptyString, listId?: Todo.TaskListId) => (
   newTitle: string
 ) =>
   TodoClient.Tasks.createTaskE({
     title: newTitle,
     isFavorite: false,
     myDay: null,
-    folderId: folderId ?? "inbox",
+    listId: listId ?? "inbox",
     ...(v === "important"
       ? { isFavorite: true }
       : v === "my-day"
       ? { myDay: new Date().toISOString() }
       : {}),
   })
-
-export function makeKeys<T extends string>(a: readonly T[]) {
-  return a.reduce((prev, cur) => {
-    prev[cur] = null
-    return prev
-  }, {} as { [P in typeof a[number]]: null })
-}
-
-export const TaskViews = ["important", "my-day"] as const
-export const TaskView = make((F) => F.keysOf(makeKeys(TaskViews)))
-export type TaskView = AType<typeof TaskView>
-
-export function useNewTask(v: TaskView | NonEmptyString, folderId?: Todo.TaskListId) {
-  return useFetch(newTask(v, folderId))
+export function useNewTask(
+  v: Todo.TaskView | NonEmptyString,
+  listId?: Todo.TaskListId
+) {
+  return useFetch(newTask(v, listId))
 }
 
 // export function useFindTaskList(id: UUID) {
@@ -155,29 +141,34 @@ export function useModifyTasks() {
   return useModify<A.Array<Todo.Task>>("latestTasks")
 }
 
-export function useReorder() {
-  const [tasksResult] = useTasks()
-  const modifyTasks = useModifyTasks()
-  const { runWithErrorLog } = useServiceContext()
-  const tref = useRef(datumEither.isSuccess(tasksResult) ? tasksResult.value.right : [])
-  tref.current = datumEither.isSuccess(tasksResult) ? tasksResult.value.right : []
-
-  return useCallback(
-    (tid: TaskId, did: TaskId) => {
-      const tasks = tref.current
-      const t = tasks.find((x) => x.id === tid)!
-      const d = tasks.find((x) => x.id === did)!
-      const didx = tasks.findIndex((x) => x === d)
-      const reorder = Todo.updateTaskIndex(t, didx)
-      modifyTasks(reorder)
-      const reorderedTasks = tasks["|>"](reorder)
-      TodoClient.Tasks.setTasksOrder({
-        order: A.map_(reorderedTasks, (t) => t.id),
-      })["|>"](runWithErrorLog)
-    },
-    [modifyTasks, runWithErrorLog]
-  )
+export function useModifyMe() {
+  return useModify<TodoClient.Temp.GetMe.Response>("me")
 }
+
+// export function useReorder() {
+//   const [tasksResult] = useTasks()
+//   const modifyTasks = useModifyTasks()
+//   const { runWithErrorLog } = useServiceContext()
+//   const tref = useRef(datumEither.isSuccess(tasksResult) ? tasksResult.value.right : [])
+//   tref.current = datumEither.isSuccess(tasksResult) ? tasksResult.value.right : []
+
+//   return useCallback(
+//     (tid: TaskId, tlid: NonEmptyString, did: TaskId) => {
+//       const tasks = A.filterMap_(tref.current, (t) => t.listId === tlid)
+//       const t = tasks.find((x) => x.id === tid)!
+//       const d = tasks.find((x) => x.id === did)!
+//       const didx = tasks.findIndex((x) => x === d)
+//       const reorder = Todo.updateTaskIndex(t, didx)
+//       modifyTasks(reorder)
+//       const reorderedTasks = tasks["|>"](reorder)
+//       TodoClient.Tasks.setTasksOrder({
+//         listId: tlid as any,
+//         order: A.map_(reorderedTasks, (t) => t.id),
+//       })["|>"](runWithErrorLog)
+//     },
+//     [modifyTasks, runWithErrorLog]
+//   )
+// }
 
 export function useGetTask() {
   const modifyTasks = useModifyTasks()
@@ -194,7 +185,7 @@ export function useGetTask() {
                 pipe(
                   A.findIndex_(tasks, (x) => x.id === t.id),
                   O.chain((i) => A.modifyAt_(tasks, i, constant(t))),
-                  O.getOrElse(() => A.cons_(tasks, t))
+                  O.getOrElse(() => A.snoc_(tasks, t))
                 )
               )
             )
@@ -374,64 +365,4 @@ export function useTaskCommands(id: UUID) {
 
 export type TaskCommands = ReturnType<typeof useTaskCommands>
 
-const defaultDate = constant(new Date(1900, 1, 1))
-
-export const orders = {
-  creation: ORD.contramap_(ORD.date, (t: Todo.Task) => t.createdAt),
-  important: ORD.contramap_(ORD.inverted(ORD.boolean), (t: Todo.Task) => t.isFavorite),
-  alphabetically: ORD.contramap_(ORD.string, (t: Todo.Task) => t.title.toLowerCase()),
-  due: ORD.contramap_(ORD.inverted(ORD.date), (t: Todo.Task) =>
-    O.getOrElse_(t.due, defaultDate)
-  ),
-  myDay: ORD.contramap_(ORD.inverted(ORD.date), (t: Todo.Task) =>
-    O.getOrElse_(t.myDay, defaultDate)
-  ),
-}
-
-export type Orders = keyof typeof orders
-
-const order = typedKeysOf(orders)
-export const Order = make((F) => F.keysOf(makeKeys(order)))
-export type Order = AType<typeof Order>
-
-const orderDir = ["up", "down"] as const
-export const OrderDir = make((F) => F.keysOf(makeKeys(orderDir)))
-export type OrderDir = AType<typeof OrderDir>
-
-export const Ordery = make((F) =>
-  F.interface({
-    kind: Order(F),
-    dir: OrderDir(F),
-  })
-)
-export type Ordery = AType<typeof Ordery>
-
-export function filterByCategory(category: TaskView | string) {
-  switch (category) {
-    case "important":
-      return A.filter((t: Todo.Task) => t.isFavorite)
-    case "my-day": {
-      const isToday = isSameDay(new Date())
-      return A.filter((t: Todo.Task) =>
-        t.myDay["|>"](O.map(isToday))["|>"](O.getOrElse(() => false))
-      )
-    }
-    case "tasks": {
-      return A.filter((t: Todo.Task) => t.listId === "inbox")
-    }
-    default:
-      return A.filter((t: Todo.Task) => t.listId === category)
-  }
-}
-
-function isSameDay(today: Date) {
-  return (someDate: Date) => {
-    return (
-      someDate.getDate() == today.getDate() &&
-      someDate.getMonth() == today.getMonth() &&
-      someDate.getFullYear() == today.getFullYear()
-    )
-  }
-}
-
-export const emptyTasks = [] as readonly Todo.Task[]
+export * from "@/Todo"

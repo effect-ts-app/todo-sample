@@ -13,13 +13,10 @@ import * as Sy from "@effect-ts/core/Sync"
 import { makeUuid, NonEmptyString } from "@effect-ts-demo/core/ext/Model"
 import { unsafe } from "@effect-ts-demo/core/ext/utils"
 
-// Datamodel problems:
-// - As groups are owned by users, the groups should store their child list ids.
-//   currently it is the other way around. Have to decide if the UI will see the data the same
-//   or if we hide that fact in the api.
-// - As ordering is currently stored per user, users can have a different order even for shared lists
-//   not sure yet if that's a bug or a feature ;-)
-// - myDay/isFavorite/reminder are per Task, not per User. Probably should store per user, and then merge in.
+// Model problems:
+// - isFavorite/reminder are per Task, not per User. Probably should store per user (like myDay now is), and then merge in?
+// - As ordering is currently saved per list, the ordering is shared with other users in the list. Feature?
+// - Instead of an Object model, a Data model was defined..
 export const makeTestData = Sy.gen(function* ($) {
   const patrickId = yield* $(UserId.parse_(0))
   const mikeId = yield* $(UserId.parse_(1))
@@ -30,43 +27,40 @@ export const makeTestData = Sy.gen(function* ($) {
   const MarkusSharedListId = makeUuid()
   const groupId = makeUuid()
   const users = [
-    User.build({
+    User.create({
       id: patrickId,
       name: yield* $(NonEmptyString.decode_("Patrick Roza")),
-      order: [],
     }),
     ////////
-    User.build({
+    User.create({
       id: mikeId,
       name: yield* $(NonEmptyString.decode_("Mike Arnaldi")),
-      order: [],
     }),
     ////////
-    User.build({
+    User.create({
       id: markusId,
       name: yield* $(NonEmptyString.decode_("Markus Nomizz")),
-      order: [],
     }),
   ]
 
+  const groupedListId = makeUuid()
   const lists = [
     TaskListOrGroup.as.TaskList({
-      id: makeUuid(),
+      id: groupedListId,
       ownerId: patrickId,
       title: yield* $(NonEmptyString.decode_("Some Patrick List")),
       members: [],
-      parentListId: O.some(groupId),
     }),
     ////////
     TaskListOrGroup.as.TaskListGroup({
       id: groupId,
       ownerId: patrickId,
-      title: yield* $(NonEmptyString.decode_("Some group")),
+      title: yield* $(NonEmptyString.decode_("Patrick - Some group")),
+      lists: [groupedListId],
     }),
     TaskListOrVirtual.as.TaskList({
       id: PatricksSharedListUUid,
       ownerId: patrickId,
-      parentListId: O.none,
       title: yield* $(NonEmptyString.decode_("Patrick's shared List")),
       members: [
         {
@@ -80,6 +74,12 @@ export const makeTestData = Sy.gen(function* ($) {
       ],
     }),
     ///////
+    TaskListOrGroup.as.TaskListGroup({
+      id: makeUuid(),
+      ownerId: mikeId,
+      title: yield* $(NonEmptyString.decode_("Mike - Some group")),
+      lists: [MikesSharedListID],
+    }),
     TaskListOrGroup.as.TaskList({
       id: MikesSharedListID,
       ownerId: mikeId,
@@ -90,12 +90,12 @@ export const makeTestData = Sy.gen(function* ($) {
           name: yield* $(NonEmptyString.decode_("Patrick Roza")),
         },
       ],
-      parentListId: O.none,
     }),
     /////
     TaskListOrGroup.as.TaskList({
       id: MarkusSharedListId,
       ownerId: markusId,
+      //order: [],
       title: yield* $(NonEmptyString.decode_("Markus's shared List")),
       members: [
         {
@@ -103,7 +103,6 @@ export const makeTestData = Sy.gen(function* ($) {
           name: yield* $(NonEmptyString.decode_("Patrick Roza")),
         },
       ],
-      parentListId: O.none,
     }),
   ]
 
@@ -242,7 +241,6 @@ export const makeTestData = Sy.gen(function* ($) {
         ],
         listId: PatricksSharedListUUid,
       }),
-      myDay: O.some(new Date()),
     },
     ///////
     createMikeTask({

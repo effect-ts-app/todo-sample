@@ -1,5 +1,5 @@
 import { NonEmptyString } from "@effect-ts-demo/core/ext/Model"
-import { TaskListId } from "@effect-ts-demo/todo-types"
+import { TaskId, TaskListId } from "@effect-ts-demo/todo-types"
 import { make, AType, EType, opaque, makeADT } from "@effect-ts/morphic"
 
 // Must end up in openapi, but not in Request.
@@ -18,6 +18,7 @@ export const Request = Object.assign(opaque<RequestE, Request>()(Request_), {
 const TaskListEntry_ = make((F) =>
   F.interface({
     id: TaskListId(F),
+    order: F.array(TaskId(F)),
     //tasks: F.array(Task(F)), // taskCount
     // order
   })
@@ -76,7 +77,7 @@ export type TaskListEntryOrGroup = AType<typeof TaskListEntryOrGroup>
 const Response_ = make((F) =>
   F.interface({
     name: NonEmptyString(F),
-    //inbox: TaskListEntry(F),
+    inboxOrder: F.array(TaskId(F)),
     lists: F.array(TaskListEntryOrGroup(F)),
   })
 )

@@ -1,5 +1,4 @@
 import * as O from "@effect-ts/core/Option"
-import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
 import { Typography } from "@material-ui/core"
 import React, { useEffect, useState } from "react"
 import { Droppable, DragDropContext } from "react-beautiful-dnd"
@@ -7,8 +6,6 @@ import styled from "styled-components"
 
 import * as Todo from "@/Todo"
 import { memo } from "@/data"
-
-import { useReorder } from "../data"
 
 import { TaskCard, Task } from "./Task"
 
@@ -23,13 +20,16 @@ const CardList = styled.div`
 `
 
 const TaskList = memo(function ({
+  reorder,
   setSelectedTaskId,
   tasks,
 }: {
-  setSelectedTaskId: (i: UUID) => void
+  setSelectedTaskId: (i: Todo.TaskId) => void
   tasks: A.Array<Todo.Task>
+  reorder: (tid: Todo.TaskId, did: Todo.TaskId) => void
 }) {
-  const reorder = useReorder()
+  //const reorder = useReorder()
+
   const [{ completedTasks, openTasks }, setFilteredTasks] = useState(() => ({
     completedTasks: [] as A.Array<Todo.Task>,
     openTasks: [] as A.Array<Todo.Task>,

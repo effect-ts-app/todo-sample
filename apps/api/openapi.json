@@ -30,7 +30,24 @@
                     "items": {
                       "type": "array",
                       "items": {
-                        "$ref": "#/components/schemas/Task"
+                        "allOf": [
+                          {
+                            "$ref": "#/components/schemas/Task"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "myDay": {
+                                "type": "string",
+                                "format": "date-time",
+                                "nullable": true
+                              }
+                            },
+                            "required": [
+                              "myDay"
+                            ]
+                          }
+                        ]
                       }
                     }
                   },
@@ -54,7 +71,10 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "folderId": {
+                  "isFavorite": {
+                    "type": "boolean"
+                  },
+                  "listId": {
                     "oneOf": [
                       {
                         "type": "string",
@@ -68,9 +88,6 @@
                       }
                     ]
                   },
-                  "isFavorite": {
-                    "type": "boolean"
-                  },
                   "myDay": {
                     "type": "string",
                     "format": "date-time",
@@ -83,8 +100,8 @@
                   }
                 },
                 "required": [
-                  "folderId",
                   "isFavorite",
+                  "listId",
                   "myDay",
                   "title"
                 ]
@@ -137,7 +154,24 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Task",
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Task"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "myDay": {
+                          "type": "string",
+                          "format": "date-time",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "myDay"
+                      ]
+                    }
+                  ],
                   "nullable": true
                 }
               }
@@ -263,6 +297,20 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "listId": {
+                    "oneOf": [
+                      {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      {
+                        "type": "string",
+                        "enum": [
+                          "inbox"
+                        ]
+                      }
+                    ]
+                  },
                   "order": {
                     "type": "array",
                     "items": {
@@ -272,6 +320,7 @@
                   }
                 },
                 "required": [
+                  "listId",
                   "order"
                 ]
               }
@@ -310,6 +359,13 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "inboxOrder": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "format": "uuid"
+                      }
+                    },
                     "lists": {
                       "type": "array",
                       "items": {
@@ -367,10 +423,18 @@
                                         ]
                                       }
                                     ]
+                                  },
+                                  "order": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string",
+                                      "format": "uuid"
+                                    }
                                   }
                                 },
                                 "required": [
-                                  "id"
+                                  "id",
+                                  "order"
                                 ]
                               },
                               {
@@ -424,6 +488,7 @@
                     }
                   },
                   "required": [
+                    "inboxOrder",
                     "lists",
                     "name"
                   ]
@@ -507,11 +572,6 @@
               }
             ]
           },
-          "myDay": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
           "note": {
             "type": "string",
             "title": "NonEmptyString",
@@ -548,7 +608,6 @@
           "id",
           "isFavorite",
           "listId",
-          "myDay",
           "note",
           "reminder",
           "steps",

@@ -3,7 +3,9 @@ import * as O from "@effect-ts/core/Option"
 import { datumEither } from "@nll/datum"
 import React, { useCallback } from "react"
 
-import { emptyTasks, Ordery, useTasks } from "../data"
+import * as Todo from "@/Todo"
+
+import { useTasks } from "../data"
 import { useRouting } from "../routing"
 
 import { TaskDetail } from "./TaskDetail"
@@ -17,12 +19,12 @@ const TaskDetailView = ({
 }: {
   taskId: UUID
   category: NonEmptyString
-  order: O.Option<Ordery>
+  order: O.Option<Todo.Ordery>
 }) => {
   const [tasksResult] = useTasks()
   const unfilteredTasks = datumEither.isSuccess(tasksResult)
     ? tasksResult.value.right
-    : emptyTasks
+    : Todo.emptyTasks
 
   const { setSelectedTaskId } = useRouting(category, order)
 

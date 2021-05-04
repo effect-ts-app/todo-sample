@@ -9,6 +9,8 @@ import {
   NonEmptyString,
   UUID,
 } from "@effect-ts-demo/core/ext/Model"
+import { extendM } from "@effect-ts-demo/core/ext/utils"
+import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as O from "@effect-ts/core/Option"
 import * as Lens from "@effect-ts/monocle/Lens"
 import { CoreAlgebra } from "@effect-ts/morphic/Batteries/program"
@@ -58,15 +60,22 @@ export function EditableTaskProps<Env extends BaseFC>(F: CoreAlgebra<"HKT", Env>
 
     due: F.nullable(F.date()),
     reminder: F.nullable(F.date()),
-    myDay: F.nullable(F.date()),
     note: F.nullable(NonEmptyString(F)),
     steps: Steps(F),
     assignedTo: F.nullable(UserId(F)),
   }
 }
 
-const EditableTaskPropsM = make((F) => F.interface(EditableTaskProps(F)))
-export type EditableTaskProps = AType<typeof EditableTaskPropsM>
+export function EditablePersonalTaskProps<Env extends BaseFC>(
+  F: CoreAlgebra<"HKT", Env>
+) {
+  return {
+    myDay: F.nullable(F.date()),
+  }
+}
+
+// const EditableTaskPropsM = make((F) => F.interface(EditableTaskProps(F)))
+// export type EditableTaskProps = AType<typeof EditableTaskPropsM>
 
 const Task_ = make((F) =>
   F.interface(
@@ -89,7 +98,7 @@ const TaskO = opaque<TaskE, Task>()(Task_)
 export const Task = Object.assign(TaskO, {
   create: (
     a: Pick<Task, "title" | "steps" | "createdBy"> &
-      Partial<Pick<Task, "isFavorite" | "myDay" | "listId">>
+      Partial<Pick<Task, "isFavorite" | "listId">>
   ) => {
     const createdAt = new Date()
     return Task.build({
@@ -108,7 +117,7 @@ export const Task = Object.assign(TaskO, {
       createdAt,
       updatedAt: createdAt,
 
-      myDay: a.myDay ?? O.none,
+      //myDay: a.myDay ?? O.none,
     })
   },
   complete: TaskO.lens["|>"](Lens.prop("completed")).set(O.some(new Date())),
@@ -129,8 +138,8 @@ export const Task = Object.assign(TaskO, {
 const TaskList_ = make((F) =>
   F.interface({
     id: TaskListId(F),
-    parentListId: F.nullable(TaskListId(F)),
     title: NonEmptyString(F),
+    order: F.array(TaskId(F)),
   })
 )
 
@@ -166,6 +175,7 @@ const SharableTaskList_ = make((F) =>
     TaskList(F),
     F.interface({
       title: NonEmptyString(F),
+
       members: F.array(Member(F)),
       ownerId: UserId(F),
       // tasks: F.array(TaskOrVirtualTask(F))
@@ -188,11 +198,11 @@ export const SharableTaskList = opaque<SharableTaskListE, SharableTaskList>()(
 //   })
 // )
 
-export const TaskListOrVirtual = makeADT("_tag")({
+const TaskListOrVirtual_ = makeADT("_tag")({
   TaskList: SharableTaskList,
   //VirtualTaskList,
 })
-export type TaskListOrVirtual = AType<typeof TaskListOrVirtual>
+export type TaskListOrVirtual = AType<typeof TaskListOrVirtual_>
 
 export const TaskLists = make((F) => F.array(TaskListOrVirtual(F)))
 export type TaskLists = AType<typeof TaskLists>
@@ -203,7 +213,7 @@ const TaskListGroup_ = make((F) =>
     id: TaskListId(F),
     title: NonEmptyString(F),
     ownerId: UserId(F),
-    //lists: TaskLists(F),
+    lists: F.array(TaskListId(F)),
     _tag: F.stringLiteral("TaskListGroup"),
   })
 )
@@ -211,22 +221,80 @@ export interface TaskListGroup extends AType<typeof TaskListGroup_> {}
 export interface TaskListGroupE extends EType<typeof TaskListGroup_> {}
 export const TaskListGroup = opaque<TaskListGroupE, TaskListGroup>()(TaskListGroup_)
 
-export const TaskListOrGroup = makeADT("_tag")({
+const TaskListOrGroup_ = makeADT("_tag")({
   TaskListGroup,
   TaskList: SharableTaskList,
   //VirtualTaskList,
 })
 
-export type TaskListOrGroup = AType<typeof TaskListOrGroup>
+export const TaskListOrGroup = extendM(TaskListOrGroup_, ({ as, of }) => ({
+  as: {
+    ...as,
+    TaskList: ({
+      order,
+      ...a
+    }: Omit<SharableTaskList, "_tag" | "order"> &
+      Partial<Pick<SharableTaskList, "order">>) =>
+      as.TaskList({ ...a, order: order ?? [] }),
+  },
+  of: {
+    ...of,
+    TaskList: ({
+      order,
+      ...a
+    }: Omit<SharableTaskList, "_tag" | "order"> &
+      Partial<Pick<SharableTaskList, "order">>) =>
+      of.TaskList({ ...a, order: order ?? [] }),
+  },
+}))
+
+export const TaskListOrVirtual = extendM(TaskListOrVirtual_, ({ as, of }) => ({
+  as: {
+    ...as,
+    TaskList: ({
+      order,
+      ...a
+    }: Omit<SharableTaskList, "_tag" | "order"> &
+      Partial<Pick<SharableTaskList, "order">>) =>
+      as.TaskList({ ...a, order: order ?? [] }),
+  },
+  of: {
+    ...of,
+    TaskList: ({
+      order,
+      ...a
+    }: Omit<SharableTaskList, "_tag" | "order"> &
+      Partial<Pick<SharableTaskList, "order">>) =>
+      of.TaskList({ ...a, order: order ?? [] }),
+  },
+}))
+
+export type TaskListOrGroup = AType<typeof TaskListOrGroup_>
 
 const User_ = make((F) =>
   F.interface({
     id: UserId(F),
     name: NonEmptyString(F),
-    order: F.array(TaskId(F)),
+    inboxOrder: F.array(TaskId(F)),
+    myDay: F.array(F.interface({ id: TaskId(F), date: F.date() /* position */ })),
+
+    // TODO: or do reminders depend on the assignee?
+    //reminders: F.array(F.interface({ id: TaskId(F), date: F.date() })),
   })
 )
 
 export interface User extends AType<typeof User_> {}
 export interface UserE extends EType<typeof User_> {}
-export const User = opaque<UserE, User>()(User_)
+const User__ = opaque<UserE, User>()(User_)
+export const User = Object.assign(User__, {
+  create: (
+    _: Pick<User, "id" | "name"> & Partial<Pick<User, "myDay" | "inboxOrder">>
+  ) =>
+    User__.build({
+      ..._,
+      myDay: _.myDay ?? [],
+      inboxOrder: _.inboxOrder ?? [],
+    }),
+  getMyDay: (u: User, t: Task) =>
+    A.findFirst_(u.myDay, (x) => x.id === t.id)["|>"](O.map((m) => m.date)),
+})

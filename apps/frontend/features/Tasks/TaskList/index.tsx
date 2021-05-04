@@ -1,7 +1,9 @@
+import * as TodoClient from "@effect-ts-demo/todo-client"
 import * as NA from "@effect-ts/core/Collections/Immutable/NonEmptyArray"
 import { flow } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import * as ORD from "@effect-ts/core/Ord"
+import { Ord } from "@effect-ts/core/Ord"
 import { Box, Button, IconButton, Typography } from "@material-ui/core"
 import ArrowDown from "@material-ui/icons/ArrowDownward"
 import ArrowUp from "@material-ui/icons/ArrowUpward"
@@ -16,15 +18,7 @@ import { useServiceContext } from "@/context"
 import { memo, withLoading } from "@/data"
 import { renderIf_, toUpperCaseFirst } from "@/utils"
 
-import {
-  filterByCategory,
-  OrderDir,
-  orders,
-  Ordery,
-  useGetTask,
-  useNewTask,
-  useTasks,
-} from "../data"
+import { useGetTask, useMe, useModifyMe, useNewTask, useTasks } from "../data"
 import { useRouting } from "../routing"
 
 import TaskList from "./TaskList"
@@ -33,16 +27,20 @@ import { TaskListMenu } from "./TaskListMenu"
 import * as A from "@effect-ts-demo/core/ext/Array"
 import * as T from "@effect-ts-demo/core/ext/Effect"
 import * as EO from "@effect-ts-demo/core/ext/EffectOption"
-import { NonEmptyString } from "@effect-ts-demo/core/ext/Model"
-import { TaskListId } from "@effect-ts-demo/todo-types/Task"
+import { NonEmptyString, UUID } from "@effect-ts-demo/core/ext/Model"
+import { TaskId, TaskListId } from "@effect-ts-demo/todo-types/Task"
 
 const TaskListView = memo(function ({
   category,
   order,
 }: {
   category: NonEmptyString
-  order: O.Option<Ordery>
+  order: O.Option<Todo.Ordery>
 }) {
+  const [meResult] = useMe()
+  const modifyMe = useModifyMe()
+  const { runWithErrorLog } = useServiceContext()
+
   const [tasksResult1, , refetchTasks] = useTasks()
   const isDynamicCategory = category === "my-day" || category === "important"
   const tasksResult = tasksResult1
@@ -77,22 +75,59 @@ const TaskListView = memo(function ({
     [addNewTask, getTask, isLoading, runPromise, setSelectedTaskId]
   )
   const isRefreshing = datumEither.isRefresh(tasksResult)
-  function toggleDirection(dir: OrderDir) {
+  function toggleDirection(dir: Todo.OrderDir) {
     setDirection(dir === "up" ? "down" : "up")
   }
 
   function renderTasks(unfilteredTasks: A.Array<Todo.Task>) {
-    const tasks = unfilteredTasks["|>"](filterByCategory(category))["|>"](
-      A.sortByO(
-        order["|>"](
-          O.map((o) =>
-            NA.single(orders[o.kind])["|>"](
-              NA.map((ord) => (o.dir === "down" ? ORD.inverted(ord) : ord))
+    const listOrders = datumEither.isSuccess(meResult)
+      ? category === "tasks"
+        ? meResult.value.right.inboxOrder
+        : A.findFirstMap_(meResult.value.right.lists, (l) =>
+            l._tag === "TaskList" && l.id === category ? O.some(l.order) : O.none
+          )["|>"](O.getOrElse(() => []))
+      : []
+    const tasks = unfilteredTasks["|>"](Todo.filterByCategory(category))
+      ["|>"](A.reverse)
+      ["|>"](
+        A.sortBy(
+          order["|>"](
+            O.map((o) =>
+              NA.single(Todo.orders[o.kind])["|>"](
+                NA.map((ord) => (o.dir === "down" ? ORD.inverted(ord) : ord))
+              )
             )
-          )
+          )["|>"](O.getOrElse(() => NA.single(makeOrderBySortingArrOrd(listOrders))))
         )
       )
-    )
+
+    function reorder(tid: TaskId, did: TaskId) {
+      // TODO: other custom view support
+      if (Todo.TaskViews.includes(category as any)) {
+        return
+      }
+
+      const t = tasks.find((x) => x.id === tid)!
+      const d = tasks.find((x) => x.id === did)!
+      const didx = tasks.findIndex((x) => x === d)
+      const reorder = Todo.updateTaskIndex(t, didx)
+      const reorderedTasks = reorder(tasks)
+      const order = A.map_(reorderedTasks, (t) => t.id)
+      modifyMe((r) => ({
+        ...r,
+        ...(category === "tasks"
+          ? { inboxOrder: order }
+          : {
+              lists: A.map_(r.lists, (l) =>
+                l.id === category && l._tag === "TaskList" ? { ...l, order } : l
+              ),
+            }),
+      }))
+      TodoClient.Tasks.setTasksOrder({
+        listId: category === "tasks" ? "inbox" : (category as any),
+        order,
+      })["|>"](runWithErrorLog)
+    }
 
     return (
       <>
@@ -121,7 +156,11 @@ const TaskListView = memo(function ({
         ))}
 
         <Box flexGrow={1} overflow="auto">
-          <TaskList setSelectedTaskId={setSelectedTaskId} tasks={tasks} />
+          <TaskList
+            reorder={reorder}
+            setSelectedTaskId={setSelectedTaskId}
+            tasks={tasks}
+          />
         </Box>
 
         <Box>
@@ -154,12 +193,25 @@ const TaskListOrNone = ({
   order,
 }: {
   category: O.Option<NonEmptyString>
-  order: O.Option<Ordery>
+  order: O.Option<Todo.Ordery>
 }) =>
   O.fold_(
     category,
     () => <>List not found</>,
     (category) => <TaskListView category={category} order={order} />
   )
+
+// function orderTasks(a: A.Array<Task>, order: A.Array<UUID>) {
+//   return A.reverse(a)["|>"](A.sort(makeOrderBySortingArrOrd(order)))
+// }
+
+function makeOrderBySortingArrOrd(sortingArr: A.Array<UUID>): Ord<Todo.Task> {
+  return {
+    compare: (a, b) => {
+      const diff = sortingArr.indexOf(a.id) - sortingArr.indexOf(b.id)
+      return diff > 1 ? 1 : diff < 0 ? -1 : 0
+    },
+  }
+}
 
 export default TaskListOrNone

@@ -1,4 +1,11 @@
-import { Task, TaskId, TaskListOrGroup, User, UserId } from "@effect-ts-demo/todo-types"
+import {
+  Task,
+  TaskId,
+  TaskListId,
+  TaskListOrGroup,
+  User,
+  UserId,
+} from "@effect-ts-demo/todo-types"
 import { Has } from "@effect-ts/core"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as Chunk from "@effect-ts/core/Collections/Immutable/Chunk"
@@ -8,11 +15,9 @@ import * as L from "@effect-ts/core/Effect/Layer"
 import * as Ref from "@effect-ts/core/Effect/Ref"
 import { flow, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
-import { Ord } from "@effect-ts/core/Ord"
 import * as Sy from "@effect-ts/core/Sync"
 import { _A } from "@effect-ts/core/Utils"
 import { M } from "@effect-ts/morphic"
-import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
 import { encode } from "@effect-ts/morphic/Encoder"
 import { strict } from "@effect-ts/morphic/Strict"
 import { strictDecoder } from "@effect-ts/morphic/StrictDecoder"
@@ -25,7 +30,7 @@ import * as EO from "@effect-ts-demo/core/ext/EffectOption"
 
 const [decodeUser, encodeUser, encodeUsersToMap] = makeCodec(User)
 const [decodeTask, encodeTask, encodeTasksToMap] = makeCodec(Task)
-const [decodeList, , encodeListsToMap] = makeCodec(TaskListOrGroup)
+const [decodeList, encodeList, encodeListsToMap] = makeCodec(TaskListOrGroup)
 
 const makeMockTaskContext = T.gen(function* ($) {
   const { lists, tasks, users } = yield* $(makeTestData)
@@ -84,17 +89,23 @@ const makeMockTaskContext = T.gen(function* ($) {
       T.chain(({ encT, tasks }) => tasksRef.set(tasks["|>"](Map.insert(t.id, encT))))
     )
 
+  const addUser = (t: User) =>
+    pipe(
+      T.structPar({ encT: encodeUser(t), users: usersRef.get }),
+      T.chain(({ encT, users }) => usersRef.set(users["|>"](Map.insert(t.id, encT))))
+    )
+
   const del = (id: TaskId) =>
     pipe(
       T.tuple(tasksRef.get, get(id)),
       T.chain(({ tuple: [tasks] }) => tasksRef.set(tasks["|>"](Map.remove(id))))
     )
 
-  const getOrder = (uid: UserId) =>
-    pipe(
-      getUser(uid),
-      T.map((u) => u.order)
-    )
+  //   const getOrder = (uid: UserId) =>
+  //     pipe(
+  //       getUser(uid),
+  //       T.map((u) => u.order)
+  //     )
 
   const all = (userId: UserId) =>
     pipe(
@@ -132,6 +143,10 @@ const makeMockTaskContext = T.gen(function* ($) {
     find,
     get,
     all,
+    updateUser: (id: UserId, mod: (a: User) => User) =>
+      pipe(getUser(id), T.map(mod), T.chain(addUser)),
+    updateUserM: <R, E>(id: UserId, mod: (a: User) => T.Effect<R, E, User>) =>
+      pipe(getUser(id), T.chain(mod), T.chain(addUser)),
     update: (id: TaskId, mod: (a: Task) => Task) =>
       pipe(get(id), T.map(mod), T.chain(add)),
     updateM: <R, E>(id: TaskId, mod: (a: Task) => T.Effect<R, E, Task>) =>
@@ -139,34 +154,33 @@ const makeMockTaskContext = T.gen(function* ($) {
     add,
     delete: del,
     remove: (t: Task) => del(t.id),
-    getOrder,
-    setOrder: (uid: UserId, order: A.Array<TaskId>) =>
-      pipe(
-        getUser(uid),
-        T.map((u) => ({ ...u, order })),
-        T.chain(encodeUser),
-        T.chain((u) => Ref.update_(usersRef, Map.insert(uid, u)))
-      ),
-    allOrdered: (userId: UserId) =>
-      pipe(
-        T.structPar({ tasks: all(userId), order: getOrder(userId) }),
-        T.map(({ order, tasks }) => orderTasks(tasks["|>"](Chunk.toArray), order))
-      ),
+    //getOrder,
+    setOrder: (uid: UserId, tlid: TaskListId, order: A.Array<TaskId>) =>
+      tlid === "inbox"
+        ? pipe(
+            getUser(uid),
+            T.map((u) => ({ ...u, inboxOrder: order })),
+            T.chain(encodeUser),
+            T.chain((u) => Ref.update_(usersRef, Map.insert(uid, u)))
+          )
+        : pipe(
+            allLists(uid),
+            T.map(Chunk.find((x) => x.id === tlid)),
+            EO.map((l) => ({ ...l, order })),
+            EO.chain(flow(encodeList, EO.fromEffect)),
+            EO.chain((u) =>
+              Ref.update_(listsRef, Map.insert(tlid as TaskListId, u))["|>"](
+                EO.fromEffect
+              )
+            )
+          ),
+    // allOrdered: (userId: UserId) =>
+    //   pipe(
+    //     T.structPar({ tasks: all(userId), order: getOrder(userId) }),
+    //     T.map(({ order, tasks }) => orderTasks(tasks["|>"](Chunk.toArray), order))
+    //   ),
   }
 })
-
-function orderTasks(a: A.Array<Task>, order: A.Array<UUID>) {
-  return A.reverse(a)["|>"](A.sort(makeOrderBySortingArrOrd(order)))
-}
-
-function makeOrderBySortingArrOrd(sortingArr: A.Array<UUID>): Ord<Task> {
-  return {
-    compare: (a, b) => {
-      const diff = sortingArr.indexOf(a.id) - sortingArr.indexOf(b.id)
-      return diff > 1 ? 1 : diff < 0 ? -1 : 0
-    },
-  }
-}
 
 export interface TaskContext extends _A<typeof makeMockTaskContext> {}
 export const TaskContext = Has.tag<TaskContext>()
@@ -174,25 +188,27 @@ export const MockTaskContext = L.fromEffect(TaskContext)(makeMockTaskContext)
 
 export const {
   add,
+  all,
   allLists,
-  allOrdered,
   find,
   get,
   getUser,
   remove,
   setOrder,
   update,
+  updateUser,
 } = T.deriveLifted(TaskContext)(
   [
     "allLists",
+    "all",
     "add",
     "get",
     "getUser",
     "find",
     "remove",
-    "allOrdered",
     "setOrder",
     "update",
+    "updateUser",
   ],
   [],
   []
@@ -207,6 +223,13 @@ export function updateM<R, E>(id: TaskId, mod: (a: Task) => T.Effect<R, E, Task>
   return T.gen(function* ($) {
     const { updateM } = yield* $(TaskContext)
     return updateM(id, mod)
+  })
+}
+
+export function updateUserM<R, E>(id: UserId, mod: (a: User) => T.Effect<R, E, User>) {
+  return T.gen(function* ($) {
+    const { updateUserM } = yield* $(TaskContext)
+    return updateUserM(id, mod)
   })
 }
 

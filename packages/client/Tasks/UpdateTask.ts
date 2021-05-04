@@ -1,5 +1,9 @@
 import { Void } from "@effect-ts-demo/core/ext/Model"
-import { EditableTaskProps, TaskId } from "@effect-ts-demo/todo-types"
+import {
+  EditablePersonalTaskProps,
+  EditableTaskProps,
+  TaskId,
+} from "@effect-ts-demo/todo-types"
 import { make, AType, EType, opaque } from "@effect-ts/morphic"
 
 const RequestPath_ = make((F) =>
@@ -7,7 +11,9 @@ const RequestPath_ = make((F) =>
     id: TaskId(F),
   })
 )
-const RequestBody_ = make((F) => F.partial(EditableTaskProps(F)))
+const RequestBody_ = make((F) =>
+  F.partial({ ...EditableTaskProps(F), ...EditablePersonalTaskProps(F) })
+)
 const Request_ = make((F) => F.intersection(RequestPath_(F), RequestBody_(F))())
 
 export interface Request extends AType<typeof Request_> {}
