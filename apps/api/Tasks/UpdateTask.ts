@@ -1,11 +1,10 @@
-import { Task } from "@effect-ts-demo/todo-types"
+import { Task, User } from "@effect-ts-demo/todo-types"
 import * as T from "@effect-ts/core/Effect"
 import { Lens } from "@effect-ts/monocle"
 
 import { UserSVC } from "@/services"
 
 import * as TaskContext from "./TaskContext"
-import { toggleMyDay } from "./shared"
 
 import { Request, Response } from "@effect-ts-demo/todo-client/Tasks/UpdateTask"
 
@@ -26,7 +25,7 @@ export const handle = ({ id, myDay, ..._ }: Request) =>
       )
     )
     if (myDay) {
-      yield* $(myDay["|>"](toggleMyDay(u.id, id)))
+      yield* $(TaskContext.updateUser(u.id, User.toggleMyDay(id, myDay)))
     }
   })
 

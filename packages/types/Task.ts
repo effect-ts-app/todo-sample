@@ -12,6 +12,7 @@ import {
 import { extendM } from "@effect-ts-demo/core/ext/utils"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as O from "@effect-ts/core/Option"
+import { Option } from "@effect-ts/core/Option"
 import * as Lens from "@effect-ts/monocle/Lens"
 import { CoreAlgebra } from "@effect-ts/morphic/Batteries/program"
 import { BaseFC } from "@effect-ts/morphic/FastCheck/base"
@@ -297,6 +298,22 @@ export const User = Object.assign(User__, {
       myDay: _.myDay ?? [],
       inboxOrder: _.inboxOrder ?? [],
     }),
-  getMyDay: (u: User, t: Task) =>
+  getMyDay: (t: Task) => (u: User) =>
     A.findFirst_(u.myDay, (x) => x.id === t.id)["|>"](O.map((m) => m.date)),
+  addToMyDay: (id: TaskId, date: Date) => (u: User) => ({
+    ...u,
+    myDay: A.findIndex_(u.myDay, (m) => m.id === id)
+      ["|>"](O.chain((idx) => A.modifyAt_(u.myDay, idx, (m) => ({ ...m, date }))))
+      ["|>"](O.getOrElse(() => A.snoc_(u.myDay, { id, date }))),
+  }),
+  removeFromMyDay: (id: TaskId) => (u: User) => ({
+    ...u,
+    myDay: u.myDay["|>"](A.filter((m) => m.id !== id)),
+  }),
+  toggleMyDay: (id: TaskId, myDay: Option<Date>) =>
+    O.fold_(
+      myDay,
+      () => User.removeFromMyDay(id),
+      (date) => User.addToMyDay(id, date)
+    ),
 })

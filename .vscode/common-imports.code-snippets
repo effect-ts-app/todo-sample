@@ -177,7 +177,7 @@
     "Option": {
         "prefix": "+O",
         "body": [
-            "import * as O from \"@effect-ts/core/Option\""
+            "import * as O from \"@effect-ts-demo/core/ext/Option\""
         ],
         "description": "Option as O"
     },

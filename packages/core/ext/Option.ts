@@ -10,7 +10,7 @@ export * from "@effect-ts/core/Option"
  */
 export function p<T, K extends KeysMatching<T, O.Option<any>>>(
   k: K
-): (v: O.Option<T>) => O.Option<GetOptionType<T[K]>>
+): (v: O.Option<T>) => O.Option<_A<T[K]>>
 export function p<T, K extends keyof T>(k: K): (v: O.Option<T>) => O.Option<T[K]>
 export function p(k: any) {
   return (v: any) => O.chain_<any, any>(v, (a) => convert(a[k]))
@@ -18,7 +18,7 @@ export function p(k: any) {
 function convert(a: any) {
   return O.isSome(a) || O.isNone(a) ? a : O.fromNullable(a)
 }
-type GetOptionType<A> = A extends O.Some<infer Y> ? Y : never
+export type _A<A> = A extends O.Some<infer Y> ? Y : never
 type KeysMatching<T, V> = { [K in keyof T]: T[K] extends V ? K : never }[keyof T]
 
 export const toBool = O.fold(
