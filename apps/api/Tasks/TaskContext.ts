@@ -42,7 +42,7 @@ const makeMockTaskContext = T.gen(function* ($) {
     pipe(
       usersRef.get,
       T.map((users) => O.fromNullable(users.get(id))),
-      EO.chain(flow(decodeUser, EO.fromEffect))
+      EO.chainEffect(decodeUser)
     )
 
   const getUser = (id: UserId) =>
@@ -74,7 +74,7 @@ const makeMockTaskContext = T.gen(function* ($) {
     pipe(
       tasksRef.get,
       T.map((tasks) => O.fromNullable(tasks.get(id))),
-      EO.chain(flow(decodeTask, EO.fromEffect))
+      EO.chainEffect(decodeTask)
     )
 
   const get = (id: TaskId) =>
@@ -100,12 +100,6 @@ const makeMockTaskContext = T.gen(function* ($) {
       T.tuple(tasksRef.get, get(id)),
       T.chain(({ tuple: [tasks] }) => tasksRef.set(tasks["|>"](Map.remove(id))))
     )
-
-  //   const getOrder = (uid: UserId) =>
-  //     pipe(
-  //       getUser(uid),
-  //       T.map((u) => u.order)
-  //     )
 
   const all = (userId: UserId) =>
     pipe(
@@ -154,7 +148,6 @@ const makeMockTaskContext = T.gen(function* ($) {
     add,
     delete: del,
     remove: (t: Task) => del(t.id),
-    //getOrder,
     setOrder: (uid: UserId, tlid: TaskListId, order: A.Array<TaskId>) =>
       tlid === "inbox"
         ? pipe(
@@ -167,18 +160,11 @@ const makeMockTaskContext = T.gen(function* ($) {
             allLists(uid),
             T.map(Chunk.find((x) => x.id === tlid)),
             EO.map((l) => ({ ...l, order })),
-            EO.chain(flow(encodeList, EO.fromEffect)),
-            EO.chain((u) =>
-              Ref.update_(listsRef, Map.insert(tlid as TaskListId, u))["|>"](
-                EO.fromEffect
-              )
+            EO.chainEffect(encodeList),
+            EO.chainEffect((u) =>
+              Ref.update_(listsRef, Map.insert(tlid as TaskListId, u))
             )
           ),
-    // allOrdered: (userId: UserId) =>
-    //   pipe(
-    //     T.structPar({ tasks: all(userId), order: getOrder(userId) }),
-    //     T.map(({ order, tasks }) => orderTasks(tasks["|>"](Chunk.toArray), order))
-    //   ),
   }
 })
 

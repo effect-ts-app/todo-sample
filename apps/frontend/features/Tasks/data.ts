@@ -326,7 +326,7 @@ export function useTaskCommands(id: UUID) {
       return (note: string | null) =>
         pipe(
           EO.fromNullable(note),
-          EO.chain(flow(NonEmptyString.parse_, EO.fromEffect)),
+          EO.chainEffect(NonEmptyString.parse_),
           T.chain((note) => updateAndRefreshTask({ id: t.id, note }))
         )
     }

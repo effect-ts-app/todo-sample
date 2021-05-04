@@ -1,12 +1,12 @@
 import { Task } from "@effect-ts-demo/todo-types"
 import * as T from "@effect-ts/core/Effect"
-import * as O from "@effect-ts/core/Option"
 
 import { UserSVC } from "@/services"
 
 import * as TaskContext from "./TaskContext"
 import { addMyDay } from "./shared"
 
+import * as EO from "@effect-ts-demo/core/ext/EffectOption"
 import { Request, Response } from "@effect-ts-demo/todo-client/Tasks/CreateTask"
 
 export const handle = ({ myDay, ..._ }: Request) =>
@@ -15,9 +15,7 @@ export const handle = ({ myDay, ..._ }: Request) =>
 
     const t = Task.create({ ..._, createdBy: u.id, steps: [] })
     yield* $(TaskContext.add(t))
-    if (O.isSome(myDay)) {
-      yield* $(myDay.value["|>"](addMyDay(u.id, t.id)))
-    }
+    yield* $(EO.fromOption(myDay)["|>"](EO.chainEffect(addMyDay(u.id, t.id))))
 
     return { id: t.id }
   })
