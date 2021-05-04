@@ -28,7 +28,8 @@ import * as A from "@effect-ts-demo/core/ext/Array"
 import * as T from "@effect-ts-demo/core/ext/Effect"
 import * as EO from "@effect-ts-demo/core/ext/EffectOption"
 import { NonEmptyString, UUID } from "@effect-ts-demo/core/ext/Model"
-import { TaskId, TaskListId } from "@effect-ts-demo/todo-types/Task"
+
+const isTaskList = TodoClient.Temp.GetMe.TaskListEntryOrGroup.is.TaskList
 
 const TaskListView = memo(function ({
   category,
@@ -52,7 +53,7 @@ const TaskListView = memo(function ({
   const [newResult, addNewTask] = useNewTask(
     category,
     !isDynamicCategory && category !== "tasks"
-      ? ((category as any) as TaskListId)
+      ? ((category as any) as Todo.TaskListId)
       : undefined
   )
   const [findResult, getTask] = useGetTask()
@@ -84,7 +85,7 @@ const TaskListView = memo(function ({
       ? category === "tasks"
         ? meResult.value.right.inboxOrder
         : A.findFirstMap_(meResult.value.right.lists, (l) =>
-            l._tag === "TaskList" && l.id === category ? O.some(l.order) : O.none
+            isTaskList(l) && l.id === category ? O.some(l.order) : O.none
           )["|>"](O.getOrElse(() => []))
       : []
     const tasks = unfilteredTasks["|>"](Todo.filterByCategory(category))
@@ -101,7 +102,7 @@ const TaskListView = memo(function ({
         )
       )
 
-    function reorder(tid: TaskId, did: TaskId) {
+    function reorder(tid: Todo.TaskId, did: Todo.TaskId) {
       // TODO: other custom view support
       if (Todo.TaskViews.includes(category as any)) {
         return
@@ -119,7 +120,7 @@ const TaskListView = memo(function ({
           ? { inboxOrder: order }
           : {
               lists: A.map_(r.lists, (l) =>
-                l.id === category && l._tag === "TaskList" ? { ...l, order } : l
+                l.id === category && isTaskList(l) ? { ...l, order } : l
               ),
             }),
       }))

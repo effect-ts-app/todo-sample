@@ -64,7 +64,7 @@ const FolderListView = ({ category }: { category: O.Option<NonEmptyString> }) =>
                   ...l,
                   lists: lists["|>"](
                     A.filterMap((x) =>
-                      x._tag === "TaskList" &&
+                      TaskListEntryOrGroup.is.TaskList(x) &&
                       x.parentListId["|>"](O.getOrElse(() => "")) === l.id
                         ? O.some(x)
                         : O.none

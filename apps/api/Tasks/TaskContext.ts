@@ -1,4 +1,5 @@
 import {
+  SharableTaskList,
   Task,
   TaskId,
   TaskListId,
@@ -17,6 +18,7 @@ import { flow, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import * as Sy from "@effect-ts/core/Sync"
 import { _A } from "@effect-ts/core/Utils"
+import * as Lens from "@effect-ts/monocle/Lens"
 import { M } from "@effect-ts/morphic"
 import { encode } from "@effect-ts/morphic/Encoder"
 import { strict } from "@effect-ts/morphic/Strict"
@@ -148,18 +150,26 @@ const makeMockTaskContext = T.gen(function* ($) {
     add,
     delete: del,
     remove: (t: Task) => del(t.id),
+    // TODO: break this apart to be done in Usecase space?
+    // getList+updateList
+    // getUser+updateUser
     setOrder: (uid: UserId, tlid: TaskListId, order: A.Array<TaskId>) =>
       tlid === "inbox"
         ? pipe(
             getUser(uid),
-            T.map((u) => ({ ...u, inboxOrder: order })),
+            T.map(User.lens["|>"](Lens.prop("inboxOrder")).set(order)),
             T.chain(encodeUser),
             T.chain((u) => Ref.update_(usersRef, Map.insert(uid, u)))
           )
         : pipe(
             allLists(uid),
-            T.map(Chunk.find((x) => x.id === tlid)),
-            EO.map((l) => ({ ...l, order })),
+            T.map(
+              Chunk.filterMap((x) =>
+                TaskListOrGroup.is.TaskList(x) && x.id === tlid ? O.some(x) : O.none
+              )
+            ),
+            T.map(Chunk.get(0)),
+            EO.map(SharableTaskList.lens["|>"](Lens.prop("order")).set(order)),
             EO.chainEffect(encodeList),
             EO.chainEffect((u) =>
               Ref.update_(listsRef, Map.insert(tlid as TaskListId, u))
