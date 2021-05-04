@@ -12,7 +12,7 @@ export const handle = ({ id, myDay, ..._ }: Request) =>
   T.gen(function* ($) {
     const u = yield* $(UserSVC.UserEnv)
 
-    yield* $(
+    const t = yield* $(
       TaskContext.update(
         id,
         Task.lens["|>"](
@@ -25,7 +25,7 @@ export const handle = ({ id, myDay, ..._ }: Request) =>
       )
     )
     if (myDay) {
-      yield* $(TaskContext.updateUser(u.id, User.toggleMyDay(id, myDay)))
+      yield* $(TaskContext.updateUser(u.id, User.toggleMyDay(t, myDay)))
     }
   })
 

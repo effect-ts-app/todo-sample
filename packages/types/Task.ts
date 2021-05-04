@@ -101,8 +101,8 @@ export interface TaskE extends EType<typeof Task_> {}
 const TaskO = opaque<TaskE, Task>()(Task_)
 export const Task = Object.assign(TaskO, {
   create: (
-    a: Pick<Task, "title" | "steps" | "createdBy"> &
-      Partial<Pick<Task, "isFavorite" | "listId">>
+    a: Pick<Task, "title" | "createdBy"> &
+      Partial<Pick<Task, "isFavorite" | "listId" | "steps">>
   ) => {
     const createdAt = new Date()
     return Task.build({
@@ -116,6 +116,8 @@ export const Task = Object.assign(TaskO, {
 
       isFavorite: a.isFavorite ?? false,
       listId: a.listId ?? "inbox",
+
+      steps: a.steps ?? [],
 
       id: makeUuid(),
       createdAt,
@@ -298,22 +300,25 @@ export const User = Object.assign(User__, {
       myDay: _.myDay ?? [],
       inboxOrder: _.inboxOrder ?? [],
     }),
+
+  createTask: (a: Omit<Parameters<typeof Task.create>[0], "createdBy">) => (u: User) =>
+    Task.create({ ...a, createdBy: u.id }),
   getMyDay: (t: Task) => (u: User) =>
     A.findFirst_(u.myDay, (x) => x.id === t.id)["|>"](O.map((m) => m.date)),
-  addToMyDay: (id: TaskId, date: Date) => (u: User) => ({
+  addToMyDay: (t: Task, date: Date) => (u: User) => ({
     ...u,
-    myDay: A.findIndex_(u.myDay, (m) => m.id === id)
+    myDay: A.findIndex_(u.myDay, (m) => m.id === t.id)
       ["|>"](O.chain((idx) => A.modifyAt_(u.myDay, idx, (m) => ({ ...m, date }))))
-      ["|>"](O.getOrElse(() => A.snoc_(u.myDay, { id, date }))),
+      ["|>"](O.getOrElse(() => A.snoc_(u.myDay, { id: t.id, date }))),
   }),
-  removeFromMyDay: (id: TaskId) => (u: User) => ({
+  removeFromMyDay: (t: Task) => (u: User) => ({
     ...u,
-    myDay: u.myDay["|>"](A.filter((m) => m.id !== id)),
+    myDay: u.myDay["|>"](A.filter((m) => m.id !== t.id)),
   }),
-  toggleMyDay: (id: TaskId, myDay: Option<Date>) =>
+  toggleMyDay: (t: Task, myDay: Option<Date>) =>
     O.fold_(
       myDay,
-      () => User.removeFromMyDay(id),
-      (date) => User.addToMyDay(id, date)
+      () => User.removeFromMyDay(t),
+      (date) => User.addToMyDay(t, date)
     ),
 })
