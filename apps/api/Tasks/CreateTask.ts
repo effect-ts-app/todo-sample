@@ -4,7 +4,7 @@ import * as T from "@effect-ts/core/Effect"
 import { UserSVC } from "@/services"
 
 import * as TaskContext from "./TaskContext"
-import { addMyDay } from "./shared"
+import { addToMyDay } from "./shared"
 
 import * as EO from "@effect-ts-demo/core/ext/EffectOption"
 import { Request, Response } from "@effect-ts-demo/todo-client/Tasks/CreateTask"
@@ -15,7 +15,7 @@ export const handle = ({ myDay, ..._ }: Request) =>
 
     const t = Task.create({ ..._, createdBy: u.id, steps: [] })
     yield* $(TaskContext.add(t))
-    yield* $(EO.fromOption(myDay)["|>"](EO.chainEffect(addMyDay(u.id, t.id))))
+    yield* $(EO.fromOption(myDay)["|>"](EO.chainEffect(addToMyDay(u.id, t.id))))
 
     return { id: t.id }
   })

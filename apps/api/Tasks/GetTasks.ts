@@ -7,6 +7,7 @@ import * as TaskContext from "./TaskContext"
 import { getLoggedInUser } from "./shared"
 
 import { Request, Response } from "@effect-ts-demo/todo-client/Tasks/GetTasks"
+
 export const handle = (_: Request) =>
   T.gen(function* ($) {
     const u = yield* $(getLoggedInUser)
