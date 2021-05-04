@@ -30,11 +30,6 @@ const FolderListView = ({ category }: { category: O.Option<NonEmptyString> }) =>
   const folders = React.useMemo(
     () =>
       [
-        Todo.FolderListADT.of.TaskListView({
-          title: "Tasks" as NonEmptyString,
-          slug: "tasks",
-          count: unfilteredTasks["|>"](filterByCategory("inbox")).length,
-        }),
         ...TaskViews["|>"](
           A.map((c) => ({
             slug: c as NonEmptyString,
@@ -49,6 +44,11 @@ const FolderListView = ({ category }: { category: O.Option<NonEmptyString> }) =>
             })
           )
         ),
+        Todo.FolderListADT.of.TaskListView({
+          title: "Tasks" as NonEmptyString,
+          slug: "tasks",
+          count: unfilteredTasks["|>"](filterByCategory("inbox")).length,
+        }),
         ...lists["|>"](
           A.filter((x) => x._tag !== "TaskList" || O.isNone(x.parentListId))
         )["|>"](

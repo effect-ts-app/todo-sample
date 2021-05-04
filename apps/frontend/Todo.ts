@@ -1,5 +1,5 @@
 import { TaskListId } from "@effect-ts-demo/todo-types"
-import { constant, flow } from "@effect-ts/core/Function"
+import { constant, flow, identity } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import * as ORD from "@effect-ts/core/Ord"
 import { Lens } from "@effect-ts/monocle"
@@ -112,7 +112,7 @@ export type TaskListView = AType<typeof TaskListView>
 export const FolderListADT = makeADT("_tag")({ TaskList, TaskListGroup, TaskListView })
 export type FolderListADT = AType<typeof FolderListADT>
 
-export const TaskViews = ["important", "my-day"] as const
+export const TaskViews = ["my-day", "important", "planned", "all"] as const
 export const TaskView = make((F) => F.keysOf(makeKeys(TaskViews)))
 export type TaskView = AType<typeof TaskView>
 
@@ -151,6 +151,8 @@ export type Ordery = AType<typeof Ordery>
 
 export function filterByCategory(category: TaskView | string) {
   switch (category) {
+    case "planned":
+      return A.filter((t: Todo.Task) => O.isSome(t.due))
     case "important":
       return A.filter((t: Todo.Task) => t.isFavorite)
     case "my-day": {
@@ -161,6 +163,9 @@ export function filterByCategory(category: TaskView | string) {
     }
     case "tasks": {
       return A.filter((t: Todo.Task) => t.listId === "inbox")
+    }
+    case "all": {
+      return identity
     }
     default:
       return A.filter((t: Todo.Task) => t.listId === category)

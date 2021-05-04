@@ -68,7 +68,7 @@ export const makeTestData = Sy.gen(function* ($) {
           name: yield* $(NonEmptyString.decode_("Mike Arnaldi")),
         },
         {
-          id: yield* $(UserId.decode_(3)),
+          id: markusId,
           name: yield* $(NonEmptyString.decode_("Markus Nomizz")),
         },
       ],

@@ -43,7 +43,7 @@ const TaskListView = memo(function ({
   const { runWithErrorLog } = useServiceContext()
 
   const [tasksResult1, , refetchTasks] = useTasks()
-  const isDynamicCategory = category === "my-day" || category === "important"
+  const isDynamicCategory = Todo.TaskViews.includes(category as any)
   const tasksResult = tasksResult1
   useInterval(() => refetchTasks, 30 * 1000)
   // testing for multi-call relying on same network-call/cache.

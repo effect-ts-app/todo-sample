@@ -1,7 +1,9 @@
 /* eslint-disable react/display-name */
 import * as O from "@effect-ts/core/Option"
 import { Box, List, ListItem, ListItemIcon, ListItemText } from "@material-ui/core"
+import Balance from "@material-ui/icons/AccountBalance"
 import CalendarToday from "@material-ui/icons/CalendarToday"
+import Calendar from "@material-ui/icons/CalendarViewMonth"
 import Home from "@material-ui/icons/Home"
 import Star from "@material-ui/icons/Star"
 import Link from "next/link"
@@ -13,7 +15,9 @@ import { memo } from "@/data"
 import { NonEmptyString } from "@effect-ts-demo/core/ext/Model"
 
 const icons: Record<string, JSX.Element> = {
+  all: <Balance />,
   tasks: <Home />,
+  planned: <Calendar />,
   important: <Star />,
   "my-day": <CalendarToday />,
 }
