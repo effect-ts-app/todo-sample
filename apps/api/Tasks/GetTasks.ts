@@ -13,14 +13,12 @@ export const handle = (_: Request) =>
     const u = yield* $(getLoggedInUser)
     const items = yield* $(TaskContext.all(u.id))
 
-    const r: Response = {
+    return {
       items: Chunk.map_(items, (t) => ({
         ...t,
         myDay: A.findFirst_(u.myDay, (x) => x.id === t.id)["|>"](O.map((m) => m.date)),
       }))["|>"](Chunk.toArray),
-    }
-
-    return r
+    } as Response
   })
 
 export { Request, Response }

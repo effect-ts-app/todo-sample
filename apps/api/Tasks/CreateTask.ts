@@ -21,7 +21,7 @@ export const handle = ({ myDay, ..._ }: Request) =>
       )
     )
 
-    return { id: t.id }
+    return { id: t.id } as Response
   })
 
 export { Request, Response }
