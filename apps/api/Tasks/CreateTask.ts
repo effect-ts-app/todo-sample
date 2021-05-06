@@ -10,18 +10,20 @@ import { Request, Response } from "@effect-ts-demo/todo-client/Tasks/CreateTask"
 
 export const handle = ({ myDay, ..._ }: Request) =>
   T.gen(function* ($) {
-    const u = yield* $(getLoggedInUser)
+    const user = yield* $(getLoggedInUser)
 
-    const t = u["|>"](User.createTask(_))
-    yield* $(TaskContext.add(t))
+    const task = user["|>"](User.createTask(_))
+    yield* $(TaskContext.add(task))
     yield* $(
       pipe(
         EO.fromOption(myDay),
-        EO.chainEffect((date) => TaskContext.updateUser(u.id, User.addToMyDay(t, date)))
+        EO.chainEffect((date) =>
+          TaskContext.updateUser(user.id, User.addToMyDay(task, date))
+        )
       )
     )
 
-    return { id: t.id } as Response
+    return { id: task.id } as Response
   })
 
 export { Request, Response }

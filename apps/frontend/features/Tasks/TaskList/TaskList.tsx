@@ -48,7 +48,7 @@ const TaskList = memo(function ({
         if (!destination) {
           return
         }
-        const t = tasks.find((x) => x.id === result.draggableId)!
+        const task = tasks.find((x) => x.id === result.draggableId)!
         const destTasks =
           result.destination?.droppableId === "tasks-completed"
             ? completedTasks
@@ -56,7 +56,7 @@ const TaskList = memo(function ({
         if (!destTasks[destination.index].id) {
           return
         }
-        reorder(t.id, destTasks[destination.index].id)
+        reorder(task.id, destTasks[destination.index].id)
       }}
     >
       <Droppable droppableId={"tasks"}>

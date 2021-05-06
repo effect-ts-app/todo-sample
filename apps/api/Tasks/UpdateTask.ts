@@ -10,9 +10,9 @@ import { Request, Response } from "@effect-ts-demo/todo-client/Tasks/UpdateTask"
 
 export const handle = ({ id, myDay, ..._ }: Request) =>
   T.gen(function* ($) {
-    const u = yield* $(UserSVC.UserEnv)
+    const user = yield* $(UserSVC.UserEnv)
 
-    const t = yield* $(
+    const task = yield* $(
       TaskContext.update(
         id,
         Task.lens["|>"](
@@ -25,7 +25,7 @@ export const handle = ({ id, myDay, ..._ }: Request) =>
       )
     )
     if (myDay) {
-      yield* $(TaskContext.updateUser(u.id, User.toggleMyDay(t, myDay)))
+      yield* $(TaskContext.updateUser(user.id, User.toggleMyDay(task, myDay)))
     }
   })
 

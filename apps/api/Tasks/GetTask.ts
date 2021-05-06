@@ -9,12 +9,12 @@ import { Request, Response } from "@effect-ts-demo/todo-client/Tasks/GetTask"
 
 export const handle = (_: Request) =>
   EO.gen(function* ($) {
-    const u = yield* $(getLoggedInUser["|>"](EO.fromEffect))
-    const t = yield* $(TaskContext.find(_.id))
+    const user = yield* $(getLoggedInUser["|>"](EO.fromEffect))
+    const task = yield* $(TaskContext.find(_.id))
 
     return {
-      ...t,
-      myDay: u["|>"](User.getMyDay(t)),
+      ...task,
+      myDay: user["|>"](User.getMyDay(task)),
     } as O._A<Response>
   })
 

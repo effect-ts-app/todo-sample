@@ -36,10 +36,10 @@ const TaskDetailView = ({
     return <>Loading Task...</>
   }
 
-  const t = unfilteredTasks["|>"](A.findFirst((x) => x.id === taskId))
+  const task = unfilteredTasks["|>"](A.findFirst((x) => x.id === taskId))
 
   return O.fold_(
-    t,
+    task,
     () => <>Task not found</>,
     (t) => <TaskDetail task={t} closeTaskDetail={closeTaskDetail} />
   )

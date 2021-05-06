@@ -8,24 +8,22 @@ import * as TaskContext from "./TaskContext"
 
 import { Request, Response } from "@effect-ts-demo/todo-client/Tasks/SetTasksOrder"
 
+const inboxOrder = User.lens["|>"](Lens.prop("inboxOrder"))
+const order = SharableTaskList.lens["|>"](Lens.prop("order"))
+
 export const handle = (_: Request) =>
   T.gen(function* ($) {
-    const u = yield* $(UserSVC.UserEnv)
+    const user = yield* $(UserSVC.UserEnv)
 
     if (_.listId === "inbox") {
-      yield* $(
-        TaskContext.updateUser(
-          u.id,
-          User.lens["|>"](Lens.prop("inboxOrder")).set(_.order)
-        )
-      )
+      yield* $(TaskContext.updateUser(user.id, inboxOrder.set(_.order)))
       return
     }
     yield* $(
       TaskContext.updateList(
         _.listId,
         TaskListOrGroup.match({
-          TaskList: SharableTaskList.lens["|>"](Lens.prop("order")).set(_.order),
+          TaskList: order.set(_.order),
           TaskListGroup: (l) => l,
         })
       )

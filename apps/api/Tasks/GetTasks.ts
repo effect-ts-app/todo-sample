@@ -10,14 +10,16 @@ import { Request, Response } from "@effect-ts-demo/todo-client/Tasks/GetTasks"
 
 export const handle = (_: Request) =>
   T.gen(function* ($) {
-    const u = yield* $(getLoggedInUser)
-    const items = yield* $(TaskContext.all(u.id))
+    const user = yield* $(getLoggedInUser)
+    const tasks = yield* $(TaskContext.all(user.id))
+
+    const items = Chunk.map_(tasks, (t) => ({
+      ...t,
+      myDay: A.findFirst_(user.myDay, (x) => x.id === t.id)["|>"](O.map((m) => m.date)),
+    }))["|>"](Chunk.toArray)
 
     return {
-      items: Chunk.map_(items, (t) => ({
-        ...t,
-        myDay: A.findFirst_(u.myDay, (x) => x.id === t.id)["|>"](O.map((m) => m.date)),
-      }))["|>"](Chunk.toArray),
+      items,
     } as Response
   })
 
