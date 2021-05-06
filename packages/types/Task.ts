@@ -9,7 +9,9 @@ import {
   NonEmptyString,
   UUID,
 } from "@effect-ts-demo/core/ext/Model"
+import * as S from "@effect-ts-demo/core/ext/Schema"
 import { extendM } from "@effect-ts-demo/core/ext/utils"
+import { pipe } from "@effect-ts/core"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as O from "@effect-ts/core/Option"
 import { Option } from "@effect-ts/core/Option"
@@ -273,51 +275,85 @@ export const TaskListOrVirtual = extendM(TaskListOrVirtual_, ({ as, of }) => ({
 
 export type TaskListOrGroup = AType<typeof TaskListOrGroup_>
 
-const User_ = make((F) =>
-  F.interface({
-    id: UserId(F),
-    name: NonEmptyString(F),
-    inboxOrder: F.array(TaskId(F)),
-    myDay: F.array(F.interface({ id: TaskId(F), date: F.date() /* position */ })),
+//// SCHEMA TEST
+export const UID = S.positiveInt
+export type UID = S.ParsedShapeOf<typeof UID>
 
-    // TODO: or do reminders depend on the assignee?
-    //reminders: F.array(F.interface({ id: TaskId(F), date: F.date() })),
-  })
-)
+const TUID = S.string // uuid
+type TUID = S.ParsedShapeOf<typeof TUID>
 
-export interface User extends AType<typeof User_> {}
-export interface UserE extends EType<typeof User_> {}
-const User__ = opaque<UserE, User>()(User_)
-export const User = Object.assign(User__, {
-  create: ({
-    myDay = [],
-    inboxOrder = [],
-    ..._
-  }: Pick<User, "id" | "name"> & Partial<Pick<User, "myDay" | "inboxOrder">>) =>
-    User__.build({
-      ..._,
-      myDay,
-      inboxOrder,
+const MyDay = S.struct({ required: { id: TUID, date: S.date } })
+type MyDay = S.ParsedShapeOf<typeof MyDay>
+
+export class User extends S.Schemed(
+  pipe(
+    S.required({
+      id: UID,
+      name: S.nonEmptyString,
+      inboxOrder: S.array(TUID),
+      myDay: S.array(MyDay) /* position */,
     }),
-
-  createTask: (a: Omit<Parameters<typeof Task.create>[0], "createdBy">) => (u: User) =>
-    Task.create({ ...a, createdBy: u.id }),
-  getMyDay: (t: Task) => (u: User) =>
-    A.findFirst_(u.myDay, (x) => x.id === t.id)["|>"](O.map((m) => m.date)),
-  addToMyDay: (t: Task, date: Date) => (u: User) => ({
+    S.asBuilder,
+    S.withDefaultConstructorField("inboxOrder", () => [] as A.Array<TUID>),
+    S.withDefaultConstructorField("myDay", () => [] as A.Array<MyDay>)
+  )
+) {
+  static Model = S.schema(User)
+  static lens = Lens.id<User>()
+  static readonly createTask = (
+    a: Omit<Parameters<typeof Task.create>[0], "createdBy">
+  ) => (u: User) => Task.create({ ...a, createdBy: u.id as UID & PositiveInt })
+  static readonly getMyDay = (t: Task) => (u: User) =>
+    A.findFirst_(u.myDay, (x) => x.id === t.id)["|>"](O.map((m) => m.date))
+  static readonly addToMyDay = (t: Task, date: Date) => (u: User) => ({
     ...u,
     myDay: A.findIndex_(u.myDay, (m) => m.id === t.id)
       ["|>"](O.chain((idx) => A.modifyAt_(u.myDay, idx, (m) => ({ ...m, date }))))
       ["|>"](O.getOrElse(() => A.snoc_(u.myDay, { id: t.id, date }))),
-  }),
-  removeFromMyDay: (t: Task) => (u: User) => ({
+  })
+  static readonly removeFromMyDay = (t: Task) => (u: User) => ({
     ...u,
     myDay: u.myDay["|>"](A.filter((m) => m.id !== t.id)),
-  }),
-  toggleMyDay: (t: Task, myDay: Option<Date>) =>
+  })
+  static readonly toggleMyDay = (t: Task, myDay: Option<Date>) =>
     O.fold_(
       myDay,
       () => User.removeFromMyDay(t),
       (date) => User.addToMyDay(t, date)
-    ),
-})
+    )
+}
+
+// const createUser = Constructor.for(User.Model)
+// const parseUser = Parser.for(User.Model)
+
+// function unsafe<A>(self: These<AnyError, A>) {
+//   const res = self.effect
+//   if (res._tag === "Left") {
+//     throw new CondemnException({ message: drawError(res.left) })
+//   }
+//   const warn = res.right.get(1)
+//   if (warn._tag === "Some") {
+//     throw new CondemnException({ message: drawError(warn.value) })
+//   }
+//   return res.right.get(0)
+// }
+
+// const someUserId = 1 as UID
+// const someName = "some name" as S.NonEmptyString
+// const u = new User({ id: someUserId, name: someName })
+// const u2 = createUser({ id: someUserId, name: someName })
+// const u3 = parseUser({
+//   id: 2,
+//   name: "Me",
+//   inboxOrder: ["abc"],
+//   // TODO: new Date() errors cause its not an ISOString, but the error message shows the value as an isostring (toJSON), so its confusing.
+//   // cannot process "2021-05-06T12:35:40.375Z", expected a date string
+//   myDay: [{ id: "abc", date: new Date().toISOString() }],
+// })
+// const err1 = parseUser({ id: 2, name: "Me" })
+
+// console.log("u: ", u, "u2: ", u2, "u3:", u3, "err1: ", err1)
+// console.log("u2:", u2["|>"](unsafe))
+// console.log("u3:", u3["|>"](unsafe))
+// // const err2 = createUser({ id: 2, name: "Me" })
+// // const err3 = new User({ id: 2, name: "Me" })

@@ -1,4 +1,11 @@
 {
+    "Schema": {
+        "prefix": "+SC",
+        "body": [
+            "import * as S from \"@effect-ts-demo/core/ext/Schema\""
+        ],
+        "description": "Schema as S"
+    },
     "EffectOption": {
         "prefix": "+EO",
         "body": [

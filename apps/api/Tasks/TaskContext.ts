@@ -1,10 +1,12 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// TODO: Remove ban
 import {
   Task,
   TaskId,
   TaskListIdU,
   TaskListOrGroup,
+  UID,
   User,
-  UserId,
 } from "@effect-ts-demo/todo-types"
 import { Has } from "@effect-ts/core"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
@@ -27,8 +29,10 @@ import { makeTestData } from "./TaskContext.testdata"
 
 import * as T from "@effect-ts-demo/core/ext/Effect"
 import * as EO from "@effect-ts-demo/core/ext/EffectOption"
+import * as S from "@effect-ts-demo/core/ext/Schema"
+import { Parser, Encoder } from "@effect-ts-demo/core/ext/Schema"
 
-const [decodeUser, encodeUser, encodeUsersToMap] = makeCodec(User)
+const [decodeUser, encodeUser, encodeUsersToMap] = makeSchemaCodec(User.Model)
 const [decodeTask, encodeTask, encodeTasksToMap] = makeCodec(Task)
 const [decodeList, encodeList, encodeListsToMap] = makeCodec(TaskListOrGroup)
 
@@ -38,14 +42,14 @@ const makeMockTaskContext = T.gen(function* ($) {
   const tasksRef = yield* $(pipe(encodeTasksToMap(tasks), T.chain(Ref.makeRef)))
   const listsRef = yield* $(pipe(encodeListsToMap(lists), T.chain(Ref.makeRef)))
 
-  const findUser = (id: UserId) =>
+  const findUser = (id: UID) =>
     pipe(
       usersRef.get,
       T.map((users) => O.fromNullable(users.get(id))),
       EO.chainEffect(decodeUser)
     )
 
-  const getUser = (id: UserId) =>
+  const getUser = (id: UID) =>
     pipe(
       findUser(id),
       T.chain(O.fold(() => T.fail(new NotFoundError("User", id.toString())), T.succeed))
@@ -70,7 +74,7 @@ const makeMockTaskContext = T.gen(function* ($) {
       T.chain(({ encT, lists }) => listsRef.set(lists["|>"](Map.insert(t.id, encT))))
     )
 
-  const allLists = (id: UserId) =>
+  const allLists = (id: UID) =>
     pipe(
       T.struct({ user: getUser(id), lists: listsRef.get }),
       T.chain(({ lists }) =>
@@ -120,7 +124,7 @@ const makeMockTaskContext = T.gen(function* ($) {
       T.chain(({ tuple: [tasks] }) => tasksRef.set(tasks["|>"](Map.remove(id))))
     )
 
-  const all = (userId: UserId) =>
+  const all = (userId: UID) =>
     pipe(
       T.struct({
         tasks: tasksRef.get,
@@ -153,7 +157,7 @@ const makeMockTaskContext = T.gen(function* ($) {
       )
     )
 
-  const updateUserM = <R, E>(id: UserId, mod: (a: User) => T.Effect<R, E, User>) =>
+  const updateUserM = <R, E>(id: UID, mod: (a: User) => T.Effect<R, E, User>) =>
     pipe(getUser(id), T.chain(mod), T.tap(addUser))
 
   const updateListM = <R, E>(
@@ -173,7 +177,7 @@ const makeMockTaskContext = T.gen(function* ($) {
     find,
     get,
     all,
-    updateUser: (id: UserId, mod: (a: User) => User) => updateUserM(id, T.liftM(mod)),
+    updateUser: (id: UID, mod: (a: User) => User) => updateUserM(id, T.liftM(mod)),
     updateUserM,
     updateList: (id: TaskListIdU, mod: (a: TaskListOrGroup) => TaskListOrGroup) =>
       updateListM(id, T.liftM(mod)),
@@ -188,7 +192,9 @@ const makeMockTaskContext = T.gen(function* ($) {
 
 export interface TaskContext extends _A<typeof makeMockTaskContext> {}
 export const TaskContext = Has.tag<TaskContext>()
-export const MockTaskContext = L.fromEffect(TaskContext)(makeMockTaskContext)
+export const MockTaskContext = L.fromEffect(TaskContext)(
+  makeMockTaskContext["|>"](T.orDie)
+)
 
 export const {
   add,
@@ -230,7 +236,7 @@ export function updateM<R, E>(id: TaskId, mod: (a: Task) => T.Effect<R, E, Task>
   })
 }
 
-export function updateUserM<R, E>(id: UserId, mod: (a: User) => T.Effect<R, E, User>) {
+export function updateUserM<R, E>(id: UID, mod: (a: User) => T.Effect<R, E, User>) {
   return T.gen(function* ($) {
     const { updateUserM } = yield* $(TaskContext)
     return updateUserM(id, mod)
@@ -255,6 +261,37 @@ function makeCodec<E, A extends { id: Id }, Id>(t: M<{}, E, A>) {
   const encode = strictEncode(t)
   const encodeToMap = toMap(encode)
   return [decodeOrDie, encode, encodeToMap] as const
+}
+
+function makeSchemaCodec<
+  ParserInput,
+  ParserError,
+  ParsedShape extends { id: Id },
+  ConstructorInput,
+  ConstructorError,
+  ConstructedShape extends ParsedShape,
+  Encoded,
+  Api,
+  Id
+>(
+  self: S.Schema<
+    ParserInput,
+    ParserError,
+    ParsedShape,
+    ConstructorInput,
+    ConstructorError,
+    ConstructedShape,
+    Encoded,
+    Api
+  >
+) {
+  // TODO: strict
+  const decode = flow(Parser.for(self)["|>"](S.condemn), T.orDie)
+  const enc = Encoder.for(self)
+
+  const encode = (u: ParsedShape) => Sy.succeedWith(() => enc(u))
+  const encodeToMap = toMap(encode)
+  return [decode, encode, encodeToMap] as const
 }
 
 // eslint-disable-next-line @typescript-eslint/ban-types

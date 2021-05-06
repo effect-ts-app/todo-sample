@@ -3,43 +3,52 @@ import {
   Task,
   TaskListOrGroup,
   TaskListOrVirtual,
+  UID,
   User,
   UserId,
 } from "@effect-ts-demo/todo-types"
-import { pipe } from "@effect-ts/core/Function"
+import * as T from "@effect-ts/core/Effect"
+import { flow, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import * as Sy from "@effect-ts/core/Sync"
 
-import { makeUuid, NonEmptyString } from "@effect-ts-demo/core/ext/Model"
+import { makeUuid, NonEmptyString, PositiveInt } from "@effect-ts-demo/core/ext/Model"
+import * as S from "@effect-ts-demo/core/ext/Schema"
 import { unsafe } from "@effect-ts-demo/core/ext/utils"
 
 // Model problems:
 // - isFavorite/reminder are per Task, not per User. Probably should store per user (like myDay now is), and then merge in?
 // - As ordering is currently saved per list, the ordering is shared with other users in the list. Feature?
 // - Instead of an Object model, a Data model was defined..
-export const makeTestData = Sy.gen(function* ($) {
-  const patrickId = yield* $(UserId.parse_(0))
-  const mikeId = yield* $(UserId.parse_(1))
-  const markusId = yield* $(UserId.parse_(2))
+const createUID = flow(
+  S.Constructor.for(UID)["|>"](S.condemn),
+  T.map((n) => n as PositiveInt & UID) // workaround for legacy interop
+)
+const createNonEmptyString = S.Constructor.for(S.nonEmptyString)["|>"](S.condemn)
+
+export const makeTestData = T.gen(function* ($) {
+  const patrickId = yield* $(createUID(0))
+  const mikeId = yield* $(createUID(1))
+  const markusId = yield* $(createUID(2))
 
   const PatricksSharedListUUid = makeUuid()
   const MikesSharedListID = makeUuid()
   const MarkusSharedListId = makeUuid()
   const groupId = makeUuid()
   const users = [
-    User.create({
+    new User({
       id: patrickId,
-      name: yield* $(NonEmptyString.decode_("Patrick Roza")),
+      name: yield* $(createNonEmptyString("Patrick Roza")),
     }),
     ////////
-    User.create({
+    new User({
       id: mikeId,
-      name: yield* $(NonEmptyString.decode_("Mike Arnaldi")),
+      name: yield* $(createNonEmptyString("Mike Arnaldi")),
     }),
     ////////
-    User.create({
+    new User({
       id: markusId,
-      name: yield* $(NonEmptyString.decode_("Markus Nomizz")),
+      name: yield* $(createNonEmptyString("Markus Nomizz")),
     }),
   ]
 

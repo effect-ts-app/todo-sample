@@ -1,6 +1,8 @@
+import * as S from "@effect-ts-demo/core/ext/Schema"
 import type { Branded } from "@effect-ts/core/Branded"
 import { constVoid } from "@effect-ts/core/Function"
 import * as Sy from "@effect-ts/core/Sync"
+import { IntBrand, PositiveBrand } from "@effect-ts/schema"
 import { v4 } from "uuid"
 
 import type { Arbitrary, FC } from "../FastCheck"
@@ -27,10 +29,10 @@ export type { Branded }
 // TODO: Arbitraries should still be cut/filtered on max and min lengths
 
 const MIN = 1
+type NonEmptyStringBranded = Branded<string, NonEmptyStringBrand> & S.NonEmptyBrand
 
-export const isNonEmptyString = (
-  v: string
-): v is Branded<string, NonEmptyStringBrand> => V.all_(v.length, V.minN(MIN))
+export const isNonEmptyString = (v: string): v is NonEmptyStringBranded =>
+  V.all_(v.length, V.minN(MIN))
 
 /**
  * A string of Min 1 and Max 256KB characters
@@ -44,7 +46,7 @@ export const NonEmptyString = extend(
           fc.module
             // let's be reasonable
             .string({ minLength: MIN }) // DONT DO THIS!!!!  maxLength: 256 * 1024
-            .map((x) => x as Branded<string, NonEmptyStringBrand>),
+            .map((x) => x as NonEmptyStringBranded),
         [DecoderURI]: withMessage(() => "is not a NonEmpty String"),
       },
       extensions: {
@@ -64,7 +66,7 @@ const REASONABLE_STRING_MAX = 256 - 1
 
 export const isReasonableString = (
   v: string
-): v is Branded<string, ReasonableStringBrand> =>
+): v is Branded<string, ReasonableStringBrand> & NonEmptyStringBranded =>
   V.all_(v.length, V.minN(MIN), V.maxN(REASONABLE_STRING_MAX))
 
 export function makeReasonableString(
@@ -82,7 +84,8 @@ export function makeReasonableString(
             a.map(
               flow(
                 (x) => x.substring(0, REASONABLE_STRING_MAX),
-                castBrand<string, ReasonableStringBrand>()
+                (i) =>
+                  i as Branded<string, ReasonableStringBrand> & NonEmptyStringBranded
               )
             )
           ),
@@ -109,7 +112,9 @@ export const ReasonableString = make((F) =>
       [FastCheckURI]: (_c, fc) =>
         fc.module
           .string({ minLength: MIN, maxLength: REASONABLE_STRING_MAX })
-          .map((x) => x as Branded<string, ReasonableStringBrand>),
+          .map(
+            (x) => x as Branded<string, ReasonableStringBrand> & NonEmptyStringBranded
+          ),
       [DecoderURI]: withMessage(
         () => `is not a Reasonable String (${MIN}-${REASONABLE_STRING_MAX})`
       ),
@@ -223,7 +228,9 @@ export type TextString = AType<typeof TextString>
 
 const MIN_STRING_ID = 6
 const MAX_STRING_ID = 50
-export const isStringId = (v: string): v is Branded<string, StringIdBrand> =>
+export const isStringId = (
+  v: string
+): v is Branded<string, StringIdBrand> & NonEmptyStringBranded =>
   V.all_(v.length, V.minN(MIN_STRING_ID), V.maxN(MAX_STRING_ID))
 
 /**
@@ -236,7 +243,7 @@ export const StringId = make((F) =>
       [FastCheckURI]: (_c, fc) =>
         fc.module
           .string({ minLength: MIN_STRING_ID, maxLength: MAX_STRING_ID })
-          .map((x) => x as Branded<string, StringIdBrand>),
+          .map((x) => x as Branded<string, StringIdBrand> & NonEmptyStringBranded),
       [DecoderURI]: withMessage(
         () =>
           // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
@@ -257,11 +264,11 @@ export interface StringIdBrand extends NonEmptyStringBrand {
   readonly StringId: unique symbol
 }
 
-export const isPositiveInt = (v: number): v is Branded<number, PositiveIntBrand> =>
-  V.minN(0)(v)
+type PositiveIntBranded = Branded<number, PositiveIntBrand> & IntBrand & PositiveBrand
+export const isPositiveInt = (v: number): v is PositiveIntBranded => V.minN(0)(v)
 
 export function makePositiveInt(
-  arbF: (c: Arbitrary<Branded<number, PositiveIntBrand>>, fc_: FC) => Arbitrary<number>
+  arbF: (c: Arbitrary<PositiveIntBranded>, fc_: FC) => Arbitrary<number>
 ) {
   return extend(
     make((F) =>
@@ -270,12 +277,7 @@ export function makePositiveInt(
         conf: {
           [FastCheckURI]: (c, fc) =>
             pipe(arbF(c, fc.module), (a) =>
-              a.map(
-                flow(
-                  (a) => (isPositiveInt(a) ? a : 0),
-                  castBrand<number, PositiveIntBrand>()
-                )
-              )
+              a.map((a) => (isPositiveInt(a) ? a : (0 as PositiveIntBranded)))
             ),
         },
         extensions: {
