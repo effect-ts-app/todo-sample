@@ -78,14 +78,15 @@ export function useTasks() {
   return r
 }
 
-const newTask = (v: Todo.TaskView | NonEmptyString, listId?: Todo.TaskListId) => (
-  newTitle: string
-) =>
+const newTask = (
+  v: Todo.TaskView | NonEmptyString,
+  listId: Todo.TaskListId = "inbox"
+) => (newTitle: string) =>
   TodoClient.Tasks.createTaskE({
     title: newTitle,
     isFavorite: false,
     myDay: null,
-    listId: listId ?? "inbox",
+    listId,
     ...(v === "important"
       ? { isFavorite: true }
       : v === "my-day"

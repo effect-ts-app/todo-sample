@@ -100,10 +100,13 @@ export interface Task extends AType<typeof Task_> {}
 export interface TaskE extends EType<typeof Task_> {}
 const TaskO = opaque<TaskE, Task>()(Task_)
 export const Task = Object.assign(TaskO, {
-  create: (
-    a: Pick<Task, "title" | "createdBy"> &
-      Partial<Pick<Task, "isFavorite" | "listId" | "steps">>
-  ) => {
+  create: ({
+    steps = [],
+    listId = "inbox",
+    isFavorite = false,
+    ...a
+  }: Pick<Task, "title" | "createdBy"> &
+    Partial<Pick<Task, "isFavorite" | "listId" | "steps">>) => {
     const createdAt = new Date()
     return Task.build({
       completed: O.none,
@@ -114,16 +117,14 @@ export const Task = Object.assign(TaskO, {
 
       ...a,
 
-      isFavorite: a.isFavorite ?? false,
-      listId: a.listId ?? "inbox",
+      isFavorite,
+      listId,
 
-      steps: a.steps ?? [],
+      steps,
 
       id: makeUuid(),
       createdAt,
       updatedAt: createdAt,
-
-      //myDay: a.myDay ?? O.none,
     })
   },
   complete: TaskO.lens["|>"](Lens.prop("completed")).set(O.some(new Date())),
@@ -236,20 +237,18 @@ export const TaskListOrGroup = extendM(TaskListOrGroup_, ({ as, of }) => ({
   as: {
     ...as,
     TaskList: ({
-      order,
+      order = [],
       ...a
     }: Omit<SharableTaskList, "_tag" | "order"> &
-      Partial<Pick<SharableTaskList, "order">>) =>
-      as.TaskList({ ...a, order: order ?? [] }),
+      Partial<Pick<SharableTaskList, "order">>) => as.TaskList({ ...a, order }),
   },
   of: {
     ...of,
     TaskList: ({
-      order,
+      order = [],
       ...a
     }: Omit<SharableTaskList, "_tag" | "order"> &
-      Partial<Pick<SharableTaskList, "order">>) =>
-      of.TaskList({ ...a, order: order ?? [] }),
+      Partial<Pick<SharableTaskList, "order">>) => of.TaskList({ ...a, order }),
   },
 }))
 
@@ -257,20 +256,18 @@ export const TaskListOrVirtual = extendM(TaskListOrVirtual_, ({ as, of }) => ({
   as: {
     ...as,
     TaskList: ({
-      order,
+      order = [],
       ...a
     }: Omit<SharableTaskList, "_tag" | "order"> &
-      Partial<Pick<SharableTaskList, "order">>) =>
-      as.TaskList({ ...a, order: order ?? [] }),
+      Partial<Pick<SharableTaskList, "order">>) => as.TaskList({ ...a, order }),
   },
   of: {
     ...of,
     TaskList: ({
-      order,
+      order = [],
       ...a
     }: Omit<SharableTaskList, "_tag" | "order"> &
-      Partial<Pick<SharableTaskList, "order">>) =>
-      of.TaskList({ ...a, order: order ?? [] }),
+      Partial<Pick<SharableTaskList, "order">>) => of.TaskList({ ...a, order }),
   },
 }))
 
@@ -292,13 +289,15 @@ export interface User extends AType<typeof User_> {}
 export interface UserE extends EType<typeof User_> {}
 const User__ = opaque<UserE, User>()(User_)
 export const User = Object.assign(User__, {
-  create: (
-    _: Pick<User, "id" | "name"> & Partial<Pick<User, "myDay" | "inboxOrder">>
-  ) =>
+  create: ({
+    myDay = [],
+    inboxOrder = [],
+    ..._
+  }: Pick<User, "id" | "name"> & Partial<Pick<User, "myDay" | "inboxOrder">>) =>
     User__.build({
       ..._,
-      myDay: _.myDay ?? [],
-      inboxOrder: _.inboxOrder ?? [],
+      myDay,
+      inboxOrder,
     }),
 
   createTask: (a: Omit<Parameters<typeof Task.create>[0], "createdBy">) => (u: User) =>
