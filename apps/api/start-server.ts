@@ -14,7 +14,7 @@ import cors from "cors"
 import redoc from "redoc-express"
 import { setup, serve } from "swagger-ui-express"
 
-import { makeSchema } from "@/routing"
+import { makeJsonSchema } from "@/makeJsonSchema"
 
 import { MockTaskContext } from "./Tasks/TaskContext"
 import { routes as taskRoutes } from "./Tasks/routes"
@@ -75,7 +75,7 @@ const program = pipe(
         T.gen(function* ($) {
           const ref = yield* $(makeRef<Map<string, JSONSchema | SubSchema>>(new Map()))
           const withRef = T.provideService(References)({ ref })
-          const paths = yield* $(makeSchema(rdescs)["|>"](withRef))
+          const paths = yield* $(makeJsonSchema(rdescs)["|>"](withRef))
           const refs = yield* $(ref.get)
           const parameterRefs: Record<string, any> = {} // todos
           const schemas: Record<string, any> = {}
