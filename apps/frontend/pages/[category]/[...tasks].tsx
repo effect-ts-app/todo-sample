@@ -6,14 +6,14 @@ import TasksScreen from "@/features/Tasks"
 import { Order, OrderDir } from "@/features/Tasks/data"
 import { useRouteParams } from "@/routing"
 
-import { UUID, NonEmptyString } from "@effect-ts-demo/core/ext/Model"
+import * as S from "@effect-ts-demo/core/ext/Schema"
 
 function TasksPage() {
   const { category, order, orderDirection, tasks: taskId } = useRouteParams({
-    category: NonEmptyString,
+    category: S.nonEmptyString,
     order: Order,
     orderDirection: OrderDir,
-    tasks: UUID,
+    tasks: S.UUID,
   })
   const o = useMemo(() => {
     return O.map_(order, (kind) => ({

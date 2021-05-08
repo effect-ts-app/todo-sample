@@ -1,7 +1,7 @@
 import * as S from "@effect-ts/schema"
 import * as Th from "@effect-ts/schema/These"
 
-import { pipe } from "./Function"
+import { pipe } from "../../Function"
 
 /**
  * Turns the Constructor to Builder pattern: Expecting the A types.
@@ -43,9 +43,3 @@ export const asBuilder: <
     self,
     S.constructor((u) => Th.succeed(u as any))
   )
-
-export * as Encoder from "@effect-ts/schema/Encoder"
-export * as Constructor from "@effect-ts/schema/Constructor"
-export * as Parser from "@effect-ts/schema/Parser"
-
-export * from "@effect-ts/schema"

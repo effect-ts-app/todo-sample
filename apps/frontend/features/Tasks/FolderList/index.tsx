@@ -3,10 +3,18 @@ import * as O from "@effect-ts/core/Option"
 import { datumEither } from "@nll/datum"
 import React from "react"
 
-import * as Todo from "@/Todo"
 import { toUpperCaseFirst } from "@/utils"
 
-import { emptyTasks, filterByCategory, TaskViews, useMe, useTasks } from "../data"
+import {
+  emptyTasks,
+  filterByCategory,
+  TaskList,
+  TaskListGroup,
+  TaskListView,
+  TaskViews,
+  useMe,
+  useTasks,
+} from "../data"
 
 import { FolderList } from "./FolderList"
 
@@ -36,15 +44,16 @@ const FolderListView = ({ category }: { category: O.Option<NonEmptyString> }) =>
             tasks: unfilteredTasks["|>"](filterByCategory(c)),
           }))
         )["|>"](
-          A.map(({ slug, tasks }) =>
-            Todo.FolderListADT.of.TaskListView({
-              title: toUpperCaseFirst(slug) as NonEmptyString,
-              slug,
-              count: tasks.length,
-            })
+          A.map(
+            ({ slug, tasks }) =>
+              new TaskListView({
+                title: toUpperCaseFirst(slug) as NonEmptyString,
+                slug,
+                count: tasks.length,
+              })
           )
         ),
-        Todo.FolderListADT.of.TaskListView({
+        new TaskListView({
           title: "Tasks" as NonEmptyString,
           slug: "tasks",
           count: unfilteredTasks["|>"](filterByCategory("inbox")).length,
@@ -53,28 +62,29 @@ const FolderListView = ({ category }: { category: O.Option<NonEmptyString> }) =>
           A.filter((x) => x._tag !== "TaskList" || O.isNone(x.parentListId))
         )["|>"](
           A.map(
-            TaskListEntryOrGroup.match({
+            TaskListEntryOrGroup.Api.matchW({
               TaskList: (l) =>
-                Todo.FolderListADT.of.TaskList({
+                new TaskList({
                   ...l,
                   count: unfilteredTasks["|>"](filterByCategory(l.id)).length,
                 }),
               TaskListGroup: (l) =>
-                Todo.FolderListADT.as.TaskListGroup({
+                new TaskListGroup({
                   ...l,
                   lists: lists["|>"](
                     A.filterMap((x) =>
-                      TaskListEntryOrGroup.is.TaskList(x) &&
+                      x._tag === "TaskList" &&
                       x.parentListId["|>"](O.getOrElse(() => "")) === l.id
                         ? O.some(x)
                         : O.none
                     )
                   )["|>"](
-                    A.map((l) =>
-                      Todo.FolderListADT.as.TaskList({
-                        ...l,
-                        count: unfilteredTasks["|>"](filterByCategory(l.id)).length,
-                      })
+                    A.map(
+                      (l) =>
+                        new TaskList({
+                          ...l,
+                          count: unfilteredTasks["|>"](filterByCategory(l.id)).length,
+                        })
                     )
                   ),
                 }),

@@ -6,11 +6,11 @@ import TasksScreen from "@/features/Tasks"
 import { Order, OrderDir } from "@/features/Tasks/data"
 import { useRouteParams } from "@/routing"
 
-import { NonEmptyString } from "@effect-ts-demo/core/ext/Model"
+import * as S from "@effect-ts-demo/core/ext/Schema"
 
 function CategoryPage() {
   const { category, order, orderDirection } = useRouteParams({
-    category: NonEmptyString,
+    category: S.nonEmptyString,
     order: Order,
     orderDirection: OrderDir,
   })

@@ -12,7 +12,7 @@ import TaskDetail from "./TaskDetail"
 import TaskList from "./TaskList"
 import { Ordery } from "./data"
 
-import type { NonEmptyString, UUID } from "@effect-ts-demo/core/ext/Model"
+import * as S from "@effect-ts-demo/core/ext/Schema"
 
 const users = [
   {
@@ -28,15 +28,14 @@ const users = [
     name: "Markus",
   },
 ]
-
 const TasksScreen = memo(function ({
   category,
   order,
   taskId,
 }: {
-  category: O.Option<NonEmptyString>
+  category: O.Option<S.NonEmptyString>
   order: O.Option<Ordery>
-  taskId: O.Option<UUID>
+  taskId: O.Option<S.UUID>
 }) {
   const userId = useUserId()
   const view = O.isSome(taskId) ? "task" : O.isSome(category) ? "tasks" : "folders"

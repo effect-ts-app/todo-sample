@@ -1,28 +1,28 @@
-import { Void } from "@effect-ts-demo/core/ext/Model"
-import {
-  EditablePersonalTaskProps,
-  EditableTaskProps,
-  TaskId,
-} from "@effect-ts-demo/todo-types"
-import { make, AType, EType, opaque } from "@effect-ts/morphic"
+import * as S from "@effect-ts-demo/core/ext/Schema"
+import { Step, TaskId, UserId } from "@effect-ts-demo/todo-types"
 
-const RequestPath_ = make((F) =>
-  F.interface({
-    id: TaskId(F),
+// TODO:  ...EditableTaskProps(F), ...EditablePersonalTaskProps(F)
+export class RequestBody extends S.Model<RequestBody>()(
+  S.partial({
+    title: S.nonEmptyString,
+    completed: S.nullable(S.date),
+    isFavorite: S.bool, // TODO: Add bool
+
+    due: S.nullable(S.date),
+    reminder: S.nullable(S.date),
+    note: S.nullable(S.nonEmptyString),
+    steps: S.array(Step.Model),
+    assignedTo: S.nullable(UserId),
+    myDay: S.nullable(S.date),
   })
-)
-const RequestBody_ = make((F) =>
-  F.partial({ ...EditableTaskProps(F), ...EditablePersonalTaskProps(F) })
-)
-const Request_ = make((F) => F.intersection(RequestPath_(F), RequestBody_(F))())
+) {}
+export class RequestPath extends S.Model<RequestPath>()(S.required({ id: TaskId })) {}
+export class Request extends S.Model<Request>()(
+  S.intersect(RequestPath.Model)(RequestBody.Model)
+) {
+  static Body = RequestBody
+  static Path = RequestPath
+}
 
-export interface Request extends AType<typeof Request_> {}
-export interface RequestE extends EType<typeof Request_> {}
-export const Request = Object.assign(opaque<RequestE, Request>()(Request_), {
-  Body: RequestBody_,
-  Path: RequestPath_,
-})
-
-export const Response = Void
-export type Response = AType<typeof Response>
-export type ResponseE = EType<typeof Response>
+export const Response = S.Void
+export type Response = S.ParsedShapeOf<typeof Response>

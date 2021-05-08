@@ -1,14 +1,13 @@
-import { TaskListId } from "@effect-ts-demo/todo-types"
+import { TaskId, TaskListId } from "@effect-ts-demo/todo-types"
 import { constant, flow, identity } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import * as ORD from "@effect-ts/core/Ord"
 import { Lens } from "@effect-ts/monocle"
-import { AType, make, makeADT } from "@effect-ts/morphic"
 
 import { typedKeysOf } from "@/utils"
 
 import * as A from "@effect-ts-demo/core/ext/Array"
-import { makeKeys, NonEmptyString } from "@effect-ts-demo/core/ext/Model"
+import * as S from "@effect-ts-demo/core/ext/Schema"
 import * as Todo from "@effect-ts-demo/todo-client/Tasks"
 
 const stepCompleted = Todo.Step.lens["|>"](Lens.prop("completed"))
@@ -16,16 +15,16 @@ const stepCompleted = Todo.Step.lens["|>"](Lens.prop("completed"))
 export * from "@effect-ts-demo/todo-types"
 
 export const toggleBoolean = Lens.modify<boolean>((x) => !x)
-export const Step = Object.assign({}, Todo.Step, {
-  create: (title: NonEmptyString) => Todo.Step.build({ title, completed: false }),
-  toggleCompleted: stepCompleted["|>"](toggleBoolean),
-})
-export type Step = Todo.Step
+export class Step extends Todo.Step {
+  static create = (title: S.NonEmptyString) =>
+    new Todo.Step({ title, completed: false })
+  static toggleCompleted = stepCompleted["|>"](toggleBoolean)
+}
 
 const taskSteps = Todo.Task.lens["|>"](Lens.prop("steps"))
 const createAndAddStep = flow(Step.create, A.snoc)
 const toggleStepCompleted = (s: Step) => A.modifyOrOriginal(s, Step.toggleCompleted)
-const updateStepTitle = (s: Step) => (stepTitle: NonEmptyString) =>
+const updateStepTitle = (s: Step) => (stepTitle: S.NonEmptyString) =>
   A.modifyOrOriginal(s, (s) => ({ ...s, title: stepTitle }))
 
 const pastDate = (d: Date): O.Option<Date> => (d < new Date() ? O.some(d) : O.none)
@@ -48,73 +47,69 @@ export function updateStepIndex(s: Step, newIndex: number) {
   }
 }
 
-export const Task = Object.assign({}, Todo.Task, {
-  addStep: (stepTitle: NonEmptyString) =>
-    taskSteps["|>"](Lens.modify(createAndAddStep(stepTitle))),
-  deleteStep: (s: Step) => taskSteps["|>"](Lens.modify(A.deleteOrOriginal(s))),
-  toggleCompleted: Todo.Task.lens["|>"](Lens.prop("completed"))["|>"](
+export class Task extends Todo.Task {
+  static addStep = (stepTitle: S.NonEmptyString) =>
+    taskSteps["|>"](Lens.modify(createAndAddStep(stepTitle)))
+  static deleteStep = (s: Step) => taskSteps["|>"](Lens.modify(A.deleteOrOriginal(s)))
+  static toggleCompleted = Todo.Task.lens["|>"](Lens.prop("completed"))["|>"](
     Lens.modify((x) => (O.isSome(x) ? O.none : O.some(new Date())))
-  ),
-  toggleMyDay: Todo.Task.lens["|>"](Lens.prop("myDay"))["|>"](
+  )
+  static toggleMyDay = Todo.Task.lens["|>"](Lens.prop("myDay"))["|>"](
     Lens.modify((x) => (O.isSome(x) ? O.none : O.some(new Date())))
-  ),
-  toggleFavorite: Todo.Task.lens["|>"](Lens.prop("isFavorite"))["|>"](toggleBoolean),
-  toggleStepCompleted: (s: Todo.Step) =>
-    taskSteps["|>"](Lens.modify(toggleStepCompleted(s))),
+  )
+  static toggleFavorite = Todo.Task.lens["|>"](Lens.prop("isFavorite"))["|>"](
+    toggleBoolean
+  )
+  static toggleStepCompleted = (s: Todo.Step) =>
+    taskSteps["|>"](Lens.modify(toggleStepCompleted(s)))
 
-  updateStep: (s: Todo.Step, stepTitle: NonEmptyString) =>
-    taskSteps["|>"](Lens.modify(updateStepTitle(s)(stepTitle))),
+  static updateStep = (s: Todo.Step, stepTitle: S.NonEmptyString) =>
+    taskSteps["|>"](Lens.modify(updateStepTitle(s)(stepTitle)))
 
-  updateStepIndex: (s: Todo.Step, newIndex: number) =>
-    taskSteps["|>"](Lens.modify(updateStepIndex(s, newIndex))),
+  static updateStepIndex = (s: Todo.Step, newIndex: number) =>
+    taskSteps["|>"](Lens.modify(updateStepIndex(s, newIndex)))
 
-  dueInPast: flow(Todo.Task.lens["|>"](Lens.prop("due")).get, O.chain(pastDate)),
-  reminderInPast: flow(
+  static dueInPast = flow(Todo.Task.lens["|>"](Lens.prop("due")).get, O.chain(pastDate))
+  static reminderInPast = flow(
     Todo.Task.lens["|>"](Lens.prop("reminder")).get,
     O.chain(pastDate)
-  ),
-})
+  )
+}
 
-export type Task = Todo.Task
+export class TaskList extends S.Model<TaskList>()(
+  S.required({
+    id: TaskListId,
+    title: S.nonEmptyString,
+    order: S.array(TaskId),
+    count: S.number,
+  })["|>"](S.tag("TaskList"))
+) {}
 
-export const TaskList = make((F) =>
-  F.intersection(
-    Todo.TaskList(F),
-    F.interface({
-      title: NonEmptyString(F),
-      count: F.number(),
-      _tag: F.stringLiteral("TaskList"),
-    })
-  )()
+export class TaskListGroup extends S.Model<TaskListGroup>()(
+  S.required({
+    id: TaskListId,
+    title: S.nonEmptyString,
+    lists: S.array(TaskList.Model),
+  })["|>"](S.tag("TaskListGroup"))
+) {}
+
+export class TaskListView extends S.Model<TaskListView>()(
+  S.required({
+    title: S.nonEmptyString,
+    count: S.number,
+    slug: S.string,
+  })["|>"](S.tag("TaskListView"))
+) {}
+
+export const FolderListADT = S.tagged(
+  TaskList.Model,
+  TaskListGroup.Model,
+  TaskListView.Model
 )
-export type TaskList = AType<typeof TaskList>
-
-export const TaskListGroup = make((F) =>
-  F.interface({
-    id: TaskListId(F),
-    title: NonEmptyString(F),
-    lists: F.array(TaskList(F)),
-    _tag: F.stringLiteral("TaskListGroup"),
-  })
-)
-export type TaskListGroup = AType<typeof TaskListGroup>
-
-export const TaskListView = make((F) =>
-  F.interface({
-    title: NonEmptyString(F),
-    count: F.number(),
-    slug: F.string(),
-    _tag: F.stringLiteral("TaskListView"),
-  })
-)
-export type TaskListView = AType<typeof TaskListView>
-
-export const FolderListADT = makeADT("_tag")({ TaskList, TaskListGroup, TaskListView })
-export type FolderListADT = AType<typeof FolderListADT>
+export type FolderListADT = S.ParsedShapeOf<typeof FolderListADT>
 
 export const TaskViews = ["my-day", "important", "planned", "all"] as const
-export const TaskView = make((F) => F.keysOf(makeKeys(TaskViews)))
-export type TaskView = AType<typeof TaskView>
+export type TaskView = typeof TaskViews[number]
 
 const defaultDate = constant(new Date(1900, 1, 1))
 
@@ -134,20 +129,17 @@ export const orders = {
 export type Orders = keyof typeof orders
 
 const order = typedKeysOf(orders)
-export const Order = make((F) => F.keysOf(makeKeys(order)))
-export type Order = AType<typeof Order>
+export type Order = typeof order[number]
+export const Order = S.nonEmptyString // TODO
 
 const orderDir = ["up", "down"] as const
-export const OrderDir = make((F) => F.keysOf(makeKeys(orderDir)))
-export type OrderDir = AType<typeof OrderDir>
+export type OrderDir = typeof orderDir[number]
+export const OrderDir = S.nonEmptyString // TODO
 
-export const Ordery = make((F) =>
-  F.interface({
-    kind: Order(F),
-    dir: OrderDir(F),
-  })
-)
-export type Ordery = AType<typeof Ordery>
+export type Ordery = {
+  kind: Order
+  dir: OrderDir
+}
 
 export function filterByCategory(category: TaskView | string) {
   switch (category) {

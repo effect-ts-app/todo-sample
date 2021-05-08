@@ -78,7 +78,7 @@ export const FolderList = memo(function ({
       <List component="nav">
         {folders.map((f, idx) => (
           <React.Fragment key={idx}>
-            {Todo.FolderListADT.matchStrict({
+            {Todo.FolderListADT.Api.matchS({
               TaskListView: TLV,
               TaskList: TaskListEntry,
               TaskListGroup: TLG,

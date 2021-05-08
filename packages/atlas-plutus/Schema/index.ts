@@ -6,10 +6,11 @@ import type { Materialized } from "@effect-ts/morphic/Batteries/usage/materializ
 import type {
   SummonerEnv,
   SummonerInterpURI,
-  SummonerProgURI
+  SummonerProgURI,
 } from "@effect-ts/morphic/Batteries/usage/summoner"
 
 import type { JSONSchema, SubSchema } from "../JsonSchema"
+
 import type { References, SchemaURI } from "./base"
 import { modelSchemaInterpreter } from "./interpreter"
 

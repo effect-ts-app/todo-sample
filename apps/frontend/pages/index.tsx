@@ -1,9 +1,9 @@
 import * as O from "@effect-ts/core/Option"
 import React from "react"
 
+import { Order, OrderDir } from "@/Todo"
 import { useMemo } from "@/data"
 import TasksScreen from "@/features/Tasks"
-import { Order, OrderDir } from "@/features/Tasks/data"
 import { useRouteParams } from "@/routing"
 
 function HomePage() {

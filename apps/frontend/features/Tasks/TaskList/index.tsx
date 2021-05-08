@@ -29,8 +29,6 @@ import * as T from "@effect-ts-demo/core/ext/Effect"
 import * as EO from "@effect-ts-demo/core/ext/EffectOption"
 import { NonEmptyString, UUID } from "@effect-ts-demo/core/ext/Model"
 
-const isTaskList = TodoClient.Temp.GetMe.TaskListEntryOrGroup.is.TaskList
-
 const TaskListView = memo(function ({
   category,
   order,
@@ -85,7 +83,7 @@ const TaskListView = memo(function ({
       ? category === "tasks"
         ? meResult.value.right.inboxOrder
         : A.findFirstMap_(meResult.value.right.lists, (l) =>
-            isTaskList(l) && l.id === category ? O.some(l.order) : O.none
+            l._tag === "TaskList" && l.id === category ? O.some(l.order) : O.none
           )["|>"](O.getOrElse(() => []))
       : []
     const tasks = unfilteredTasks["|>"](Todo.filterByCategory(category))
@@ -120,7 +118,7 @@ const TaskListView = memo(function ({
           ? { inboxOrder: order }
           : {
               lists: A.map_(r.lists, (l) =>
-                l.id === category && isTaskList(l) ? { ...l, order } : l
+                l.id === category && l._tag === "TaskList" ? { ...l, order } : l
               ),
             }),
       }))

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 // CREDITS:
 // https://github.com/sledorze/morphic-ts/blob/master/packages/morphic-json-schema-interpreters/src/json-schema/json-schema.ts
 
@@ -7,43 +8,48 @@ import { pipe } from "@effect-ts/core/Function"
 import * as Lens from "@effect-ts/monocle/Lens"
 import * as Prism from "@effect-ts/monocle/Prism"
 
-export interface DescriptionSchema {
+export interface BaseConstructor {
+  new <T>(args: /*{} extends T ? void : */ T): T
+}
+
+// @ts-expect-error
+export const Base: BaseConstructor = class<T> {
+  constructor(args?: T) {
+    if (typeof args === "object" && args != null) {
+      const keys = Object.keys(args)
+
+      for (let i = 0; i < keys.length; i++) {
+        // @ts-expect-error
+        this[keys[i]!] = args[keys[i]!]
+      }
+    }
+  }
+}
+
+export class DescriptionSchema extends Base<{
   description?: string
   title?: string
   nullable?: boolean
-}
+}> {}
 
-export interface StringSchema extends DescriptionSchema {
-  type: "string"
-  minLength?: number
-  maxLength?: number
-  format?:
-    | "date-time"
-    | "date"
-    | "password"
-    | "byte"
-    | "binary"
-    | "bigint"
-    | "uuid"
-    | "email"
-  pattern?: string
+export class StringSchema extends Base<
+  DescriptionSchema & {
+    minLength?: number
+    maxLength?: number
+    format?:
+      | "date-time"
+      | "date"
+      | "password"
+      | "byte"
+      | "binary"
+      | "bigint"
+      | "uuid"
+      | "email"
+    pattern?: string
+  }
+> {
+  readonly type = "string"
 }
-
-export const StringSchema = (x?: {
-  minLength?: number
-  maxLength?: number
-  format?:
-    | "date-time"
-    | "date"
-    | "password"
-    | "byte"
-    | "binary"
-    | "bigint"
-    | "uuid"
-    | "email"
-  pattern?: string
-  description?: string
-}): StringSchema => ({ type: "string", ...(x === undefined ? {} : x) })
 
 export interface EnumSchema extends DescriptionSchema {
   type: "string"
@@ -66,50 +72,32 @@ export const EnumSchema = (p: {
 export const isEnumSchema = (x: JSONSchema): x is EnumSchema =>
   "type" in x && x.type === "string" && Array.isArray((x as EnumSchema).enum)
 
-export interface NumberSchema extends DescriptionSchema {
-  type: "number"
-  multipleOf?: number
-  minimum?: number
-  exclusiveMinimum?: boolean
-  maximum?: number
-  exclusiveMaximum?: boolean
+export class NumberSchema extends Base<
+  DescriptionSchema & {
+    multipleOf?: number
+    minimum?: number
+    exclusiveMinimum?: boolean
+    maximum?: number
+    exclusiveMaximum?: boolean
+  }
+> {
+  readonly type = "number"
 }
 
-export const NumberSchema = (x?: {
-  multipleOf?: number
-  minimum?: number
-  exclusiveMinimum?: boolean
-  maximum?: number
-  exclusiveMaximum?: boolean
-  description?: string
-}): NumberSchema => ({ type: "number", ...(x === undefined ? {} : x) })
-
-export interface BooleanSchema extends DescriptionSchema {
-  type: "boolean"
+export class BooleanSchema extends Base<DescriptionSchema> {
+  readonly type = "boolean"
 }
 
-export const BooleanSchema = (p: { description?: string }) => ({
-  type: "boolean",
-  ...p,
-})
-
-export interface ArraySchema extends DescriptionSchema {
-  type: "array"
-  items: SubSchema | A.Array<SubSchema>
-  minItems?: number
-  maxItems?: number
-  description?: string
+export class ArraySchema extends Base<
+  DescriptionSchema & {
+    items: SubSchema | A.Array<SubSchema>
+    minItems?: number
+    maxItems?: number
+    description?: string
+  }
+> {
+  readonly type = "array"
 }
-
-export const ArraySchema = (p: {
-  items: SubSchema | A.Array<SubSchema>
-  description?: string
-  minItems?: number
-  maxItems?: number
-}) => ({
-  type: "array" as const,
-  ...p,
-})
 
 export interface Ref {
   $ref: string
@@ -117,24 +105,21 @@ export interface Ref {
 
 export const Ref = ($ref: string): Ref => ({ $ref })
 
-export interface ObjectSchema extends DescriptionSchema {
-  type?: "object"
-  description?: string
-  required?: A.Array<string>
-  properties?: Record<string, SubSchema>
-  additionalProperties?: SubSchema
+export class ObjectSchema extends Base<
+  DescriptionSchema & {
+    description?: string
+    required?: A.Array<string>
+    properties?: Record<string, SubSchema>
+    additionalProperties?: SubSchema
+  }
+> {
+  readonly type = "object"
 }
 
 export const objectSchemaOnRequired = pipe(
   Lens.id<ObjectSchema>(),
   Lens.prop("required")
 )
-
-export const ObjectSchema = (x: {
-  description?: string
-  required?: A.Array<string>
-  properties?: Record<string, SubSchema>
-}): ObjectSchema => ({ type: "object" as const, ...x })
 
 export const isObjectSchema = (x: SubSchema): x is ObjectSchema =>
   "type" in x && x.type === "object"
@@ -145,23 +130,28 @@ export type SubSchema = JSONSchema | Ref
 
 export const SubSchema = (x: SubSchema) => x
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface Anything {}
 
 export const Anything: Anything = {}
 
-export interface OneOfSchema extends DescriptionSchema {
-  oneOf: A.Array<JSONSchema | SubSchema>
-  discriminator?: {
-    propertyName: string
+export class OneOfSchema extends Base<
+  DescriptionSchema & {
+    oneOf: A.Array<JSONSchema | SubSchema>
+    discriminator?: {
+      propertyName: string
+    }
   }
-}
+> {}
 
-export interface AllOfSchema extends DescriptionSchema {
-  allOf: A.Array<JSONSchema | SubSchema>
-  discriminator?: {
-    propertyName: string
+export class AllOfSchema extends Base<
+  DescriptionSchema & {
+    allOf: A.Array<JSONSchema | SubSchema>
+    discriminator?: {
+      propertyName: string
+    }
   }
-}
+> {}
 
 export type JSONSchema =
   | StringSchema

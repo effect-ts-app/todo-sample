@@ -12,8 +12,8 @@ export const SchemaRecordInterpreter = interpreter<X.SchemaURI, RecordURI>()(() 
       (Schema) =>
         new X.SchemaType(
           X.SchemaApplyConfig(config?.conf)(X.succeed({ type: "object" }), env, {
-            Schema
+            Schema,
           })
         )
-    )
+    ),
 }))

@@ -1,10 +1,11 @@
+import { Parser } from "@effect-ts-demo/core/ext/Schema"
+import * as S from "@effect-ts-demo/core/ext/Schema"
 import { pipe } from "@effect-ts/core"
 import * as T from "@effect-ts/core/Effect"
 import { flow } from "@effect-ts/core/Function"
 import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
-import { decode } from "@effect-ts/morphic/Decoder"
 
-import { fetchApi, fetchApi3, mapResponseError } from "../fetch"
+import { fetchApi, fetchApi3S, mapResponseErrorS } from "../fetch"
 
 import * as CreateTask from "./CreateTask"
 import * as DeleteTask from "./DeleteTask"
@@ -20,26 +21,30 @@ export * from "@effect-ts-demo/todo-types"
 
 export const getTasks = pipe(
   fetchApi("/tasks"),
-  T.chain(flow(decode(GetTasks.Response), mapResponseError))
+  T.chain(flow(Parser.for(GetTasks.Response)["|>"](S.condemn), mapResponseErrorS))
 )
 
-const decodeGetTaskResponse = flow(decode(GetTask.Response), mapResponseError)
+const decodeGetTaskResponse = flow(
+  Parser.for(GetTask.Response)["|>"](S.condemn),
+  mapResponseErrorS
+)
 export const findTask = (id: UUID) =>
   pipe(fetchApi(`/tasks/${id}`), T.chain(decodeGetTaskResponse))
 
-export const createTask = fetchApi3(CreateTask)("/tasks")
+export const createTask = fetchApi3S(CreateTask)("/tasks")
 
-const parseCreateTaskRequest = (i: CreateTask.RequestE) => decode(CreateTask.Request)(i)
+const parseCreateTaskRequest = (i: S.EncodedOf<typeof CreateTask.Request["Model"]>) =>
+  Parser.for(CreateTask.Request.Model)["|>"](S.condemn)(i)["|>"](T.orDie)
 export const createTaskE = flow(parseCreateTaskRequest, T.chain(createTask))
 
-const update = fetchApi3(UpdateTask, "PATCH")
+const update = fetchApi3S(UpdateTask, "PATCH")
 export function updateTask(req: UpdateTask.Request) {
   return update(`/tasks/${req.id}`)(req)
 }
 
-const del = fetchApi3(DeleteTask, "DELETE")
+const del = fetchApi3S(DeleteTask, "DELETE")
 export function deleteTask(req: DeleteTask.Request) {
   return del(`/tasks/${req.id}`)(req)
 }
 
-export const setTasksOrder = fetchApi3(SetTasksOrder, "POST")(`/tasks-order`)
+export const setTasksOrder = fetchApi3S(SetTasksOrder, "POST")(`/tasks-order`)
