@@ -13,7 +13,6 @@ import * as Ex from "@effect-ts/express"
 
 import { makeRequestHandler, RequestHandler } from "@/requestHandlerSchema"
 
-import * as RS from "./routingSchema"
 import { UserSVC } from "./services"
 
 import * as EO from "@effect-ts-demo/core/ext/EffectOption"
@@ -227,7 +226,7 @@ function del<
 export { del as delete }
 
 export function makeFromSchema(
-  e: RS.RouteDescriptor<any, any, any, any, any, any, any, any>
+  e: RouteDescriptor<any, any, any, any, any, any, any, any>
 ) {
   const jsonSchema_ = OpenApi.for
   const jsonSchema = <E, A>(r: S.ReqResSchemed<E, A>) => jsonSchema_(r.Model)

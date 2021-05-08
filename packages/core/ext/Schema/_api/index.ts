@@ -1,6 +1,8 @@
 export * from "./asBuilder"
 
-export * from "./bool"
-export * from "./nullable"
-export * from "./uuid"
 export * from "./Void"
+import { makeUuid } from "@effect-ts-demo/core/ext/Model"
+
+import * as S from "../vendor"
+
+export const withDefaultUuidId = S.withDefaultConstructorField("id", makeUuid)

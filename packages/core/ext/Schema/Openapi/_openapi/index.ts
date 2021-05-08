@@ -29,13 +29,11 @@ import {
   taggedUnionIdentifier,
 } from "@effect-ts/schema"
 
+import * as S from "../../_schema"
 import {
   boolIdentifier,
   nullableIdentifier,
   UUIDFromStringIdentifier,
-} from "../../_api"
-import * as S from "../../_schema"
-import {
   hasContinuation,
   intersectIdentifier,
   SchemaContinuationSymbol,
