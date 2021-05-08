@@ -15,8 +15,6 @@ export class TaskListEntry extends S.Model<TaskListEntry>()(
   S.required({
     id: TaskListId,
     order: S.array(TaskId),
-    //tasks: F.array(Task(F)), // taskCount
-    // order
   })["|>"](S.asBuilder)
 ) {}
 
@@ -26,9 +24,6 @@ export class SharableTaskListEntry extends S.Model<SharableTaskListEntry>()(
     S.required({
       title: S.nonEmptyString,
       parentListId: S.nullable(TaskListId),
-
-      //   members: F.array(Member(F)),
-      //   // tasks: F.array(TaskOrVirtualTask(F))
     })
   )
     ["|>"](S.tag("TaskList"))
@@ -41,18 +36,10 @@ export class TaskListEntryGroup extends S.Model<SharableTaskListEntry>()(
   S.required({
     id: TaskListId,
     title: S.nonEmptyString,
-    // order: S.array(TaskId),
-    //tasks: F.array(Task(F)), // taskCount
-    // order
   })
     ["|>"](S.tag("TaskListGroup"))
     ["|>"](S.asBuilder)
 ) {}
-
-// export const TaskListEntryOrGroup = makeADT("_tag")({
-//   TaskListGroup: TaskListEntryGroup,
-//   TaskList: SharableTaskListEntry,
-// })
 
 export const TaskListEntryOrGroup = S.tagged(
   SharableTaskListEntry.Model,

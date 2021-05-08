@@ -185,38 +185,3 @@ export class User extends S.Model<User>()(
       (date) => User.addToMyDay(t, date)
     )
 }
-
-// const createUser = Constructor.for(User.Model)
-// const parseUser = Parser.for(User.Model)
-
-// function unsafe<A>(self: These<AnyError, A>) {
-//   const res = self.effect
-//   if (res._tag === "Left") {
-//     throw new CondemnException({ message: drawError(res.left) })
-//   }
-//   const warn = res.right.get(1)
-//   if (warn._tag === "Some") {
-//     throw new CondemnException({ message: drawError(warn.value) })
-//   }
-//   return res.right.get(0)
-// }
-
-// const someUserId = 1 as UserId
-// const someName = "some name" as S.NonEmptyString
-// const u = new User({ id: someUserId, name: someName })
-// const u2 = createUser({ id: someUserId, name: someName })
-// const u3 = parseUser({
-//   id: 2,
-//   name: "Me",
-//   inboxOrder: ["abc"],
-//   // TODO: new Date() errors cause its not an ISOString, but the error message shows the value as an isostring (toJSON), so its confusing.
-//   // cannot process "2021-05-06T12:35:40.375Z", expected a date string
-//   myDay: [{ id: "abc", date: new Date().toISOString() }],
-// })
-// const err1 = parseUser({ id: 2, name: "Me" })
-
-// console.log("u: ", u, "u2: ", u2, "u3:", u3, "err1: ", err1)
-// console.log("u2:", u2["|>"](unsafe))
-// console.log("u3:", u3["|>"](unsafe))
-// // const err2 = createUser({ id: 2, name: "Me" })
-// // const err3 = new User({ id: 2, name: "Me" })
