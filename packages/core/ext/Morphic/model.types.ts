@@ -1,10 +1,7 @@
-import * as S from "@effect-ts-demo/core/ext/Schema"
-import { UUID as SUUID } from "@effect-ts-demo/core/ext/Schema"
 import type { Branded } from "@effect-ts/core/Branded"
 import { constVoid } from "@effect-ts/core/Function"
 import * as Sy from "@effect-ts/core/Sync"
 import { IntBrand, PositiveBrand } from "@effect-ts/schema"
-import { v4 } from "uuid"
 
 import type { Arbitrary, FC } from "../FastCheck"
 import { flow, pipe } from "../Function"
@@ -23,14 +20,14 @@ import {
 } from "./model"
 
 export const UUID = make((F) => F.uuid())
-export type UUID = SUUID
+export type UUID = AType<typeof UUID>
 
 export type { Branded }
 
 // TODO: Arbitraries should still be cut/filtered on max and min lengths
 
 const MIN = 1
-type NonEmptyStringBranded = Branded<string, NonEmptyStringBrand> & S.NonEmptyBrand
+type NonEmptyStringBranded = Branded<string, NonEmptyStringBrand>
 
 export const isNonEmptyString = (v: string): v is NonEmptyStringBranded =>
   V.all_(v.length, V.minN(MIN))
@@ -354,10 +351,6 @@ export const NonEmptyTextString = makeTextString((_c, fc) =>
 export const NonEmptyShortString = makeLongString((_c, fc) => fc.lorem({ maxCount: 3 }))
 
 export const Word = makeReasonableString((_c, fc) => fc.lorem({ maxCount: 1 }))
-
-export function makeUuid() {
-  return v4() as UUID
-}
 
 const defaultVoid = Sy.succeed(constVoid())
 const defaultVoidThunk = () => defaultVoid

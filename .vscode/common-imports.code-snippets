@@ -39,6 +39,13 @@
         "body": [
             "import * as MO from \"@effect-ts-demo/core/ext/Model\""
         ],
+        "description": "Schema as MO"
+    },
+    "Morphic": {
+        "prefix": "+MOR",
+        "body": [
+            "import * as MO from \"@effect-ts-demo/core/ext/Morphic\""
+        ],
         "description": "Morphic as MO"
     },
     "Effect": {

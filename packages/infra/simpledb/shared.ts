@@ -1,7 +1,7 @@
 import assert from "assert"
 
 import { pipe } from "@effect-ts-demo/core/ext/Function"
-import * as MO from "@effect-ts-demo/core/ext/Model"
+import * as MO from "@effect-ts-demo/core/ext/Morphic"
 import * as T from "@effect-ts/core/Effect"
 import * as O from "@effect-ts/core/Option"
 import * as Sy from "@effect-ts/core/Sync"

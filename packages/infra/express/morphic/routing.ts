@@ -7,7 +7,7 @@ import {
 } from "@atlas-ts/plutus"
 import { schema } from "@atlas-ts/plutus/Schema"
 import * as EO from "@effect-ts-demo/core/ext/EffectOption"
-import { Void } from "@effect-ts-demo/core/ext/Model"
+import { Void } from "@effect-ts-demo/core/ext/Morphic"
 import { Has, pipe } from "@effect-ts/core"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as T from "@effect-ts/core/Effect"

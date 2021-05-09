@@ -1,5 +1,5 @@
 import * as T from "@effect-ts-demo/core/ext/Effect"
-import { M } from "@effect-ts-demo/core/ext/Model"
+import { M } from "@effect-ts-demo/core/ext/Morphic"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as Map from "@effect-ts/core/Collections/Immutable/Map"
 import { flow, pipe } from "@effect-ts/core/Function"

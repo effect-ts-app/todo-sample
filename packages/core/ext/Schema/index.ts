@@ -1,9 +1,14 @@
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
+import { v4 } from "uuid"
 
 import { constant, Lazy, pipe } from "../Function"
 
 import * as S from "./vendor"
 import { schemaField } from "./vendor"
+
+export function makeUuid() {
+  return v4() as S.UUID
+}
 
 export const namedC = function (cls: any) {
   cls[schemaField] = cls[schemaField]["|>"](S.named(cls.name))
