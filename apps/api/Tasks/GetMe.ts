@@ -10,7 +10,7 @@ import {
   Request,
   Response,
   SharableTaskListEntry,
-} from "@effect-ts-demo/todo-client/Temp/GetMe"
+} from "@effect-ts-demo/todo-client/Tasks/GetMe"
 import { TaskListOrGroup } from "@effect-ts-demo/todo-types/Task"
 
 export const handle = (_: Request) =>
@@ -19,14 +19,14 @@ export const handle = (_: Request) =>
 
     const allLists = yield* $(UserContext.allLists(user.id))
     const groups = Chunk.filterMap_(allLists, (l) =>
-      TaskListOrGroup.is.TaskListGroup(l) ? O.some(l) : O.none
+      l._tag === "TaskListGroup" ? O.some(l) : O.none
     )
     const lists = Chunk.map_(
       allLists,
-      TaskListOrGroup.match({
+      TaskListOrGroup.Api.matchW({
         TaskListGroup: (l) => l,
         TaskList: (l) =>
-          SharableTaskListEntry.build({
+          new SharableTaskListEntry({
             ...l,
             parentListId: Chunk.find_(groups, (g) => g.lists.includes(l.id))["|>"](
               O.map((x) => x.id)
@@ -34,12 +34,12 @@ export const handle = (_: Request) =>
           }),
       })
     )["|>"](Chunk.toArray)
-
-    return {
+    const r = {
       name: user.name,
       inboxOrder: user.inboxOrder,
       lists,
     } as Response
+    return r
   })
 
 export { Request, Response }

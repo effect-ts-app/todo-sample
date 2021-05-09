@@ -1,5 +1,4 @@
 import * as O from "@effect-ts/core/Option"
-import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
 import { Box, Card, Checkbox } from "@material-ui/core"
 import Alarm from "@material-ui/icons/Alarm"
 import CalendarToday from "@material-ui/icons/CalendarToday"
@@ -9,7 +8,7 @@ import React from "react"
 import { Draggable } from "react-beautiful-dnd"
 import styled from "styled-components"
 
-import * as Todo from "@/Todo"
+import { Todo } from "@/index"
 import {
   ClickableMixin,
   Completable,
@@ -52,7 +51,7 @@ export const Task = memo(function ({
 }: {
   task: Todo.Task
   index: number
-  setSelectedTaskId: (id: UUID) => void
+  setSelectedTaskId: (id: Todo.TaskId) => void
 }) {
   const {
     findResult,

@@ -5,7 +5,7 @@
     "version": "0.0.1"
   },
   "paths": {
-    "/tasks": {
+    "/me": {
       "get": {
         "parameters": [
           {
@@ -13,9 +13,8 @@
             "in": "header",
             "required": true,
             "schema": {
-              "type": "string",
-              "title": "NonEmptyString",
-              "minLength": 1
+              "minLength": 1,
+              "type": "string"
             }
           }
         ],
@@ -25,35 +24,100 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "inboxOrder": {
+                      "items": {
+                        "format": "uuid",
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "lists": {
+                      "items": {
+                        "title": "TaskListEntryOrGroup",
+                        "oneOf": [
+                          {
+                            "$ref": "#/components/schemas/SharableTaskListEntry"
+                          },
+                          {
+                            "$ref": "#/components/schemas/TaskListEntryGroup"
+                          }
+                        ],
+                        "discriminator": {
+                          "propertyName": "_tag"
+                        }
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "inboxOrder",
+                    "lists"
+                  ],
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "ValidationError"
+          }
+        }
+      }
+    },
+    "/tasks": {
+      "get": {
+        "parameters": [
+          {
+            "name": "x-user-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "minLength": 1,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
                   "properties": {
                     "items": {
-                      "type": "array",
                       "items": {
                         "allOf": [
                           {
                             "$ref": "#/components/schemas/Task"
                           },
                           {
-                            "type": "object",
                             "properties": {
                               "myDay": {
-                                "type": "string",
                                 "format": "date-time",
+                                "type": "string",
                                 "nullable": true
                               }
                             },
                             "required": [
                               "myDay"
-                            ]
+                            ],
+                            "type": "object"
                           }
                         ]
-                      }
+                      },
+                      "type": "array"
                     }
                   },
                   "required": [
                     "items"
-                  ]
+                  ],
+                  "type": "object"
                 }
               }
             }
@@ -69,42 +133,31 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
                 "properties": {
+                  "listId": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "title": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
                   "isFavorite": {
                     "type": "boolean"
                   },
-                  "listId": {
-                    "oneOf": [
-                      {
-                        "type": "string",
-                        "format": "uuid"
-                      },
-                      {
-                        "type": "string",
-                        "enum": [
-                          "inbox"
-                        ]
-                      }
-                    ]
-                  },
                   "myDay": {
-                    "type": "string",
                     "format": "date-time",
-                    "nullable": true
-                  },
-                  "title": {
                     "type": "string",
-                    "title": "NonEmptyString",
-                    "minLength": 1
+                    "nullable": true
                   }
                 },
                 "required": [
-                  "isFavorite",
                   "listId",
-                  "myDay",
-                  "title"
-                ]
+                  "title",
+                  "isFavorite",
+                  "myDay"
+                ],
+                "type": "object"
               }
             }
           }
@@ -115,16 +168,16 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
                   "properties": {
                     "id": {
-                      "type": "string",
-                      "format": "uuid"
+                      "format": "uuid",
+                      "type": "string"
                     }
                   },
                   "required": [
                     "id"
-                  ]
+                  ],
+                  "type": "object"
                 }
               }
             }
@@ -143,8 +196,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "type": "string"
             }
           }
         ],
@@ -159,17 +212,17 @@
                       "$ref": "#/components/schemas/Task"
                     },
                     {
-                      "type": "object",
                       "properties": {
                         "myDay": {
-                          "type": "string",
                           "format": "date-time",
+                          "type": "string",
                           "nullable": true
                         }
                       },
                       "required": [
                         "myDay"
-                      ]
+                      ],
+                      "type": "object"
                     }
                   ],
                   "nullable": true
@@ -189,8 +242,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "type": "string"
             }
           }
         ],
@@ -198,55 +251,52 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
                 "properties": {
-                  "assignedTo": {
-                    "type": "number",
-                    "title": "PositiveInt",
-                    "minimum": 0,
-                    "nullable": true
+                  "title": {
+                    "minLength": 1,
+                    "type": "string"
                   },
                   "completed": {
-                    "type": "string",
                     "format": "date-time",
-                    "nullable": true
-                  },
-                  "due": {
                     "type": "string",
-                    "format": "date-time",
                     "nullable": true
                   },
                   "isFavorite": {
                     "type": "boolean"
                   },
-                  "myDay": {
-                    "type": "string",
+                  "due": {
                     "format": "date-time",
-                    "nullable": true
-                  },
-                  "note": {
                     "type": "string",
-                    "title": "NonEmptyString",
-                    "minLength": 1,
                     "nullable": true
                   },
                   "reminder": {
-                    "type": "string",
                     "format": "date-time",
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "note": {
+                    "minLength": 1,
+                    "type": "string",
                     "nullable": true
                   },
                   "steps": {
-                    "type": "array",
                     "items": {
                       "$ref": "#/components/schemas/Step"
-                    }
+                    },
+                    "type": "array"
                   },
-                  "title": {
+                  "assignedTo": {
+                    "minimum": 0,
+                    "type": "number",
+                    "nullable": true
+                  },
+                  "myDay": {
+                    "format": "date-time",
                     "type": "string",
-                    "title": "NonEmptyString",
-                    "minLength": 1
+                    "nullable": true
                   }
-                }
+                },
+                "type": "object"
               }
             }
           }
@@ -270,8 +320,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "type": "string"
             }
           }
         ],
@@ -295,34 +345,24 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
                 "properties": {
-                  "listId": {
-                    "oneOf": [
-                      {
-                        "type": "string",
-                        "format": "uuid"
-                      },
-                      {
-                        "type": "string",
-                        "enum": [
-                          "inbox"
-                        ]
-                      }
-                    ]
-                  },
                   "order": {
-                    "type": "array",
                     "items": {
-                      "type": "string",
-                      "format": "uuid"
-                    }
+                      "format": "uuid",
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "listId": {
+                    "minLength": 1,
+                    "type": "string"
                   }
                 },
                 "required": [
-                  "listId",
-                  "order"
-                ]
+                  "order",
+                  "listId"
+                ],
+                "type": "object"
               }
             }
           }
@@ -336,283 +376,181 @@
           }
         }
       }
-    },
-    "/me": {
-      "get": {
-        "parameters": [
-          {
-            "name": "x-user-id",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "NonEmptyString",
-              "minLength": 1
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "inboxOrder": {
-                      "type": "array",
-                      "items": {
-                        "type": "string",
-                        "format": "uuid"
-                      }
-                    },
-                    "lists": {
-                      "type": "array",
-                      "items": {
-                        "oneOf": [
-                          {
-                            "type": "object",
-                            "properties": {
-                              "_tag": {
-                                "type": "string",
-                                "enum": [
-                                  "TaskListGroup"
-                                ]
-                              },
-                              "id": {
-                                "oneOf": [
-                                  {
-                                    "type": "string",
-                                    "format": "uuid"
-                                  },
-                                  {
-                                    "type": "string",
-                                    "enum": [
-                                      "inbox"
-                                    ]
-                                  }
-                                ]
-                              },
-                              "title": {
-                                "type": "string",
-                                "title": "NonEmptyString",
-                                "minLength": 1
-                              }
-                            },
-                            "required": [
-                              "_tag",
-                              "id",
-                              "title"
-                            ]
-                          },
-                          {
-                            "allOf": [
-                              {
-                                "type": "object",
-                                "properties": {
-                                  "id": {
-                                    "oneOf": [
-                                      {
-                                        "type": "string",
-                                        "format": "uuid"
-                                      },
-                                      {
-                                        "type": "string",
-                                        "enum": [
-                                          "inbox"
-                                        ]
-                                      }
-                                    ]
-                                  },
-                                  "order": {
-                                    "type": "array",
-                                    "items": {
-                                      "type": "string",
-                                      "format": "uuid"
-                                    }
-                                  }
-                                },
-                                "required": [
-                                  "id",
-                                  "order"
-                                ]
-                              },
-                              {
-                                "type": "object",
-                                "properties": {
-                                  "_tag": {
-                                    "type": "string",
-                                    "enum": [
-                                      "TaskList"
-                                    ]
-                                  },
-                                  "parentListId": {
-                                    "oneOf": [
-                                      {
-                                        "type": "string",
-                                        "format": "uuid"
-                                      },
-                                      {
-                                        "type": "string",
-                                        "enum": [
-                                          "inbox"
-                                        ]
-                                      }
-                                    ],
-                                    "nullable": true
-                                  },
-                                  "title": {
-                                    "type": "string",
-                                    "title": "NonEmptyString",
-                                    "minLength": 1
-                                  }
-                                },
-                                "required": [
-                                  "_tag",
-                                  "parentListId",
-                                  "title"
-                                ]
-                              }
-                            ]
-                          }
-                        ],
-                        "discriminator": {
-                          "propertyName": "_tag"
-                        }
-                      }
-                    },
-                    "name": {
-                      "type": "string",
-                      "title": "NonEmptyString",
-                      "minLength": 1
-                    }
-                  },
-                  "required": [
-                    "inboxOrder",
-                    "lists",
-                    "name"
-                  ]
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "ValidationError"
-          }
-        }
-      }
     }
   },
   "components": {
     "securitySchemes": {},
     "schemas": {
-      "Step": {
-        "type": "object",
+      "TaskListEntry": {
+        "title": "TaskListEntry",
         "properties": {
-          "completed": {
-            "type": "boolean"
+          "id": {
+            "format": "uuid",
+            "type": "string"
           },
-          "title": {
-            "type": "string",
-            "title": "NonEmptyString",
-            "minLength": 1
+          "order": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array"
           }
         },
         "required": [
-          "completed",
-          "title"
+          "id",
+          "order"
+        ],
+        "type": "object"
+      },
+      "SharableTaskListEntry": {
+        "title": "SharableTaskListEntry",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TaskListEntry"
+          },
+          {
+            "properties": {
+              "title": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "parentListId": {
+                "format": "uuid",
+                "type": "string",
+                "nullable": true
+              }
+            },
+            "required": [
+              "title",
+              "parentListId"
+            ],
+            "type": "object"
+          }
         ]
       },
-      "Task": {
-        "type": "object",
+      "TaskListEntryGroup": {
+        "title": "TaskListEntryGroup",
         "properties": {
-          "assignedTo": {
-            "type": "number",
-            "title": "PositiveInt",
-            "minimum": 0,
-            "nullable": true
-          },
-          "completed": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "createdBy": {
-            "type": "number",
-            "title": "PositiveInt",
-            "minimum": 0
-          },
-          "due": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
           "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "isFavorite": {
-            "type": "boolean"
-          },
-          "listId": {
-            "oneOf": [
-              {
-                "type": "string",
-                "format": "uuid"
-              },
-              {
-                "type": "string",
-                "enum": [
-                  "inbox"
-                ]
-              }
-            ]
-          },
-          "note": {
-            "type": "string",
-            "title": "NonEmptyString",
-            "minLength": 1,
-            "nullable": true
-          },
-          "reminder": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "steps": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Step"
-            }
+            "format": "uuid",
+            "type": "string"
           },
           "title": {
-            "type": "string",
-            "title": "NonEmptyString",
-            "minLength": 1
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time"
+            "minLength": 1,
+            "type": "string"
           }
         },
         "required": [
-          "assignedTo",
-          "completed",
-          "createdAt",
-          "createdBy",
-          "due",
           "id",
-          "isFavorite",
-          "listId",
-          "note",
-          "reminder",
-          "steps",
+          "title"
+        ],
+        "type": "object"
+      },
+      "Step": {
+        "title": "Step",
+        "properties": {
+          "title": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "completed": {
+            "type": "boolean"
+          }
+        },
+        "required": [
           "title",
-          "updatedAt"
+          "completed"
+        ],
+        "type": "object"
+      },
+      "Task": {
+        "title": "Task",
+        "allOf": [
+          {
+            "properties": {
+              "id": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "createdAt": {
+                "format": "date-time",
+                "type": "string"
+              },
+              "updatedAt": {
+                "format": "date-time",
+                "type": "string"
+              },
+              "createdBy": {
+                "minimum": 0,
+                "type": "number"
+              },
+              "listId": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "createdAt",
+              "updatedAt",
+              "createdBy",
+              "listId"
+            ],
+            "type": "object"
+          },
+          {
+            "properties": {
+              "title": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "completed": {
+                "format": "date-time",
+                "type": "string",
+                "nullable": true
+              },
+              "isFavorite": {
+                "type": "boolean"
+              },
+              "due": {
+                "format": "date-time",
+                "type": "string",
+                "nullable": true
+              },
+              "reminder": {
+                "format": "date-time",
+                "type": "string",
+                "nullable": true
+              },
+              "note": {
+                "minLength": 1,
+                "type": "string",
+                "nullable": true
+              },
+              "steps": {
+                "items": {
+                  "$ref": "#/components/schemas/Step"
+                },
+                "type": "array"
+              },
+              "assignedTo": {
+                "minimum": 0,
+                "type": "number",
+                "nullable": true
+              }
+            },
+            "required": [
+              "title",
+              "completed",
+              "isFavorite",
+              "due",
+              "reminder",
+              "note",
+              "steps",
+              "assignedTo"
+            ],
+            "type": "object"
+          }
         ]
       }
     },

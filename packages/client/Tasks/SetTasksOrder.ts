@@ -1,20 +1,13 @@
-import { Void } from "@effect-ts-demo/core/ext/Model"
-import { TaskId, TaskListId } from "@effect-ts-demo/todo-types"
-import { make, AType, EType, opaque } from "@effect-ts/morphic"
+import * as S from "@effect-ts-demo/core/ext/Schema"
+import { TaskId } from "@effect-ts-demo/todo-types"
+import { pipe } from "@effect-ts/core"
 
-const RequestBody_ = make((F) =>
-  F.interface({
-    order: F.array(TaskId(F)),
-    listId: TaskListId(F),
-  })
-)
-const Request_ = make((F) => F.intersection(RequestBody_(F))())
-export interface Request extends AType<typeof Request_> {}
-export interface RequestE extends EType<typeof Request_> {}
-export const Request = Object.assign(opaque<RequestE, Request>()(Request_), {
-  Body: RequestBody_,
-})
+export class RequestBody extends S.Model<RequestBody>()(
+  pipe(S.required({ order: S.array(TaskId), listId: S.nonEmptyString })) // TaskListId: union of "inbox" and "UUID"
+) {}
+export class Request extends S.Model<Request>()(RequestBody.Model) {
+  static readonly Body = RequestBody
+}
 
-export const Response = Void
-export type Response = AType<typeof Response>
-export type ResponseE = EType<typeof Response>
+export const Response = S.Void
+export type Response = S.ParsedShapeOf<typeof Response>

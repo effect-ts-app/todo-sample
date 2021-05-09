@@ -1,4 +1,3 @@
-import * as TodoClient from "@effect-ts-demo/todo-client"
 import * as NA from "@effect-ts/core/Collections/Immutable/NonEmptyArray"
 import { flow } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
@@ -12,10 +11,11 @@ import { datumEither } from "@nll/datum"
 import React from "react"
 import useInterval from "use-interval"
 
-import * as Todo from "@/Todo"
 import { Field } from "@/components"
 import { useServiceContext } from "@/context"
 import { memo, withLoading } from "@/data"
+import { Todo } from "@/index"
+import { TodoClient } from "@/index"
 import { renderIf_, toUpperCaseFirst } from "@/utils"
 
 import { useGetTask, useMe, useModifyMe, useNewTask, useTasks } from "../data"
@@ -27,15 +27,12 @@ import { TaskListMenu } from "./TaskListMenu"
 import * as A from "@effect-ts-demo/core/ext/Array"
 import * as T from "@effect-ts-demo/core/ext/Effect"
 import * as EO from "@effect-ts-demo/core/ext/EffectOption"
-import { NonEmptyString, UUID } from "@effect-ts-demo/core/ext/Model"
-
-const isTaskList = TodoClient.Temp.GetMe.TaskListEntryOrGroup.is.TaskList
 
 const TaskListView = memo(function ({
   category,
   order,
 }: {
-  category: NonEmptyString
+  category: Todo.Category
   order: O.Option<Todo.Ordery>
 }) {
   const [meResult] = useMe()
@@ -85,7 +82,7 @@ const TaskListView = memo(function ({
       ? category === "tasks"
         ? meResult.value.right.inboxOrder
         : A.findFirstMap_(meResult.value.right.lists, (l) =>
-            isTaskList(l) && l.id === category ? O.some(l.order) : O.none
+            l._tag === "TaskList" && l.id === category ? O.some(l.order) : O.none
           )["|>"](O.getOrElse(() => []))
       : []
     const tasks = unfilteredTasks["|>"](Todo.filterByCategory(category))
@@ -94,7 +91,7 @@ const TaskListView = memo(function ({
         A.sortBy(
           order["|>"](
             O.map((o) =>
-              NA.single(Todo.orders[o.kind])["|>"](
+              NA.single(Todo.orders[(o.kind as any) as keyof typeof Todo.orders])["|>"](
                 NA.map((ord) => (o.dir === "down" ? ORD.inverted(ord) : ord))
               )
             )
@@ -120,7 +117,7 @@ const TaskListView = memo(function ({
           ? { inboxOrder: order }
           : {
               lists: A.map_(r.lists, (l) =>
-                l.id === category && isTaskList(l) ? { ...l, order } : l
+                l.id === category && l._tag === "TaskList" ? { ...l, order } : l
               ),
             }),
       }))
@@ -193,7 +190,7 @@ const TaskListOrNone = ({
   category,
   order,
 }: {
-  category: O.Option<NonEmptyString>
+  category: O.Option<Todo.Category>
   order: O.Option<Todo.Ordery>
 }) =>
   O.fold_(
@@ -202,11 +199,11 @@ const TaskListOrNone = ({
     (category) => <TaskListView category={category} order={order} />
   )
 
-// function orderTasks(a: A.Array<Task>, order: A.Array<UUID>) {
+// function orderTasks(a: A.Array<Task>, order: A.Array<Todo.TaskId>) {
 //   return A.reverse(a)["|>"](A.sort(makeOrderBySortingArrOrd(order)))
 // }
 
-function makeOrderBySortingArrOrd(sortingArr: A.Array<UUID>): Ord<Todo.Task> {
+function makeOrderBySortingArrOrd(sortingArr: A.Array<Todo.TaskId>): Ord<Todo.Task> {
   return {
     compare: (a, b) => {
       const diff = sortingArr.indexOf(a.id) - sortingArr.indexOf(b.id)

@@ -9,10 +9,10 @@ import Star from "@material-ui/icons/Star"
 import Link from "next/link"
 import React from "react"
 
-import * as Todo from "@/Todo"
+import { Todo } from "@/index"
 import { memo } from "@/data"
 
-import { NonEmptyString } from "@effect-ts-demo/core/ext/Model"
+import * as S from "@effect-ts-demo/core/ext/Schema"
 
 const icons: Record<string, JSX.Element> = {
   all: <Balance />,
@@ -43,7 +43,7 @@ function TLG(g: Todo.TaskListGroup) {
       <List component="div" disablePadding>
         {g.lists.map((l, idx) => (
           <React.Fragment key={idx}>
-            <TaskListEntry {...l} title={("| -- " + l.title) as NonEmptyString} />
+            <TaskListEntry {...l} title={("| -- " + l.title) as S.NonEmptyString} />
           </React.Fragment>
         ))}
       </List>
@@ -67,7 +67,7 @@ export const FolderList = memo(function ({
   name,
 }: {
   folders: readonly Todo.FolderListADT[]
-  category: O.Option<NonEmptyString>
+  category: O.Option<Todo.Category>
   name: string | null
 }) {
   //const cat = O.toNullable(category)
@@ -78,7 +78,7 @@ export const FolderList = memo(function ({
       <List component="nav">
         {folders.map((f, idx) => (
           <React.Fragment key={idx}>
-            {Todo.FolderListADT.matchStrict({
+            {Todo.FolderListADT.Api.matchS({
               TaskListView: TLV,
               TaskList: TaskListEntry,
               TaskListGroup: TLG,

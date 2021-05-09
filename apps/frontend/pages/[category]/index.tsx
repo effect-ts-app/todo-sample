@@ -1,16 +1,15 @@
 import * as O from "@effect-ts/core/Option"
 import React from "react"
 
+import { Todo } from "@/index"
 import { useMemo } from "@/data"
 import TasksScreen from "@/features/Tasks"
 import { Order, OrderDir } from "@/features/Tasks/data"
 import { useRouteParams } from "@/routing"
 
-import { NonEmptyString } from "@effect-ts-demo/core/ext/Model"
-
 function CategoryPage() {
   const { category, order, orderDirection } = useRouteParams({
-    category: NonEmptyString,
+    category: Todo.Category,
     order: Order,
     orderDirection: OrderDir,
   })

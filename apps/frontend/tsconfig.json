@@ -17,6 +17,9 @@
             "@effect-ts-demo/todo-types/*": [
                 "../../packages/types/*"
             ],
+            "@/": [
+                "./"
+            ],
             "@/*": [
                 "./*"
             ]
@@ -33,7 +36,8 @@
         "resolveJsonModule": true,
         "isolatedModules": true,
         "noEmit": true,
-        "jsx": "preserve"
+        "jsx": "preserve",
+        "experimentalDecorators": true
     },
     "include": [
         "next-env.d.ts",

@@ -4,16 +4,15 @@ import React from "react"
 import { useMemo } from "@/data"
 import TasksScreen from "@/features/Tasks"
 import { Order, OrderDir } from "@/features/Tasks/data"
+import { Todo } from "@/index"
 import { useRouteParams } from "@/routing"
-
-import { UUID, NonEmptyString } from "@effect-ts-demo/core/ext/Model"
 
 function TasksPage() {
   const { category, order, orderDirection, tasks: taskId } = useRouteParams({
-    category: NonEmptyString,
+    category: Todo.Category,
     order: Order,
     orderDirection: OrderDir,
-    tasks: UUID,
+    tasks: Todo.TaskId,
   })
   const o = useMemo(() => {
     return O.map_(order, (kind) => ({

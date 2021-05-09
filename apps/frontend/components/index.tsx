@@ -8,7 +8,7 @@ import styled, { css } from "styled-components"
 import { memo, onSuccess, PromiseExit } from "@/data"
 import { constEmptyString } from "@/utils"
 
-import { NonEmptyString } from "@effect-ts-demo/core/ext/Model"
+import * as S from "@effect-ts-demo/core/ext/Schema"
 
 export const Clickable = styled(Box)`
   ${ClickableMixin}
@@ -74,7 +74,7 @@ export const Field = memo(function ({
   state,
   ...rest
 }: {
-  onChange: (t: NonEmptyString) => PromiseExit
+  onChange: (t: S.NonEmptyString) => PromiseExit
   state?: unknown
 } & Omit<TextFieldProps, "onChange">) {
   const [text, setText] = useState(constEmptyString)
@@ -90,7 +90,7 @@ export const Field = memo(function ({
       onKeyDown={(evt) => {
         evt.key === "Enter" &&
           text.length &&
-          onChange(text as NonEmptyString).then(onSuccess(clearText))
+          onChange(text as S.NonEmptyString).then(onSuccess(clearText))
       }}
       {...rest}
     />

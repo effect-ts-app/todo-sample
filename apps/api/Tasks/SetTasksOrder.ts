@@ -2,10 +2,10 @@ import { SharableTaskList, TaskListOrGroup, User } from "@effect-ts-demo/todo-ty
 import * as T from "@effect-ts/core/Effect"
 import * as Lens from "@effect-ts/monocle/Lens"
 
-import { UserSVC } from "@/services"
-
 import * as TaskContext from "./TaskContext"
 
+import { UUID } from "@effect-ts-demo/core/ext/Schema"
+import { UserSVC } from "@effect-ts-demo/infra/services"
 import { Request, Response } from "@effect-ts-demo/todo-client/Tasks/SetTasksOrder"
 
 const inboxOrder = User.lens["|>"](Lens.prop("inboxOrder"))
@@ -21,8 +21,8 @@ export const handle = (_: Request) =>
     }
     yield* $(
       TaskContext.updateList(
-        _.listId,
-        TaskListOrGroup.match({
+        _.listId as UUID, // TODO
+        TaskListOrGroup.Api.matchW({
           TaskList: order.set(_.order),
           TaskListGroup: (l) => l,
         })

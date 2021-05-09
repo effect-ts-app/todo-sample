@@ -1,24 +1,23 @@
-import * as TodoClient from "@effect-ts-demo/todo-client"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import { constant, flow, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import { Lens } from "@effect-ts/monocle"
-import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
 import { useCallback, useEffect, useMemo } from "react"
 
-import * as Todo from "@/Todo"
 import { useServiceContext } from "@/context"
 import { useFetch, useModify, useQuery } from "@/data"
+import { TodoClient, Todo } from "@/index"
 
 import * as T from "@effect-ts-demo/core/ext/Effect"
 import * as EO from "@effect-ts-demo/core/ext/EffectOption"
-import { NonEmptyString } from "@effect-ts-demo/core/ext/Model"
+import * as S from "@effect-ts-demo/core/ext/Schema"
+import { Parser } from "@effect-ts-demo/core/ext/Schema"
 
 // export function useModifyTasks() {
 //   return useModify<A.Array<Todo.Task>>("latestTasks")
 // }
 
-// export function useGetTaskList(id: UUID) {
+// export function useGetTaskList(id: TaskListId) {
 //   //const modifyTasks = useModifyTasks()
 //   const [findResult, findTaskList] = useFindTaskList()
 //   return [
@@ -44,7 +43,7 @@ import { NonEmptyString } from "@effect-ts-demo/core/ext/Model"
 //   ] as const
 // }
 
-const fetchMe = constant(TodoClient.Temp.getMe)
+const fetchMe = constant(TodoClient.Tasks.getMe)
 
 export function useMe() {
   const { runWithErrorLog } = useServiceContext()
@@ -78,9 +77,10 @@ export function useTasks() {
   return r
 }
 
+const Inbox = "inbox" as Todo.TaskListIdU
 const newTask = (
-  v: Todo.TaskView | NonEmptyString,
-  listId: Todo.TaskListId = "inbox"
+  v: Todo.TaskView | S.NonEmptyString,
+  listId: Todo.TaskListIdU = Inbox
 ) => (newTitle: string) =>
   TodoClient.Tasks.createTaskE({
     title: newTitle,
@@ -94,13 +94,13 @@ const newTask = (
       : {}),
   })
 export function useNewTask(
-  v: Todo.TaskView | NonEmptyString,
+  v: Todo.TaskView | S.NonEmptyString,
   listId?: Todo.TaskListId
 ) {
   return useFetch(newTask(v, listId))
 }
 
-// export function useFindTaskList(id: UUID) {
+// export function useFindTaskList(id: TaskListId) {
 //   //return useFetch(TodoClient.Temp.findTaskList)
 //   const { runWithErrorLog } = useServiceContext()
 //   const modify = useModifyTasks()
@@ -124,7 +124,7 @@ export function useFindTask() {
   return useFetch(TodoClient.Tasks.findTask)
 }
 
-const deleteTask = (id: UUID) => TodoClient.Tasks.deleteTask({ id })
+const deleteTask = (id: Todo.TaskId) => TodoClient.Tasks.deleteTask({ id })
 export function useDeleteTask() {
   return useFetch(deleteTask)
 }
@@ -143,7 +143,7 @@ export function useModifyTasks() {
 }
 
 export function useModifyMe() {
-  return useModify<TodoClient.Temp.GetMe.Response>("me")
+  return useModify<TodoClient.Tasks.GetMe.Response>("me")
 }
 
 // export function useReorder() {
@@ -154,7 +154,7 @@ export function useModifyMe() {
 //   tref.current = datumEither.isSuccess(tasksResult) ? tasksResult.value.right : []
 
 //   return useCallback(
-//     (tid: TaskId, tlid: NonEmptyString, did: TaskId) => {
+//     (tid: Todo.TaskId, tlid: NonEmptyString, did: Todo.TaskId) => {
 //       const tasks = A.filterMap_(tref.current, (t) => t.listId === tlid)
 //       const t = tasks.find((x) => x.id === tid)!
 //       const d = tasks.find((x) => x.id === did)!
@@ -177,7 +177,7 @@ export function useGetTask() {
   return [
     findResult,
     useCallback(
-      (id: UUID) =>
+      (id: Todo.TaskId) =>
         pipe(
           findTask(id),
           EO.tap((t) =>
@@ -232,7 +232,9 @@ export function useTaskCommandsResolved(t: Todo.Task) {
   }
 }
 
-export function useTaskCommands(id: UUID) {
+const parseNES = Parser.for(S.nonEmptyString)["|>"](S.condemn)
+
+export function useTaskCommands(id: Todo.TaskId) {
   const modifyTasks = useModifyTasks()
 
   const [updateResult, , updateTask] = useUpdateTask2(id)
@@ -240,7 +242,7 @@ export function useTaskCommands(id: UUID) {
   const [findResult, getTask] = useGetTask()
 
   const funcs = useMemo(() => {
-    const refreshTask = (t: { id: UUID }) => getTask(t.id)
+    const refreshTask = (t: { id: Todo.TaskId }) => getTask(t.id)
     const updateAndRefreshTask = (r: TodoClient.Tasks.UpdateTask.Request) =>
       pipe(updateTask(r), T.zipRight(refreshTask(r)))
 
@@ -269,7 +271,7 @@ export function useTaskCommands(id: UUID) {
     function updateStepTitle(t: Todo.Task) {
       return (s: Todo.Step) =>
         flow(
-          NonEmptyString.parse_,
+          parseNES,
           T.map((stepTitle) => t["|>"](Todo.Task.updateStep(s, stepTitle))),
           T.chain(updateAndRefreshTask)
         )
@@ -293,7 +295,7 @@ export function useTaskCommands(id: UUID) {
 
     function addNewTaskStep(t: Todo.Task) {
       return flow(
-        NonEmptyString.parse_,
+        parseNES,
         T.map((title) => t["|>"](Todo.Task.addStep(title))),
         T.chain(updateAndRefreshTask)
       )
@@ -309,7 +311,7 @@ export function useTaskCommands(id: UUID) {
 
     function setTitle(t: Todo.Task) {
       return flow(
-        NonEmptyString.parse_,
+        parseNES,
         T.map((v) => t["|>"](Todo.Task.lens["|>"](Lens.prop("title")).set(v))),
         T.chain(updateAndRefreshTask)
       )
@@ -327,7 +329,7 @@ export function useTaskCommands(id: UUID) {
       return (note: string | null) =>
         pipe(
           EO.fromNullable(note),
-          EO.chainEffect(NonEmptyString.parse_),
+          EO.chainEffect(parseNES),
           T.chain((note) => updateAndRefreshTask({ id: t.id, note }))
         )
     }

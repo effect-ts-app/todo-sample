@@ -2,10 +2,9 @@ import { Task, User } from "@effect-ts-demo/todo-types"
 import * as T from "@effect-ts/core/Effect"
 import { Lens } from "@effect-ts/monocle"
 
-import { UserSVC } from "@/services"
-
 import * as TaskContext from "./TaskContext"
 
+import { UserSVC } from "@effect-ts-demo/infra/services"
 import { Request, Response } from "@effect-ts-demo/todo-client/Tasks/UpdateTask"
 
 export const handle = ({ id, myDay, ..._ }: Request) =>

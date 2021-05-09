@@ -2,12 +2,12 @@ import { ParsedUrlQuery } from "querystring"
 
 import { flow } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
-import * as Sy from "@effect-ts/core/Sync"
-import { AType, M } from "@effect-ts/morphic"
-import { decode } from "@effect-ts/morphic/Decoder"
 import { useRouter } from "next/router"
 
 import { typedKeysOf } from "./utils"
+
+import * as S from "@effect-ts-demo/core/ext/Schema"
+import { ReqRes, SchemaAny } from "@effect-ts-demo/core/ext/Schema"
 
 export function getQueryParam(search: ParsedUrlQuery, param: string) {
   const v = search[param]
@@ -21,21 +21,27 @@ export function getQueryParam(search: ParsedUrlQuery, param: string) {
 // taskId per route
 // order and order direction
 
-export const parseOption = <E, A>(t: M<{}, E, A>) => {
-  const dec = decode(t)
-  return (_: E) => dec(_)["|>"](Sy.runEither)["|>"](O.fromEither)
+export const parseOption = <E, A>(t: ReqRes<E, A>) => {
+  // TODO: Clenup
+  const dec = flow(S.Parser.for(t), (x) => {
+    return x.effect._tag === "Right"
+      ? x.effect.right.tuple[1]._tag === "None"
+        ? O.some(x.effect.right.tuple[0])
+        : O.none
+      : O.none
+  })
+  return (_: E) => dec(_)
 }
 export const getQueryParamO = flow(getQueryParam, O.fromNullable)
 
-export const useRouteParam = <A>(t: M<{}, string, A>, key: string) => {
+export const useRouteParam = <A>(t: SchemaAny, key: string) => {
   const r = useRouter()
   return getQueryParamO(r.query, key)["|>"](O.chain(parseOption(t)))
 }
-
-export const useRouteParams = <NER extends Record<string, M<{}, string, any>>>(
+export const useRouteParams = <NER extends Record<string, S.SchemaAny>>(
   t: NER // enforce non empty
 ): {
-  [K in keyof NER]: O.Option<AType<NER[K]>>
+  [K in keyof NER]: O.Option<S.ParsedShapeOf<NER[K]>>
 } => {
   const r = useRouter()
   return typedKeysOf(t).reduce(
@@ -46,7 +52,7 @@ export const useRouteParams = <NER extends Record<string, M<{}, string, any>>>(
       return prev
     },
     {} as {
-      [K in keyof NER]: AType<NER[K]>
+      [K in keyof NER]: O.Option<S.ParsedShapeOf<NER[K]>>
     }
   )
 }

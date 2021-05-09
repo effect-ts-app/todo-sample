@@ -1,4 +1,5 @@
 import * as S from "@effect-ts-demo/core/ext/Schema"
+import { UUID as SUUID } from "@effect-ts-demo/core/ext/Schema"
 import type { Branded } from "@effect-ts/core/Branded"
 import { constVoid } from "@effect-ts/core/Function"
 import * as Sy from "@effect-ts/core/Sync"
@@ -22,7 +23,7 @@ import {
 } from "./model"
 
 export const UUID = make((F) => F.uuid())
-export type UUID = AType<typeof UUID>
+export type UUID = SUUID
 
 export type { Branded }
 

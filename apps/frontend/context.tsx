@@ -1,5 +1,3 @@
-import * as TodoClient from "@effect-ts-demo/todo-client"
-import { ApiConfig } from "@effect-ts-demo/todo-client"
 import { Fiber, pipe } from "@effect-ts/core"
 import * as T from "@effect-ts/core/Effect"
 import { pretty } from "@effect-ts/core/Effect/Cause"
@@ -9,9 +7,11 @@ import { Semaphore } from "@effect-ts/system/Semaphore"
 import { datumEither } from "@nll/datum"
 import React, { createContext, ReactNode, useContext, useEffect, useMemo } from "react"
 
+import { TodoClient } from "@/index"
+
 import { useConfig } from "./config"
 
-function makeLayers(config: ApiConfig) {
+function makeLayers(config: TodoClient.ApiConfig) {
   return TodoClient.LiveApiConfig(config)
 }
 type GetProvider<P> = P extends L.Layer<unknown, unknown, infer TP> ? TP : never
