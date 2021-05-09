@@ -5,19 +5,18 @@ import {
   ParameterLocation,
   SubSchema,
 } from "@atlas-ts/plutus"
-import { schema } from "@atlas-ts/plutus/Schema"
+import * as EO from "@effect-ts-demo/core/ext/EffectOption"
+import * as S from "@effect-ts-demo/core/ext/Schema"
+import * as OpenApi from "@effect-ts-demo/core/ext/Schema/Openapi"
 import { Has, pipe } from "@effect-ts/core"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as T from "@effect-ts/core/Effect"
 import * as O from "@effect-ts/core/Option"
 import * as Ex from "@effect-ts/express"
 
-import { makeRequestHandler, RequestHandler } from "@/requestHandler"
+import { UserSVC } from "../../services"
 
-import { UserSVC } from "./services"
-
-import * as EO from "@effect-ts-demo/core/ext/EffectOption"
-import { Void } from "@effect-ts-demo/core/ext/Model"
+import { makeRequestHandler, RequestHandler } from "./requestHandler"
 
 type Methods = "GET" | "PUT" | "POST" | "PATCH" | "DELETE"
 
@@ -44,7 +43,7 @@ export interface RouteDescriptor<
     ReqA,
     ResA
   >
-  _tag: "Morphic"
+  _tag: "Schema"
 }
 
 export function makeRouteDescriptor<
@@ -71,7 +70,7 @@ export function makeRouteDescriptor<
     ResA
   >
 ) {
-  return { path, method, handler, _tag: "Morphic" } as RouteDescriptor<
+  return { path, method, handler, _tag: "Schema" } as RouteDescriptor<
     R,
     PathA,
     CookieA,
@@ -225,20 +224,26 @@ function del<
 }
 export { del as delete }
 
-export function makeFromMorphic(
+export function makeFromSchema(
   e: RouteDescriptor<any, any, any, any, any, any, any, any>
 ) {
+  const jsonSchema_ = OpenApi.for
+  const jsonSchema = <E, A>(r: S.ReqResSchemed<E, A>) => jsonSchema_(r.Model)
   const { Request: Req, Response: Res } = e.handler
   // TODO: use the path vs body etc serialisation also in the Client.
-  const makeReqQuerySchema = EO.fromNullable(Req.Query)["|>"](EO.chainEffect(schema))
-  const makeReqHeadersSchema = EO.fromNullable(Req.Headers)["|>"](
-    EO.chainEffect(schema)
+  const makeReqQuerySchema = EO.fromNullable(Req.Query)["|>"](
+    EO.chainEffect(jsonSchema)
   )
-  const makeReqCookieSchema = EO.fromNullable(Req.Cookie)["|>"](EO.chainEffect(schema))
-  const makeReqPathSchema = EO.fromNullable(Req.Path)["|>"](EO.chainEffect(schema))
-  const makeReqBodySchema = EO.fromNullable(Req.Body)["|>"](EO.chainEffect(schema))
+  const makeReqHeadersSchema = EO.fromNullable(Req.Headers)["|>"](
+    EO.chainEffect(jsonSchema)
+  )
+  const makeReqCookieSchema = EO.fromNullable(Req.Cookie)["|>"](
+    EO.chainEffect(jsonSchema)
+  )
+  const makeReqPathSchema = EO.fromNullable(Req.Path)["|>"](EO.chainEffect(jsonSchema))
+  const makeReqBodySchema = EO.fromNullable(Req.Body)["|>"](EO.chainEffect(jsonSchema))
   //const makeReqSchema = schema(Req)
-  const makeResSchema = schema(Res)
+  const makeResSchema = jsonSchema_(Res)
 
   // TODO: custom void type - 204 response
   // https://github.com/Effect-TS/morphic/commit/da3a02fb527089807bcd5253652ee5a5b1efa371
@@ -284,7 +289,7 @@ export function makeFromMorphic(
       ),
       responses: A.concat_(
         [
-          e.handler.Response === Void
+          e.handler.Response === S.Void
             ? new Response(204, { description: "Empty" })
             : new Response(200, {
                 description: "OK",
@@ -292,7 +297,7 @@ export function makeFromMorphic(
               }),
           new Response(400, { description: "ValidationError" }),
         ],
-        e.path.includes(":") && e.handler.Response === Void
+        e.path.includes(":") && e.handler.Response === S.Void
           ? [new Response(404, { description: "NotFoundError" })]
           : []
       ),

@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// TODO: Remove ban
 import {
   Task,
   TaskListOrGroup,
@@ -9,14 +7,12 @@ import {
   User,
 } from "@effect-ts-demo/todo-types"
 import { Has } from "@effect-ts/core"
-import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as Chunk from "@effect-ts/core/Collections/Immutable/Chunk"
 import * as Map from "@effect-ts/core/Collections/Immutable/Map"
 import * as L from "@effect-ts/core/Effect/Layer"
 import * as Ref from "@effect-ts/core/Effect/Ref"
-import { flow, pipe } from "@effect-ts/core/Function"
+import { pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
-import * as Sy from "@effect-ts/core/Sync"
 import { _A } from "@effect-ts/core/Utils"
 
 import { NotFoundError } from "@/errors"
@@ -25,12 +21,11 @@ import { makeTestData } from "./TaskContext.testdata"
 
 import * as T from "@effect-ts-demo/core/ext/Effect"
 import * as EO from "@effect-ts-demo/core/ext/EffectOption"
-import * as S from "@effect-ts-demo/core/ext/Schema"
-import { Parser, Encoder } from "@effect-ts-demo/core/ext/Schema"
+import { makeCodec } from "@effect-ts-demo/infra/context/schema"
 
-const [decodeUser, encodeUser, encodeUsersToMap] = makeSchemaCodec(User.Model)
-const [decodeTask, encodeTask, encodeTasksToMap] = makeSchemaCodec(Task.Model)
-const [decodeList, encodeList, encodeListsToMap] = makeSchemaCodec(TaskListOrGroup)
+const [decodeUser, encodeUser, encodeUsersToMap] = makeCodec(User.Model)
+const [decodeTask, encodeTask, encodeTasksToMap] = makeCodec(Task.Model)
+const [decodeList, encodeList, encodeListsToMap] = makeCodec(TaskListOrGroup)
 
 const makeMockTaskContext = T.gen(function* ($) {
   const { lists, tasks, users } = yield* $(makeTestData)
@@ -243,61 +238,4 @@ export function updateListM<R, E>(
     const { updateListM } = yield* $(TaskContext)
     return updateListM(id, mod)
   })
-}
-
-//// Helpers
-// eslint-disable-next-line @typescript-eslint/ban-types
-// function makeCodec<E, A extends { id: Id }, Id>(t: M<{}, E, A>) {
-//   const { decode } = strictDecoder(t)
-//   const decodeOrDie = flow(decode, T.orDie)
-//   const encode = strictEncode(t)
-//   const encodeToMap = toMap(encode)
-//   return [decodeOrDie, encode, encodeToMap] as const
-// }
-
-function makeSchemaCodec<
-  ParserInput,
-  ParserError,
-  ParsedShape extends { id: Id },
-  ConstructorInput,
-  ConstructorError,
-  ConstructedShape extends ParsedShape,
-  Encoded,
-  Api,
-  Id
->(
-  self: S.Schema<
-    ParserInput,
-    ParserError,
-    ParsedShape,
-    ConstructorInput,
-    ConstructorError,
-    ConstructedShape,
-    Encoded,
-    Api
-  >
-) {
-  // TODO: strict
-  const decode = flow(Parser.for(self)["|>"](S.condemn), T.orDie)
-  const enc = Encoder.for(self)
-
-  const encode = (u: ParsedShape) => Sy.succeedWith(() => enc(u))
-  const encodeToMap = toMap(encode)
-  return [decode, encode, encodeToMap] as const
-}
-
-// eslint-disable-next-line @typescript-eslint/ban-types
-// function strictEncode<E, A>(t: M<{}, E, A>) {
-//   const { shrink } = strict(t)
-//   const enc = encode(t)
-//   return (u: A) => pipe(shrink(u), Sy.chain(enc))
-// }
-
-function toMap<E, A extends { id: Id }, Id>(encode: (a: A) => Sy.UIO<E>) {
-  return (a: A.Array<A>) =>
-    pipe(
-      A.map_(a, (task) => Sy.tuple(Sy.succeed(task.id as A["id"]), encode(task))),
-      Sy.collectAll,
-      Sy.map(Map.make)
-    )
 }

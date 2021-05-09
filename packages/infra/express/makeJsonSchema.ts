@@ -5,9 +5,10 @@ import * as Chunk from "@effect-ts/core/Collections/Immutable/Chunk"
 import * as T from "@effect-ts/core/Effect"
 import { _A } from "@effect-ts/core/Utils"
 
-import { RouteDescriptor } from "./routing"
-import * as RS from "./routingSchema"
-import { makeFromSchema } from "./routingSchema"
+import * as RM from "./morphic/routing"
+import * as RS from "./schema/routing"
+
+type Methods = "GET" | "PUT" | "POST" | "PATCH" | "DELETE"
 
 /**
  * Work in progress JSONSchema generator.
@@ -15,14 +16,16 @@ import { makeFromSchema } from "./routingSchema"
 export function makeJsonSchema(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   r: Iterable<
-    | RouteDescriptor<any, any, any, any, any, any, any, any>
+    | RM.RouteDescriptor<any, any, any, any, any, any, any, any>
     | RS.RouteDescriptor<any, any, any, any, any, any, any, any>
   >
 ) {
   return pipe(
     Chunk.from(r),
     //Chunk.filter((x) => x._tag === "Morphic"),
-    T.forEach((e) => (e._tag === "Morphic" ? makeFromMorphic(e) : makeFromSchema(e))),
+    T.forEach((e) =>
+      e._tag === "Morphic" ? RM.makeFromMorphic(e) : RS.makeFromSchema(e)
+    ),
     T.map((e) => {
       const map = ({ method, path, responses, ...rest }: _A<typeof e>) => ({
         [method]: {
@@ -51,6 +54,10 @@ export function makeJsonSchema(
     })
   )
 }
-function makeFromMorphic(e: any): T.Effect<unknown, unknown, unknown> {
-  throw new Error("Function not implemented.")
+
+class Response {
+  constructor(
+    public readonly statusCode: number,
+    public readonly type: any //string | JSONSchema | SubSchema
+  ) {}
 }

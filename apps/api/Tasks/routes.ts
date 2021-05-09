@@ -1,19 +1,21 @@
 import * as T from "@effect-ts/core/Effect"
 
-import * as RS from "@/routingSchema"
-
 import * as CreateTask from "./CreateTask"
 import * as DeleteTask from "./DeleteTask"
+import * as GetMe from "./GetMe"
 import * as GetTask from "./GetTask"
 import * as GetTasks from "./GetTasks"
 import * as SetTasksOrder from "./SetTasksOrder"
 import * as UpdateTask from "./UpdateTask"
 
+import * as R from "@effect-ts-demo/infra/express/schema/routing"
+
 export const routes = T.tuple(
-  RS.get("/tasks", GetTasks),
-  RS.post("/tasks", CreateTask),
-  RS.get("/tasks/:id", GetTask),
-  RS.patch("/tasks/:id", UpdateTask),
-  RS.delete("/tasks/:id", DeleteTask),
-  RS.post("/tasks-order", SetTasksOrder)
+  R.get("/me", GetMe),
+  R.get("/tasks", GetTasks),
+  R.post("/tasks", CreateTask),
+  R.get("/tasks/:id", GetTask),
+  R.patch("/tasks/:id", UpdateTask),
+  R.delete("/tasks/:id", DeleteTask),
+  R.post("/tasks-order", SetTasksOrder)
 )

@@ -3,7 +3,6 @@ import fs from "fs"
 import * as Plutus from "@atlas-ts/plutus"
 import { JSONSchema, SubSchema } from "@atlas-ts/plutus/JsonSchema"
 import { References } from "@atlas-ts/plutus/Schema"
-import * as Tuple from "@effect-ts/core/Collections/Immutable/Tuple"
 import * as T from "@effect-ts/core/Effect"
 import { makeRef } from "@effect-ts/core/Effect/Ref"
 import { constVoid, pipe } from "@effect-ts/core/Function"
@@ -14,12 +13,10 @@ import cors from "cors"
 import redoc from "redoc-express"
 import { setup, serve } from "swagger-ui-express"
 
-import { makeJsonSchema } from "@/makeJsonSchema"
-
 import { MockTaskContext } from "./Tasks/TaskContext"
 import { routes as taskRoutes } from "./Tasks/routes"
-import { routes as tempRoutes } from "./Temp/routes"
 
+import { makeJsonSchema } from "@effect-ts-demo/infra/express/makeJsonSchema"
 import pkg from "package.json"
 
 const HOST = "127.0.0.1"
@@ -64,8 +61,7 @@ const program = pipe(
       )
     )
   ),
-  T.zipRight(T.tuple(taskRoutes, tempRoutes)),
-  T.map(({ tuple: [tr, tr2] }) => Tuple.concat_(tr, tr2)),
+  T.zipRight(taskRoutes),
   T.tap((rdescs) =>
     pipe(
       T.succeedWith(() => {

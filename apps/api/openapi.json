@@ -5,6 +5,71 @@
     "version": "0.0.1"
   },
   "paths": {
+    "/me": {
+      "get": {
+        "parameters": [
+          {
+            "name": "x-user-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "minLength": 1,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "name": {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "inboxOrder": {
+                      "items": {
+                        "format": "uuid",
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "lists": {
+                      "items": {
+                        "title": "TaskListEntryOrGroup",
+                        "oneOf": [
+                          {
+                            "$ref": "#/components/schemas/SharableTaskListEntry"
+                          },
+                          {
+                            "$ref": "#/components/schemas/TaskListEntryGroup"
+                          }
+                        ],
+                        "discriminator": {
+                          "propertyName": "_tag"
+                        }
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "inboxOrder",
+                    "lists"
+                  ],
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "ValidationError"
+          }
+        }
+      }
+    },
     "/tasks": {
       "get": {
         "parameters": [
@@ -311,76 +376,76 @@
           }
         }
       }
-    },
-    "/me": {
-      "get": {
-        "parameters": [
-          {
-            "name": "x-user-id",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "minLength": 1,
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "name": {
-                      "minLength": 1,
-                      "type": "string"
-                    },
-                    "inboxOrder": {
-                      "items": {
-                        "format": "uuid",
-                        "type": "string"
-                      },
-                      "type": "array"
-                    },
-                    "lists": {
-                      "items": {
-                        "title": "TaskListEntryOrGroup",
-                        "oneOf": [
-                          {
-                            "$ref": "#/components/schemas/SharableTaskListEntry"
-                          },
-                          {
-                            "$ref": "#/components/schemas/TaskListEntryGroup"
-                          }
-                        ],
-                        "discriminator": {
-                          "propertyName": "_tag"
-                        }
-                      },
-                      "type": "array"
-                    }
-                  },
-                  "required": [
-                    "name",
-                    "inboxOrder",
-                    "lists"
-                  ],
-                  "type": "object"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "ValidationError"
-          }
-        }
-      }
     }
   },
   "components": {
     "securitySchemes": {},
     "schemas": {
+      "TaskListEntry": {
+        "title": "TaskListEntry",
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "order": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "order"
+        ],
+        "type": "object"
+      },
+      "SharableTaskListEntry": {
+        "title": "SharableTaskListEntry",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TaskListEntry"
+          },
+          {
+            "properties": {
+              "title": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "parentListId": {
+                "format": "uuid",
+                "type": "string",
+                "nullable": true
+              }
+            },
+            "required": [
+              "title",
+              "parentListId"
+            ],
+            "type": "object"
+          }
+        ]
+      },
+      "TaskListEntryGroup": {
+        "title": "TaskListEntryGroup",
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "type": "object"
+      },
       "Step": {
         "title": "Step",
         "properties": {
@@ -487,71 +552,6 @@
             "type": "object"
           }
         ]
-      },
-      "TaskListEntry": {
-        "title": "TaskListEntry",
-        "properties": {
-          "id": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "order": {
-            "items": {
-              "format": "uuid",
-              "type": "string"
-            },
-            "type": "array"
-          }
-        },
-        "required": [
-          "id",
-          "order"
-        ],
-        "type": "object"
-      },
-      "SharableTaskListEntry": {
-        "title": "SharableTaskListEntry",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/TaskListEntry"
-          },
-          {
-            "properties": {
-              "title": {
-                "minLength": 1,
-                "type": "string"
-              },
-              "parentListId": {
-                "format": "uuid",
-                "type": "string",
-                "nullable": true
-              }
-            },
-            "required": [
-              "title",
-              "parentListId"
-            ],
-            "type": "object"
-          }
-        ]
-      },
-      "TaskListEntryGroup": {
-        "title": "TaskListEntryGroup",
-        "properties": {
-          "id": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "title": {
-            "minLength": 1,
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "title"
-        ],
-        "type": "object"
       }
     },
     "parameters": {}

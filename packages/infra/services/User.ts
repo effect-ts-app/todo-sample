@@ -1,12 +1,16 @@
+import { Parser } from "@effect-ts-demo/core/ext/Schema"
+import * as S from "@effect-ts-demo/core/ext/Schema"
 import { Has } from "@effect-ts/core"
 import * as T from "@effect-ts/core/Effect"
 import * as L from "@effect-ts/core/Effect/Layer"
 import { _A } from "@effect-ts/core/Utils"
 
-import { PositiveInt } from "@effect-ts-demo/core/ext/Model"
+const parsePositiveInt = Parser.for(S.positiveInt)["|>"](S.condemn)
 
 function makeUserEnv(authorization: string) {
-  return T.struct({ id: PositiveInt.decodeV_(parseInt(authorization)) })
+  return T.struct({
+    id: parsePositiveInt(parseInt(authorization))["|>"](T.orDie),
+  })
 }
 
 export interface UserEnv extends _A<ReturnType<typeof makeUserEnv>> {}

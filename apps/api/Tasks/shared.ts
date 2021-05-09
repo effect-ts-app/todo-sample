@@ -2,11 +2,10 @@ import * as T from "@effect-ts/core/Effect"
 import { AType, M } from "@effect-ts/morphic"
 import { SchemaAny } from "@effect-ts/schema"
 
-import { UserSVC } from "@/services"
-
 import * as TaskContext from "./TaskContext"
 
 import * as S from "@effect-ts-demo/core/ext/Schema"
+import { UserSVC } from "@effect-ts-demo/infra/services"
 
 export const getLoggedInUser = T.gen(function* ($) {
   const user = yield* $(UserSVC.UserEnv)

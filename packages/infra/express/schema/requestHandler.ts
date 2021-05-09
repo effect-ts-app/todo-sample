@@ -1,23 +1,18 @@
 /* eslint-disable @typescript-eslint/ban-types */
+import * as EO from "@effect-ts-demo/core/ext/EffectOption"
+import * as S from "@effect-ts-demo/core/ext/Schema"
+import { Encoder, Parser } from "@effect-ts-demo/core/ext/Schema"
 import { DSL, Has } from "@effect-ts/core"
 import { makeAssociative } from "@effect-ts/core/Associative"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as T from "@effect-ts/core/Effect"
 import { flow, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
-import * as Sy from "@effect-ts/core/Sync"
 import * as EU from "@effect-ts/core/Utils"
-import { M } from "@effect-ts/morphic"
-import { ContextEntry, Decode, Errors } from "@effect-ts/morphic/Decoder"
-import { Encoder, encode } from "@effect-ts/morphic/Encoder"
-import { strict } from "@effect-ts/morphic/Strict"
-import { strictDecoder } from "@effect-ts/morphic/StrictDecoder"
 import express from "express"
 
-import { NotFoundError } from "./errors"
-import { UserSVC } from "./services"
-
-import * as SO from "@effect-ts-demo/core/ext/SyncOption"
+import { NotFoundError } from "../../errors"
+import { UserSVC } from "../../services"
 
 export type Request<
   PathA,
@@ -26,14 +21,14 @@ export type Request<
   BodyA,
   HeaderA,
   ReqA extends PathA & QueryA & BodyA
-> = M<{}, unknown, ReqA> & {
-  Cookie?: M<{}, Record<string, string>, CookieA>
-  Path?: M<{}, Record<string, string>, PathA>
-  Body?: M<{}, unknown, BodyA>
-  Query?: M<{}, Record<string, string>, QueryA>
-  Headers?: M<{}, Record<string, string>, HeaderA>
+> = S.ReqResSchemed<unknown, ReqA> & {
+  Cookie?: S.ReqResSchemed<Record<string, string>, CookieA>
+  Path?: S.ReqResSchemed<Record<string, string>, PathA>
+  Body?: S.ReqResSchemed<unknown, BodyA>
+  Query?: S.ReqResSchemed<Record<string, string>, QueryA>
+  Headers?: S.ReqResSchemed<Record<string, string>, HeaderA>
 }
-type Encode<A, E> = Encoder<A, E>["encode"]
+type Encode<A, E> = (a: A) => E
 
 class ValidationError {
   public readonly _tag = "ValidationError"
@@ -42,47 +37,18 @@ class ValidationError {
 
 export type SupportedErrors = ValidationError | NotFoundError
 
-function getErrorMessage(current: ContextEntry) {
-  switch (current.type.name) {
-    case "NonEmptyString":
-      return "Must not be empty"
-  }
-  if (current.type.name?.startsWith("NonEmptyArray<")) {
-    return "Must not be empty"
-  }
-  return `Invalid value specified`
-}
-export function decodeErrors(x: Errors) {
-  return pipe(
-    x,
-    A.map(({ message, context: [root, ...rest], value }) => {
-      const processCtx = (current: ContextEntry, path?: string, rootType?: string) => ({
-        message: message ? message : getErrorMessage(current),
-        expectedType: current.type.name,
-        rootType,
-        path,
-        provided: {
-          value,
-          type: typeof value,
-          constructor:
-            value && typeof value === "object"
-              ? ` ${value.constructor.name}`
-              : undefined,
-        },
-      })
-      return rest.length
-        ? processCtx(
-            rest[rest.length - 1],
-            rest
-              .map((x) => x.key)
-              // the root object inside an array, then has no key again.
-              .filter(Boolean)
-              .join("."),
-            root.type.name
-          )
-        : processCtx(root)
-    })
-  )
+// function getErrorMessage(current: ContextEntry) {
+//   switch (current.type.name) {
+//     case "NonEmptyString":
+//       return "Must not be empty"
+//   }
+//   if (current.type.name?.startsWith("NonEmptyArray<")) {
+//     return "Must not be empty"
+//   }
+//   return `Invalid value specified`
+// }
+export function decodeErrors(x: unknown) {
+  return [x]
 }
 
 const ValidationApplicative = T.getValidationApplicative(
@@ -134,6 +100,7 @@ function parseRequestParams<PathA, CookieA, QueryA, BodyA, HeaderA>(
     )
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mapErrors_<E, NE, NER extends Record<string, T.Effect<any, E, any>>>(
   t: NER, // TODO: enforce non empty
   mapErrors: (k: keyof NER) => (err: E) => NE
@@ -154,13 +121,14 @@ function mapErrors_<E, NE, NER extends Record<string, T.Effect<any, E, any>>>(
 export const typedKeysOf = <T>(obj: T) => Object.keys(obj) as (keyof T)[]
 
 function makeError(type: string) {
-  return (e: Errors) => [{ type, errors: decodeErrors(e) }]
+  return (e: unknown) => [{ type, errors: decodeErrors(e) }]
 }
 
 function respondSuccess<A, E>(encodeResponse: Encode<A, E>) {
   return (res: express.Response) =>
     flow(
       encodeResponse,
+      T.succeed,
       T.chain((r) =>
         T.succeedWith(() => {
           r === undefined
@@ -218,7 +186,7 @@ export interface RequestHandler<
   ResA
 > {
   Request: Request<PathA, CookieA, QueryA, BodyA, HeaderA, ReqA>
-  Response: M<{}, unknown, ResA>
+  Response: S.ReqRes<unknown, ResA>
   handle: (i: PathA & QueryA & BodyA & {}) => T.Effect<R, SupportedErrors, ResA>
 }
 
@@ -245,16 +213,12 @@ export function makeRequestHandler<
   ReqA,
   ResA
 >) {
-  const encodeResponse = encode(Response)
-  const { shrink: shrinkResponse } = strict(Response)
+  const encodeResponse = Encoder.for(Response)
+  //const { shrink: shrinkResponse } = strict(Response)
+  // flow(shrinkResponse, Sy.chain(encodeResponse))
 
-  return handleRequest(
-    makeRequestParsers(Request),
-    flow(shrinkResponse, Sy.chain(encodeResponse)),
-    handle
-  )
+  return handleRequest(makeRequestParsers(Request), encodeResponse, handle)
 }
-
 function makeRequestParsers<
   R,
   PathA,
@@ -277,35 +241,42 @@ function makeRequestParsers<
   >["Request"]
 ): RequestParsers<PathA, CookieA, QueryA, BodyA, HeaderA> {
   const ph = O.fromNullable(Request.Headers)
-    ["|>"](O.map(strictDecoder))
-    ["|>"](O.map((x) => x.decode))
-    ["|>"](SO.fromOption)
+    ["|>"](O.map((s) => s.Model))
+    ["|>"](O.map(Parser.for)) // todo strict
+    ["|>"](O.map(S.condemn))
+    ["|>"](EO.fromOption)
   const parseHeaders = (u: unknown) =>
-    ph["|>"](SO.chain((d) => d(u)["|>"](SO.fromSync)))
+    ph["|>"](EO.chain((d) => d(u)["|>"](EO.fromEffect)))
 
   const pq = O.fromNullable(Request.Query)
-    ["|>"](O.map(strictDecoder))
-    ["|>"](O.map((x) => x.decode))
-    ["|>"](SO.fromOption)
-  const parseQuery = (u: unknown) => pq["|>"](SO.chain((d) => d(u)["|>"](SO.fromSync)))
+    ["|>"](O.map((s) => s.Model))
+    ["|>"](O.map(Parser.for)) // todo strict
+    ["|>"](O.map(S.condemn))
+    ["|>"](EO.fromOption)
+  const parseQuery = (u: unknown) =>
+    pq["|>"](EO.chain((d) => d(u)["|>"](EO.fromEffect)))
 
   const pb = O.fromNullable(Request.Body)
-    ["|>"](O.map(strictDecoder))
-    ["|>"](O.map((x) => x.decode))
-    ["|>"](SO.fromOption)
-  const parseBody = (u: unknown) => pb["|>"](SO.chain((d) => d(u)["|>"](SO.fromSync)))
+    ["|>"](O.map((s) => s.Model))
+    ["|>"](O.map(Parser.for)) // todo strict
+    ["|>"](O.map(S.condemn))
+    ["|>"](EO.fromOption)
+  const parseBody = (u: unknown) => pb["|>"](EO.chain((d) => d(u)["|>"](EO.fromEffect)))
 
   const pp = O.fromNullable(Request.Path)
-    ["|>"](O.map(strictDecoder))
-    ["|>"](O.map((x) => x.decode))
-    ["|>"](SO.fromOption)
-  const parsePath = (u: unknown) => pp["|>"](SO.chain((d) => d(u)["|>"](SO.fromSync)))
+    ["|>"](O.map((s) => s.Model))
+    ["|>"](O.map(Parser.for)) // todo strict
+    ["|>"](O.map(S.condemn))
+    ["|>"](EO.fromOption)
+  const parsePath = (u: unknown) => pp["|>"](EO.chain((d) => d(u)["|>"](EO.fromEffect)))
 
   const pc = O.fromNullable(Request.Cookie)
-    ["|>"](O.map(strictDecoder))
-    ["|>"](O.map((x) => x.decode))
-    ["|>"](SO.fromOption)
-  const parseCookie = (u: unknown) => pc["|>"](SO.chain((d) => d(u)["|>"](SO.fromSync)))
+    ["|>"](O.map((s) => s.Model))
+    ["|>"](O.map(Parser.for)) // todo strict
+    ["|>"](O.map(S.condemn))
+    ["|>"](EO.fromOption)
+  const parseCookie = (u: unknown) =>
+    pc["|>"](EO.chain((d) => d(u)["|>"](EO.fromEffect)))
 
   return {
     parseBody,
@@ -315,6 +286,8 @@ function makeRequestParsers<
     parseQuery,
   }
 }
+
+type Decode<A> = (u: unknown) => T.IO<unknown, A>
 
 interface RequestParsers<PathA, CookieA, QueryA, BodyA, HeaderA> {
   parseHeaders: Decode<O.Option<HeaderA>>
