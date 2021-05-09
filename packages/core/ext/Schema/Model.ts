@@ -13,7 +13,7 @@ export type SchemaForModel<M, Self extends S.SchemaAny> = S.Schema<
   S.ParserInputOf<Self>,
   S.ParserErrorOf<Self>,
   M,
-  S.ConstructorInputOf<Self>,
+  Compute<S.ConstructorInputOf<Self>>,
   S.ConstructorErrorOf<Self>,
   M,
   Compute<S.EncodedOf<Self>>,

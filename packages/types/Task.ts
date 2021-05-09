@@ -169,24 +169,24 @@ export class User extends S.Model<User>()(
   )
 ) {
   static readonly createTask = (
-    a: Omit<ConstructorParameters<typeof Task>[0], "createdBy">
+    a: Omit<S.ConstructorInputOf<typeof Task["Model"]>, "createdBy">
   ) => (u: User) => new Task({ ...a, createdBy: u.id })
   static readonly createTask_ = (u: User) => (
-    a: Omit<ConstructorParameters<typeof Task>[0], "createdBy">
+    a: Omit<S.ConstructorInputOf<typeof Task["Model"]>, "createdBy">
   ) => new Task({ ...a, createdBy: u.id })
 
   static readonly createTaskList = (
-    a: Omit<ConstructorParameters<typeof TaskList>[0], "ownerId">
+    a: Omit<S.ConstructorInputOf<typeof TaskList["Model"]>, "ownerId">
   ) => (u: User) => new TaskList({ ...a, ownerId: u.id })
   static readonly createTaskList_ = (u: User) => (
-    a: Omit<ConstructorParameters<typeof TaskList>[0], "ownerId">
+    a: Omit<S.ConstructorInputOf<typeof TaskList["Model"]>, "ownerId">
   ) => new TaskList({ ...a, ownerId: u.id })
 
   static readonly createTaskListGroup = (
-    a: Omit<ConstructorParameters<typeof TaskListGroup>[0], "ownerId">
+    a: Omit<S.ConstructorInputOf<typeof TaskListGroup["Model"]>, "ownerId">
   ) => (u: User) => new TaskListGroup({ ...a, ownerId: u.id })
   static readonly createTaskListGroup_ = (u: User) => (
-    a: Omit<ConstructorParameters<typeof TaskListGroup>[0], "ownerId">
+    a: Omit<S.ConstructorInputOf<typeof TaskListGroup["Model"]>, "ownerId">
   ) => new TaskListGroup({ ...a, ownerId: u.id })
 
   static readonly getMyDay = (t: Task) => (u: User) =>
