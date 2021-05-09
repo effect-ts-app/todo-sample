@@ -10,8 +10,7 @@ export class Request extends S.Model<Request>()(S.required({})) {
   static Headers = RequestHeaders
 }
 
-@S.namedC
-export class TaskListEntry extends S.Model<TaskListEntry>()(
+class TaskListEntryBase extends S.Model<TaskListEntryBase>()(
   S.required({
     id: TaskListId,
     order: S.array(TaskId),
@@ -19,8 +18,8 @@ export class TaskListEntry extends S.Model<TaskListEntry>()(
 ) {}
 
 @S.namedC
-export class SharableTaskListEntry extends S.Model<SharableTaskListEntry>()(
-  S.intersect(TaskListEntry.Model)(
+export class TaskListEntry extends S.Model<TaskListEntry>()(
+  S.intersect(TaskListEntryBase.Model)(
     S.required({
       title: S.nonEmptyString,
       parentListId: S.nullable(TaskListId),
@@ -42,7 +41,7 @@ export class TaskListEntryGroup extends S.Model<TaskListEntryGroup>()(
 ) {}
 
 export const TaskListEntryOrGroup = S.tagged(
-  SharableTaskListEntry.Model,
+  TaskListEntry.Model,
   TaskListEntryGroup.Model
 )["|>"](S.named("TaskListEntryOrGroup"))
 export type TaskListEntryOrGroup = S.ParsedShapeOf<typeof TaskListEntryOrGroup>

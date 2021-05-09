@@ -41,7 +41,7 @@
                         "title": "TaskListEntryOrGroup",
                         "oneOf": [
                           {
-                            "$ref": "#/components/schemas/SharableTaskListEntry"
+                            "$ref": "#/components/schemas/TaskListEntry"
                           },
                           {
                             "$ref": "#/components/schemas/TaskListEntryGroup"
@@ -383,30 +383,26 @@
     "schemas": {
       "TaskListEntry": {
         "title": "TaskListEntry",
-        "properties": {
-          "id": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "order": {
-            "items": {
-              "format": "uuid",
-              "type": "string"
-            },
-            "type": "array"
-          }
-        },
-        "required": [
-          "id",
-          "order"
-        ],
-        "type": "object"
-      },
-      "SharableTaskListEntry": {
-        "title": "SharableTaskListEntry",
         "allOf": [
           {
-            "$ref": "#/components/schemas/TaskListEntry"
+            "properties": {
+              "id": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "order": {
+                "items": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "id",
+              "order"
+            ],
+            "type": "object"
           },
           {
             "properties": {

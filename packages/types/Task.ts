@@ -102,7 +102,7 @@ export class Membership extends S.Model<Membership>()(
 ) {}
 
 @S.namedC
-export class SharableTaskList extends S.Model<SharableTaskList>()(
+export class TaskList extends S.Model<TaskList>()(
   pipe(
     S.struct({
       required: {
@@ -145,7 +145,7 @@ export class TaskListGroup extends S.Model<TaskListGroup>()(
   )
 ) {}
 
-export const TaskListOrGroup = S.tagged(SharableTaskList.Model, TaskListGroup.Model)
+export const TaskListOrGroup = S.tagged(TaskList.Model, TaskListGroup.Model)
 export type TaskListOrGroup = S.ParsedShapeOf<typeof TaskListOrGroup>
 
 const MyDay = S.struct({ required: { id: TaskId, date: S.date } })
@@ -174,6 +174,21 @@ export class User extends S.Model<User>()(
   static readonly createTask_ = (u: User) => (
     a: Omit<ConstructorParameters<typeof Task>[0], "createdBy">
   ) => new Task({ ...a, createdBy: u.id })
+
+  static readonly createTaskList = (
+    a: Omit<ConstructorParameters<typeof TaskList>[0], "ownerId">
+  ) => (u: User) => new TaskList({ ...a, ownerId: u.id })
+  static readonly createTaskList_ = (u: User) => (
+    a: Omit<ConstructorParameters<typeof TaskList>[0], "ownerId">
+  ) => new TaskList({ ...a, ownerId: u.id })
+
+  static readonly createTaskListGroup = (
+    a: Omit<ConstructorParameters<typeof TaskListGroup>[0], "ownerId">
+  ) => (u: User) => new TaskListGroup({ ...a, ownerId: u.id })
+  static readonly createTaskListGroup_ = (u: User) => (
+    a: Omit<ConstructorParameters<typeof TaskListGroup>[0], "ownerId">
+  ) => new TaskListGroup({ ...a, ownerId: u.id })
+
   static readonly getMyDay = (t: Task) => (u: User) =>
     A.findFirst_(u.myDay, (x) => x.id === t.id)["|>"](O.map((m) => m.date))
   static readonly addToMyDay = (t: Task, date: Date) => (u: User): User => ({

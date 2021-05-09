@@ -1,4 +1,4 @@
-import { SharableTaskList, TaskListOrGroup, User } from "@effect-ts-demo/todo-types"
+import { TaskList, TaskListOrGroup, User } from "@effect-ts-demo/todo-types"
 import * as T from "@effect-ts/core/Effect"
 import * as Lens from "@effect-ts/monocle/Lens"
 
@@ -9,7 +9,7 @@ import { UserSVC } from "@effect-ts-demo/infra/services"
 import { Request, Response } from "@effect-ts-demo/todo-client/Tasks/SetTasksOrder"
 
 const inboxOrder = User.lens["|>"](Lens.prop("inboxOrder"))
-const order = SharableTaskList.lens["|>"](Lens.prop("order"))
+const order = TaskList.lens["|>"](Lens.prop("order"))
 
 export const handle = (_: Request) =>
   T.gen(function* ($) {

@@ -1,12 +1,4 @@
-import {
-  Membership,
-  SharableTaskList,
-  Step,
-  Task,
-  TaskListGroup,
-  User,
-  UserId,
-} from "@effect-ts-demo/todo-types"
+import { Membership, Step, Task, User, UserId } from "@effect-ts-demo/todo-types"
 import * as T from "@effect-ts/core/Effect"
 import { flow } from "@effect-ts/core/Function"
 import { Lens } from "@effect-ts/monocle"
@@ -60,21 +52,18 @@ export const makeTestData = T.gen(function* ($) {
 
   const groupedListId = makeUuid()
   const lists = [
-    new SharableTaskList({
+    patrick["|>"](User.createTaskList_)({
       id: groupedListId,
-      ownerId: patrick.id,
       title: yield* $(createNonEmptyString("Some Patrick List")),
     }),
     ////////
-    new TaskListGroup({
+    patrick["|>"](User.createTaskListGroup_)({
       id: groupId,
-      ownerId: patrick.id,
       title: yield* $(createNonEmptyString("Patrick - Some group")),
       lists: [groupedListId],
     }),
-    new SharableTaskList({
+    patrick["|>"](User.createTaskList_)({
       id: PatricksSharedListUUid,
-      ownerId: patrick.id,
       title: yield* $(createNonEmptyString("Patrick's shared List")),
       members: [
         new Membership({
@@ -88,14 +77,12 @@ export const makeTestData = T.gen(function* ($) {
       ],
     }),
     ///////
-    new TaskListGroup({
-      ownerId: mike.id,
+    mike["|>"](User.createTaskListGroup_)({
       title: yield* $(createNonEmptyString("Mike - Some group")),
       lists: [MikesSharedListID],
     }),
-    new SharableTaskList({
+    mike["|>"](User.createTaskList_)({
       id: MikesSharedListID,
-      ownerId: mike.id,
       title: yield* $(createNonEmptyString("Mike's shared List")),
       members: [
         new Membership({
@@ -105,9 +92,8 @@ export const makeTestData = T.gen(function* ($) {
       ],
     }),
     /////
-    new SharableTaskList({
+    markus["|>"](User.createTaskList_)({
       id: MarkusSharedListId,
-      ownerId: markus.id,
       //order: [],
       title: yield* $(createNonEmptyString("Markus's shared List")),
       members: [

@@ -9,7 +9,7 @@ import * as UserContext from "../Tasks/TaskContext"
 import {
   Request,
   Response,
-  SharableTaskListEntry,
+  TaskListEntry,
 } from "@effect-ts-demo/todo-client/Tasks/GetMe"
 import { TaskListOrGroup } from "@effect-ts-demo/todo-types/Task"
 
@@ -26,7 +26,7 @@ export const handle = (_: Request) =>
       TaskListOrGroup.Api.matchW({
         TaskListGroup: (l) => l,
         TaskList: (l) =>
-          new SharableTaskListEntry({
+          new TaskListEntry({
             ...l,
             parentListId: Chunk.find_(groups, (g) => g.lists.includes(l.id))["|>"](
               O.map((x) => x.id)
