@@ -1,10 +1,11 @@
+import * as O from "@effect-ts-demo/core/ext/Option"
 import type { If } from "ts-toolbelt/out/Any/If"
 import type { Key } from "ts-toolbelt/out/Any/Key"
 import type { BuiltIn } from "ts-toolbelt/out/Misc/BuiltIn"
 import type { Depth } from "ts-toolbelt/out/Object/_Internal"
 import type { Has } from "ts-toolbelt/out/Union/Has"
 
-type Prim = BuiltIn | string | number | boolean
+type Prim = BuiltIn | string | number | boolean | O.None | O.Some<any>
 
 // From ts-toolbelt, but leaves primitives properly in tact even when branded.
 export declare type ComputeRaw<A extends any> = A extends Function

@@ -29,7 +29,7 @@ interface Model2<Self extends S.SchemaAny, M, SelfM> {
   [schemaField]: SelfM
   lens: Lens.Lens<M, M>
   Model: SelfM
-  new (_: S.ConstructorInputOf<Self>): Compute<S.ParsedShapeOf<Self>>
+  new (_: Compute<S.ConstructorInputOf<Self>>): Compute<S.ParsedShapeOf<Self>>
 }
 
 // TODO: Somehow ensure that Self and M are related..

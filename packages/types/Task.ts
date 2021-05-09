@@ -171,6 +171,9 @@ export class User extends S.Model<User>()(
   static readonly createTask = (
     a: Omit<ConstructorParameters<typeof Task>[0], "createdBy">
   ) => (u: User) => new Task({ ...a, createdBy: u.id })
+  static readonly createTask_ = (u: User) => (
+    a: Omit<ConstructorParameters<typeof Task>[0], "createdBy">
+  ) => new Task({ ...a, createdBy: u.id })
   static readonly getMyDay = (t: Task) => (u: User) =>
     A.findFirst_(u.myDay, (x) => x.id === t.id)["|>"](O.map((m) => m.date))
   static readonly addToMyDay = (t: Task, date: Date) => (u: User): User => ({

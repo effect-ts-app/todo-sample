@@ -8,23 +8,30 @@ import {
   UserId,
 } from "@effect-ts-demo/todo-types"
 import * as T from "@effect-ts/core/Effect"
-import { flow, pipe } from "@effect-ts/core/Function"
-import * as O from "@effect-ts/core/Option"
-import * as Sy from "@effect-ts/core/Sync"
+import { flow } from "@effect-ts/core/Function"
+import { Lens } from "@effect-ts/monocle"
 
-import { makeUuid, NonEmptyString, PositiveInt } from "@effect-ts-demo/core/ext/Model"
+import { makeUuid } from "@effect-ts-demo/core/ext/Model"
+import * as O from "@effect-ts-demo/core/ext/Option"
 import * as S from "@effect-ts-demo/core/ext/Schema"
-import { unsafe } from "@effect-ts-demo/core/ext/utils"
 
 // Model problems:
 // - isFavorite/reminder are per Task, not per User. Probably should store per user (like myDay now is), and then merge in?
 // - As ordering is currently saved per list, the ordering is shared with other users in the list. Feature?
 // - Instead of an Object model, a Data model was defined..
-const createUID = flow(
-  S.Constructor.for(UserId)["|>"](S.condemn),
-  T.map((n) => n as PositiveInt & UserId) // workaround for legacy interop
-)
-const createNonEmptyString = S.Constructor.for(S.nonEmptyString)["|>"](S.condemn)
+const createUID = flow(S.Constructor.for(UserId)["|>"](S.condemn))
+const constructNonEmptyString = S.Constructor.for(S.nonEmptyString)
+const createNonEmptyString = constructNonEmptyString["|>"](S.condemn)
+const createNonEmptyStringUnsafe = constructNonEmptyString["|>"](S.unsafe)
+
+function makeUserTaskCreator(u: User) {
+  return flow(
+    u["|>"](User.createTask_),
+    Task.lens["|>"](Lens.prop("title"))["|>"](
+      Lens.modify((t) => createNonEmptyStringUnsafe(`${u.name} - ${t}`))
+    )
+  )
+}
 
 export const makeTestData = T.gen(function* ($) {
   const patrickId = yield* $(createUID(0))
@@ -35,21 +42,24 @@ export const makeTestData = T.gen(function* ($) {
   const MikesSharedListID = makeUuid()
   const MarkusSharedListId = makeUuid()
   const groupId = makeUuid()
+  const patrick = new User({
+    id: patrickId,
+    name: yield* $(createNonEmptyString("Patrick Roza")),
+  })
+  const mike = new User({
+    id: mikeId,
+    name: yield* $(createNonEmptyString("Mike Arnaldi")),
+  })
+  const markus = new User({
+    id: markusId,
+    name: yield* $(createNonEmptyString("Markus Nomizz")),
+  })
   const users = [
-    new User({
-      id: patrickId,
-      name: yield* $(createNonEmptyString("Patrick Roza")),
-    }),
+    patrick,
     ////////
-    new User({
-      id: mikeId,
-      name: yield* $(createNonEmptyString("Mike Arnaldi")),
-    }),
+    mike,
     ////////
-    new User({
-      id: markusId,
-      name: yield* $(createNonEmptyString("Markus Nomizz")),
-    }),
+    markus,
   ]
 
   const groupedListId = makeUuid()
@@ -57,44 +67,44 @@ export const makeTestData = T.gen(function* ($) {
     new SharableTaskList({
       id: groupedListId,
       ownerId: patrickId,
-      title: yield* $(NonEmptyString.decode_("Some Patrick List")),
+      title: yield* $(createNonEmptyString("Some Patrick List")),
     }),
     ////////
     new TaskListGroup({
       id: groupId,
       ownerId: patrickId,
-      title: yield* $(NonEmptyString.decode_("Patrick - Some group")),
+      title: yield* $(createNonEmptyString("Patrick - Some group")),
       lists: [groupedListId],
     }),
     new SharableTaskList({
       id: PatricksSharedListUUid,
       ownerId: patrickId,
-      title: yield* $(NonEmptyString.decode_("Patrick's shared List")),
+      title: yield* $(createNonEmptyString("Patrick's shared List")),
       members: [
         new Membership({
           id: mikeId,
-          name: yield* $(NonEmptyString.decode_("Mike Arnaldi")),
+          name: yield* $(createNonEmptyString("Mike Arnaldi")),
         }),
         new Membership({
           id: markusId,
-          name: yield* $(NonEmptyString.decode_("Markus Nomizz")),
+          name: yield* $(createNonEmptyString("Markus Nomizz")),
         }),
       ],
     }),
     ///////
     new TaskListGroup({
       ownerId: mikeId,
-      title: yield* $(NonEmptyString.decode_("Mike - Some group")),
+      title: yield* $(createNonEmptyString("Mike - Some group")),
       lists: [MikesSharedListID],
     }),
     new SharableTaskList({
       id: MikesSharedListID,
       ownerId: mikeId,
-      title: yield* $(NonEmptyString.decode_("Mike's shared List")),
+      title: yield* $(createNonEmptyString("Mike's shared List")),
       members: [
         new Membership({
           id: patrickId,
-          name: yield* $(NonEmptyString.decode_("Patrick Roza")),
+          name: yield* $(createNonEmptyString("Patrick Roza")),
         }),
       ],
     }),
@@ -103,48 +113,48 @@ export const makeTestData = T.gen(function* ($) {
       id: MarkusSharedListId,
       ownerId: markusId,
       //order: [],
-      title: yield* $(NonEmptyString.decode_("Markus's shared List")),
+      title: yield* $(createNonEmptyString("Markus's shared List")),
       members: [
         new Membership({
           id: patrickId,
-          name: yield* $(NonEmptyString.decode_("Patrick Roza")),
+          name: yield* $(createNonEmptyString("Patrick Roza")),
         }),
       ],
     }),
   ]
 
-  const createPatrickTask = createTask(patrickId, "Patrick")
-  const createMikeTask = createTask(mikeId, "Mike")
-  const createMarkusTask = createTask(markusId, "Markus")
+  const createPatrickTask = makeUserTaskCreator(patrick)
+  const createMikeTask = makeUserTaskCreator(mike)
+  const createMarkusTask = makeUserTaskCreator(markus)
 
   const tasks = [
     createPatrickTask({
-      title: yield* $(NonEmptyString.decode_("My first Task")),
-      steps: [new Step({ title: yield* $(NonEmptyString.decode_("first step")) })],
+      title: yield* $(createNonEmptyString("My first Task")),
+      steps: [new Step({ title: yield* $(createNonEmptyString("first step")) })],
     }),
     createPatrickTask({
-      title: yield* $(NonEmptyString.decode_("My second Task")),
+      title: yield* $(createNonEmptyString("My second Task")),
     }),
     createPatrickTask({
-      title: yield* $(NonEmptyString.decode_("My third Task")),
+      title: yield* $(createNonEmptyString("My third Task")),
       steps: [
         new Step({
-          title: yield* $(NonEmptyString.decode_("first step")),
+          title: yield* $(createNonEmptyString("first step")),
           completed: true,
         }),
-        new Step({ title: yield* $(NonEmptyString.decode_("second step")) }),
+        new Step({ title: yield* $(createNonEmptyString("second step")) }),
       ],
     })["|>"](Task.complete),
     {
       ...createPatrickTask({
-        title: yield* $(NonEmptyString.decode_("My third Task")),
+        title: yield* $(createNonEmptyString("My third Task")),
         steps: [
           new Step({
-            title: yield* $(NonEmptyString.decode_("first step")),
+            title: yield* $(createNonEmptyString("first step")),
             completed: true,
           }),
           new Step({
-            title: yield* $(NonEmptyString.decode_("second step")),
+            title: yield* $(createNonEmptyString("second step")),
           }),
         ],
       }),
@@ -152,14 +162,14 @@ export const makeTestData = T.gen(function* ($) {
     },
     {
       ...createPatrickTask({
-        title: yield* $(NonEmptyString.decode_("My third Task")),
+        title: yield* $(createNonEmptyString("My third Task")),
         steps: [
           new Step({
-            title: yield* $(NonEmptyString.decode_("first step")),
+            title: yield* $(createNonEmptyString("first step")),
             completed: true,
           }),
           new Step({
-            title: yield* $(NonEmptyString.decode_("second step")),
+            title: yield* $(createNonEmptyString("second step")),
           }),
         ],
       }),
@@ -168,14 +178,14 @@ export const makeTestData = T.gen(function* ($) {
 
     {
       ...createPatrickTask({
-        title: yield* $(NonEmptyString.decode_("My fourth Task")),
+        title: yield* $(createNonEmptyString("My fourth Task")),
         steps: [
           new Step({
-            title: yield* $(NonEmptyString.decode_("first step")),
+            title: yield* $(createNonEmptyString("first step")),
             completed: true,
           }),
           new Step({
-            title: yield* $(NonEmptyString.decode_("second step")),
+            title: yield* $(createNonEmptyString("second step")),
           }),
         ],
       }),
@@ -184,14 +194,14 @@ export const makeTestData = T.gen(function* ($) {
 
     {
       ...createPatrickTask({
-        title: yield* $(NonEmptyString.decode_("My fifth Task")),
+        title: yield* $(createNonEmptyString("My fifth Task")),
         steps: [
           new Step({
-            title: yield* $(NonEmptyString.decode_("first step")),
+            title: yield* $(createNonEmptyString("first step")),
             completed: true,
           }),
           new Step({
-            title: yield* $(NonEmptyString.decode_("second step")),
+            title: yield* $(createNonEmptyString("second step")),
           }),
         ],
         listId: PatricksSharedListUUid,
@@ -201,14 +211,14 @@ export const makeTestData = T.gen(function* ($) {
 
     {
       ...createPatrickTask({
-        title: yield* $(NonEmptyString.decode_("My sixth Task")),
+        title: yield* $(createNonEmptyString("My sixth Task")),
         steps: [
           new Step({
-            title: yield* $(NonEmptyString.decode_("first step")),
+            title: yield* $(createNonEmptyString("first step")),
             completed: true,
           }),
           new Step({
-            title: yield* $(NonEmptyString.decode_("second step")),
+            title: yield* $(createNonEmptyString("second step")),
           }),
         ],
         listId: PatricksSharedListUUid,
@@ -218,14 +228,14 @@ export const makeTestData = T.gen(function* ($) {
 
     {
       ...createPatrickTask({
-        title: yield* $(NonEmptyString.decode_("My seventh Task")),
+        title: yield* $(createNonEmptyString("My seventh Task")),
         steps: [
           new Step({
-            title: yield* $(NonEmptyString.decode_("first step")),
+            title: yield* $(createNonEmptyString("first step")),
             completed: true,
           }),
           new Step({
-            title: yield* $(NonEmptyString.decode_("second step")),
+            title: yield* $(createNonEmptyString("second step")),
           }),
         ],
         listId: PatricksSharedListUUid,
@@ -235,14 +245,14 @@ export const makeTestData = T.gen(function* ($) {
 
     {
       ...createPatrickTask({
-        title: yield* $(NonEmptyString.decode_("My eight Task")),
+        title: yield* $(createNonEmptyString("My eight Task")),
         steps: [
           new Step({
-            title: yield* $(NonEmptyString.decode_("first step")),
+            title: yield* $(createNonEmptyString("first step")),
             completed: true,
           }),
           new Step({
-            title: yield* $(NonEmptyString.decode_("second step")),
+            title: yield* $(createNonEmptyString("second step")),
           }),
         ],
         listId: PatricksSharedListUUid,
@@ -250,39 +260,25 @@ export const makeTestData = T.gen(function* ($) {
     },
     ///////
     createMikeTask({
-      title: yield* $(NonEmptyString.decode_("My first Task")),
-      steps: [new Step({ title: yield* $(NonEmptyString.decode_("first step")) })],
+      title: yield* $(createNonEmptyString("My first Task")),
+      steps: [new Step({ title: yield* $(createNonEmptyString("first step")) })],
     }),
     createMikeTask({
-      title: yield* $(NonEmptyString.decode_("My second Task")),
-      steps: [new Step({ title: yield* $(NonEmptyString.decode_("first step")) })],
+      title: yield* $(createNonEmptyString("My second Task")),
+      steps: [new Step({ title: yield* $(createNonEmptyString("first step")) })],
       listId: MikesSharedListID,
     }),
     ///////
     createMarkusTask({
-      title: yield* $(NonEmptyString.decode_("My first Task")),
-      steps: [new Step({ title: yield* $(NonEmptyString.decode_("first step")) })],
+      title: yield* $(createNonEmptyString("My first Task")),
+      steps: [new Step({ title: yield* $(createNonEmptyString("first step")) })],
     }),
     createMarkusTask({
-      title: yield* $(NonEmptyString.decode_("My second Task")),
-      steps: [new Step({ title: yield* $(NonEmptyString.decode_("first step")) })],
+      title: yield* $(createNonEmptyString("My second Task")),
+      steps: [new Step({ title: yield* $(createNonEmptyString("first step")) })],
       listId: MarkusSharedListId,
     }),
   ]
 
   return { lists, users, tasks }
 })
-
-function createTask(id: UserId, name: string) {
-  return (a: Omit<ConstructorParameters<typeof Task>[0], "createdBy">) =>
-    pipe(
-      Sy.gen(function* ($) {
-        return new Task({
-          ...a,
-          title: yield* $(NonEmptyString.decode_(`${name} - ${a.title}`)),
-          createdBy: id,
-        })
-      }),
-      unsafe
-    )
-}
