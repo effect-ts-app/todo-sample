@@ -2,7 +2,6 @@ import { Membership, Step, Task, User, UserId } from "@effect-ts-demo/todo-types
 import { flow } from "@effect-ts/core/Function"
 import { Lens } from "@effect-ts/monocle"
 
-import { makeUuid } from "@effect-ts-demo/core/ext/Model"
 import * as O from "@effect-ts-demo/core/ext/Option"
 import * as S from "@effect-ts-demo/core/ext/Schema"
 
@@ -27,10 +26,6 @@ function makeUserTaskCreator(u: User) {
 }
 
 export function makeTestDataUnsafe() {
-  const PatricksSharedListUUid = makeUuid()
-  const MikesSharedListID = makeUuid()
-  const MarkusSharedListId = makeUuid()
-  const groupId = makeUuid()
   const patrick = new User({
     id: createUserId(0),
     name: createNES("Patrick Roza"),
@@ -43,67 +38,59 @@ export function makeTestDataUnsafe() {
     id: createUserId(2),
     name: createNES("Markus Nomizz"),
   })
-  const users = [
-    patrick,
-    ////////
-    mike,
-    ////////
-    markus,
-  ]
 
-  const groupedListId = makeUuid()
+  const users = [patrick, mike, markus]
+
+  const patrickList = patrick["|>"](User.createTaskList_)({
+    title: createNES("Some Patrick List"),
+  })
+  const patrickSharedList = patrick["|>"](User.createTaskList_)({
+    title: createNES("Patrick's shared List"),
+    members: [
+      new Membership({
+        id: mike.id,
+        name: createNES("Mike Arnaldi"),
+      }),
+      new Membership({
+        id: markus.id,
+        name: createNES("Markus Nomizz"),
+      }),
+    ],
+  })
+  const mikeSharedList = mike["|>"](User.createTaskList_)({
+    title: createNES("Mike's shared List"),
+    members: [
+      new Membership({
+        id: patrick.id,
+        name: createNES("Patrick Roza"),
+      }),
+    ],
+  })
+  const markusSharedList = markus["|>"](User.createTaskList_)({
+    title: createNES("Markus's shared List"),
+    members: [
+      new Membership({
+        id: patrick.id,
+        name: createNES("Patrick Roza"),
+      }),
+    ],
+  })
+
   const lists = [
-    patrick["|>"](User.createTaskList_)({
-      id: groupedListId,
-      title: createNES("Some Patrick List"),
-    }),
-    ////////
+    patrickList,
     patrick["|>"](User.createTaskListGroup_)({
-      id: groupId,
       title: createNES("Patrick - Some group"),
-      lists: [groupedListId],
+      lists: [patrickList.id],
     }),
-    patrick["|>"](User.createTaskList_)({
-      id: PatricksSharedListUUid,
-      title: createNES("Patrick's shared List"),
-      members: [
-        new Membership({
-          id: mike.id,
-          name: createNES("Mike Arnaldi"),
-        }),
-        new Membership({
-          id: markus.id,
-          name: createNES("Markus Nomizz"),
-        }),
-      ],
-    }),
+    patrickSharedList,
     ///////
     mike["|>"](User.createTaskListGroup_)({
       title: createNES("Mike - Some group"),
-      lists: [MikesSharedListID],
+      lists: [mikeSharedList.id],
     }),
-    mike["|>"](User.createTaskList_)({
-      id: MikesSharedListID,
-      title: createNES("Mike's shared List"),
-      members: [
-        new Membership({
-          id: patrick.id,
-          name: createNES("Patrick Roza"),
-        }),
-      ],
-    }),
+    mikeSharedList,
     /////
-    markus["|>"](User.createTaskList_)({
-      id: MarkusSharedListId,
-      //order: [],
-      title: createNES("Markus's shared List"),
-      members: [
-        new Membership({
-          id: patrick.id,
-          name: createNES("Patrick Roza"),
-        }),
-      ],
-    }),
+    markusSharedList,
   ]
 
   const createPatrickTask = makeUserTaskCreator(patrick)
@@ -128,119 +115,104 @@ export function makeTestDataUnsafe() {
         new Step({ title: createNES("second step") }),
       ],
     })["|>"](Task.complete),
-    {
-      ...createPatrickTask({
-        title: createNES("My third Task"),
-        steps: [
-          new Step({
-            title: createNES("first step"),
-            completed: true,
-          }),
-          new Step({
-            title: createNES("second step"),
-          }),
-        ],
-      }),
+    createPatrickTask({
+      title: createNES("My third Task"),
+      steps: [
+        new Step({
+          title: createNES("first step"),
+          completed: true,
+        }),
+        new Step({
+          title: createNES("second step"),
+        }),
+      ],
       due: O.some(new Date(2021, 1, 1)),
-    },
-    {
-      ...createPatrickTask({
-        title: createNES("My third Task"),
-        steps: [
-          new Step({
-            title: createNES("first step"),
-            completed: true,
-          }),
-          new Step({
-            title: createNES("second step"),
-          }),
-        ],
-      }),
+    }),
+    createPatrickTask({
+      title: createNES("My third Task"),
+      steps: [
+        new Step({
+          title: createNES("first step"),
+          completed: true,
+        }),
+        new Step({
+          title: createNES("second step"),
+        }),
+      ],
       due: O.some(new Date(2021, 2, 1)),
-    },
+    }),
 
-    {
-      ...createPatrickTask({
-        title: createNES("My fourth Task"),
-        steps: [
-          new Step({
-            title: createNES("first step"),
-            completed: true,
-          }),
-          new Step({
-            title: createNES("second step"),
-          }),
-        ],
-      }),
+    createPatrickTask({
+      title: createNES("My fourth Task"),
+      steps: [
+        new Step({
+          title: createNES("first step"),
+          completed: true,
+        }),
+        new Step({
+          title: createNES("second step"),
+        }),
+      ],
       reminder: O.some(new Date(2021, 1, 1)),
-    },
+    }),
 
-    {
-      ...createPatrickTask({
-        title: createNES("My fifth Task"),
-        steps: [
-          new Step({
-            title: createNES("first step"),
-            completed: true,
-          }),
-          new Step({
-            title: createNES("second step"),
-          }),
-        ],
-        listId: PatricksSharedListUUid,
-      }),
+    createPatrickTask({
+      title: createNES("My fifth Task"),
+      steps: [
+        new Step({
+          title: createNES("first step"),
+          completed: true,
+        }),
+        new Step({
+          title: createNES("second step"),
+        }),
+      ],
+      listId: patrickSharedList.id,
       due: O.some(new Date(2021, 2, 1)),
-    },
-
-    {
-      ...createPatrickTask({
-        title: createNES("My sixth Task"),
-        steps: [
-          new Step({
-            title: createNES("first step"),
-            completed: true,
-          }),
-          new Step({
-            title: createNES("second step"),
-          }),
-        ],
-        listId: PatricksSharedListUUid,
-      }),
+    }),
+    createPatrickTask({
+      title: createNES("My sixth Task"),
+      steps: [
+        new Step({
+          title: createNES("first step"),
+          completed: true,
+        }),
+        new Step({
+          title: createNES("second step"),
+        }),
+      ],
+      listId: patrickSharedList.id,
       isFavorite: true,
-    },
+    }),
 
-    {
-      ...createPatrickTask({
-        title: createNES("My seventh Task"),
-        steps: [
-          new Step({
-            title: createNES("first step"),
-            completed: true,
-          }),
-          new Step({
-            title: createNES("second step"),
-          }),
-        ],
-        listId: PatricksSharedListUUid,
-      }),
+    createPatrickTask({
+      title: createNES("My seventh Task"),
+      steps: [
+        new Step({
+          title: createNES("first step"),
+          completed: true,
+        }),
+        new Step({
+          title: createNES("second step"),
+        }),
+      ],
+      listId: patrickSharedList.id,
       isFavorite: true,
-    },
+    }),
 
-    {
-      ...createPatrickTask({
-        title: createNES("My eight Task"),
-        steps: [
-          new Step({
-            title: createNES("first step"),
-            completed: true,
-          }),
-          new Step({
-            title: createNES("second step"),
-          }),
-        ],
-        listId: PatricksSharedListUUid,
-      }),
-    },
+    createPatrickTask({
+      title: createNES("My eight Task"),
+      steps: [
+        new Step({
+          title: createNES("first step"),
+          completed: true,
+        }),
+        new Step({
+          title: createNES("second step"),
+        }),
+      ],
+      listId: patrickSharedList.id,
+    }),
     ///////
     createMikeTask({
       title: createNES("My first Task"),
@@ -249,7 +221,7 @@ export function makeTestDataUnsafe() {
     createMikeTask({
       title: createNES("My second Task"),
       steps: [new Step({ title: createNES("first step") })],
-      listId: MikesSharedListID,
+      listId: mikeSharedList.id,
     }),
     ///////
     createMarkusTask({
@@ -259,7 +231,7 @@ export function makeTestDataUnsafe() {
     createMarkusTask({
       title: createNES("My second Task"),
       steps: [new Step({ title: createNES("first step") })],
-      listId: MarkusSharedListId,
+      listId: markusSharedList.id,
     }),
   ]
 
