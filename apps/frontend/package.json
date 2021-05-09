@@ -33,7 +33,7 @@
         "bfj": "^7.0.2",
         "camelcase": "^6.2.0",
         "case-sensitive-paths-webpack-plugin": "2.4.0",
-        "dotenv": "9.0.0",
+        "dotenv": "9.0.1",
         "dotenv-expand": "5.1.0",
         "fs-extra": "^10.0.0",
         "identity-obj-proxy": "3.0.0",
