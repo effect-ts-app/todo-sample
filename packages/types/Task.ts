@@ -4,6 +4,7 @@ import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as O from "@effect-ts/core/Option"
 import { Option } from "@effect-ts/core/Option"
 import * as Lens from "@effect-ts/monocle/Lens"
+import { constant } from "@effect-ts/system/Function"
 
 // export const TaskListIdU = UUID
 // export type TaskListIdU = AType<typeof TaskListIdU>
@@ -35,7 +36,7 @@ export type TaskListIdU = S.ParsedShapeOf<typeof TaskListIdU>
 @S.namedC
 export class Step extends S.Model<Step>()(
   pipe(S.required({ title: S.nonEmptyString, completed: S.bool }), S.asBuilder, (s) =>
-    S.withDefaultConstructorFields(s)({ completed: () => false })
+    S.withDefaultConstructorFields(s)({ completed: constant(false) })
   )
 ) {
   static complete = Lens.id<Step>()["|>"](Lens.prop("completed")).set(true)
@@ -76,18 +77,17 @@ export class Task extends S.Model<Task>()(
     S.asBuilder,
     S.withDefaultUuidId,
     (s) =>
-      // TODO: remove casts
       S.withDefaultConstructorFields(s)({
-        isFavorite: () => false,
-        steps: () => [] as A.Array<Step>,
-        listId: () => "inbox" as TaskListIdU,
+        isFavorite: constant(false),
+        steps: S.constArray,
+        listId: constant("inbox" as TaskListIdU),
         createdAt: () => new Date(),
         updatedAt: () => new Date(),
-        completed: () => O.none as O.Option<Date>,
-        due: () => O.none as O.Option<Date>,
-        reminder: () => O.none as O.Option<Date>,
-        note: () => O.none as O.Option<S.NonEmptyString>,
-        assignedTo: () => O.none as O.Option<UserId>,
+        completed: constant(O.none),
+        due: constant(O.none),
+        reminder: constant(O.none),
+        note: constant(O.none),
+        assignedTo: constant(O.none),
       })
   )
 ) {
@@ -118,8 +118,11 @@ export class SharableTaskList extends S.Model<SharableTaskList>()(
     S.asBuilder,
     S.tag("TaskList"),
     S.withDefaultUuidId,
-    S.withDefaultConstructorField("order", () => [] as A.Array<TaskId>),
-    S.withDefaultConstructorField("members", () => [] as A.Array<Membership>)
+    (s) =>
+      S.withDefaultConstructorFields(s)({
+        order: S.constArray,
+        members: S.constArray,
+      })
   )
 ) {}
 
@@ -138,7 +141,7 @@ export class TaskListGroup extends S.Model<TaskListGroup>()(
     S.asBuilder,
     S.tag("TaskListGroup"),
     S.withDefaultUuidId,
-    S.withDefaultConstructorField("lists", () => [] as A.Array<TaskListId>)
+    (s) => S.withDefaultConstructorFields(s)({ lists: S.constArray })
   )
 ) {}
 
@@ -158,8 +161,11 @@ export class User extends S.Model<User>()(
       myDay: S.array(MyDay) /* position */,
     }),
     S.asBuilder,
-    S.withDefaultConstructorField("inboxOrder", () => [] as A.Array<TaskId>),
-    S.withDefaultConstructorField("myDay", () => [] as A.Array<MyDay>)
+    (s) =>
+      S.withDefaultConstructorFields(s)({
+        inboxOrder: S.constArray,
+        myDay: S.constArray,
+      })
   )
 ) {
   static readonly createTask = (

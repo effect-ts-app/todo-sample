@@ -1,4 +1,6 @@
-import { Lazy, pipe } from "../Function"
+import * as A from "@effect-ts/core/Collections/Immutable/Array"
+
+import { constant, Lazy, pipe } from "../Function"
 
 import * as S from "./vendor"
 import { schemaField } from "./vendor"
@@ -66,6 +68,8 @@ export function withDefaultConstructorFields<
     )
   }
 }
+
+export const constArray = constant(A.empty)
 
 export * from "./_api"
 export * from "./Model"
