@@ -1,4 +1,3 @@
-import { Compute } from "@effect-ts-demo/core/ext/Compute"
 import * as S from "@effect-ts-demo/core/ext/Schema"
 import { TaskListIdU, TaskId } from "@effect-ts-demo/todo-types"
 
@@ -15,5 +14,6 @@ export class Request extends S.Model<Request>()(RequestBody.Model) {
 }
 
 // export class Response extends S.Model<Response>()(S.required({ id: TaskId })) {}
-export const Response = S.required({ id: TaskId })
-export type Response = Compute<S.ParsedShapeOf<typeof Response>>
+const Response_ = S.required({ id: TaskId })
+export interface Response extends S.ParsedShapeOf<typeof Response_> {}
+export const Response = S.opaque<Response>()(Response_)

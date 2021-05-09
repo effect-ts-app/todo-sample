@@ -1,4 +1,3 @@
-import { Compute } from "@effect-ts-demo/core/ext/Compute"
 import * as S from "@effect-ts-demo/core/ext/Schema"
 import { TaskId } from "@effect-ts-demo/todo-types"
 
@@ -10,4 +9,4 @@ export class Request extends S.Model<Request>()(RequestPath.Model) {
 }
 
 export const Response = S.nullable(TaskView.Model)
-export type Response = Compute<S.ParsedShapeOf<typeof Response>>
+export type Response = S.ParsedShapeOf<typeof Response>

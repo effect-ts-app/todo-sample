@@ -9,7 +9,8 @@ export class Request extends S.Model<Request>()(S.required({})) {
   static Headers = RequestHeaders
 }
 
-export const Response = S.struct({
+const Response_ = S.struct({
   required: { items: S.array(TaskView.Model) },
 })
-export interface Response extends S.ParsedShapeOf<typeof Response> {}
+export interface Response extends S.ParsedShapeOf<typeof Response_> {}
+export const Response = S.opaque<Response>()(Response_)

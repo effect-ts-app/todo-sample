@@ -1,4 +1,3 @@
-import { Compute } from "@effect-ts-demo/core/ext/Compute"
 import * as S from "@effect-ts-demo/core/ext/Schema"
 import { TaskListId, TaskId } from "@effect-ts-demo/todo-types"
 
@@ -47,9 +46,10 @@ export const TaskListEntryOrGroup = S.tagged(
 )["|>"](S.named("TaskListEntryOrGroup"))
 export type TaskListEntryOrGroup = S.ParsedShapeOf<typeof TaskListEntryOrGroup>
 
-export const Response = S.required({
+const Response_ = S.required({
   name: S.nonEmptyString,
   inboxOrder: S.array(TaskId),
   lists: S.array(TaskListEntryOrGroup),
 })
-export type Response = Compute<S.ParsedShapeOf<typeof Response>>
+export interface Response extends S.ParsedShapeOf<typeof Response_> {}
+export const Response = S.opaque<Response>()(Response_)
