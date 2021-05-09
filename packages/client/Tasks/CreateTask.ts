@@ -13,7 +13,6 @@ export class Request extends S.Model<Request>()(RequestBody.Model) {
   static Body = RequestBody
 }
 
-// export class Response extends S.Model<Response>()(S.required({ id: TaskId })) {}
-const Response_ = S.required({ id: TaskId })
-export interface Response extends S.ParsedShapeOf<typeof Response_> {}
-export const Response = S.opaque<Response>()(Response_)
+export class Response_ extends S.Model<Response_>()(S.required({ id: TaskId })) {}
+export const Response = Response_.Model
+export type Response = Response_

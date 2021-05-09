@@ -46,10 +46,12 @@ export const TaskListEntryOrGroup = S.tagged(
 )["|>"](S.named("TaskListEntryOrGroup"))
 export type TaskListEntryOrGroup = S.ParsedShapeOf<typeof TaskListEntryOrGroup>
 
-const Response_ = S.required({
-  name: S.nonEmptyString,
-  inboxOrder: S.array(TaskId),
-  lists: S.array(TaskListEntryOrGroup),
-})
-export interface Response extends S.ParsedShapeOf<typeof Response_> {}
-export const Response = S.opaque<Response>()(Response_)
+export class Response_ extends S.Model<Response_>()(
+  S.required({
+    name: S.nonEmptyString,
+    inboxOrder: S.array(TaskId),
+    lists: S.array(TaskListEntryOrGroup),
+  })
+) {}
+export const Response = Response_.Model
+export type Response = Response_
