@@ -46,6 +46,8 @@ export interface RouteDescriptor<
   _tag: "Schema"
 }
 
+export type RouteDescriptorAny = RouteDescriptor<any, any, any, any, any, any, any, any>
+
 export function makeRouteDescriptor<
   R,
   PathA,
