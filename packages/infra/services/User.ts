@@ -5,11 +5,11 @@ import * as T from "@effect-ts/core/Effect"
 import * as L from "@effect-ts/core/Effect/Layer"
 import { _A } from "@effect-ts/core/Utils"
 
-const parsePositiveInt = Parser.for(S.positiveInt)["|>"](S.condemn)
+const parsePositiveInt = Parser.for(S.positiveInt)["|>"](S.condemnFail)
 
 function makeUserEnv(authorization: string) {
   return T.struct({
-    id: parsePositiveInt(parseInt(authorization))["|>"](T.orDie),
+    id: parsePositiveInt(parseInt(authorization)),
   })
 }
 

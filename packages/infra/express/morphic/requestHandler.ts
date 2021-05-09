@@ -202,7 +202,17 @@ function handleRequest<R, PathA, CookieA, QueryA, BodyA, HeaderA, ResA, ResE>(
         T.succeedWith(() => {
           res.status(404).send(err)
         })
-      )
+      ),
+      // final catch all
+      T.catchAll((err: any) =>
+        T.succeedWith(() =>
+          console.error(
+            "Program error, compiler probably silenced, got an unsupported Error in Error Channel of Effect",
+            err
+          )
+        )["|>"](T.chain(T.die))
+      ),
+      T.tapCause(() => T.succeedWith(() => res.status(500).send()))
     )
 }
 
