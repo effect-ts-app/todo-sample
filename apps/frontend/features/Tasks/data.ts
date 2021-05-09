@@ -249,7 +249,7 @@ export function useTaskCommands(id: Todo.TaskId) {
     function toggleTaskChecked(t: Todo.Task) {
       return pipe(
         T.succeedWith(() => t["|>"](Todo.Task.toggleCompleted)),
-        T.chain((x) => updateAndRefreshTask(x))
+        T.chain(updateAndRefreshTask)
       )
     }
 

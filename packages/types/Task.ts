@@ -34,10 +34,8 @@ export type TaskListIdU = S.ParsedShapeOf<typeof TaskListIdU>
 
 @S.namedC
 export class Step extends S.Model<Step>()(
-  pipe(
-    S.required({ title: S.nonEmptyString, completed: S.bool }),
-    S.asBuilder,
-    S.withDefaultConstructorField("completed", () => false)
+  pipe(S.required({ title: S.nonEmptyString, completed: S.bool }), S.asBuilder, (s) =>
+    S.withDefaultConstructorFields(s)({ completed: () => false })
   )
 ) {
   static complete = Lens.id<Step>()["|>"](Lens.prop("completed")).set(true)
@@ -77,17 +75,20 @@ export class Task extends S.Model<Task>()(
     )(EditableTaskProps),
     S.asBuilder,
     S.withDefaultUuidId,
-    // TODO: We should have one call, with all defaults at once.
-    S.withDefaultConstructorField("isFavorite", () => false),
-    S.withDefaultConstructorField("steps", () => [] as A.Array<Step>),
-    S.withDefaultConstructorField("listId", () => "inbox" as TaskListIdU),
-    S.withDefaultConstructorField("createdAt", () => new Date()),
-    S.withDefaultConstructorField("updatedAt", () => new Date()),
-    S.withDefaultConstructorField("completed", () => O.none as O.Option<Date>),
-    S.withDefaultConstructorField("due", () => O.none as O.Option<Date>),
-    S.withDefaultConstructorField("reminder", () => O.none as O.Option<Date>),
-    S.withDefaultConstructorField("note", () => O.none as O.Option<S.NonEmptyString>),
-    S.withDefaultConstructorField("assignedTo", () => O.none as O.Option<UserId>)
+    (s) =>
+      // TODO: remove casts
+      S.withDefaultConstructorFields(s)({
+        isFavorite: () => false,
+        steps: () => [] as A.Array<Step>,
+        listId: () => "inbox" as TaskListIdU,
+        createdAt: () => new Date(),
+        updatedAt: () => new Date(),
+        completed: () => O.none as O.Option<Date>,
+        due: () => O.none as O.Option<Date>,
+        reminder: () => O.none as O.Option<Date>,
+        note: () => O.none as O.Option<S.NonEmptyString>,
+        assignedTo: () => O.none as O.Option<UserId>,
+      })
   )
 ) {
   static complete = Lens.id<Task>()
