@@ -29,7 +29,7 @@ import {
   taggedUnionIdentifier,
 } from "@effect-ts/schema"
 
-import * as S from "../../_schema"
+import * as S from "../_schema"
 import {
   boolIdentifier,
   nullableIdentifier,
@@ -38,7 +38,7 @@ import {
   intersectIdentifier,
   SchemaContinuationSymbol,
   structIdentifier,
-} from "../../_schema"
+} from "../_schema"
 
 type JsonSchema<T> = unknown
 

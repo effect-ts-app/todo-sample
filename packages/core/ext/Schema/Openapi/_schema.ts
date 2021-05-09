@@ -2,6 +2,8 @@ import type { JSONSchema } from "@atlas-ts/plutus"
 
 import { HasContinuation, Schema, SchemaAny, SchemaContinuationSymbol } from "../vendor"
 
+export * from "../"
+
 type JsonSchema<T> = JSONSchema
 
 export class SchemaOpenApi<
