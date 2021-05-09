@@ -6,7 +6,7 @@
 	},
 	"item": [
 		{
-			"name": "GetMe",
+			"name": "Get Me",
 			"request": {
 				"method": "GET",
 				"header": [
@@ -56,7 +56,7 @@
 			"response": []
 		},
 		{
-			"name": "Get Task",
+			"name": "Find Task",
 			"request": {
 				"method": "GET",
 				"header": [
@@ -261,7 +261,7 @@
 		},
 		{
 			"key": "UserId",
-			"value": "1"
+			"value": "0"
 		}
 	]
 }
