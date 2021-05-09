@@ -8,13 +8,13 @@ import { fetchApi, fetchApi3S, mapResponseErrorS } from "../fetch"
 
 import * as CreateTask from "./CreateTask"
 import * as DeleteTask from "./DeleteTask"
+import * as FindTask from "./FindTask"
 import * as GetMe from "./GetMe"
-import * as GetTask from "./GetTask"
 import * as GetTasks from "./GetTasks"
 import * as SetTasksOrder from "./SetTasksOrder"
 import * as UpdateTask from "./UpdateTask"
 
-export { CreateTask, DeleteTask, GetMe, GetTask, GetTasks, SetTasksOrder, UpdateTask }
+export { CreateTask, DeleteTask, GetMe, FindTask, GetTasks, SetTasksOrder, UpdateTask }
 
 export { TaskView as Task } from "./views"
 export * from "@effect-ts-demo/todo-types"
@@ -29,7 +29,7 @@ export const getTasks = pipe(
 )
 
 const decodeGetTaskResponse = flow(
-  Parser.for(GetTask.Response)["|>"](S.condemn),
+  Parser.for(FindTask.Response)["|>"](S.condemn),
   mapResponseErrorS
 )
 export const findTask = (id: S.UUID) =>

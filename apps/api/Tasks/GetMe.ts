@@ -34,12 +34,12 @@ export const handle = (_: Request) =>
           }),
       })
     )["|>"](Chunk.toArray)
-    const r = {
+
+    return {
       name: user.name,
       inboxOrder: user.inboxOrder,
       lists,
     } as Response
-    return r
   })
 
 export { Request, Response }

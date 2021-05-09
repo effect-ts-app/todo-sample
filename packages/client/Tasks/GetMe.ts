@@ -1,3 +1,4 @@
+import { Compute } from "@effect-ts-demo/core/ext/Compute"
 import * as S from "@effect-ts-demo/core/ext/Schema"
 import { TaskListId, TaskId } from "@effect-ts-demo/todo-types"
 
@@ -10,7 +11,7 @@ export class Request extends S.Model<Request>()(S.required({})) {
   static Headers = RequestHeaders
 }
 
-class TaskListEntryBase extends S.Model<TaskListEntryBase>()(
+export class TaskListEntryBase extends S.Model<TaskListEntryBase>()(
   S.required({
     id: TaskListId,
     order: S.array(TaskId),
@@ -51,4 +52,4 @@ export const Response = S.required({
   inboxOrder: S.array(TaskId),
   lists: S.array(TaskListEntryOrGroup),
 })
-export type Response = S.ParsedShapeOf<typeof Response>
+export type Response = Compute<S.ParsedShapeOf<typeof Response>>

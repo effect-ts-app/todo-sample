@@ -5,7 +5,7 @@ import { getLoggedInUser } from "./shared"
 
 import * as EO from "@effect-ts-demo/core/ext/EffectOption"
 import * as O from "@effect-ts-demo/core/ext/Option"
-import { Request, Response } from "@effect-ts-demo/todo-client/Tasks/GetTask"
+import { Request, Response } from "@effect-ts-demo/todo-client/Tasks/FindTask"
 
 export const handle = (_: Request) =>
   EO.gen(function* ($) {
