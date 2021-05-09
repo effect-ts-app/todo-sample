@@ -3,7 +3,7 @@ import * as O from "@effect-ts/core/Option"
 import { datumEither } from "@nll/datum"
 import React, { useCallback } from "react"
 
-import * as Todo from "@/Todo"
+import { Todo } from "@/"
 
 import { useTasks } from "../data"
 import { useRouting } from "../routing"

@@ -17,6 +17,9 @@
             "@effect-ts-demo/todo-types/*": [
                 "../../packages/types/*"
             ],
+            "@/": [
+                "./"
+            ],
             "@/*": [
                 "./*"
             ]

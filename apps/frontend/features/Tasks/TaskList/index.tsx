@@ -1,4 +1,3 @@
-import * as TodoClient from "@effect-ts-demo/todo-client"
 import * as NA from "@effect-ts/core/Collections/Immutable/NonEmptyArray"
 import { flow } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
@@ -12,7 +11,8 @@ import { datumEither } from "@nll/datum"
 import React from "react"
 import useInterval from "use-interval"
 
-import * as Todo from "@/Todo"
+import { TodoClient } from "@/"
+import { Todo } from "@/"
 import { Field } from "@/components"
 import { useServiceContext } from "@/context"
 import { memo, withLoading } from "@/data"
@@ -27,7 +27,6 @@ import { TaskListMenu } from "./TaskListMenu"
 import * as A from "@effect-ts-demo/core/ext/Array"
 import * as T from "@effect-ts-demo/core/ext/Effect"
 import * as EO from "@effect-ts-demo/core/ext/EffectOption"
-import { NonEmptyString, UUID } from "@effect-ts-demo/core/ext/Model"
 
 const TaskListView = memo(function ({
   category,
@@ -191,7 +190,7 @@ const TaskListOrNone = ({
   category,
   order,
 }: {
-  category: O.Option<NonEmptyString>
+  category: O.Option<Todo.Category>
   order: O.Option<Todo.Ordery>
 }) =>
   O.fold_(
@@ -200,11 +199,11 @@ const TaskListOrNone = ({
     (category) => <TaskListView category={category} order={order} />
   )
 
-// function orderTasks(a: A.Array<Task>, order: A.Array<UUID>) {
+// function orderTasks(a: A.Array<Task>, order: A.Array<Todo.TaskId>) {
 //   return A.reverse(a)["|>"](A.sort(makeOrderBySortingArrOrd(order)))
 // }
 
-function makeOrderBySortingArrOrd(sortingArr: A.Array<UUID>): Ord<Todo.Task> {
+function makeOrderBySortingArrOrd(sortingArr: A.Array<Todo.TaskId>): Ord<Todo.Task> {
   return {
     compare: (a, b) => {
       const diff = sortingArr.indexOf(a.id) - sortingArr.indexOf(b.id)

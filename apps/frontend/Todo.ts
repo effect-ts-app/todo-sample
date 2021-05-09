@@ -4,11 +4,11 @@ import * as O from "@effect-ts/core/Option"
 import * as ORD from "@effect-ts/core/Ord"
 import { Lens } from "@effect-ts/monocle"
 
+import { Todo } from "@/"
 import { typedKeysOf } from "@/utils"
 
 import * as A from "@effect-ts-demo/core/ext/Array"
 import * as S from "@effect-ts-demo/core/ext/Schema"
-import * as Todo from "@effect-ts-demo/todo-client/Tasks"
 
 const stepCompleted = Todo.Step.lens["|>"](Lens.prop("completed"))
 
@@ -177,3 +177,5 @@ function isSameDay(today: Date) {
 export const emptyTasks = [] as readonly Todo.Task[]
 
 export * from "@effect-ts-demo/todo-types/Task"
+
+export type Category = S.NonEmptyString

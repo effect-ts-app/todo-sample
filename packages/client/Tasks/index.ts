@@ -3,7 +3,6 @@ import * as S from "@effect-ts-demo/core/ext/Schema"
 import { pipe } from "@effect-ts/core"
 import * as T from "@effect-ts/core/Effect"
 import { flow } from "@effect-ts/core/Function"
-import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
 
 import { fetchApi, fetchApi3S, mapResponseErrorS } from "../fetch"
 
@@ -33,7 +32,7 @@ const decodeGetTaskResponse = flow(
   Parser.for(GetTask.Response)["|>"](S.condemn),
   mapResponseErrorS
 )
-export const findTask = (id: UUID) =>
+export const findTask = (id: S.UUID) =>
   pipe(fetchApi(`/tasks/${id}`), T.chain(decodeGetTaskResponse))
 
 export const createTask = fetchApi3S(CreateTask)("/tasks")

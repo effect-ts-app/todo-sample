@@ -32,7 +32,7 @@ export class SharableTaskListEntry extends S.Model<SharableTaskListEntry>()(
 
 // TaskListEntryGroups contains tasklists
 @S.namedC
-export class TaskListEntryGroup extends S.Model<SharableTaskListEntry>()(
+export class TaskListEntryGroup extends S.Model<TaskListEntryGroup>()(
   S.required({
     id: TaskListId,
     title: S.nonEmptyString,

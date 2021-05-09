@@ -1,5 +1,4 @@
 import * as O from "@effect-ts/core/Option"
-import { UUID } from "@effect-ts/morphic/Algebra/Primitives"
 import { useRouter } from "next/router"
 import { useMemo, useRef } from "react"
 
@@ -7,9 +6,9 @@ import { makeQueryString } from "@/utils"
 
 import { OrderDir, Orders, Ordery } from "./data"
 
-import { NonEmptyString } from "@effect-ts-demo/core/ext/Model"
+import * as S from "@effect-ts-demo/core/ext/Schema"
 
-export function useRouting(category: NonEmptyString, order: O.Option<Ordery>) {
+export function useRouting(category: S.NonEmptyString, order: O.Option<Ordery>) {
   const r = useRouter()
 
   // the functions are not stable when order direction, order, or category changes...
@@ -26,7 +25,7 @@ export function useRouting(category: NonEmptyString, order: O.Option<Ordery>) {
           )}`
         ),
 
-      setSelectedTaskId: (id: UUID | null) =>
+      setSelectedTaskId: (id: Todo.TaskId | null) =>
         s.current.push(
           `/${s.current.category}${id ? `/${id}` : ""}${makeSearch(s.current.order)}`
         ),

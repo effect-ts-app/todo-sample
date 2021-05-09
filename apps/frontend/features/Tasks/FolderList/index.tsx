@@ -18,12 +18,12 @@ import {
 
 import { FolderList } from "./FolderList"
 
-import { NonEmptyString } from "@effect-ts-demo/core/ext/Model"
+import * as S from "@effect-ts-demo/core/ext/Schema"
 import { TaskListEntryOrGroup } from "@effect-ts-demo/todo-client/Tasks/GetMe"
 
 const defaultLists = [] as readonly TaskListEntryOrGroup[]
 
-const FolderListView = ({ category }: { category: O.Option<NonEmptyString> }) => {
+const FolderListView = ({ category }: { category: O.Option<Todo.Category> }) => {
   const [meResult] = useMe()
   const [tasksResult] = useTasks()
   // TODO: the total tasksResults, should be from all loaded folders.
@@ -40,21 +40,21 @@ const FolderListView = ({ category }: { category: O.Option<NonEmptyString> }) =>
       [
         ...TaskViews["|>"](
           A.map((c) => ({
-            slug: c as NonEmptyString,
+            slug: c,
             tasks: unfilteredTasks["|>"](filterByCategory(c)),
           }))
         )["|>"](
           A.map(
             ({ slug, tasks }) =>
               new TaskListView({
-                title: toUpperCaseFirst(slug) as NonEmptyString,
+                title: toUpperCaseFirst(slug) as S.NonEmptyString,
                 slug,
                 count: tasks.length,
               })
           )
         ),
         new TaskListView({
-          title: "Tasks" as NonEmptyString,
+          title: "Tasks" as S.NonEmptyString,
           slug: "tasks",
           count: unfilteredTasks["|>"](filterByCategory("inbox")).length,
         }),

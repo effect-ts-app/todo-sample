@@ -32,6 +32,9 @@ interface Model2<Self extends S.SchemaAny, M, SelfM> {
   new (_: S.ConstructorInputOf<Self>): Compute<S.ParsedShapeOf<Self>>
 }
 
+// TODO: Somehow ensure that Self and M are related..
+//type Ensure<M, Self extends S.SchemaAny> = M extends S.ParsedShapeOf<Self> ? M : never
+
 export function Model<M>() {
   return <Self extends S.Schema<any, any, any, any, any, any, any, any>>(
     self: Self

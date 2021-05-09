@@ -30,7 +30,7 @@ export const TaskListId = S.UUID
 export type TaskListId = S.ParsedShapeOf<typeof TaskListId>
 
 export const TaskListIdU = S.nonEmptyString
-export type TaskListIdU = S.ParsedShapeOf<typeof TaskListId>
+export type TaskListIdU = S.ParsedShapeOf<typeof TaskListIdU>
 
 @S.namedC
 export class Step extends S.Model<Step>()(

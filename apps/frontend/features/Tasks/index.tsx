@@ -4,6 +4,7 @@ import ArrowLeft from "@material-ui/icons/ArrowLeft"
 import RouterLink from "next/link"
 import React, { useState } from "react"
 
+import { Todo } from "@/"
 import { memo, useEffect } from "@/data"
 import { renderIf_ } from "@/utils"
 
@@ -11,8 +12,6 @@ import FolderList from "./FolderList"
 import TaskDetail from "./TaskDetail"
 import TaskList from "./TaskList"
 import { Ordery } from "./data"
-
-import * as S from "@effect-ts-demo/core/ext/Schema"
 
 const users = [
   {
@@ -33,9 +32,9 @@ const TasksScreen = memo(function ({
   order,
   taskId,
 }: {
-  category: O.Option<S.NonEmptyString>
+  category: O.Option<Todo.Category>
   order: O.Option<Ordery>
-  taskId: O.Option<S.UUID>
+  taskId: O.Option<Todo.TaskId>
 }) {
   const userId = useUserId()
   const view = O.isSome(taskId) ? "task" : O.isSome(category) ? "tasks" : "folders"

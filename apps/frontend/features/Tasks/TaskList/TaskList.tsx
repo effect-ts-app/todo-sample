@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react"
 import { Droppable, DragDropContext } from "react-beautiful-dnd"
 import styled from "styled-components"
 
-import * as Todo from "@/Todo"
+import { Todo } from "@/"
 import { memo } from "@/data"
 
 import { TaskCard, Task } from "./Task"

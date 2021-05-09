@@ -1,6 +1,7 @@
 import * as O from "@effect-ts/core/Option"
 import React from "react"
 
+import { Todo } from "@/"
 import { useMemo } from "@/data"
 import TasksScreen from "@/features/Tasks"
 import { Order, OrderDir } from "@/features/Tasks/data"
@@ -13,7 +14,7 @@ function TasksPage() {
     category: S.nonEmptyString,
     order: Order,
     orderDirection: OrderDir,
-    tasks: S.UUID,
+    tasks: Todo.TaskId,
   })
   const o = useMemo(() => {
     return O.map_(order, (kind) => ({
