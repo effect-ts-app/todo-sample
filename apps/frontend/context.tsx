@@ -7,7 +7,7 @@ import { Semaphore } from "@effect-ts/system/Semaphore"
 import { datumEither } from "@nll/datum"
 import React, { createContext, ReactNode, useContext, useEffect, useMemo } from "react"
 
-import { TodoClient } from "@/"
+import { TodoClient } from "@/index"
 
 import { useConfig } from "./config"
 

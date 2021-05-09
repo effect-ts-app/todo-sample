@@ -2,13 +2,12 @@ import * as O from "@effect-ts/core/Option"
 import { useRouter } from "next/router"
 import { useMemo, useRef } from "react"
 
+import { Todo } from "@/index"
 import { makeQueryString } from "@/utils"
 
-import { OrderDir, Orders, Ordery } from "./data"
+import { OrderDir, Order, Orders, Ordery } from "./data"
 
-import * as S from "@effect-ts-demo/core/ext/Schema"
-
-export function useRouting(category: S.NonEmptyString, order: O.Option<Ordery>) {
+export function useRouting(category: Todo.Category, order: O.Option<Ordery>) {
   const r = useRouter()
 
   // the functions are not stable when order direction, order, or category changes...
@@ -33,7 +32,7 @@ export function useRouting(category: S.NonEmptyString, order: O.Option<Ordery>) 
       setOrder: (o: O.Option<Orders>) =>
         s.current.push(
           `${location.pathname}${makeSearch(
-            O.map_(o, (kind) => ({ kind, dir: "up" }))
+            O.map_(o, (kind) => ({ kind: kind as Order, dir: "up" as OrderDir }))
           )}`
         ),
     }),

@@ -52,7 +52,7 @@ export const useRouteParams = <NER extends Record<string, S.SchemaAny>>(
       return prev
     },
     {} as {
-      [K in keyof NER]: S.ParsedShapeOf<NER[K]>
+      [K in keyof NER]: O.Option<S.ParsedShapeOf<NER[K]>>
     }
   )
 }

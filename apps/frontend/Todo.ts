@@ -1,18 +1,16 @@
-import { TaskId, TaskListId } from "@effect-ts-demo/todo-types"
-import { constant, flow, identity } from "@effect-ts/core/Function"
+import { constant, flow, identity, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import * as ORD from "@effect-ts/core/Ord"
 import { Lens } from "@effect-ts/monocle"
 
-import { Todo } from "@/"
-import { typedKeysOf } from "@/utils"
+import { typedKeysOf } from "./utils"
 
 import * as A from "@effect-ts-demo/core/ext/Array"
 import * as S from "@effect-ts-demo/core/ext/Schema"
+import * as Todo from "@effect-ts-demo/todo-client/Tasks"
+import { TaskId, TaskListId } from "@effect-ts-demo/todo-client/Tasks"
 
 const stepCompleted = Todo.Step.lens["|>"](Lens.prop("completed"))
-
-export * from "@effect-ts-demo/todo-types"
 
 export const toggleBoolean = Lens.modify<boolean>((x) => !x)
 export class Step extends Todo.Step {
@@ -130,11 +128,34 @@ export type Orders = keyof typeof orders
 
 const order = typedKeysOf(orders)
 export type Order = typeof order[number]
-export const Order = S.nonEmptyString // TODO
+
+const isOrder = (u: any): u is Order & S.NonEmptyString => u in orders
+export const Order = S.nonEmptyString["|>"](
+  S.compose(
+    pipe(
+      S.identity(isOrder),
+      S.parser((x) => (isOrder(x) ? S.These.succeed(x) : S.These.fail("not order"))),
+      S.constructor((x) =>
+        isOrder(x) ? S.These.succeed(x) : S.These.fail("not order")
+      )
+    )
+  )
+) // TODO
 
 const orderDir = ["up", "down"] as const
 export type OrderDir = typeof orderDir[number]
-export const OrderDir = S.nonEmptyString // TODO
+const isOrderDir = (u: any): u is OrderDir & S.NonEmptyString => u in orders
+export const OrderDir = S.nonEmptyString["|>"](
+  S.compose(
+    pipe(
+      S.identity(isOrderDir),
+      S.parser((x) => (isOrderDir(x) ? S.These.succeed(x) : S.These.fail("not order"))),
+      S.constructor((x) =>
+        isOrderDir(x) ? S.These.succeed(x) : S.These.fail("not order")
+      )
+    )
+  )
+) // TODO
 
 export type Ordery = {
   kind: Order
@@ -176,6 +197,8 @@ function isSameDay(today: Date) {
 
 export const emptyTasks = [] as readonly Todo.Task[]
 
-export * from "@effect-ts-demo/todo-types/Task"
-
+export const Category = S.nonEmptyString
 export type Category = S.NonEmptyString
+
+export * from "@effect-ts-demo/todo-types"
+export * from "@effect-ts-demo/todo-types/Task"

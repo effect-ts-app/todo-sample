@@ -4,9 +4,9 @@ import * as O from "@effect-ts/core/Option"
 import { Lens } from "@effect-ts/monocle"
 import { useCallback, useEffect, useMemo } from "react"
 
-import { TodoClient, Todo } from "@/"
 import { useServiceContext } from "@/context"
 import { useFetch, useModify, useQuery } from "@/data"
+import { TodoClient, Todo } from "@/index"
 
 import * as T from "@effect-ts-demo/core/ext/Effect"
 import * as EO from "@effect-ts-demo/core/ext/EffectOption"
@@ -249,7 +249,7 @@ export function useTaskCommands(id: Todo.TaskId) {
     function toggleTaskChecked(t: Todo.Task) {
       return pipe(
         T.succeedWith(() => t["|>"](Todo.Task.toggleCompleted)),
-        T.chain(updateAndRefreshTask)
+        T.chain((x) => updateAndRefreshTask(x))
       )
     }
 

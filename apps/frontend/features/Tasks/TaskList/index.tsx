@@ -11,11 +11,11 @@ import { datumEither } from "@nll/datum"
 import React from "react"
 import useInterval from "use-interval"
 
-import { TodoClient } from "@/"
-import { Todo } from "@/"
 import { Field } from "@/components"
 import { useServiceContext } from "@/context"
 import { memo, withLoading } from "@/data"
+import { Todo } from "@/index"
+import { TodoClient } from "@/index"
 import { renderIf_, toUpperCaseFirst } from "@/utils"
 
 import { useGetTask, useMe, useModifyMe, useNewTask, useTasks } from "../data"
@@ -32,7 +32,7 @@ const TaskListView = memo(function ({
   category,
   order,
 }: {
-  category: NonEmptyString
+  category: Todo.Category
   order: O.Option<Todo.Ordery>
 }) {
   const [meResult] = useMe()
@@ -91,7 +91,7 @@ const TaskListView = memo(function ({
         A.sortBy(
           order["|>"](
             O.map((o) =>
-              NA.single(Todo.orders[o.kind])["|>"](
+              NA.single(Todo.orders[(o.kind as any) as keyof typeof Todo.orders])["|>"](
                 NA.map((ord) => (o.dir === "down" ? ORD.inverted(ord) : ord))
               )
             )

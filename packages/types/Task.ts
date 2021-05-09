@@ -37,8 +37,7 @@ export class Step extends S.Model<Step>()(
   pipe(
     S.required({ title: S.nonEmptyString, completed: S.bool }),
     S.asBuilder,
-    S.withDefaultConstructorField("completed", () => false),
-    S.openapi(() => ({ openapiRef: "Step" }))
+    S.withDefaultConstructorField("completed", () => false)
   )
 ) {
   static complete = Lens.id<Step>()["|>"](Lens.prop("completed")).set(true)
@@ -88,8 +87,7 @@ export class Task extends S.Model<Task>()(
     S.withDefaultConstructorField("due", () => O.none as O.Option<Date>),
     S.withDefaultConstructorField("reminder", () => O.none as O.Option<Date>),
     S.withDefaultConstructorField("note", () => O.none as O.Option<S.NonEmptyString>),
-    S.withDefaultConstructorField("assignedTo", () => O.none as O.Option<UserId>),
-    S.openapi(() => ({ openapiRef: "Task" }))
+    S.withDefaultConstructorField("assignedTo", () => O.none as O.Option<UserId>)
   )
 ) {
   static complete = Lens.id<Task>()

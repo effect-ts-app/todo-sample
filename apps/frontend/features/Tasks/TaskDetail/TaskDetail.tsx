@@ -18,7 +18,7 @@ import React from "react"
 import { Droppable, DragDropContext } from "react-beautiful-dnd"
 import styled from "styled-components"
 
-import { Todo } from "@/"
+import { Todo } from "@/index"
 import {
   Completable,
   FavoriteButton,

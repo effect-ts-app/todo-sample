@@ -9,7 +9,7 @@ import Star from "@material-ui/icons/Star"
 import Link from "next/link"
 import React from "react"
 
-import { Todo } from "@/"
+import { Todo } from "@/index"
 import { memo } from "@/data"
 
 import * as S from "@effect-ts-demo/core/ext/Schema"

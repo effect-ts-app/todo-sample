@@ -4,7 +4,7 @@ import ArrowLeft from "@material-ui/icons/ArrowLeft"
 import RouterLink from "next/link"
 import React, { useState } from "react"
 
-import { Todo } from "@/"
+import { Todo } from "@/index"
 import { memo, useEffect } from "@/data"
 import { renderIf_ } from "@/utils"
 
