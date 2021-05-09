@@ -6,10 +6,41 @@
 	},
 	"item": [
 		{
+			"name": "GetMe",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-user-id",
+						"value": "{{UserId}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:3330/me",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3330",
+					"path": [
+						"me"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Get Tasks",
 			"request": {
 				"method": "GET",
-				"header": [],
+				"header": [
+					{
+						"key": "X-User-Id",
+						"value": "{{UserId}}",
+						"type": "text"
+					}
+				],
 				"url": {
 					"raw": "http://localhost:3330/tasks",
 					"protocol": "http",
@@ -28,7 +59,13 @@
 			"name": "Get Task",
 			"request": {
 				"method": "GET",
-				"header": [],
+				"header": [
+					{
+						"key": "X-User-Id",
+						"value": "{{UserId}}",
+						"type": "text"
+					}
+				],
 				"url": {
 					"raw": "http://localhost:3330/tasks/{{TaskId}}",
 					"protocol": "http",
@@ -60,10 +97,16 @@
 			],
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "x-User-Id",
+						"value": "{{UserId}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"title\": \"Howdy ho\"\n}",
+					"raw": "{\n    \"title\": \"Howdy ho\",\n    \"listId\": \"inbox\",\n    \"isFavorite\": false,\n    \"myDay\": null\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -88,7 +131,13 @@
 			"name": "Delete Task",
 			"request": {
 				"method": "DELETE",
-				"header": [],
+				"header": [
+					{
+						"key": "X-User-Id",
+						"value": "{{UserId}}",
+						"type": "text"
+					}
+				],
 				"url": {
 					"raw": "http://localhost:3330/tasks/{{TaskId}}",
 					"protocol": "http",
@@ -108,7 +157,13 @@
 			"name": "Update Task",
 			"request": {
 				"method": "PATCH",
-				"header": [],
+				"header": [
+					{
+						"key": "X-User-Id",
+						"value": "{{UserId}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\n    \"title\": \"Howdy hooo---\"\n}",
@@ -132,12 +187,81 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "Set Tasks Order",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-User-Id",
+						"value": "{{UserId}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"listId\": \"inbox\",\n    \"order\": []\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3330/tasks-order",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3330",
+					"path": [
+						"tasks-order"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
 		}
 	],
 	"variable": [
 		{
 			"key": "TaskId",
 			"value": ""
+		},
+		{
+			"key": "UserId",
+			"value": "1"
 		}
 	]
 }
