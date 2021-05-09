@@ -10,4 +10,4 @@ export const namedC = function (cls: any) {
 export * from "./_api"
 export * from "./Model"
 
-export * from "./_schema"
+export * from "./vendor"
