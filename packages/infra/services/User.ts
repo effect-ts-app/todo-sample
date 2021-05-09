@@ -7,14 +7,16 @@ import { _A } from "@effect-ts/core/Utils"
 
 const parsePositiveInt = Parser.for(S.positiveInt)["|>"](S.condemnFail)
 
-function makeUserEnv(authorization: string) {
+function makeUserEnv(authorization: unknown) {
   return T.struct({
-    id: parsePositiveInt(parseInt(authorization)),
+    id: parsePositiveInt(
+      typeof authorization === "string" ? parseInt(authorization) : authorization
+    ),
   })
 }
 
 export interface UserEnv extends _A<ReturnType<typeof makeUserEnv>> {}
 export const UserEnv = Has.tag<UserEnv>()
 
-export const LiveUserEnv = (authorization: string) =>
+export const LiveUserEnv = (authorization: unknown) =>
   L.fromEffect(UserEnv)(makeUserEnv(authorization))

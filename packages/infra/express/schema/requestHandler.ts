@@ -158,7 +158,7 @@ function handleRequest<R, PathA, CookieA, QueryA, BodyA, HeaderA, ResA, ResE>(
           ...O.toUndefined(path),
         } as PathA & QueryA & BodyA)["|>"](
           // TODO; able to configure only when needed.
-          T.provideSomeLayer(UserSVC.LiveUserEnv(req.headers["x-user-id"] as string))
+          T.provideSomeLayer(UserSVC.LiveUserEnv(req.headers["x-user-id"] as unknown))
         )
       ),
       T.chain(respond(res)),
