@@ -34,24 +34,20 @@ function makeUserTaskCreator(u: User) {
 }
 
 export const makeTestData = T.gen(function* ($) {
-  const patrickId = yield* $(createUID(0))
-  const mikeId = yield* $(createUID(1))
-  const markusId = yield* $(createUID(2))
-
   const PatricksSharedListUUid = makeUuid()
   const MikesSharedListID = makeUuid()
   const MarkusSharedListId = makeUuid()
   const groupId = makeUuid()
   const patrick = new User({
-    id: patrickId,
+    id: yield* $(createUID(0)),
     name: yield* $(createNonEmptyString("Patrick Roza")),
   })
   const mike = new User({
-    id: mikeId,
+    id: yield* $(createUID(1)),
     name: yield* $(createNonEmptyString("Mike Arnaldi")),
   })
   const markus = new User({
-    id: markusId,
+    id: yield* $(createUID(2)),
     name: yield* $(createNonEmptyString("Markus Nomizz")),
   })
   const users = [
@@ -66,44 +62,44 @@ export const makeTestData = T.gen(function* ($) {
   const lists = [
     new SharableTaskList({
       id: groupedListId,
-      ownerId: patrickId,
+      ownerId: patrick.id,
       title: yield* $(createNonEmptyString("Some Patrick List")),
     }),
     ////////
     new TaskListGroup({
       id: groupId,
-      ownerId: patrickId,
+      ownerId: patrick.id,
       title: yield* $(createNonEmptyString("Patrick - Some group")),
       lists: [groupedListId],
     }),
     new SharableTaskList({
       id: PatricksSharedListUUid,
-      ownerId: patrickId,
+      ownerId: patrick.id,
       title: yield* $(createNonEmptyString("Patrick's shared List")),
       members: [
         new Membership({
-          id: mikeId,
+          id: mike.id,
           name: yield* $(createNonEmptyString("Mike Arnaldi")),
         }),
         new Membership({
-          id: markusId,
+          id: markus.id,
           name: yield* $(createNonEmptyString("Markus Nomizz")),
         }),
       ],
     }),
     ///////
     new TaskListGroup({
-      ownerId: mikeId,
+      ownerId: mike.id,
       title: yield* $(createNonEmptyString("Mike - Some group")),
       lists: [MikesSharedListID],
     }),
     new SharableTaskList({
       id: MikesSharedListID,
-      ownerId: mikeId,
+      ownerId: mike.id,
       title: yield* $(createNonEmptyString("Mike's shared List")),
       members: [
         new Membership({
-          id: patrickId,
+          id: patrick.id,
           name: yield* $(createNonEmptyString("Patrick Roza")),
         }),
       ],
@@ -111,12 +107,12 @@ export const makeTestData = T.gen(function* ($) {
     /////
     new SharableTaskList({
       id: MarkusSharedListId,
-      ownerId: markusId,
+      ownerId: markus.id,
       //order: [],
       title: yield* $(createNonEmptyString("Markus's shared List")),
       members: [
         new Membership({
-          id: patrickId,
+          id: patrick.id,
           name: yield* $(createNonEmptyString("Patrick Roza")),
         }),
       ],
