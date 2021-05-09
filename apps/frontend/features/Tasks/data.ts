@@ -44,7 +44,7 @@ import { Parser } from "@effect-ts-demo/core/ext/Schema"
 //   ] as const
 // }
 
-const fetchMe = constant(TodoClient.Temp.getMe)
+const fetchMe = constant(TodoClient.Tasks.getMe)
 
 export function useMe() {
   const { runWithErrorLog } = useServiceContext()
@@ -144,7 +144,7 @@ export function useModifyTasks() {
 }
 
 export function useModifyMe() {
-  return useModify<TodoClient.Temp.GetMe.Response>("me")
+  return useModify<TodoClient.Tasks.GetMe.Response>("me")
 }
 
 // export function useReorder() {

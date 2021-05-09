@@ -10,7 +10,7 @@ import {
   Request,
   Response,
   SharableTaskListEntry,
-} from "@effect-ts-demo/todo-client/Temp/GetMe"
+} from "@effect-ts-demo/todo-client/Tasks/GetMe"
 import { TaskListOrGroup } from "@effect-ts-demo/todo-types/Task"
 
 export const handle = (_: Request) =>

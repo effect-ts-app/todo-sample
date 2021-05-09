@@ -9,16 +9,21 @@ import { fetchApi, fetchApi3S, mapResponseErrorS } from "../fetch"
 
 import * as CreateTask from "./CreateTask"
 import * as DeleteTask from "./DeleteTask"
+import * as GetMe from "./GetMe"
 import * as GetTask from "./GetTask"
 import * as GetTasks from "./GetTasks"
 import * as SetTasksOrder from "./SetTasksOrder"
 import * as UpdateTask from "./UpdateTask"
 
-export { CreateTask, DeleteTask, GetTask, GetTasks, SetTasksOrder, UpdateTask }
+export { CreateTask, DeleteTask, GetMe, GetTask, GetTasks, SetTasksOrder, UpdateTask }
 
 export { TaskView as Task } from "./views"
 export * from "@effect-ts-demo/todo-types"
 
+export const getMe = pipe(
+  fetchApi("/me"),
+  T.chain(flow(S.Parser.for(GetMe.Response)["|>"](S.condemn), mapResponseErrorS))
+)
 export const getTasks = pipe(
   fetchApi("/tasks"),
   T.chain(flow(Parser.for(GetTasks.Response)["|>"](S.condemn), mapResponseErrorS))

@@ -19,7 +19,7 @@ import {
 import { FolderList } from "./FolderList"
 
 import { NonEmptyString } from "@effect-ts-demo/core/ext/Model"
-import { TaskListEntryOrGroup } from "@effect-ts-demo/todo-client/Temp/GetMe"
+import { TaskListEntryOrGroup } from "@effect-ts-demo/todo-client/Tasks/GetMe"
 
 const defaultLists = [] as readonly TaskListEntryOrGroup[]
 
