@@ -11,13 +11,13 @@ import * as Chunk from "@effect-ts/core/Collections/Immutable/Chunk"
 import * as Map from "@effect-ts/core/Collections/Immutable/Map"
 import * as L from "@effect-ts/core/Effect/Layer"
 import * as Ref from "@effect-ts/core/Effect/Ref"
-import { pipe } from "@effect-ts/core/Function"
+import { identity, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import { _A } from "@effect-ts/core/Utils"
 
 import { NotFoundError } from "@/errors"
 
-import { makeTestData } from "./TaskContext.testdata"
+import { makeTestDataUnsafe } from "./TaskContext.testdata"
 
 import * as T from "@effect-ts-demo/core/ext/Effect"
 import * as EO from "@effect-ts-demo/core/ext/EffectOption"
@@ -28,7 +28,7 @@ const [decodeTask, encodeTask, encodeTasksToMap] = makeCodec(Task.Model)
 const [decodeList, encodeList, encodeListsToMap] = makeCodec(TaskListOrGroup)
 
 const makeMockTaskContext = T.gen(function* ($) {
-  const { lists, tasks, users } = yield* $(makeTestData)
+  const { lists, tasks, users } = yield* $(T.tryCatch(makeTestDataUnsafe, identity))
   const usersRef = yield* $(pipe(encodeUsersToMap(users), T.chain(Ref.makeRef)))
   const tasksRef = yield* $(pipe(encodeTasksToMap(tasks), T.chain(Ref.makeRef)))
   const listsRef = yield* $(pipe(encodeListsToMap(lists), T.chain(Ref.makeRef)))

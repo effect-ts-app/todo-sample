@@ -1,5 +1,4 @@
 import { Membership, Step, Task, User, UserId } from "@effect-ts-demo/todo-types"
-import * as T from "@effect-ts/core/Effect"
 import { flow } from "@effect-ts/core/Function"
 import { Lens } from "@effect-ts/monocle"
 
@@ -11,36 +10,38 @@ import * as S from "@effect-ts-demo/core/ext/Schema"
 // - isFavorite/reminder are per Task, not per User. Probably should store per user (like myDay now is), and then merge in?
 // - As ordering is currently saved per list, the ordering is shared with other users in the list. Feature?
 // - Instead of an Object model, a Data model was defined..
-const createUID = flow(S.Constructor.for(UserId)["|>"](S.condemn))
-const constructNonEmptyString = S.Constructor.for(S.nonEmptyString)
-const createNonEmptyString = constructNonEmptyString["|>"](S.condemn)
-const createNonEmptyStringUnsafe = constructNonEmptyString["|>"](S.unsafe)
+
+const createUserId = S.Constructor.for(UserId)["|>"](S.unsafe)
+/**
+ * Create Non Empty String
+ */
+const createNES = S.Constructor.for(S.nonEmptyString)["|>"](S.unsafe)
 
 function makeUserTaskCreator(u: User) {
   return flow(
     u["|>"](User.createTask_),
     Task.lens["|>"](Lens.prop("title"))["|>"](
-      Lens.modify((t) => createNonEmptyStringUnsafe(`${u.name} - ${t}`))
+      Lens.modify((t) => createNES(`${u.name} - ${t}`))
     )
   )
 }
 
-export const makeTestData = T.gen(function* ($) {
+export function makeTestDataUnsafe() {
   const PatricksSharedListUUid = makeUuid()
   const MikesSharedListID = makeUuid()
   const MarkusSharedListId = makeUuid()
   const groupId = makeUuid()
   const patrick = new User({
-    id: yield* $(createUID(0)),
-    name: yield* $(createNonEmptyString("Patrick Roza")),
+    id: createUserId(0),
+    name: createNES("Patrick Roza"),
   })
   const mike = new User({
-    id: yield* $(createUID(1)),
-    name: yield* $(createNonEmptyString("Mike Arnaldi")),
+    id: createUserId(1),
+    name: createNES("Mike Arnaldi"),
   })
   const markus = new User({
-    id: yield* $(createUID(2)),
-    name: yield* $(createNonEmptyString("Markus Nomizz")),
+    id: createUserId(2),
+    name: createNES("Markus Nomizz"),
   })
   const users = [
     patrick,
@@ -54,40 +55,40 @@ export const makeTestData = T.gen(function* ($) {
   const lists = [
     patrick["|>"](User.createTaskList_)({
       id: groupedListId,
-      title: yield* $(createNonEmptyString("Some Patrick List")),
+      title: createNES("Some Patrick List"),
     }),
     ////////
     patrick["|>"](User.createTaskListGroup_)({
       id: groupId,
-      title: yield* $(createNonEmptyString("Patrick - Some group")),
+      title: createNES("Patrick - Some group"),
       lists: [groupedListId],
     }),
     patrick["|>"](User.createTaskList_)({
       id: PatricksSharedListUUid,
-      title: yield* $(createNonEmptyString("Patrick's shared List")),
+      title: createNES("Patrick's shared List"),
       members: [
         new Membership({
           id: mike.id,
-          name: yield* $(createNonEmptyString("Mike Arnaldi")),
+          name: createNES("Mike Arnaldi"),
         }),
         new Membership({
           id: markus.id,
-          name: yield* $(createNonEmptyString("Markus Nomizz")),
+          name: createNES("Markus Nomizz"),
         }),
       ],
     }),
     ///////
     mike["|>"](User.createTaskListGroup_)({
-      title: yield* $(createNonEmptyString("Mike - Some group")),
+      title: createNES("Mike - Some group"),
       lists: [MikesSharedListID],
     }),
     mike["|>"](User.createTaskList_)({
       id: MikesSharedListID,
-      title: yield* $(createNonEmptyString("Mike's shared List")),
+      title: createNES("Mike's shared List"),
       members: [
         new Membership({
           id: patrick.id,
-          name: yield* $(createNonEmptyString("Patrick Roza")),
+          name: createNES("Patrick Roza"),
         }),
       ],
     }),
@@ -95,11 +96,11 @@ export const makeTestData = T.gen(function* ($) {
     markus["|>"](User.createTaskList_)({
       id: MarkusSharedListId,
       //order: [],
-      title: yield* $(createNonEmptyString("Markus's shared List")),
+      title: createNES("Markus's shared List"),
       members: [
         new Membership({
           id: patrick.id,
-          name: yield* $(createNonEmptyString("Patrick Roza")),
+          name: createNES("Patrick Roza"),
         }),
       ],
     }),
@@ -111,32 +112,32 @@ export const makeTestData = T.gen(function* ($) {
 
   const tasks = [
     createPatrickTask({
-      title: yield* $(createNonEmptyString("My first Task")),
-      steps: [new Step({ title: yield* $(createNonEmptyString("first step")) })],
+      title: createNES("My first Task"),
+      steps: [new Step({ title: createNES("first step") })],
     }),
     createPatrickTask({
-      title: yield* $(createNonEmptyString("My second Task")),
+      title: createNES("My second Task"),
     }),
     createPatrickTask({
-      title: yield* $(createNonEmptyString("My third Task")),
+      title: createNES("My third Task"),
       steps: [
         new Step({
-          title: yield* $(createNonEmptyString("first step")),
+          title: createNES("first step"),
           completed: true,
         }),
-        new Step({ title: yield* $(createNonEmptyString("second step")) }),
+        new Step({ title: createNES("second step") }),
       ],
     })["|>"](Task.complete),
     {
       ...createPatrickTask({
-        title: yield* $(createNonEmptyString("My third Task")),
+        title: createNES("My third Task"),
         steps: [
           new Step({
-            title: yield* $(createNonEmptyString("first step")),
+            title: createNES("first step"),
             completed: true,
           }),
           new Step({
-            title: yield* $(createNonEmptyString("second step")),
+            title: createNES("second step"),
           }),
         ],
       }),
@@ -144,14 +145,14 @@ export const makeTestData = T.gen(function* ($) {
     },
     {
       ...createPatrickTask({
-        title: yield* $(createNonEmptyString("My third Task")),
+        title: createNES("My third Task"),
         steps: [
           new Step({
-            title: yield* $(createNonEmptyString("first step")),
+            title: createNES("first step"),
             completed: true,
           }),
           new Step({
-            title: yield* $(createNonEmptyString("second step")),
+            title: createNES("second step"),
           }),
         ],
       }),
@@ -160,14 +161,14 @@ export const makeTestData = T.gen(function* ($) {
 
     {
       ...createPatrickTask({
-        title: yield* $(createNonEmptyString("My fourth Task")),
+        title: createNES("My fourth Task"),
         steps: [
           new Step({
-            title: yield* $(createNonEmptyString("first step")),
+            title: createNES("first step"),
             completed: true,
           }),
           new Step({
-            title: yield* $(createNonEmptyString("second step")),
+            title: createNES("second step"),
           }),
         ],
       }),
@@ -176,14 +177,14 @@ export const makeTestData = T.gen(function* ($) {
 
     {
       ...createPatrickTask({
-        title: yield* $(createNonEmptyString("My fifth Task")),
+        title: createNES("My fifth Task"),
         steps: [
           new Step({
-            title: yield* $(createNonEmptyString("first step")),
+            title: createNES("first step"),
             completed: true,
           }),
           new Step({
-            title: yield* $(createNonEmptyString("second step")),
+            title: createNES("second step"),
           }),
         ],
         listId: PatricksSharedListUUid,
@@ -193,14 +194,14 @@ export const makeTestData = T.gen(function* ($) {
 
     {
       ...createPatrickTask({
-        title: yield* $(createNonEmptyString("My sixth Task")),
+        title: createNES("My sixth Task"),
         steps: [
           new Step({
-            title: yield* $(createNonEmptyString("first step")),
+            title: createNES("first step"),
             completed: true,
           }),
           new Step({
-            title: yield* $(createNonEmptyString("second step")),
+            title: createNES("second step"),
           }),
         ],
         listId: PatricksSharedListUUid,
@@ -210,14 +211,14 @@ export const makeTestData = T.gen(function* ($) {
 
     {
       ...createPatrickTask({
-        title: yield* $(createNonEmptyString("My seventh Task")),
+        title: createNES("My seventh Task"),
         steps: [
           new Step({
-            title: yield* $(createNonEmptyString("first step")),
+            title: createNES("first step"),
             completed: true,
           }),
           new Step({
-            title: yield* $(createNonEmptyString("second step")),
+            title: createNES("second step"),
           }),
         ],
         listId: PatricksSharedListUUid,
@@ -227,14 +228,14 @@ export const makeTestData = T.gen(function* ($) {
 
     {
       ...createPatrickTask({
-        title: yield* $(createNonEmptyString("My eight Task")),
+        title: createNES("My eight Task"),
         steps: [
           new Step({
-            title: yield* $(createNonEmptyString("first step")),
+            title: createNES("first step"),
             completed: true,
           }),
           new Step({
-            title: yield* $(createNonEmptyString("second step")),
+            title: createNES("second step"),
           }),
         ],
         listId: PatricksSharedListUUid,
@@ -242,25 +243,25 @@ export const makeTestData = T.gen(function* ($) {
     },
     ///////
     createMikeTask({
-      title: yield* $(createNonEmptyString("My first Task")),
-      steps: [new Step({ title: yield* $(createNonEmptyString("first step")) })],
+      title: createNES("My first Task"),
+      steps: [new Step({ title: createNES("first step") })],
     }),
     createMikeTask({
-      title: yield* $(createNonEmptyString("My second Task")),
-      steps: [new Step({ title: yield* $(createNonEmptyString("first step")) })],
+      title: createNES("My second Task"),
+      steps: [new Step({ title: createNES("first step") })],
       listId: MikesSharedListID,
     }),
     ///////
     createMarkusTask({
-      title: yield* $(createNonEmptyString("My first Task")),
-      steps: [new Step({ title: yield* $(createNonEmptyString("first step")) })],
+      title: createNES("My first Task"),
+      steps: [new Step({ title: createNES("first step") })],
     }),
     createMarkusTask({
-      title: yield* $(createNonEmptyString("My second Task")),
-      steps: [new Step({ title: yield* $(createNonEmptyString("first step")) })],
+      title: createNES("My second Task"),
+      steps: [new Step({ title: createNES("first step") })],
       listId: MarkusSharedListId,
     }),
   ]
 
   return { lists, users, tasks }
-})
+}
