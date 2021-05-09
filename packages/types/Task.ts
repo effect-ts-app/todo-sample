@@ -42,38 +42,33 @@ export class Step extends S.Model<Step>()(
   static complete = Lens.id<Step>()["|>"](Lens.prop("completed")).set(true)
 }
 
-export const EditableTaskProps = S.struct({
-  required: {
-    title: S.nonEmptyString,
-    completed: S.nullable(S.date),
-    isFavorite: S.bool, // TODO: Add bool
+export const EditableTaskProps = {
+  title: S.nonEmptyString,
+  completed: S.nullable(S.date),
+  isFavorite: S.bool, // TODO: Add bool
 
-    due: S.nullable(S.date),
-    reminder: S.nullable(S.date),
-    note: S.nullable(S.nonEmptyString),
-    steps: S.array(Step.Model),
-    assignedTo: S.nullable(UserId),
-  },
-})
+  due: S.nullable(S.date),
+  reminder: S.nullable(S.date),
+  note: S.nullable(S.nonEmptyString),
+  steps: S.array(Step.Model),
+  assignedTo: S.nullable(UserId),
+}
 
-export const EditablePersonalTaskProps = S.struct({
-  required: {
-    myDay: S.nullable(S.date),
-  },
-})
+export const EditablePersonalTaskProps = {
+  myDay: S.nullable(S.date),
+}
 
 @S.namedC
 export class Task extends S.Model<Task>()(
   pipe(
-    S.intersect(
-      S.required({
-        id: TaskId,
-        createdAt: S.date,
-        updatedAt: S.date,
-        createdBy: UserId,
-        listId: TaskListIdU,
-      })
-    )(EditableTaskProps),
+    S.required({
+      id: TaskId,
+      createdAt: S.date,
+      updatedAt: S.date,
+      createdBy: UserId,
+      listId: TaskListIdU,
+      ...EditableTaskProps,
+    }),
     S.asBuilder,
     S.withDefaultUuidId,
     (s) =>

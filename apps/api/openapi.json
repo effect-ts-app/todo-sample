@@ -461,93 +461,82 @@
       },
       "Task": {
         "title": "Task",
-        "allOf": [
-          {
-            "properties": {
-              "id": {
-                "format": "uuid",
-                "type": "string"
-              },
-              "createdAt": {
-                "format": "date-time",
-                "type": "string"
-              },
-              "updatedAt": {
-                "format": "date-time",
-                "type": "string"
-              },
-              "createdBy": {
-                "minimum": 0,
-                "type": "number"
-              },
-              "listId": {
-                "minLength": 1,
-                "type": "string"
-              }
-            },
-            "required": [
-              "id",
-              "createdAt",
-              "updatedAt",
-              "createdBy",
-              "listId"
-            ],
-            "type": "object"
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "type": "string"
           },
-          {
-            "properties": {
-              "title": {
-                "minLength": 1,
-                "type": "string"
-              },
-              "completed": {
-                "format": "date-time",
-                "type": "string",
-                "nullable": true
-              },
-              "isFavorite": {
-                "type": "boolean"
-              },
-              "due": {
-                "format": "date-time",
-                "type": "string",
-                "nullable": true
-              },
-              "reminder": {
-                "format": "date-time",
-                "type": "string",
-                "nullable": true
-              },
-              "note": {
-                "minLength": 1,
-                "type": "string",
-                "nullable": true
-              },
-              "steps": {
-                "items": {
-                  "$ref": "#/components/schemas/Step"
-                },
-                "type": "array"
-              },
-              "assignedTo": {
-                "minimum": 0,
-                "type": "number",
-                "nullable": true
-              }
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "createdBy": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "listId": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "completed": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "isFavorite": {
+            "type": "boolean"
+          },
+          "due": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "reminder": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "note": {
+            "minLength": 1,
+            "type": "string",
+            "nullable": true
+          },
+          "steps": {
+            "items": {
+              "$ref": "#/components/schemas/Step"
             },
-            "required": [
-              "title",
-              "completed",
-              "isFavorite",
-              "due",
-              "reminder",
-              "note",
-              "steps",
-              "assignedTo"
-            ],
-            "type": "object"
+            "type": "array"
+          },
+          "assignedTo": {
+            "minimum": 0,
+            "type": "number",
+            "nullable": true
           }
-        ]
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "updatedAt",
+          "createdBy",
+          "listId",
+          "title",
+          "completed",
+          "isFavorite",
+          "due",
+          "reminder",
+          "note",
+          "steps",
+          "assignedTo"
+        ],
+        "type": "object"
       }
     },
     "parameters": {}
