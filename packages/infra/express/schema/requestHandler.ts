@@ -13,7 +13,12 @@ import * as O from "@effect-ts/core/Option"
 import * as EU from "@effect-ts/core/Utils"
 import express from "express"
 
-import { NotFoundError } from "../../errors"
+import {
+  NotFoundError,
+  NotLoggedInError,
+  UnauthorizedError,
+  ValidationError,
+} from "../../errors"
 import { UserSVC } from "../../services"
 
 export function demandLoggedIn(req: express.Request) {
@@ -38,16 +43,11 @@ export type Request<
 }
 type Encode<A, E> = (a: A) => E
 
-export class ValidationError {
-  public readonly _tag = "ValidationError"
-  constructor(public readonly errors: A.Array<unknown>) {}
-}
-
-export class NotLoggedInError {
-  public readonly _tag = "NotLoggedInError"
-}
-
-export type SupportedErrors = ValidationError | NotFoundError | NotLoggedInError
+export type SupportedErrors =
+  | ValidationError
+  | NotFoundError
+  | NotLoggedInError
+  | UnauthorizedError
 
 // function getErrorMessage(current: ContextEntry) {
 //   switch (current.type.name) {
@@ -196,6 +196,11 @@ function handleRequest<
       T.catch("_tag", "NotLoggedInError", (err) =>
         T.succeedWith(() => {
           res.status(401).send(err)
+        })
+      ),
+      T.catch("_tag", "UnauthorizedError", (err) =>
+        T.succeedWith(() => {
+          res.status(403).send(err)
         })
       ),
       // final catch all; expecting never so that unhandled known errors will show up

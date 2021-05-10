@@ -1,6 +1,8 @@
-import { Task, User } from "@effect-ts-demo/todo-types"
+import { User } from "@effect-ts-demo/todo-types"
 import * as T from "@effect-ts/core/Effect"
-import { Lens } from "@effect-ts/monocle"
+
+import { canAccessTask } from "@/access"
+import { UnauthorizedError } from "@/errors"
 
 import * as TaskContext from "./TaskContext"
 import { handle } from "./shared"
@@ -13,15 +15,14 @@ export default handle(UpdateTask)(({ id, myDay, ..._ }) =>
     const user = yield* $(UserSVC.UserEnv)
 
     const task = yield* $(
-      TaskContext.update(
-        id,
-        Task.lens["|>"](
-          Lens.modify((t) => ({
-            ...t,
-            ..._,
-            updatedAt: new Date(),
-          }))
-        )
+      TaskContext.updateM(id, (t) =>
+        !canAccessTask(user.id, t)
+          ? T.fail(new UnauthorizedError())
+          : T.succeed({
+              ...t,
+              ..._,
+              updatedAt: new Date(),
+            })
       )
     )
     if (myDay) {

@@ -15,6 +15,7 @@ import { identity, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import { _A } from "@effect-ts/core/Utils"
 
+import { canAccessList } from "@/access"
 import { NotFoundError } from "@/errors"
 
 import { makeTestDataUnsafe } from "./TaskContext.testdata"
@@ -65,21 +66,15 @@ const makeMockTaskContext = T.gen(function* ($) {
       T.chain(({ encT, lists }) => listsRef.set(lists["|>"](Map.insert(t.id, encT))))
     )
 
-  const allLists = (id: UserId) =>
+  const allLists = (userId: UserId) =>
     pipe(
-      T.struct({ user: getUser(id), lists: listsRef.get }),
+      T.struct({ user: getUser(userId), lists: listsRef.get }),
       T.chain(({ lists }) =>
         pipe(
           Chunk.from(lists.values()),
           Chunk.map(decodeList),
           T.collectAll,
-          T.map(
-            Chunk.filter(
-              (l) =>
-                l.ownerId === id ||
-                (l._tag === "TaskList" && l.members.some((m) => m.id === id))
-            )
-          )
+          T.map(Chunk.filter(canAccessList(userId)))
         )
       )
     )
@@ -131,12 +126,7 @@ const makeMockTaskContext = T.gen(function* ($) {
             (x) =>
               x.createdBy === userId ||
               Chunk.find_(lists, (l) => l.id === x.listId)
-                ["|>"](
-                  O.map(
-                    (l) =>
-                      l.ownerId === userId || l.members.some((m) => m.id === userId)
-                  )
-                )
+                ["|>"](O.map(canAccessList(userId)))
                 ["|>"](O.getOrElse(() => false))
           ),
           T.forEach(decodeTask)
@@ -189,6 +179,7 @@ export const {
   allLists,
   find,
   get,
+  getList,
   getUser,
   remove,
   update,
@@ -201,6 +192,7 @@ export const {
     "add",
     "get",
     "getUser",
+    "getList",
     "find",
     "remove",
     "update",

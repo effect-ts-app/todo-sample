@@ -10,7 +10,7 @@ export default handle(FindTask)((_) =>
   EO.gen(function* ($) {
     const user = yield* $(getLoggedInUser["|>"](EO.fromEffect))
     const task = yield* $(TaskContext.find(_.id))
-
+    // TODO: Authorization
     return {
       ...task,
       myDay: user["|>"](User.getMyDay(task)),

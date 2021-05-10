@@ -2,7 +2,8 @@ import { TaskList, TaskListOrGroup, User } from "@effect-ts-demo/todo-types"
 import * as T from "@effect-ts/core/Effect"
 import * as Lens from "@effect-ts/monocle/Lens"
 
-import { NotFoundError } from "@/errors"
+import { canAccessList } from "@/access"
+import { UnauthorizedError, NotFoundError } from "@/errors"
 
 import * as TaskContext from "./TaskContext"
 import { handle } from "./shared"
@@ -25,10 +26,16 @@ export default handle(SetTasksOrder)((_) =>
     yield* $(
       TaskContext.updateListM(
         _.listId,
-        TaskListOrGroup.Api.matchW({
-          TaskList: flow(order.set(_.order), T.succeed),
-          TaskListGroup: () => T.fail(new NotFoundError("TaskList", _.listId)),
-        })
+        flow(
+          TaskListOrGroup.Api.matchW({
+            TaskList: (l) =>
+              !canAccessList(user.id)(l)
+                ? T.fail(new UnauthorizedError())
+                : T.succeed(order.set(_.order)(l)),
+            TaskListGroup: () => T.fail(new NotFoundError("TaskList", _.listId)),
+          }),
+          T.union
+        )
       )
     )
   })
