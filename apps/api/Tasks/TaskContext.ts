@@ -17,7 +17,7 @@ import { flow, identity, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import { _A } from "@effect-ts/core/Utils"
 
-import { canAccessList } from "@/access"
+import { canAccessList, canAccessTaskE } from "@/access"
 import { NotFoundError } from "@/errors"
 
 import { makeTestDataUnsafe } from "./TaskContext.testdata"
@@ -141,25 +141,21 @@ const makeMockTaskContext = T.gen(function* ($) {
       T.chain(({ tuple: [tasks] }) => tasksRef.set(tasks["|>"](Map.remove(id))))
     )
 
+  const allTaskLists = flow(
+    allLists,
+    T.map(Chunk.filterMap((x) => (TaskList.Guard(x) ? O.some(x) : O.none)))
+  )
+
   const all = (userId: UserId) =>
     pipe(
       T.struct({
         tasks: tasksRef.get,
-        lists: pipe(
-          allLists(userId),
-          T.map(Chunk.filterMap((x) => (TaskList.Guard(x) ? O.some(x) : O.none)))
-        ),
+        lists: allTaskLists(userId),
       }),
       T.chain(({ lists, tasks }) =>
         pipe(
           Chunk.from(tasks.values()),
-          Chunk.filter(
-            (x) =>
-              x.createdBy === userId ||
-              Chunk.find_(lists, (l) => l.id === x.listId)
-                ["|>"](O.map(canAccessList(userId)))
-                ["|>"](O.getOrElse(() => false))
-          ),
+          Chunk.filter(canAccessTaskE(lists)(userId)),
           T.forEach(decodeTask)
         )
       )
@@ -188,10 +184,7 @@ const makeMockTaskContext = T.gen(function* ($) {
 
   return {
     allLists,
-    allTaskLists: flow(
-      allLists,
-      T.map(Chunk.filterMap((x) => (TaskList.Guard(x) ? O.some(x) : O.none)))
-    ),
+    allTaskLists,
     findList,
     findTaskList,
     findTaskListGroup,

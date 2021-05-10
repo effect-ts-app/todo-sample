@@ -6,7 +6,7 @@ import { Chunk } from "@effect-ts/system/Collections/Immutable/Chunk"
 
 import {
   canAccessList_,
-  canAccessTask,
+  canAccessTask_,
   canAccessTaskListGroup_,
   canAccessTaskList_,
 } from "@/access"
@@ -113,7 +113,7 @@ export function makeAuthorize<T>(
   }
 }
 export const authorizeTask = (lists: Chunk<TaskList>) =>
-  makeAuthorize(canAccessTask(lists), "Task", (t) => t.id)
+  makeAuthorize(canAccessTask_(lists), "Task", (t) => t.id)
 export const authorizeList = makeAuthorize(
   canAccessList_,
   "TaskListOrGroup",
