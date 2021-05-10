@@ -17,7 +17,9 @@ import { NotFoundError } from "../../errors"
 import { UserSVC } from "../../services"
 
 export function demandLoggedIn(req: express.Request) {
-  return UserSVC.LiveUserEnv(req.headers["x-user-id"] as unknown)
+  return UserSVC.LiveUserEnv(req.headers["x-user-id"] as unknown)["|>"](
+    L.mapError(() => new NotLoggedInError())
+  )
 }
 
 export type Request<
@@ -36,12 +38,16 @@ export type Request<
 }
 type Encode<A, E> = (a: A) => E
 
-class ValidationError {
+export class ValidationError {
   public readonly _tag = "ValidationError"
   constructor(public readonly errors: A.Array<unknown>) {}
 }
 
-export type SupportedErrors = ValidationError | NotFoundError
+export class NotLoggedInError {
+  public readonly _tag = "NotLoggedInError"
+}
+
+export type SupportedErrors = ValidationError | NotFoundError | NotLoggedInError
 
 // function getErrorMessage(current: ContextEntry) {
 //   switch (current.type.name) {
@@ -187,8 +193,13 @@ function handleRequest<
           res.status(404).send(err)
         })
       ),
-      // final catch all
-      T.catchAll((err: any) =>
+      T.catch("_tag", "NotLoggedInError", (err) =>
+        T.succeedWith(() => {
+          res.status(401).send(err)
+        })
+      ),
+      // final catch all; expecting never so that unhandled known errors will show up
+      T.catchAll((err: never) =>
         T.succeedWith(() =>
           console.error(
             "Program error, compiler probably silenced, got an unsupported Error in Error Channel of Effect",
