@@ -4,8 +4,8 @@ import { unsafe } from "@effect-ts/schema/_api/condemn"
 
 import type { Compute } from "../Compute"
 
-import * as S from "./vendor"
-import { fromFields, schemaField } from "./vendor"
+import * as S from "./_schema"
+import { fromFields, schemaField } from "./_schema"
 
 export const requestBrand = Symbol()
 
@@ -25,10 +25,15 @@ export interface Model<M, Self extends S.SchemaAny>
   [schemaField]: Self
 }
 
-interface Model2<Self extends S.SchemaAny, M, SelfM> {
-  [schemaField]: SelfM
-  lens: Lens.Lens<M, M>
-  Model: SelfM
+interface Model2<Self extends S.SchemaAny, M, SelfM extends S.SchemaAny> {
+  readonly [schemaField]: SelfM
+  readonly lens: Lens.Lens<M, M>
+  readonly Model: SelfM
+  readonly Parser: S.ParserOf<SelfM>
+  readonly Encoder: S.EncoderOf<SelfM>
+  readonly Guard: S.GuardOf<SelfM>
+  readonly Arbitrary: S.ArbOf<SelfM>
+  readonly Constructor: S.ConstructorOf<SelfM>
   new (_: Compute<S.ConstructorInputOf<Self>>): Compute<S.ParsedShapeOf<Self>>
 }
 
@@ -48,6 +53,12 @@ export function Model<M>() {
         return this[schemaField]
       }
       static [requestBrand] = requestBrand
+
+      static Parser = S.Parser.for(self)
+      static Encoder = S.Encoder.for(self)
+      static Constructor = S.Constructor.for(self)
+      static Guard = S.Guard.for(self)
+      static Arbitrary = S.Arbitrary.for(self)
 
       static lens = Lens.id<any>()
 
@@ -121,7 +132,7 @@ export function Model<M>() {
 
 export type ReqRes<E, A> = S.Schema<
   unknown, //ParserInput,
-  any, //ParserError,
+  unknown, // S.AnyError //ParserError,
   A, //ParsedShape,
   any, //ConstructorInput,
   any, //ConstructorError,
@@ -129,4 +140,17 @@ export type ReqRes<E, A> = S.Schema<
   E, //Encoded,
   any //Api
 >
-export type ReqResSchemed<E, A> = { Model: ReqRes<E, A> } //Model<M, ReqRes<E, A>> // ?
+export type ReqResSchemed<E, A> = {
+  Encoder: S.Encoder.Encoder<A, E>
+  Model: ReqRes<E, A>
+} //Model<M, ReqRes<E, A>> // ?
+
+export function extractSchema<ResE, ResA>(
+  Res_: ReqRes<ResE, ResA> | ReqResSchemed<ResE, ResA>
+) {
+  const res_ = Res_ as any
+  const Res = res_[schemaField]
+    ? (res_.Model as ReqRes<ResE, ResA>)
+    : (res_ as ReqRes<ResE, ResA>)
+  return Res
+}

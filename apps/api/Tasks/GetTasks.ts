@@ -4,11 +4,11 @@ import * as T from "@effect-ts/core/Effect"
 import * as O from "@effect-ts/core/Option"
 
 import * as TaskContext from "./TaskContext"
-import { getLoggedInUser } from "./shared"
+import { getLoggedInUser, handle } from "./shared"
 
-import { Request, Response } from "@effect-ts-demo/todo-client/Tasks/GetTasks"
+import * as GetTasks from "@effect-ts-demo/todo-client/Tasks/GetTasks"
 
-export const handle = (_: Request) =>
+export default handle(GetTasks)((_) =>
   T.gen(function* ($) {
     const user = yield* $(getLoggedInUser)
     const tasks = yield* $(TaskContext.all(user.id))
@@ -20,7 +20,6 @@ export const handle = (_: Request) =>
 
     return {
       items,
-    } as Response
+    }
   })
-
-export { Request, Response }
+)

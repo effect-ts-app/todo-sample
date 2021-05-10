@@ -18,7 +18,6 @@ import React from "react"
 import { Droppable, DragDropContext } from "react-beautiful-dnd"
 import styled from "styled-components"
 
-import { Todo } from "@/index"
 import {
   Completable,
   FavoriteButton,
@@ -29,6 +28,7 @@ import {
 } from "@/components"
 import { useServiceContext } from "@/context"
 import { memo, onSuccess, withLoading } from "@/data"
+import { Todo } from "@/index"
 import { constEmptyString, renderIf_ } from "@/utils"
 
 import { useDeleteTask, useTaskCommandsResolved } from "../data"

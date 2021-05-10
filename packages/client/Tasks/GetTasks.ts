@@ -9,10 +9,8 @@ export class Request extends S.Model<Request>()(S.required({})) {
   static Headers = RequestHeaders
 }
 
-export class Response_ extends S.Model<Response_>()(
+export class Response extends S.Model<Response>()(
   S.struct({
     required: { items: S.array(TaskView.Model) },
   })
 ) {}
-export const Response = Response_.Model
-export type Response = Response_

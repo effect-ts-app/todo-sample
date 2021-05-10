@@ -1,11 +1,11 @@
 import * as O from "@effect-ts/core/Option"
-import { Box, Hidden, Link, Typography } from "@material-ui/core"
+import { Box, Link, Typography } from "@material-ui/core"
 import ArrowLeft from "@material-ui/icons/ArrowLeft"
 import RouterLink from "next/link"
 import React, { useState } from "react"
 
-import { Todo } from "@/index"
 import { memo, useEffect } from "@/data"
+import { Todo } from "@/index"
 import { renderIf_ } from "@/utils"
 
 import FolderList from "./FolderList"
@@ -72,7 +72,9 @@ const TasksScreen = memo(function ({
         </Box>
       </Box>
       <Box display="flex" flexDirection={{ xs: "column", sm: "row" }} height="100%">
-        <Hidden only={view === "folders" ? undefined : "xs"}>
+        <Box
+          sx={{ display: view === "folders" ? undefined : { xs: "none", sm: "block" } }}
+        >
           <Box
             flexBasis="200px"
             flexGrow={view === "folders" ? { xs: 1, sm: 0 } : undefined}
@@ -84,24 +86,24 @@ const TasksScreen = memo(function ({
           >
             <FolderList category={category} />
           </Box>
-        </Hidden>
+        </Box>
 
-        <Hidden only={view === "tasks" ? undefined : "xs"}>
-          <Hidden smUp>
-            <Box>
-              <RouterLink href="/" passHref>
-                <Link>
-                  <ArrowLeft />
-                  Back to Folders
-                </Link>
-              </RouterLink>
-            </Box>
-          </Hidden>
+        <Box
+          sx={{ display: view === "tasks" ? undefined : { xs: "none", sm: "block" } }}
+          flexGrow={1}
+        >
+          <Box sx={{ display: { sm: "none" } }}>
+            <RouterLink href="/" passHref>
+              <Link>
+                <ArrowLeft />
+                Back to Folders
+              </Link>
+            </RouterLink>
+          </Box>
           {renderIf_(category, () => (
             <Box
               display="flex"
               flexDirection="column"
-              flexGrow={1}
               paddingX={2}
               paddingBottom={2}
               sx={{ bgcolor: "info.main", color: "info.contrastText" }}
@@ -109,20 +111,20 @@ const TasksScreen = memo(function ({
               <TaskList category={category} order={order} />
             </Box>
           ))}
-        </Hidden>
+        </Box>
 
         {renderIf_(O.struct({ taskId, category }), ({ category, taskId }) => (
-          <Hidden only={view === "task" ? undefined : "xs"}>
-            <Hidden smUp>
-              <Box>
-                <RouterLink href={`/${category}`} passHref>
-                  <Link>
-                    <ArrowLeft />
-                    Back to List
-                  </Link>
-                </RouterLink>
-              </Box>
-            </Hidden>
+          <Box
+            sx={{ display: view === "task" ? undefined : { xs: "none", sm: "block" } }}
+          >
+            <Box sx={{ display: { sm: "none" } }}>
+              <RouterLink href={`/${category}`} passHref>
+                <Link>
+                  <ArrowLeft />
+                  Back to List
+                </Link>
+              </RouterLink>
+            </Box>
             <Box
               display="flex"
               flexBasis="300px"
@@ -135,7 +137,7 @@ const TasksScreen = memo(function ({
             >
               <TaskDetail taskId={taskId} category={category} order={order} />
             </Box>
-          </Hidden>
+          </Box>
         ))}
       </Box>
     </Box>

@@ -3,8 +3,8 @@ import { v4 } from "uuid"
 
 import { constant, Lazy, pipe } from "../Function"
 
-import * as S from "./vendor"
-import { schemaField } from "./vendor"
+import * as S from "./_schema"
+import { schemaField } from "./_schema"
 
 export function makeUuid() {
   return v4() as S.UUID

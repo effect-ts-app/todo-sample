@@ -1,9 +1,10 @@
 // tracing: off
-
 import {
   AllOfSchema,
   ArraySchema,
   BooleanSchema,
+  EnumSchema,
+  JSONSchema,
   NumberSchema,
   ObjectSchema,
   OneOfSchema,
@@ -19,6 +20,7 @@ import {
   fromChunkIdentifier,
   fromStringIdentifier,
   intIdentifier,
+  literalIdentifier,
   nonEmptyStringFromStringIdentifier,
   numberIdentifier,
   partialIdentifier,
@@ -38,9 +40,10 @@ import {
   intersectIdentifier,
   SchemaContinuationSymbol,
   structIdentifier,
+  unionIdentifier,
 } from "../_schema"
 
-type JsonSchema<T> = unknown
+type JsonSchema<T> = JSONSchema
 
 export type Gen<T> = T.UIO<JsonSchema<T>>
 
@@ -50,9 +53,7 @@ const interpretedCache = new WeakMap()
 export const interpreters: ((schema: S.SchemaAny) => O.Option<Gen<unknown>>)[] = [
   O.partial((miss) => (schema: S.SchemaAny): Gen<unknown> => {
     if (schema instanceof S.SchemaNamed) {
-      //console.log("$$$named", schema.name)
-      const self = for_(schema.self)
-      return (u) => () => self({ title: schema.name, ...u() })
+      return processId(schema)
     }
     // TODO: openapi meta; ref
     // what about name, get from named?
@@ -98,7 +99,6 @@ export const interpreters: ((schema: S.SchemaAny) => O.Option<Gen<unknown>>)[] =
   }),
 ]
 
-// TODO: add untagged union
 function processId(schema, meta = {}) {
   return T.gen(function* ($) {
     if (meta) {
@@ -119,21 +119,20 @@ function processId(schema, meta = {}) {
     }
 
     switch (schema.identifier) {
-      case intersectIdentifier:
+      case intersectIdentifier: {
         const { openapiRef, ...rest } = meta
-        return yield* $(
-          referenced({ openapiRef: openapiRef || rest.title })(
-            T.succeed(
-              new AllOfSchema({
-                ...rest,
-                allOf: [
-                  yield* $(processId(schema.meta.that)),
-                  yield* $(processId(schema.meta.self)),
-                ],
-              })
-            )
-          )
-        )
+        const ref = openapiRef || rest.title
+        const s = new AllOfSchema({
+          ...rest,
+          allOf: [
+            yield* $(processId(schema.meta.self)),
+            yield* $(processId(schema.meta.that)),
+          ],
+        })
+        // If this is a named intersection, we assume that merging the intersected types
+        // is desired. Lets make it configurable if someone needs it :)
+        return yield* $(referenced({ openapiRef: ref })(T.succeed(ref ? merge(s) : s)))
+      }
       case taggedUnionIdentifier:
         return new OneOfSchema({
           ...meta,
@@ -142,8 +141,16 @@ function processId(schema, meta = {}) {
             propertyName: schema.meta.key,
           },
         })
+      case unionIdentifier:
+        return new OneOfSchema({
+          ...meta,
+          oneOf: yield* $(T.collectAll(schema.meta.props.map(processId))),
+        })
       case stringIdentifier:
         return new StringSchema()
+      case literalIdentifier:
+        return new EnumSchema({ enum: schema.meta.literals })
+
       case fromStringIdentifier:
         return new StringSchema()
       case UUIDFromStringIdentifier:
@@ -255,6 +262,40 @@ function processId(schema, meta = {}) {
       }
     }
   })
+}
+
+function merge(schema) {
+  let b = schema as ObjectSchema // TODO: allOfSchema.
+  function recurseAllOf(allOf: AllOfSchema["allOf"], nb: any) {
+    allOf.forEach((x: any) => {
+      const a = x as AllOfSchema
+      if (a.allOf) {
+        recurseAllOf(a.allOf, nb)
+      } else {
+        nb.required = (nb.required ?? []).concat(x.required ?? [])
+        if (nb.required.length === 0) {
+          nb.required = undefined
+        }
+        nb.properties = { ...nb.properties, ...x.properties }
+      }
+    })
+  }
+  const a = b as AllOfSchema
+  if (a.allOf) {
+    const [
+      { description: ____, nullable: ___, title: __, type: _____, ...first },
+    ] = a.allOf
+    const nb = {
+      title: a.title,
+      type: "object",
+      description: a.description,
+      nullable: a.nullable,
+      ...first,
+    }
+    recurseAllOf(a.allOf.slice(1), nb)
+    b = nb as any
+  }
+  return b
 }
 
 const cache = new WeakMap()

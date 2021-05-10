@@ -92,7 +92,9 @@ declare type ComputeDeep<A extends any, Seen = never> = A extends Prim
  * type test0 = A.Compute<{x: 'x'} & {y: 'y'}> // {x: 'x', y: 'y'}
  * ```
  */
-export declare type Compute<A extends any, depth extends Depth = "deep"> = {
+export declare type Compute<A extends any, depth extends Depth = "flat"> = {
+  // Deep destroys unions.
+
   flat: ComputeFlat<A>
   deep: ComputeDeep<A>
 }[depth]

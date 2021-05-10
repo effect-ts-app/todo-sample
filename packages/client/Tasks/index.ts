@@ -21,11 +21,11 @@ export * from "@effect-ts-demo/todo-types"
 
 export const getMe = pipe(
   fetchApi("/me"),
-  T.chain(flow(S.Parser.for(GetMe.Response)["|>"](S.condemn), mapResponseErrorS))
+  T.chain(flow(GetMe.Response.Parser["|>"](S.condemnFail), mapResponseErrorS))
 )
 export const getTasks = pipe(
   fetchApi("/tasks"),
-  T.chain(flow(Parser.for(GetTasks.Response)["|>"](S.condemn), mapResponseErrorS))
+  T.chain(flow(GetTasks.Response.Parser["|>"](S.condemnFail), mapResponseErrorS))
 )
 
 const decodeGetTaskResponse = flow(
@@ -38,7 +38,7 @@ export const findTask = (id: S.UUID) =>
 export const createTask = fetchApi3S(CreateTask)("/tasks")
 
 const parseCreateTaskRequest = (i: S.EncodedOf<typeof CreateTask.Request["Model"]>) =>
-  Parser.for(CreateTask.Request.Model)["|>"](S.condemn)(i)["|>"](T.orDie)
+  CreateTask.Request.Parser["|>"](S.condemn)(i)["|>"](T.orDie)
 export const createTaskE = flow(parseCreateTaskRequest, T.chain(createTask))
 
 const update = fetchApi3S(UpdateTask, "PATCH")

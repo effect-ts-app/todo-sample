@@ -3,9 +3,9 @@ import Delete from "@material-ui/icons/Delete"
 import React from "react"
 import { Draggable } from "react-beautiful-dnd"
 
-import { Todo } from "@/index"
 import { Completable, TextFieldWithEditor } from "@/components"
 import { onSuccess, PromiseExit, WithLoading } from "@/data"
+import { Todo } from "@/index"
 
 export function Step({
   deleteStep,

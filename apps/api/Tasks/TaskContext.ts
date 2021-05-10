@@ -219,14 +219,14 @@ export { del as delete }
 export function updateM<R, E>(id: TaskId, mod: (a: Task) => T.Effect<R, E, Task>) {
   return T.gen(function* ($) {
     const { updateM } = yield* $(TaskContext)
-    return updateM(id, mod)
+    return yield* $(updateM(id, mod))
   })
 }
 
 export function updateUserM<R, E>(id: UserId, mod: (a: User) => T.Effect<R, E, User>) {
   return T.gen(function* ($) {
     const { updateUserM } = yield* $(TaskContext)
-    return updateUserM(id, mod)
+    return yield* $(updateUserM(id, mod))
   })
 }
 
@@ -236,6 +236,6 @@ export function updateListM<R, E>(
 ) {
   return T.gen(function* ($) {
     const { updateListM } = yield* $(TaskContext)
-    return updateListM(id, mod)
+    return yield* $(updateListM(id, mod))
   })
 }

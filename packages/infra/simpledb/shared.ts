@@ -2,6 +2,8 @@ import assert from "assert"
 
 import { pipe } from "@effect-ts-demo/core/ext/Function"
 import * as MO from "@effect-ts-demo/core/ext/Morphic"
+import * as S from "@effect-ts-demo/core/ext/Schema"
+import { SchemaAny } from "@effect-ts-demo/core/ext/Schema"
 import * as T from "@effect-ts/core/Effect"
 import * as O from "@effect-ts/core/Option"
 import * as Sy from "@effect-ts/core/Sync"
@@ -34,18 +36,18 @@ export interface DBRecord<TKey extends string> {
   id: TKey
 }
 
-export const SerializedDBRecord = MO.extend(
-  MO.make((F) =>
-    F.interface({
-      version: F.number(),
-      timestamp: F.nullable(F.date()),
-      data: F.string(),
-    })
+export class SerializedDBRecord extends S.Model<SerializedDBRecord>()(
+  S.required({ version: S.number, timestamp: S.date, data: S.string })["|>"](
+    S.asBuilder
   )
-)
+) {}
 
-export interface SerializedDBRecord extends MO.AType<typeof SerializedDBRecord> {}
-export interface SerializedDBRecordE extends MO.EType<typeof SerializedDBRecord> {}
+// unknown -> string -> SDB?
+export function makeSerialisedDBRecord(s: SchemaAny) {
+  return S.required({ version: S.number, timestamp: S.date, data: s })["|>"](
+    S.asBuilder
+  )
+}
 
 export interface CachedRecord<T> {
   version: number

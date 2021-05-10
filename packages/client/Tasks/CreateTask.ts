@@ -13,6 +13,4 @@ export class Request extends S.Model<Request>()(RequestBody.Model) {
   static Body = RequestBody
 }
 
-export class Response_ extends S.Model<Response_>()(S.required({ id: TaskId })) {}
-export const Response = Response_.Model
-export type Response = Response_
+export class Response extends S.Model<Response>()(S.required({ id: TaskId })) {}

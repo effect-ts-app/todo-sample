@@ -20,12 +20,21 @@ export function makeHandler<
   return <R, E>(h: (r: AType<TReq>) => T.Effect<R, E, AType<TRes>>) => h
 }
 
-export function makeSHandler<
+export function handle<
   TReq extends { Model: SchemaAny },
-  TRes extends SchemaAny
->(_: { Request: TReq; Response: TRes }) {
+  TRes extends { Model: SchemaAny } | SchemaAny = typeof S.Void
+>(_: { Request: TReq; Response?: TRes }) {
   // TODO: Prevent over providing // no strict/shrink yet.
   return <R, E>(
-    h: (r: S.ParsedShapeOf<TReq["Model"]>) => T.Effect<R, E, S.ParsedShapeOf<TRes>>
-  ) => h
+    h: (
+      r: S.ParsedShapeOf<TReq["Model"]>
+    ) => T.Effect<R, E, S.ParsedShapeOf<Extr<TRes>>>
+  ) =>
+    Object.assign(h, { Request: _.Request, Response: (_.Response ?? S.Void) as TRes })
 }
+
+type Extr<T> = T extends { Model: SchemaAny }
+  ? T["Model"]
+  : T extends SchemaAny
+  ? T
+  : never

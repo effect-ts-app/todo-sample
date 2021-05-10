@@ -1,7 +1,6 @@
 import * as TaskContext from "./TaskContext"
+import { handle } from "./shared"
 
-import { Request, Response } from "@effect-ts-demo/todo-client/Tasks/DeleteTask"
+import * as DeleteTask from "@effect-ts-demo/todo-client/Tasks/DeleteTask"
 
-export const handle = (_: Request) => TaskContext.delete(_.id)
-
-export { Request, Response }
+export default handle(DeleteTask)((_) => TaskContext.delete(_.id))

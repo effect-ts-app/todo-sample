@@ -19,11 +19,13 @@ export class TaskListEntryBase extends S.Model<TaskListEntryBase>()(
 
 @S.namedC
 export class TaskListEntry extends S.Model<TaskListEntry>()(
-  S.intersect(TaskListEntryBase.Model)(
-    S.required({
-      title: S.nonEmptyString,
-      parentListId: S.nullable(TaskListId),
-    })
+  TaskListEntryBase.Model["|>"](
+    S.intersect(
+      S.required({
+        title: S.nonEmptyString,
+        parentListId: S.nullable(TaskListId),
+      })
+    )
   )
     ["|>"](S.tag("TaskList"))
     ["|>"](S.asBuilder)
@@ -35,6 +37,7 @@ export class TaskListEntryGroup extends S.Model<TaskListEntryGroup>()(
   S.required({
     id: TaskListId,
     title: S.nonEmptyString,
+    lists: S.array(TaskListId),
   })
     ["|>"](S.tag("TaskListGroup"))
     ["|>"](S.asBuilder)
@@ -46,12 +49,10 @@ export const TaskListEntryOrGroup = S.tagged(
 )["|>"](S.named("TaskListEntryOrGroup"))
 export type TaskListEntryOrGroup = S.ParsedShapeOf<typeof TaskListEntryOrGroup>
 
-export class Response_ extends S.Model<Response_>()(
+export class Response extends S.Model<Response>()(
   S.required({
     name: S.nonEmptyString,
     inboxOrder: S.array(TaskId),
     lists: S.array(TaskListEntryOrGroup),
-  })
+  })["|>"](S.named("Me"))
 ) {}
-export const Response = Response_.Model
-export type Response = Response_

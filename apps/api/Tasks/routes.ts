@@ -1,21 +1,22 @@
 import * as T from "@effect-ts/core/Effect"
 
-import * as CreateTask from "./CreateTask"
-import * as DeleteTask from "./DeleteTask"
-import * as FindTask from "./FindTask"
-import * as GetMe from "./GetMe"
-import * as GetTasks from "./GetTasks"
-import * as SetTasksOrder from "./SetTasksOrder"
-import * as UpdateTask from "./UpdateTask"
+import CreateTask from "./CreateTask"
+import DeleteTask from "./DeleteTask"
+import FindTask from "./FindTask"
+import GetMe from "./GetMe"
+import GetTasks from "./GetTasks"
+import SetTasksOrder from "./SetTasksOrder"
+import UpdateTask from "./UpdateTask"
 
+import { demandLoggedIn } from "@effect-ts-demo/infra/express/schema/requestHandler"
 import * as R from "@effect-ts-demo/infra/express/schema/routing"
 
 export const routes = T.tuple(
-  R.get("/me", GetMe),
-  R.get("/tasks", GetTasks),
-  R.post("/tasks", CreateTask),
-  R.get("/tasks/:id", FindTask),
-  R.patch("/tasks/:id", UpdateTask),
-  R.delete("/tasks/:id", DeleteTask),
-  R.post("/tasks-order", SetTasksOrder)
+  R.get("/me", GetMe, demandLoggedIn),
+  R.get("/tasks", GetTasks, demandLoggedIn),
+  R.post("/tasks", CreateTask, demandLoggedIn),
+  R.get("/tasks/:id", FindTask, demandLoggedIn),
+  R.patch("/tasks/:id", UpdateTask, demandLoggedIn),
+  R.delete("/tasks/:id", DeleteTask, demandLoggedIn),
+  R.post("/tasks-order", SetTasksOrder, demandLoggedIn)
 )

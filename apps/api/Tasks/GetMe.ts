@@ -2,18 +2,14 @@ import * as Chunk from "@effect-ts/core/Collections/Immutable/Chunk"
 import * as T from "@effect-ts/core/Effect"
 import * as O from "@effect-ts/core/Option"
 
-import { getLoggedInUser } from "@/Tasks/shared"
+import { getLoggedInUser, handle } from "@/Tasks/shared"
 
 import * as UserContext from "../Tasks/TaskContext"
 
-import {
-  Request,
-  Response,
-  TaskListEntry,
-} from "@effect-ts-demo/todo-client/Tasks/GetMe"
+import * as GetMe from "@effect-ts-demo/todo-client/Tasks/GetMe"
 import { TaskListOrGroup } from "@effect-ts-demo/todo-types/Task"
 
-export const handle = (_: Request) =>
+export default handle(GetMe)((_) =>
   T.gen(function* ($) {
     const user = yield* $(getLoggedInUser)
 
@@ -24,9 +20,9 @@ export const handle = (_: Request) =>
     const lists = Chunk.map_(
       allLists,
       TaskListOrGroup.Api.matchW({
-        TaskListGroup: (l) => l,
+        TaskListGroup: (g) => g,
         TaskList: (l) =>
-          new TaskListEntry({
+          new GetMe.TaskListEntry({
             ...l,
             parentListId: Chunk.find_(groups, (g) => g.lists.includes(l.id))["|>"](
               O.map((x) => x.id)
@@ -39,7 +35,6 @@ export const handle = (_: Request) =>
       name: user.name,
       inboxOrder: user.inboxOrder,
       lists,
-    } as Response
+    }
   })
-
-export { Request, Response }
+)

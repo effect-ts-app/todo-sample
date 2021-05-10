@@ -24,42 +24,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "properties": {
-                    "name": {
-                      "minLength": 1,
-                      "type": "string"
-                    },
-                    "inboxOrder": {
-                      "items": {
-                        "format": "uuid",
-                        "type": "string"
-                      },
-                      "type": "array"
-                    },
-                    "lists": {
-                      "items": {
-                        "title": "TaskListEntryOrGroup",
-                        "oneOf": [
-                          {
-                            "$ref": "#/components/schemas/TaskListEntry"
-                          },
-                          {
-                            "$ref": "#/components/schemas/TaskListEntryGroup"
-                          }
-                        ],
-                        "discriminator": {
-                          "propertyName": "_tag"
-                        }
-                      },
-                      "type": "array"
-                    }
-                  },
-                  "required": [
-                    "name",
-                    "inboxOrder",
-                    "lists"
-                  ],
-                  "type": "object"
+                  "$ref": "#/components/schemas/Me"
                 }
               }
             }
@@ -92,24 +57,7 @@
                   "properties": {
                     "items": {
                       "items": {
-                        "allOf": [
-                          {
-                            "$ref": "#/components/schemas/Task"
-                          },
-                          {
-                            "properties": {
-                              "myDay": {
-                                "format": "date-time",
-                                "type": "string",
-                                "nullable": true
-                              }
-                            },
-                            "required": [
-                              "myDay"
-                            ],
-                            "type": "object"
-                          }
-                        ]
+                        "$ref": "#/components/schemas/Task"
                       },
                       "type": "array"
                     }
@@ -135,8 +83,18 @@
               "schema": {
                 "properties": {
                   "listId": {
-                    "minLength": 1,
-                    "type": "string"
+                    "oneOf": [
+                      {
+                        "format": "uuid",
+                        "type": "string"
+                      },
+                      {
+                        "enum": [
+                          "inbox"
+                        ],
+                        "type": "string"
+                      }
+                    ]
                   },
                   "title": {
                     "minLength": 1,
@@ -207,24 +165,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "allOf": [
-                    {
-                      "$ref": "#/components/schemas/Task"
-                    },
-                    {
-                      "properties": {
-                        "myDay": {
-                          "format": "date-time",
-                          "type": "string",
-                          "nullable": true
-                        }
-                      },
-                      "required": [
-                        "myDay"
-                      ],
-                      "type": "object"
-                    }
-                  ],
+                  "$ref": "#/components/schemas/Task",
                   "nullable": true
                 }
               }
@@ -354,8 +295,18 @@
                     "type": "array"
                   },
                   "listId": {
-                    "minLength": 1,
-                    "type": "string"
+                    "oneOf": [
+                      {
+                        "format": "uuid",
+                        "type": "string"
+                      },
+                      {
+                        "enum": [
+                          "inbox"
+                        ],
+                        "type": "string"
+                      }
+                    ]
                   }
                 },
                 "required": [
@@ -383,45 +334,34 @@
     "schemas": {
       "TaskListEntry": {
         "title": "TaskListEntry",
-        "allOf": [
-          {
-            "properties": {
-              "id": {
-                "format": "uuid",
-                "type": "string"
-              },
-              "order": {
-                "items": {
-                  "format": "uuid",
-                  "type": "string"
-                },
-                "type": "array"
-              }
-            },
-            "required": [
-              "id",
-              "order"
-            ],
-            "type": "object"
+        "type": "object",
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "type": "string"
           },
-          {
-            "properties": {
-              "title": {
-                "minLength": 1,
-                "type": "string"
-              },
-              "parentListId": {
-                "format": "uuid",
-                "type": "string",
-                "nullable": true
-              }
+          "order": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
             },
-            "required": [
-              "title",
-              "parentListId"
-            ],
-            "type": "object"
+            "type": "array"
+          },
+          "title": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "parentListId": {
+            "format": "uuid",
+            "type": "string",
+            "nullable": true
           }
+        },
+        "required": [
+          "id",
+          "order",
+          "title",
+          "parentListId"
         ]
       },
       "TaskListEntryGroup": {
@@ -434,11 +374,58 @@
           "title": {
             "minLength": 1,
             "type": "string"
+          },
+          "lists": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array"
           }
         },
         "required": [
           "id",
-          "title"
+          "title",
+          "lists"
+        ],
+        "type": "object"
+      },
+      "Me": {
+        "title": "Me",
+        "properties": {
+          "name": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "inboxOrder": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "lists": {
+            "items": {
+              "title": "TaskListEntryOrGroup",
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/TaskListEntry"
+                },
+                {
+                  "$ref": "#/components/schemas/TaskListEntryGroup"
+                }
+              ],
+              "discriminator": {
+                "propertyName": "_tag"
+              }
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "name",
+          "inboxOrder",
+          "lists"
         ],
         "type": "object"
       },
@@ -461,6 +448,7 @@
       },
       "Task": {
         "title": "Task",
+        "type": "object",
         "properties": {
           "id": {
             "format": "uuid",
@@ -479,8 +467,18 @@
             "type": "number"
           },
           "listId": {
-            "minLength": 1,
-            "type": "string"
+            "oneOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "enum": [
+                  "inbox"
+                ],
+                "type": "string"
+              }
+            ]
           },
           "title": {
             "minLength": 1,
@@ -519,6 +517,11 @@
             "minimum": 0,
             "type": "number",
             "nullable": true
+          },
+          "myDay": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
           }
         },
         "required": [
@@ -534,9 +537,9 @@
           "reminder",
           "note",
           "steps",
-          "assignedTo"
-        ],
-        "type": "object"
+          "assignedTo",
+          "myDay"
+        ]
       }
     },
     "parameters": {}

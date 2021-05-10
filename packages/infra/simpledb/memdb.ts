@@ -1,5 +1,6 @@
 import * as EO from "@effect-ts-demo/core/ext/EffectOption"
 import { constVoid, flow, pipe } from "@effect-ts-demo/core/ext/Function"
+import * as S from "@effect-ts-demo/core/ext/Schema"
 import * as T from "@effect-ts/core/Effect"
 import * as M from "@effect-ts/core/Effect/Managed"
 import * as Eq from "@effect-ts/core/Equal"
@@ -7,7 +8,7 @@ import * as O from "@effect-ts/core/Option"
 import * as Sy from "@effect-ts/core/Sync"
 
 import {
-  SerializedDBRecordE,
+  SerializedDBRecord,
   DBRecord,
   CachedRecord,
   getRecordName,
@@ -18,6 +19,8 @@ import * as simpledb from "./simpledb"
 // When we are in-process, we want to share the same Storage
 // Do not try this at home.
 const storage = makeMap<string, string>()
+
+const parseSDB = SerializedDBRecord.Parser["|>"](S.condemnFail)
 
 export function createContext<TKey extends string, EA, A extends DBRecord<TKey>>() {
   return <REncode, RDecode, EDecode>(
@@ -34,7 +37,8 @@ export function createContext<TKey extends string, EA, A extends DBRecord<TKey>>
     function find(id: string) {
       return pipe(
         storage.find(getRecordName(type, id)),
-        EO.map((s) => JSON.parse(s) as SerializedDBRecordE),
+        EO.map((s) => JSON.parse(s) as unknown),
+        EO.chainEffect(parseSDB),
         EO.map(({ data, version }) => ({ data: JSON.parse(data) as EA, version }))
       )
     }
@@ -44,7 +48,8 @@ export function createContext<TKey extends string, EA, A extends DBRecord<TKey>>
       return pipe(
         T.gen(function* ($) {
           for (const [, value] of storage) {
-            const sdb = JSON.parse(value) as SerializedDBRecordE
+            const sdb_ = JSON.parse(value) as unknown
+            const sdb = yield* $(parseSDB(sdb_))
             const cr = { data: JSON.parse(sdb.data) as EA, version: sdb.version }
             const r = yield* $(
               pipe(

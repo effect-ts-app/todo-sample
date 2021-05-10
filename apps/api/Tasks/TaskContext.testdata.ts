@@ -80,7 +80,7 @@ export function makeTestDataUnsafe() {
     patrickList,
     patrick["|>"](User.createTaskListGroup_)({
       title: createNES("Patrick - Some group"),
-      lists: [patrickList.id],
+      lists: [patrickSharedList.id, patrickList.id],
     }),
     patrickSharedList,
     ///////

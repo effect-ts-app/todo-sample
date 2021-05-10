@@ -51,23 +51,18 @@ export class StringSchema extends Base<
   readonly type = "string"
 }
 
-export interface EnumSchema extends DescriptionSchema {
-  type: "string"
-  enum: A.Array<string>
+export class EnumSchema extends Base<
+  DescriptionSchema & {
+    enum: A.Array<string>
+  }
+> {
+  readonly type = "string"
 }
 
 export interface NumberEnumSchema extends DescriptionSchema {
   type: "number"
   enum: A.Array<number>
 }
-
-export const EnumSchema = (p: {
-  enum: A.Array<string>
-  description?: string
-}): EnumSchema => ({
-  type: "string",
-  ...p,
-})
 
 export const isEnumSchema = (x: JSONSchema): x is EnumSchema =>
   "type" in x && x.type === "string" && Array.isArray((x as EnumSchema).enum)

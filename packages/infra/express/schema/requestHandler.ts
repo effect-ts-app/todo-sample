@@ -1,11 +1,13 @@
 /* eslint-disable @typescript-eslint/ban-types */
+import { Erase } from "@effect-ts-demo/core/ext/Effect"
 import * as EO from "@effect-ts-demo/core/ext/EffectOption"
 import * as S from "@effect-ts-demo/core/ext/Schema"
-import { Encoder, Parser } from "@effect-ts-demo/core/ext/Schema"
-import { DSL, Has } from "@effect-ts/core"
+import { Encoder, extractSchema, Parser } from "@effect-ts-demo/core/ext/Schema"
+import { DSL } from "@effect-ts/core"
 import { makeAssociative } from "@effect-ts/core/Associative"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as T from "@effect-ts/core/Effect"
+import * as L from "@effect-ts/core/Effect/Layer"
 import { flow, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import * as EU from "@effect-ts/core/Utils"
@@ -13,6 +15,10 @@ import express from "express"
 
 import { NotFoundError } from "../../errors"
 import { UserSVC } from "../../services"
+
+export function demandLoggedIn(req: express.Request) {
+  return UserSVC.LiveUserEnv(req.headers["x-user-id"] as unknown)
+}
 
 export type Request<
   PathA,
@@ -139,28 +145,37 @@ function respondSuccess<A, E>(encodeResponse: Encode<A, E>) {
     )
 }
 
-function handleRequest<R, PathA, CookieA, QueryA, BodyA, HeaderA, ResA, ResE>(
+function handleRequest<
+  R,
+  PathA,
+  CookieA,
+  QueryA,
+  BodyA,
+  HeaderA,
+  ResA,
+  ResE,
+  R2 = unknown,
+  PR = unknown
+>(
   requestParsers: RequestParsers<PathA, CookieA, QueryA, BodyA, HeaderA>,
   encodeResponse: Encode<ResA, ResE>,
-  handle: (
-    r: PathA & QueryA & BodyA & {}
-  ) => T.Effect<R & Has.Has<UserSVC.UserEnv>, SupportedErrors, ResA>
+  handle: (r: PathA & QueryA & BodyA & {}) => T.Effect<R & PR, SupportedErrors, ResA>,
+  h?: (req: express.Request, res: express.Response) => L.Layer<R2, SupportedErrors, PR>
 ) {
   const parseRequest = parseRequestParams(requestParsers)
   const respond = respondSuccess(encodeResponse)
   return (req: express.Request, res: express.Response) =>
     pipe(
       parseRequest(req),
-      T.chain(({ body, path, query }) =>
-        handle({
+      T.chain(({ body, path, query }) => {
+        const hn = handle({
           ...O.toUndefined(body),
           ...O.toUndefined(query),
           ...O.toUndefined(path),
-        } as PathA & QueryA & BodyA)["|>"](
-          // TODO; able to configure only when needed.
-          T.provideSomeLayer(UserSVC.LiveUserEnv(req.headers["x-user-id"] as unknown))
-        )
-      ),
+        } as PathA & QueryA & BodyA)
+        const r = h ? T.provideSomeLayer(h(req, res))(hn) : hn
+        return r as T.Effect<Erase<R & R2, PR>, SupportedErrors, ResA>
+      }),
       T.chain(respond(res)),
       T.catch("_tag", "ValidationError", (err) =>
         T.succeedWith(() => {
@@ -185,6 +200,21 @@ function handleRequest<R, PathA, CookieA, QueryA, BodyA, HeaderA, ResA, ResE>(
     )
 }
 
+export interface RequestHandlerOptRes<
+  R,
+  PathA,
+  CookieA,
+  QueryA,
+  BodyA,
+  HeaderA,
+  ReqA extends PathA & QueryA & BodyA,
+  ResA
+> {
+  (i: PathA & QueryA & BodyA & {}): T.Effect<R, SupportedErrors, ResA>
+  Request: Request<PathA, CookieA, QueryA, BodyA, HeaderA, ReqA>
+  Response?: S.ReqRes<unknown, ResA> | S.ReqResSchemed<unknown, ResA>
+}
+
 export interface RequestHandler<
   R,
   PathA,
@@ -195,9 +225,9 @@ export interface RequestHandler<
   ReqA extends PathA & QueryA & BodyA,
   ResA
 > {
+  (i: PathA & QueryA & BodyA & {}): T.Effect<R, SupportedErrors, ResA>
   Request: Request<PathA, CookieA, QueryA, BodyA, HeaderA, ReqA>
-  Response: S.ReqRes<unknown, ResA>
-  handle: (i: PathA & QueryA & BodyA & {}) => T.Effect<R, SupportedErrors, ResA>
+  Response: S.ReqRes<unknown, ResA> | S.ReqResSchemed<unknown, ResA>
 }
 
 export function makeRequestHandler<
@@ -208,26 +238,40 @@ export function makeRequestHandler<
   BodyA,
   HeaderA,
   ReqA extends PathA & QueryA & BodyA,
-  ResA
->({
-  Request,
-  Response,
-  handle,
-}: RequestHandler<
-  R & Has.Has<UserSVC.UserEnv>,
-  PathA,
-  CookieA,
-  QueryA,
-  BodyA,
-  HeaderA,
-  ReqA,
-  ResA
->) {
-  const encodeResponse = Encoder.for(Response)
+  ResA = void,
+  R2 = unknown,
+  PR = unknown
+>(
+  handle: RequestHandlerOptRes<
+    R & PR,
+    PathA,
+    CookieA,
+    QueryA,
+    BodyA,
+    HeaderA,
+    ReqA,
+    ResA
+  >,
+  h?: (req: express.Request, res: express.Response) => L.Layer<R2, SupportedErrors, PR>
+) {
+  const { Request, Response } = handle
+  const res = Response ? extractSchema(Response as any) : S.Void
+  const encodeResponse = Encoder.for(res)
   //const { shrink: shrinkResponse } = strict(Response)
   // flow(shrinkResponse, Sy.chain(encodeResponse))
 
-  return handleRequest(makeRequestParsers(Request), encodeResponse, handle)
+  return handleRequest<
+    R,
+    PathA,
+    CookieA,
+    QueryA,
+    BodyA,
+    HeaderA,
+    ResA,
+    unknown,
+    R2,
+    PR
+  >(makeRequestParsers(Request), encodeResponse, handle, h)
 }
 function makeRequestParsers<
   R,

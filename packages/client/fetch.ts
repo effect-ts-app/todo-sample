@@ -1,6 +1,6 @@
 import { Compute } from "@effect-ts-demo/core/ext/Compute"
 import * as T from "@effect-ts-demo/core/ext/Effect"
-import { Encoder, Parser, ReqRes, ReqResSchemed } from "@effect-ts-demo/core/ext/Schema"
+import { Parser, ReqRes, ReqResSchemed } from "@effect-ts-demo/core/ext/Schema"
 import * as S from "@effect-ts-demo/core/ext/Schema"
 import { pipe } from "@effect-ts/core"
 import { flow } from "@effect-ts/core/Function"
@@ -115,7 +115,7 @@ export function fetchApi3<RequestA, RequestE, ResponseE, ResponseA>(
     })
 }
 
-export function fetchApi3S<RequestA, RequestE, ResponseE, ResponseA>(
+export function fetchApi3S<RequestA, RequestE, ResponseE = unknown, ResponseA = void>(
   {
     Request,
     Response,
@@ -123,12 +123,16 @@ export function fetchApi3S<RequestA, RequestE, ResponseE, ResponseA>(
     // eslint-disable-next-line @typescript-eslint/ban-types
     Request: ReqResSchemed<RequestE, RequestA>
     // eslint-disable-next-line @typescript-eslint/ban-types
-    Response: ReqRes<ResponseE, ResponseA>
+    Response?: ReqRes<ResponseE, ResponseA> | ReqResSchemed<ResponseE, ResponseA>
   },
   method = "POST"
 ) {
-  const encodeRequest = Encoder.for(Request.Model)
-  const decodeResponse = Parser.for(Response)["|>"](S.condemn)
+  const Res = (Response ? S.extractSchema(Response) : S.Void) as ReqRes<
+    ResponseE,
+    ResponseA
+  >
+  const encodeRequest = Request.Encoder
+  const decodeResponse = Parser.for(Res)["|>"](S.condemn)
   return (path: string) =>
     fetchApi2S(encodeRequest, decodeResponse)(path, {
       method,

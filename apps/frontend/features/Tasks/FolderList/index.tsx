@@ -69,15 +69,16 @@ const FolderListView = ({ category }: { category: O.Option<Todo.Category> }) => 
                   ...l,
                   count: unfilteredTasks["|>"](filterByCategory(l.id)).length,
                 }),
-              TaskListGroup: (l) =>
+              TaskListGroup: (g) =>
                 new TaskListGroup({
-                  ...l,
-                  lists: lists["|>"](
-                    A.filterMap((x) =>
-                      x._tag === "TaskList" &&
-                      x.parentListId["|>"](O.getOrElse(() => "")) === l.id
-                        ? O.some(x)
-                        : O.none
+                  ...g,
+                  lists: g.lists["|>"](
+                    A.filterMap((lid) =>
+                      lists["|>"](
+                        A.findFirstMap((l) =>
+                          l._tag === "TaskList" && l.id === lid ? O.some(l) : O.none
+                        )
+                      )
                     )
                   )["|>"](
                     A.map(

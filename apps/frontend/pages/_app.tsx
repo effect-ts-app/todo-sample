@@ -1,7 +1,8 @@
 import { StyledEngineProvider, useMediaQuery } from "@material-ui/core"
-import { createMuiTheme, StylesProvider, ThemeProvider } from "@material-ui/core/styles"
+import { createTheme, ThemeProvider } from "@material-ui/core/styles"
 import AdapterDateFns from "@material-ui/lab/AdapterDateFns"
 import LocalizationProvider from "@material-ui/lab/LocalizationProvider"
+import { StylesProvider } from "@material-ui/styles"
 import "nprogress/nprogress.css"
 import { useRouter } from "next/router"
 import NProgress from "nprogress"
@@ -15,7 +16,7 @@ function MyApp({ Component, pageProps }: any) {
 
   const theme = React.useMemo(
     () =>
-      createMuiTheme({
+      createTheme({
         // TODO
         // palette: {
         //   mode: prefersDarkMode ? "dark" : "light",

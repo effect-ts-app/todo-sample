@@ -8,15 +8,20 @@ import {
 import * as EO from "@effect-ts-demo/core/ext/EffectOption"
 import * as S from "@effect-ts-demo/core/ext/Schema"
 import * as OpenApi from "@effect-ts-demo/core/ext/Schema/Openapi"
-import { Has, pipe } from "@effect-ts/core"
+import { pipe } from "@effect-ts/core"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as T from "@effect-ts/core/Effect"
+import * as L from "@effect-ts/core/Effect/Layer"
 import * as O from "@effect-ts/core/Option"
 import * as Ex from "@effect-ts/express"
+import express from "express"
 
-import { UserSVC } from "../../services"
-
-import { makeRequestHandler, RequestHandler } from "./requestHandler"
+import {
+  makeRequestHandler,
+  RequestHandler,
+  RequestHandlerOptRes,
+  SupportedErrors,
+} from "./requestHandler"
 
 type Methods = "GET" | "PUT" | "POST" | "PATCH" | "DELETE"
 
@@ -33,16 +38,7 @@ export interface RouteDescriptor<
 > {
   path: string
   method: METHOD
-  handler: RequestHandler<
-    R & Has.Has<UserSVC.UserEnv>,
-    PathA,
-    CookieA,
-    QueryA,
-    BodyA,
-    HeaderA,
-    ReqA,
-    ResA
-  >
+  handler: RequestHandler<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA>
   _tag: "Schema"
 }
 
@@ -56,21 +52,12 @@ export function makeRouteDescriptor<
   BodyA,
   HeaderA,
   ReqA extends PathA & QueryA & BodyA,
-  ResA,
+  ResA = void,
   METHOD extends Methods = Methods
 >(
   path: string,
   method: METHOD,
-  handler: RequestHandler<
-    R & Has.Has<UserSVC.UserEnv>,
-    PathA,
-    CookieA,
-    QueryA,
-    BodyA,
-    HeaderA,
-    ReqA,
-    ResA
-  >
+  handler: RequestHandlerOptRes<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA>
 ) {
   return { path, method, handler, _tag: "Schema" } as RouteDescriptor<
     R,
@@ -84,7 +71,6 @@ export function makeRouteDescriptor<
     METHOD
   >
 }
-
 export function get<
   R,
   PathA,
@@ -93,22 +79,22 @@ export function get<
   BodyA,
   HeaderA,
   ReqA extends PathA & QueryA & BodyA,
-  ResA
+  ResA,
+  R2 = unknown,
+  PR = unknown
 >(
   path: string,
-  r: RequestHandler<
-    R & Has.Has<UserSVC.UserEnv>,
-    PathA,
-    CookieA,
-    QueryA,
-    BodyA,
-    HeaderA,
-    ReqA,
-    ResA
-  >
+  r: RequestHandler<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA>,
+  h?: (req: express.Request, res: express.Response) => L.Layer<R2, SupportedErrors, PR>
 ) {
   return pipe(
-    Ex.get(path, makeRequestHandler(r)),
+    Ex.get(
+      path,
+      makeRequestHandler<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA, R2, PR>(
+        r,
+        h
+      )
+    ),
     T.zipRight(T.succeedWith(() => makeRouteDescriptor(path, "GET", r)))
   )
 }
@@ -121,22 +107,22 @@ export function post<
   BodyA,
   HeaderA,
   ReqA extends PathA & QueryA & BodyA,
-  ResA
+  ResA = void,
+  R2 = unknown,
+  PR = unknown
 >(
   path: string,
-  r: RequestHandler<
-    R & Has.Has<UserSVC.UserEnv>,
-    PathA,
-    CookieA,
-    QueryA,
-    BodyA,
-    HeaderA,
-    ReqA,
-    ResA
-  >
+  r: RequestHandlerOptRes<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA>,
+  h?: (req: express.Request, res: express.Response) => L.Layer<R2, SupportedErrors, PR>
 ) {
   return pipe(
-    Ex.post(path, makeRequestHandler(r)),
+    Ex.post(
+      path,
+      makeRequestHandler<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA, R2, PR>(
+        r,
+        h
+      )
+    ),
     T.zipRight(T.succeedWith(() => makeRouteDescriptor(path, "POST", r)))
   )
 }
@@ -149,22 +135,22 @@ export function put<
   BodyA,
   HeaderA,
   ReqA extends PathA & QueryA & BodyA,
-  ResA
+  ResA = void,
+  R2 = unknown,
+  PR = unknown
 >(
   path: string,
-  r: RequestHandler<
-    R & Has.Has<UserSVC.UserEnv>,
-    PathA,
-    CookieA,
-    QueryA,
-    BodyA,
-    HeaderA,
-    ReqA,
-    ResA
-  >
+  r: RequestHandlerOptRes<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA>,
+  h?: (req: express.Request, res: express.Response) => L.Layer<R2, SupportedErrors, PR>
 ) {
   return pipe(
-    Ex.put(path, makeRequestHandler(r)),
+    Ex.put(
+      path,
+      makeRequestHandler<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA, R2, PR>(
+        r,
+        h
+      )
+    ),
     T.zipRight(T.succeedWith(() => makeRouteDescriptor(path, "PUT", r)))
   )
 }
@@ -177,22 +163,22 @@ export function patch<
   BodyA,
   HeaderA,
   ReqA extends PathA & QueryA & BodyA,
-  ResA
+  ResA = void,
+  R2 = unknown,
+  PR = unknown
 >(
   path: string,
-  r: RequestHandler<
-    R & Has.Has<UserSVC.UserEnv>,
-    PathA,
-    CookieA,
-    QueryA,
-    BodyA,
-    HeaderA,
-    ReqA,
-    ResA
-  >
+  r: RequestHandlerOptRes<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA>,
+  h?: (req: express.Request, res: express.Response) => L.Layer<R2, SupportedErrors, PR>
 ) {
   return pipe(
-    Ex.patch(path, makeRequestHandler(r)),
+    Ex.patch(
+      path,
+      makeRequestHandler<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA, R2, PR>(
+        r,
+        h
+      )
+    ),
     T.zipRight(T.succeedWith(() => makeRouteDescriptor(path, "PATCH", r)))
   )
 }
@@ -205,33 +191,34 @@ function del<
   BodyA,
   HeaderA,
   ReqA extends PathA & QueryA & BodyA,
-  ResA
+  ResA = void,
+  R2 = unknown,
+  PR = unknown
 >(
   path: string,
-  r: RequestHandler<
-    R & Has.Has<UserSVC.UserEnv>,
-    PathA,
-    CookieA,
-    QueryA,
-    BodyA,
-    HeaderA,
-    ReqA,
-    ResA
-  >
+  r: RequestHandlerOptRes<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA>,
+  h?: (req: express.Request, res: express.Response) => L.Layer<R2, SupportedErrors, PR>
 ) {
   return pipe(
-    Ex.delete(path, makeRequestHandler(r)),
+    Ex.delete(
+      path,
+      makeRequestHandler<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA, R2, PR>(
+        r,
+        h
+      )
+    ),
     T.zipRight(T.succeedWith(() => makeRouteDescriptor(path, "DELETE", r)))
   )
 }
 export { del as delete }
 
-export function makeFromSchema(
-  e: RouteDescriptor<any, any, any, any, any, any, any, any>
+export function makeFromSchema<ResA>(
+  e: RouteDescriptor<any, any, any, any, any, any, ResA, any>
 ) {
   const jsonSchema_ = OpenApi.for
   const jsonSchema = <E, A>(r: S.ReqResSchemed<E, A>) => jsonSchema_(r.Model)
-  const { Request: Req, Response: Res } = e.handler
+  const { Request: Req, Response: Res_ } = e.handler
+  const Res = Res_ ? S.extractSchema(Res_) : S.Void
   // TODO: use the path vs body etc serialisation also in the Client.
   const makeReqQuerySchema = EO.fromNullable(Req.Query)["|>"](
     EO.chainEffect(jsonSchema)
@@ -245,6 +232,7 @@ export function makeFromSchema(
   const makeReqPathSchema = EO.fromNullable(Req.Path)["|>"](EO.chainEffect(jsonSchema))
   const makeReqBodySchema = EO.fromNullable(Req.Body)["|>"](EO.chainEffect(jsonSchema))
   //const makeReqSchema = schema(Req)
+
   const makeResSchema = jsonSchema_(Res)
 
   // TODO: custom void type - 204 response
@@ -275,35 +263,38 @@ export function makeFromSchema(
       reqCookie: makeReqCookieSchema,
       res: makeResSchema,
     }),
-    T.map((_) => ({
-      path: e.path,
-      method: e.method.toLowerCase(),
-      parameters: [
-        ..._.reqPath["|>"](makeParameters("path")),
-        ..._.reqQuery["|>"](makeParameters("query")),
-        ..._.reqHeaders["|>"](makeParameters("header")),
-        ..._.reqCookie["|>"](makeParameters("cookie")),
-      ],
-      requestBody: O.toUndefined(
-        _.reqBody["|>"](
-          O.map((schema) => ({ content: { "application/json": { schema } } }))
-        )
-      ),
-      responses: A.concat_(
-        [
-          e.handler.Response === S.Void
-            ? new Response(204, { description: "Empty" })
-            : new Response(200, {
-                description: "OK",
-                content: { "application/json": { schema: _.res } },
-              }),
-          new Response(400, { description: "ValidationError" }),
+    T.map((_) => {
+      const isEmpty = !e.handler.Response || e.handler.Response === S.Void
+      return {
+        path: e.path,
+        method: e.method.toLowerCase(),
+        parameters: [
+          ..._.reqPath["|>"](makeParameters("path")),
+          ..._.reqQuery["|>"](makeParameters("query")),
+          ..._.reqHeaders["|>"](makeParameters("header")),
+          ..._.reqCookie["|>"](makeParameters("cookie")),
         ],
-        e.path.includes(":") && e.handler.Response === S.Void
-          ? [new Response(404, { description: "NotFoundError" })]
-          : []
-      ),
-    }))
+        requestBody: O.toUndefined(
+          _.reqBody["|>"](
+            O.map((schema) => ({ content: { "application/json": { schema } } }))
+          )
+        ),
+        responses: A.concat_(
+          [
+            isEmpty
+              ? new Response(204, { description: "Empty" })
+              : new Response(200, {
+                  description: "OK",
+                  content: { "application/json": { schema: _.res } },
+                }),
+            new Response(400, { description: "ValidationError" }),
+          ],
+          e.path.includes(":") && isEmpty
+            ? [new Response(404, { description: "NotFoundError" })]
+            : []
+        ),
+      }
+    })
   )
 }
 

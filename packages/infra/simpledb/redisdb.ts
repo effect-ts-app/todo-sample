@@ -1,15 +1,12 @@
 import * as EO from "@effect-ts-demo/core/ext/EffectOption"
 import { flow, pipe } from "@effect-ts-demo/core/ext/Function"
-import * as MO from "@effect-ts-demo/core/ext/Morphic"
+import * as S from "@effect-ts-demo/core/ext/Schema"
 import * as T from "@effect-ts/core/Effect"
 import * as M from "@effect-ts/core/Effect/Managed"
-import * as O from "@effect-ts/core/Option"
-import * as Sy from "@effect-ts/core/Sync"
 
 import * as RED from "../redis-client"
 
 import {
-  SerializedDBRecord,
   DBRecord,
   CachedRecord,
   getRecordName,
@@ -42,19 +39,16 @@ export function createContext<TKey extends string, EA, A extends DBRecord<TKey>>
         RED.hmgetAll(getKey(id)),
         EO.chainEffect((v) =>
           pipe(
-            SerializedDBRecord.decode_({
-              ...v,
-              version: parseInt(v.version),
-            }),
-            Sy.map(({ data, version }) => ({ data: JSON.parse(data) as EA, version })),
-            Sy.mapError((e) => new ConnectionException(new Error(MO.printErrors(e))))
+            RedisSerializedDBRecord.Parser["|>"](S.condemnFail)(v),
+            T.map(({ data, version }) => ({ data: JSON.parse(data) as EA, version })),
+            T.mapError((e) => new ConnectionException(new Error(e.toString())))
           )
         ),
         T.orDie
       )
     }
 
-    function store(record: A, version: number) {
+    function store(record: A, version: RedisSerializedDBRecord["version"]) {
       return version === 1
         ? pipe(
             M.use_(lockIndex(record), () =>
@@ -70,7 +64,7 @@ export function createContext<TKey extends string, EA, A extends DBRecord<TKey>>
                 T.chain((data) =>
                   hmSetRec(getKey(record.id), {
                     version,
-                    timestamp: O.some(new Date()),
+                    timestamp: new Date(),
                     data,
                   })
                 ),
@@ -86,7 +80,7 @@ export function createContext<TKey extends string, EA, A extends DBRecord<TKey>>
               T.chain((data) =>
                 hmSetRec(getKey(record.id), {
                   version,
-                  timestamp: O.some(new Date()),
+                  timestamp: new Date(),
                   data,
                 })
               ),
@@ -167,22 +161,19 @@ export function createContext<TKey extends string, EA, A extends DBRecord<TKey>>
     }
   }
 
-  function hmSetRec(key: string, val: SerializedDBRecord) {
+  function hmSetRec(key: string, val: RedisSerializedDBRecord) {
+    const enc = RedisSerializedDBRecord.Encoder(val)
     return T.chain_(RED.client, (client) =>
       T.uninterruptible(
         T.effectAsync<unknown, ConnectionException, void>((res) => {
           client.hmset(
             key,
             "version",
-            val.version,
+            enc.version,
             "timestamp",
-            pipe(
-              val.timestamp,
-              O.getOrElse(() => new Date()),
-              (x) => x.toISOString()
-            ),
+            enc.timestamp,
             "data",
-            val.data,
+            enc.data,
             (err) =>
               err ? res(T.fail(new ConnectionException(err))) : res(T.succeed(void 0))
           )
@@ -191,3 +182,11 @@ export function createContext<TKey extends string, EA, A extends DBRecord<TKey>>
     )
   }
 }
+
+export class RedisSerializedDBRecord extends S.Model<RedisSerializedDBRecord>()(
+  S.required({
+    version: S.stringNumber,
+    timestamp: S.date,
+    data: S.string,
+  })["|>"](S.asBuilder)
+) {}

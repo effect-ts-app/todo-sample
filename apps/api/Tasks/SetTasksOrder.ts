@@ -3,15 +3,16 @@ import * as T from "@effect-ts/core/Effect"
 import * as Lens from "@effect-ts/monocle/Lens"
 
 import * as TaskContext from "./TaskContext"
+import { handle } from "./shared"
 
 import { UUID } from "@effect-ts-demo/core/ext/Schema"
 import { UserSVC } from "@effect-ts-demo/infra/services"
-import { Request, Response } from "@effect-ts-demo/todo-client/Tasks/SetTasksOrder"
+import * as SetTasksOrder from "@effect-ts-demo/todo-client/Tasks/SetTasksOrder"
 
 const inboxOrder = User.lens["|>"](Lens.prop("inboxOrder"))
 const order = TaskList.lens["|>"](Lens.prop("order"))
 
-export const handle = (_: Request) =>
+export default handle(SetTasksOrder)((_) =>
   T.gen(function* ($) {
     const user = yield* $(UserSVC.UserEnv)
 
@@ -29,5 +30,4 @@ export const handle = (_: Request) =>
       )
     )
   })
-
-export { Request, Response }
+)

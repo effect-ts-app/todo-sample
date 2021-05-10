@@ -77,22 +77,20 @@ export function useTasks() {
   return r
 }
 
-const Inbox = "inbox" as Todo.TaskListIdU
-const newTask = (
-  v: Todo.TaskView | S.NonEmptyString,
-  listId: Todo.TaskListIdU = Inbox
-) => (newTitle: string) =>
-  TodoClient.Tasks.createTaskE({
-    title: newTitle,
-    isFavorite: false,
-    myDay: null,
-    listId,
-    ...(v === "important"
-      ? { isFavorite: true }
-      : v === "my-day"
-      ? { myDay: new Date().toISOString() }
-      : {}),
-  })
+const newTask =
+  (v: Todo.TaskView | S.NonEmptyString, listId: Todo.TaskListIdU = "inbox") =>
+  (newTitle: string) =>
+    TodoClient.Tasks.createTaskE({
+      title: newTitle,
+      isFavorite: false,
+      myDay: null,
+      listId,
+      ...(v === "important"
+        ? { isFavorite: true }
+        : v === "my-day"
+        ? { myDay: new Date().toISOString() }
+        : {}),
+    })
 export function useNewTask(
   v: Todo.TaskView | S.NonEmptyString,
   listId?: Todo.TaskListId
@@ -232,7 +230,7 @@ export function useTaskCommandsResolved(t: Todo.Task) {
   }
 }
 
-const parseNES = Parser.for(S.nonEmptyString)["|>"](S.condemn)
+const parseNES = Parser.for(S.nonEmptyString)["|>"](S.condemnFail)
 
 export function useTaskCommands(id: Todo.TaskId) {
   const modifyTasks = useModifyTasks()

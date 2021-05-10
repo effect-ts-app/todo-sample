@@ -13,11 +13,8 @@ export class RequestBody extends S.Model<RequestBody>()(
 ) {}
 export class RequestPath extends S.Model<RequestPath>()(S.required({ id: TaskId })) {}
 export class Request extends S.Model<Request>()(
-  S.intersect(RequestPath.Model)(RequestBody.Model)
+  RequestPath.Model["|>"](S.intersect(RequestBody.Model))
 ) {
   static Body = RequestBody
   static Path = RequestPath
 }
-
-export const Response = S.Void
-export type Response = S.ParsedShapeOf<typeof Response>

@@ -1,3 +1,4 @@
+import { makeUuid } from "@effect-ts-demo/core/ext/Model"
 import * as S from "@effect-ts-demo/core/ext/Schema"
 import { pipe } from "@effect-ts/core"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
@@ -6,31 +7,17 @@ import { Option } from "@effect-ts/core/Option"
 import * as Lens from "@effect-ts/monocle/Lens"
 import { constant } from "@effect-ts/system/Function"
 
-// export const TaskListIdU = UUID
-// export type TaskListIdU = AType<typeof TaskListIdU>
-
-// export const TaskListId = make((F) =>
-//   F.union(
-//     TaskListIdU(F),
-//     TaskListIdLiteral(F)
-//   )({
-//     guards: [guard(TaskListIdU).is, guard(TaskListIdLiteral).is],
-//   })
-// )
-// export type TaskListId = AType<typeof TaskListId>
-
-//// SCHEMA TEST
 export const UserId = S.positiveInt
 export type UserId = S.ParsedShapeOf<typeof UserId>
 
 export const TaskId = S.UUID
 export type TaskId = S.ParsedShapeOf<typeof TaskId>
 
-// TODO: Schema unions missing?
+export const TaskListIdLiteral = S.literal("inbox")
 export const TaskListId = S.UUID
 export type TaskListId = S.ParsedShapeOf<typeof TaskListId>
 
-export const TaskListIdU = S.nonEmptyString
+export const TaskListIdU = S.union(TaskListId, TaskListIdLiteral)
 export type TaskListIdU = S.ParsedShapeOf<typeof TaskListIdU>
 
 @S.namedC
@@ -58,7 +45,6 @@ export const EditablePersonalTaskProps = {
   myDay: S.nullable(S.date),
 }
 
-@S.namedC
 export class Task extends S.Model<Task>()(
   pipe(
     S.required({
@@ -70,12 +56,12 @@ export class Task extends S.Model<Task>()(
       ...EditableTaskProps,
     }),
     S.asBuilder,
-    S.withDefaultUuidId,
     (s) =>
       S.withDefaultConstructorFields(s)({
+        id: makeUuid,
         isFavorite: constant(false),
         steps: S.constArray,
-        listId: constant("inbox" as TaskListIdU),
+        listId: constant("inbox"),
         createdAt: () => new Date(),
         updatedAt: () => new Date(),
         completed: constant(O.none),
@@ -112,9 +98,9 @@ export class TaskList extends S.Model<TaskList>()(
     }),
     S.asBuilder,
     S.tag("TaskList"),
-    S.withDefaultUuidId,
     (s) =>
       S.withDefaultConstructorFields(s)({
+        id: makeUuid,
         order: S.constArray,
         members: S.constArray,
       })
@@ -135,8 +121,7 @@ export class TaskListGroup extends S.Model<TaskListGroup>()(
     }),
     S.asBuilder,
     S.tag("TaskListGroup"),
-    S.withDefaultUuidId,
-    (s) => S.withDefaultConstructorFields(s)({ lists: S.constArray })
+    (s) => S.withDefaultConstructorFields(s)({ id: makeUuid, lists: S.constArray })
   )
 ) {}
 

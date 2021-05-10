@@ -3,12 +3,12 @@ import { pipe } from "@effect-ts/core"
 import * as T from "@effect-ts/core/Effect"
 
 import * as TaskContext from "./TaskContext"
-import { getLoggedInUser, makeSHandler } from "./shared"
+import { getLoggedInUser, handle } from "./shared"
 
 import * as EO from "@effect-ts-demo/core/ext/EffectOption"
 import * as CreateTask from "@effect-ts-demo/todo-client/Tasks/CreateTask"
 
-export const handle = makeSHandler(CreateTask)(({ myDay, ..._ }) =>
+export default handle(CreateTask)(({ myDay, ..._ }) =>
   T.gen(function* ($) {
     const user = yield* $(getLoggedInUser)
 
@@ -26,5 +26,3 @@ export const handle = makeSHandler(CreateTask)(({ myDay, ..._ }) =>
     return { id: task.id }
   })
 )
-
-export const { Request, Response } = CreateTask
