@@ -188,6 +188,10 @@ const makeMockTaskContext = T.gen(function* ($) {
 
   return {
     allLists,
+    allTaskLists: flow(
+      allLists,
+      T.map(Chunk.filterMap((x) => (TaskList.Guard(x) ? O.some(x) : O.none)))
+    ),
     findList,
     findTaskList,
     findTaskListGroup,
@@ -228,6 +232,7 @@ export const {
   add,
   all,
   allLists,
+  allTaskLists,
   find,
   get,
   getList,
@@ -242,6 +247,7 @@ export const {
 } = T.deriveLifted(TaskContext)(
   [
     "allLists",
+    "allTaskLists",
     "all",
     "add",
     "get",

@@ -10,9 +10,12 @@ export default handle(DeleteTask)((_) =>
   T.gen(function* ($) {
     const user = yield* $(UserSVC.UserEnv)
     const t = yield* $(TaskContext.get(_.id))
+    const taskLists = yield* $(TaskContext.allTaskLists(user.id))
 
     return yield* $(
-      t["|>"](authorizeTask.authorizeM(user.id, (t) => TaskContext.delete(t.id)))
+      t["|>"](
+        authorizeTask(taskLists).authorizeM(user.id, (t) => TaskContext.delete(t.id))
+      )
     )
   })
 )

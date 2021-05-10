@@ -10,11 +10,12 @@ import * as UpdateTask from "@effect-ts-demo/todo-client/Tasks/UpdateTask"
 export default handle(UpdateTask)(({ id, myDay, ..._ }) =>
   T.gen(function* ($) {
     const user = yield* $(UserSVC.UserEnv)
+    const taskLists = yield* $(TaskContext.allTaskLists(user.id))
 
     const task = yield* $(
       TaskContext.updateM(
         id,
-        authorizeTask.authorize(user.id, (t) => ({
+        authorizeTask(taskLists).authorize(user.id, (t) => ({
           ...t,
           ..._,
           updatedAt: new Date(),

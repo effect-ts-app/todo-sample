@@ -1,7 +1,8 @@
-import { UserId } from "@effect-ts-demo/todo-types/"
+import { TaskList, UserId } from "@effect-ts-demo/todo-types/"
 import * as T from "@effect-ts/core/Effect"
 import { AType, M } from "@effect-ts/morphic"
 import { SchemaAny } from "@effect-ts/schema"
+import { Chunk } from "@effect-ts/system/Collections/Immutable/Chunk"
 
 import {
   canAccessList_,
@@ -111,8 +112,8 @@ export function makeAuthorize<T>(
     hideM: authorizeM(canAccess, (r) => new NotFoundError(type, getId(r).toString())),
   }
 }
-
-export const authorizeTask = makeAuthorize(canAccessTask, "Task", (t) => t.id)
+export const authorizeTask = (lists: Chunk<TaskList>) =>
+  makeAuthorize(canAccessTask(lists), "Task", (t) => t.id)
 export const authorizeList = makeAuthorize(
   canAccessList_,
   "TaskListOrGroup",
