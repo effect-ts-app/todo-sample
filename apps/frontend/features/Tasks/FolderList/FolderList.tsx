@@ -8,6 +8,7 @@ import Home from "@material-ui/icons/Home"
 import Star from "@material-ui/icons/Star"
 import Link from "next/link"
 import React from "react"
+import { Draggable, Droppable } from "react-beautiful-dnd"
 
 import { memo } from "@/data"
 import { Todo } from "@/index"
@@ -40,13 +41,32 @@ function TLG(g: Todo.TaskListGroup) {
   return (
     <React.Fragment>
       {g.title}
-      <List component="div" disablePadding>
-        {g.lists.map((l, idx) => (
-          <React.Fragment key={idx}>
-            <TaskListEntry {...l} title={("| -- " + l.title) as S.NonEmptyString} />
-          </React.Fragment>
-        ))}
-      </List>
+      <Droppable droppableId={g.id}>
+        {(provided) => (
+          <Box ref={provided.innerRef} {...provided.droppableProps}>
+            <List component="div" disablePadding>
+              {g.lists.map((l, idx) => (
+                <Draggable key={idx} draggableId={l.id} index={idx}>
+                  {(provided) => (
+                    <Box
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                      display="flex"
+                    >
+                      <TaskListEntry
+                        {...l}
+                        title={("| -- " + l.title) as S.NonEmptyString}
+                      />
+                    </Box>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </List>
+          </Box>
+        )}
+      </Droppable>
     </React.Fragment>
   )
 }

@@ -107,14 +107,18 @@ export class TaskList extends S.Model<TaskList>()(
   )
 ) {}
 
+export const EditableTaskListGroupProps = {
+  title: S.nonEmptyString,
+  lists: S.array(TaskListId),
+}
+
 @S.namedC
 export class TaskListGroup extends S.Model<TaskListGroup>()(
   pipe(
     S.struct({
       required: {
         id: TaskListId,
-        title: S.nonEmptyString,
-        lists: S.array(TaskListId),
+        ...EditableTaskListGroupProps,
 
         ownerId: UserId,
       },

@@ -13,6 +13,7 @@ import * as GetMe from "./GetMe"
 import * as GetTasks from "./GetTasks"
 import * as SetTasksOrder from "./SetTasksOrder"
 import * as UpdateTask from "./UpdateTask"
+import * as UpdateTaskListGroup from "./UpdateTaskListGroup"
 
 export { CreateTask, DeleteTask, GetMe, FindTask, GetTasks, SetTasksOrder, UpdateTask }
 
@@ -52,3 +53,8 @@ export function deleteTask(req: DeleteTask.Request) {
 }
 
 export const setTasksOrder = fetchApi3S(SetTasksOrder, "POST")(`/tasks-order`)
+
+const updateG = fetchApi3S(UpdateTaskListGroup, "PATCH")
+export function updateGroup(req: UpdateTaskListGroup.Request) {
+  return updateG(`/groups/${req.id}`)(req)
+}

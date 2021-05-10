@@ -7,6 +7,7 @@ import GetMe from "./GetMe"
 import GetTasks from "./GetTasks"
 import SetTasksOrder from "./SetTasksOrder"
 import UpdateTask from "./UpdateTask"
+import UpdateTaskListGroup from "./UpdateTaskListGroup"
 
 import { demandLoggedIn } from "@effect-ts-demo/infra/express/schema/requestHandler"
 import * as R from "@effect-ts-demo/infra/express/schema/routing"
@@ -18,5 +19,7 @@ export const routes = T.tuple(
   R.get("/tasks/:id", FindTask, demandLoggedIn),
   R.patch("/tasks/:id", UpdateTask, demandLoggedIn),
   R.delete("/tasks/:id", DeleteTask, demandLoggedIn),
-  R.post("/tasks-order", SetTasksOrder, demandLoggedIn)
+  R.post("/tasks-order", SetTasksOrder, demandLoggedIn),
+
+  R.patch("/groups/:id", UpdateTaskListGroup, demandLoggedIn)
 )

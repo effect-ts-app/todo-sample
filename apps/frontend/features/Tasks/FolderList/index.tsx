@@ -2,8 +2,10 @@ import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as O from "@effect-ts/core/Option"
 import { datumEither } from "@nll/datum"
 import React from "react"
+import { DragDropContext } from "react-beautiful-dnd"
 
-import { Todo } from "@/index"
+import { useServiceContext } from "@/context"
+import { Todo, TodoClient } from "@/index"
 import { toUpperCaseFirst } from "@/utils"
 
 import {
@@ -14,6 +16,7 @@ import {
   TaskListView,
   TaskViews,
   useMe,
+  useModifyMe,
   useTasks,
 } from "../data"
 
@@ -26,6 +29,10 @@ const defaultLists = [] as readonly TaskListEntryOrGroup[]
 
 const FolderListView = ({ category }: { category: O.Option<Todo.Category> }) => {
   const [meResult] = useMe()
+  const modifyMe = useModifyMe()
+
+  const { runWithErrorLog } = useServiceContext()
+
   const [tasksResult] = useTasks()
   // TODO: the total tasksResults, should be from all loaded folders.
   const unfilteredTasks = datumEither.isSuccess(tasksResult)
@@ -98,11 +105,61 @@ const FolderListView = ({ category }: { category: O.Option<Todo.Category> }) => 
   )
 
   return (
-    <FolderList
-      name={datumEither.isSuccess(meResult) ? meResult.value.right.name : null}
-      category={category}
-      folders={folders}
-    />
+    <DragDropContext
+      onDragEnd={(result) => {
+        const { destination } = result
+        if (!destination) {
+          return
+        }
+        const group = lists["|>"](
+          A.findFirstMap((x) =>
+            x._tag === "TaskListGroup" && x.id === destination.droppableId
+              ? O.some(x)
+              : O.none
+          )
+        )["|>"](O.toNullable)
+        const list = lists["|>"](
+          A.findFirstMap((x) =>
+            x._tag === "TaskList" && x.id === result.draggableId ? O.some(x) : O.none
+          )
+        )["|>"](O.toNullable)
+
+        if (!group || !list) {
+          return
+        }
+
+        runWithErrorLog(
+          TodoClient.Tasks.updateGroup({
+            id: group.id,
+            lists: group.lists["|>"](A.filter((l) => l !== list.id))
+              ["|>"](A.insertAt(destination.index, list.id))
+              ["|>"](O.getOrElse(() => group.lists)),
+          })
+        )
+
+        modifyMe((m) => ({
+          ...m,
+          lists: m.lists["|>"](
+            A.map((x) =>
+              x._tag === "TaskListGroup" && x.id === group.id
+                ? {
+                    ...x,
+                    lists: x.lists["|>"](A.filter((l) => l !== list.id))
+                      ["|>"](A.insertAt(destination.index, list.id))
+                      ["|>"](O.getOrElse(() => x.lists)),
+                  }
+                : x
+            )
+          ),
+        }))
+      }}
+    >
+      <FolderList
+        name={datumEither.isSuccess(meResult) ? meResult.value.right.name : null}
+        category={category}
+        folders={folders}
+      />
+    </DragDropContext>
   )
 }
 
