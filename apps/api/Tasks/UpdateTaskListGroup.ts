@@ -1,11 +1,10 @@
 import { TaskListOrGroup } from "@effect-ts-demo/todo-types"
 import * as T from "@effect-ts/core/Effect"
 
-import { canAccessList } from "@/access"
-import { NotFoundError, UnauthorizedError } from "@/errors"
+import { NotFoundError } from "@/errors"
 
 import * as TaskContext from "./TaskContext"
-import { handle } from "./shared"
+import { authorizeTaskListGroup, handle } from "./shared"
 
 import { flow } from "@effect-ts-demo/core/ext/Function"
 import { UserSVC } from "@effect-ts-demo/infra/services"
@@ -19,13 +18,11 @@ export default handle(UpdateTaskListGroup)(({ id, ..._ }) =>
         id,
         flow(
           TaskListOrGroup.Api.matchW({
-            TaskListGroup: (g) =>
-              !canAccessList(user.id)(g)
-                ? T.fail(new UnauthorizedError())
-                : T.succeed({
-                    ...g,
-                    ..._,
-                  }),
+            TaskListGroup: authorizeTaskListGroup.authorize(user.id, (g) => ({
+              ...g,
+              ..._,
+              updatedAt: new Date(),
+            })),
             TaskList: () => T.fail(new NotFoundError("TaskListGroup", id)),
           }),
           T.union

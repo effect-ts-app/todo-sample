@@ -1,9 +1,19 @@
+import { UserId } from "@effect-ts-demo/todo-types/"
 import * as T from "@effect-ts/core/Effect"
 import { AType, M } from "@effect-ts/morphic"
 import { SchemaAny } from "@effect-ts/schema"
 
+import {
+  canAccessList_,
+  canAccessTask,
+  canAccessTaskListGroup_,
+  canAccessTaskList_,
+} from "@/access"
+import { UnauthorizedError, NotFoundError } from "@/errors"
+
 import * as TaskContext from "./TaskContext"
 
+import { flow } from "@effect-ts-demo/core/ext/Function"
 import * as S from "@effect-ts-demo/core/ext/Schema"
 import { UserSVC } from "@effect-ts-demo/infra/services"
 
@@ -38,3 +48,83 @@ type Extr<T> = T extends { Model: SchemaAny }
   : T extends SchemaAny
   ? T
   : never
+
+export function authorizeM_<T, Err>(
+  canAccess: (rsc: T, userId: UserId) => boolean,
+  bad: (rsc: T, userId: UserId) => Err
+) {
+  return <R, E, A>(
+    rsc: T,
+    userId: UserId,
+    ok: (rsc: T) => T.Effect<R, E, A>
+  ): T.Effect<R, E | Err, A> => {
+    if (canAccess(rsc, userId)) {
+      return ok(rsc)
+    }
+    return T.fail(bad(rsc, userId))
+  }
+}
+
+export function authorize_<T, Err>(
+  canAccess: (rsc: T, userId: UserId) => boolean,
+  bad: (rsc: T, userId: UserId) => Err
+) {
+  return <A>(rsc: T, userId: UserId, ok: (rsc: T) => A) =>
+    authorizeM_(canAccess, bad)(rsc, userId, flow(ok, T.succeed))
+}
+
+export function authorizeM<T, Err>(
+  canAccess: (rsc: T, userId: UserId) => boolean,
+  bad: (rsc: T, userId: UserId) => Err
+) {
+  return <R, E, A>(userId: UserId, ok: (rsc: T) => T.Effect<R, E, A>) =>
+    (rsc: T): T.Effect<R, E | Err, A> => {
+      if (canAccess(rsc, userId)) {
+        return ok(rsc)
+      }
+      return T.fail(bad(rsc, userId))
+    }
+}
+
+export function authorize<T, Err>(
+  canAccess: (rsc: T, userId: UserId) => boolean,
+  bad: (rsc: T, userId: UserId) => Err
+) {
+  return <A>(userId: UserId, ok: (rsc: T) => A) =>
+    authorizeM(canAccess, bad)(userId, flow(ok, T.succeed))
+}
+
+export function makeAuthorize<T>(
+  canAccess: (rsc: T, userId: UserId) => boolean,
+  type: string,
+  getId: (t: T) => string | number
+) {
+  return {
+    authorize_: authorize_(canAccess, () => new UnauthorizedError()),
+    authorize: authorize(canAccess, () => new UnauthorizedError()),
+    authorizeM_: authorizeM_(canAccess, () => new UnauthorizedError()),
+    authorizeM: authorizeM(canAccess, () => new UnauthorizedError()),
+
+    hide_: authorize_(canAccess, (r) => new NotFoundError(type, getId(r).toString())),
+    hide: authorize(canAccess, (r) => new NotFoundError(type, getId(r).toString())),
+    hideM_: authorizeM_(canAccess, (r) => new NotFoundError(type, getId(r).toString())),
+    hideM: authorizeM(canAccess, (r) => new NotFoundError(type, getId(r).toString())),
+  }
+}
+
+export const authorizeTask = makeAuthorize(canAccessTask, "Task", (t) => t.id)
+export const authorizeList = makeAuthorize(
+  canAccessList_,
+  "TaskListOrGroup",
+  (t) => t.id
+)
+export const authorizeTaskList = makeAuthorize(
+  canAccessTaskList_,
+  "TaskList",
+  (t) => t.id
+)
+export const authorizeTaskListGroup = makeAuthorize(
+  canAccessTaskListGroup_,
+  "TaskListGroup",
+  (t) => t.id
+)
