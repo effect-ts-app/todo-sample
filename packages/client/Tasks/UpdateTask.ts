@@ -5,16 +5,10 @@ import {
   TaskId,
 } from "@effect-ts-demo/todo-types"
 
-export class RequestBody extends S.Model<RequestBody>()(
-  S.partial({
+export class Request extends S.WriteRequest<Request>()({
+  path: S.required({ id: TaskId }),
+  body: S.partial({
     ...EditableTaskProps,
     ...EditablePersonalTaskProps,
-  })
-) {}
-export class RequestPath extends S.Model<RequestPath>()(S.required({ id: TaskId })) {}
-export class Request extends S.Model<Request>()(
-  RequestPath.Model["|>"](S.intersect(RequestBody.Model))
-) {
-  static Body = RequestBody
-  static Path = RequestPath
-}
+  }),
+}) {}

@@ -35,11 +35,11 @@ export type Request<
   HeaderA,
   ReqA extends PathA & QueryA & BodyA
 > = S.ReqResSchemed<unknown, ReqA> & {
-  Cookie?: S.ReqResSchemed<Record<string, string>, CookieA>
-  Path?: S.ReqResSchemed<Record<string, string>, PathA>
-  Body?: S.ReqResSchemed<unknown, BodyA>
-  Query?: S.ReqResSchemed<Record<string, string>, QueryA>
-  Headers?: S.ReqResSchemed<Record<string, string>, HeaderA>
+  Cookie?: S.ReqRes<Record<string, string>, CookieA>
+  Path?: S.ReqRes<Record<string, string>, PathA>
+  Body?: S.ReqRes<unknown, BodyA>
+  Query?: S.ReqRes<Record<string, string>, QueryA>
+  Headers?: S.ReqRes<Record<string, string>, HeaderA>
 }
 type Encode<A, E> = (a: A) => E
 
@@ -311,7 +311,7 @@ function makeRequestParsers<
   >["Request"]
 ): RequestParsers<PathA, CookieA, QueryA, BodyA, HeaderA> {
   const ph = O.fromNullable(Request.Headers)
-    ["|>"](O.map((s) => s.Model))
+    ["|>"](O.map((s) => s))
     ["|>"](O.map(Parser.for)) // todo strict
     ["|>"](O.map(S.condemn))
     ["|>"](EO.fromOption)
@@ -319,7 +319,7 @@ function makeRequestParsers<
     ph["|>"](EO.chain((d) => d(u)["|>"](EO.fromEffect)))
 
   const pq = O.fromNullable(Request.Query)
-    ["|>"](O.map((s) => s.Model))
+    ["|>"](O.map((s) => s))
     ["|>"](O.map(Parser.for)) // todo strict
     ["|>"](O.map(S.condemn))
     ["|>"](EO.fromOption)
@@ -327,21 +327,21 @@ function makeRequestParsers<
     pq["|>"](EO.chain((d) => d(u)["|>"](EO.fromEffect)))
 
   const pb = O.fromNullable(Request.Body)
-    ["|>"](O.map((s) => s.Model))
+    ["|>"](O.map((s) => s))
     ["|>"](O.map(Parser.for)) // todo strict
     ["|>"](O.map(S.condemn))
     ["|>"](EO.fromOption)
   const parseBody = (u: unknown) => pb["|>"](EO.chain((d) => d(u)["|>"](EO.fromEffect)))
 
   const pp = O.fromNullable(Request.Path)
-    ["|>"](O.map((s) => s.Model))
+    ["|>"](O.map((s) => s))
     ["|>"](O.map(Parser.for)) // todo strict
     ["|>"](O.map(S.condemn))
     ["|>"](EO.fromOption)
   const parsePath = (u: unknown) => pp["|>"](EO.chain((d) => d(u)["|>"](EO.fromEffect)))
 
   const pc = O.fromNullable(Request.Cookie)
-    ["|>"](O.map((s) => s.Model))
+    ["|>"](O.map((s) => s))
     ["|>"](O.map(Parser.for)) // todo strict
     ["|>"](O.map(S.condemn))
     ["|>"](EO.fromOption)

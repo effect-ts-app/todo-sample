@@ -216,7 +216,7 @@ export function makeFromSchema<ResA>(
   e: RouteDescriptor<any, any, any, any, any, any, ResA, any>
 ) {
   const jsonSchema_ = OpenApi.for
-  const jsonSchema = <E, A>(r: S.ReqResSchemed<E, A>) => jsonSchema_(r.Model)
+  const jsonSchema = <E, A>(r: S.ReqRes<E, A>) => jsonSchema_(r)
   const { Request: Req, Response: Res_ } = e.handler
   const Res = Res_ ? S.extractSchema(Res_) : S.Void
   // TODO: use the path vs body etc serialisation also in the Client.

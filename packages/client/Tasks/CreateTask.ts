@@ -1,16 +1,13 @@
 import * as S from "@effect-ts-demo/core/ext/Schema"
 import { TaskListIdU, TaskId } from "@effect-ts-demo/todo-types"
 
-export class RequestBody extends S.Model<RequestBody>()(
-  S.required({
+export class Request extends S.WriteRequest<Request>()({
+  body: S.required({
     listId: TaskListIdU,
     title: S.nonEmptyString,
     isFavorite: S.bool,
     myDay: S.nullable(S.date),
-  })
-) {}
-export class Request extends S.Model<Request>()(RequestBody.Model) {
-  static Body = RequestBody
-}
+  }),
+}) {}
 
 export class Response extends S.Model<Response>()(S.required({ id: TaskId })) {}
