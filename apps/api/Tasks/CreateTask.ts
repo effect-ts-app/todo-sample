@@ -4,7 +4,7 @@ import * as T from "@effect-ts/core/Effect"
 import { identity } from "@effect-ts/system/Function"
 
 import * as TaskContext from "./TaskContext"
-import { authorizeList, getLoggedInUser, handle } from "./shared"
+import { authorizeTaskList, getLoggedInUser, handle } from "./shared"
 
 import * as EO from "@effect-ts-demo/core/ext/EffectOption"
 import * as CreateTask from "@effect-ts-demo/todo-client/Tasks/CreateTask"
@@ -14,8 +14,8 @@ export default handle(CreateTask)(({ myDay, ..._ }) =>
     const user = yield* $(getLoggedInUser)
 
     if (_.listId !== "inbox") {
-      const list = yield* $(TaskContext.getList(_.listId))
-      yield* $(authorizeList.authorize_(list, user.id, identity))
+      const list = yield* $(TaskContext.getTaskList(_.listId))
+      yield* $(authorizeTaskList.authorize_(list, user.id, identity))
     }
 
     const task = user["|>"](User.createTask(_))

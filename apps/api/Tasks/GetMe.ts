@@ -7,7 +7,7 @@ import { getLoggedInUser, handle } from "@/Tasks/shared"
 import * as UserContext from "../Tasks/TaskContext"
 
 import * as GetMe from "@effect-ts-demo/todo-client/Tasks/GetMe"
-import { TaskListOrGroup } from "@effect-ts-demo/todo-types/Task"
+import { TaskListGroup, TaskListOrGroup } from "@effect-ts-demo/todo-types/Task"
 
 export default handle(GetMe)((_) =>
   T.gen(function* ($) {
@@ -15,7 +15,7 @@ export default handle(GetMe)((_) =>
 
     const allLists = yield* $(UserContext.allLists(user.id))
     const groups = Chunk.filterMap_(allLists, (l) =>
-      l._tag === "TaskListGroup" ? O.some(l) : O.none
+      TaskListGroup.Guard(l) ? O.some(l) : O.none
     )
     const lists = Chunk.map_(
       allLists,

@@ -5,13 +5,15 @@ import {
   TaskId,
   UserId,
   User,
+  TaskList,
+  TaskListGroup,
 } from "@effect-ts-demo/todo-types"
 import { Has } from "@effect-ts/core"
 import * as Chunk from "@effect-ts/core/Collections/Immutable/Chunk"
 import * as Map from "@effect-ts/core/Collections/Immutable/Map"
 import * as L from "@effect-ts/core/Effect/Layer"
 import * as Ref from "@effect-ts/core/Effect/Ref"
-import { identity, pipe } from "@effect-ts/core/Function"
+import { flow, identity, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import { _A } from "@effect-ts/core/Utils"
 
@@ -54,10 +56,39 @@ const makeMockTaskContext = T.gen(function* ($) {
       EO.chainEffect(decodeList)
     )
 
+  const findTaskList = flow(
+    findList,
+    EO.chain((x) => (TaskList.Guard(x) ? EO.some(x) : EO.none))
+  )
+
+  const findTaskListGroup = flow(
+    findList,
+    EO.chain((x) => (TaskListGroup.Guard(x) ? EO.some(x) : EO.none))
+  )
+
   const getList = (id: TaskListId) =>
     pipe(
       findList(id),
       T.chain(O.fold(() => T.fail(new NotFoundError("List", id.toString())), T.succeed))
+    )
+
+  const getTaskList = (id: TaskListId) =>
+    pipe(
+      findTaskList(id),
+      T.chain(
+        O.fold(() => T.fail(new NotFoundError("TaskList", id.toString())), T.succeed)
+      )
+    )
+
+  const getTaskListGroup = (id: TaskListId) =>
+    pipe(
+      findTaskListGroup(id),
+      T.chain(
+        O.fold(
+          () => T.fail(new NotFoundError("findTaskListGroup", id.toString())),
+          T.succeed
+        )
+      )
     )
 
   const addList = (t: TaskListOrGroup) =>
@@ -116,7 +147,7 @@ const makeMockTaskContext = T.gen(function* ($) {
         tasks: tasksRef.get,
         lists: pipe(
           allLists(userId),
-          T.map(Chunk.filterMap((x) => (x._tag === "TaskList" ? O.some(x) : O.none)))
+          T.map(Chunk.filterMap((x) => (TaskList.Guard(x) ? O.some(x) : O.none)))
         ),
       }),
       T.chain(({ lists, tasks }) =>
@@ -142,13 +173,27 @@ const makeMockTaskContext = T.gen(function* ($) {
     mod: (a: TaskListOrGroup) => T.Effect<R, E, TaskListOrGroup>
   ) => pipe(getList(id), T.chain(mod), T.tap(addList))
 
+  const updateTaskListM = <R, E>(
+    id: TaskListId,
+    mod: (a: TaskList) => T.Effect<R, E, TaskList>
+  ) => pipe(getTaskList(id), T.chain(mod), T.tap(addList))
+
+  const updateTaskListGroupM = <R, E>(
+    id: TaskListId,
+    mod: (a: TaskListGroup) => T.Effect<R, E, TaskListGroup>
+  ) => pipe(getTaskListGroup(id), T.chain(mod), T.tap(addList))
+
   const updateM = <R, E>(id: TaskId, mod: (a: Task) => T.Effect<R, E, Task>) =>
     pipe(get(id), T.chain(mod), T.tap(add))
 
   return {
     allLists,
     findList,
+    findTaskList,
+    findTaskListGroup,
     getList,
+    getTaskList,
+    getTaskListGroup,
     findUser,
     getUser,
     find,
@@ -159,6 +204,12 @@ const makeMockTaskContext = T.gen(function* ($) {
     updateList: (id: TaskListId, mod: (a: TaskListOrGroup) => TaskListOrGroup) =>
       updateListM(id, T.liftM(mod)),
     updateListM,
+    updateTaskList: (id: TaskListId, mod: (a: TaskList) => TaskList) =>
+      updateTaskListM(id, T.liftM(mod)),
+    updateTaskListM,
+    updateTaskListGroup: (id: TaskListId, mod: (a: TaskListGroup) => TaskListGroup) =>
+      updateTaskListGroupM(id, T.liftM(mod)),
+    updateTaskListGroupM,
     update: (id: TaskId, mod: (a: Task) => Task) => updateM(id, T.liftM(mod)),
     updateM,
     add,
@@ -180,10 +231,13 @@ export const {
   find,
   get,
   getList,
+  getTaskList,
   getUser,
   remove,
   update,
   updateList,
+  updateTaskList,
+  updateTaskListGroup,
   updateUser,
 } = T.deriveLifted(TaskContext)(
   [
@@ -193,10 +247,13 @@ export const {
     "get",
     "getUser",
     "getList",
+    "getTaskList",
     "find",
     "remove",
     "update",
     "updateList",
+    "updateTaskList",
+    "updateTaskListGroup",
     "updateUser",
   ],
   [],
@@ -229,5 +286,25 @@ export function updateListM<R, E>(
   return T.gen(function* ($) {
     const { updateListM } = yield* $(TaskContext)
     return yield* $(updateListM(id, mod))
+  })
+}
+
+export function updateTaskListM<R, E>(
+  id: TaskListId,
+  mod: (a: TaskList) => T.Effect<R, E, TaskList>
+) {
+  return T.gen(function* ($) {
+    const { updateTaskListM } = yield* $(TaskContext)
+    return yield* $(updateTaskListM(id, mod))
+  })
+}
+
+export function updateTaskListGroupM<R, E>(
+  id: TaskListId,
+  mod: (a: TaskListGroup) => T.Effect<R, E, TaskListGroup>
+) {
+  return T.gen(function* ($) {
+    const { updateTaskListGroupM } = yield* $(TaskContext)
+    return yield* $(updateTaskListGroupM(id, mod))
   })
 }

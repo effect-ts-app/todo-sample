@@ -23,7 +23,10 @@ import {
 import { FolderList } from "./FolderList"
 
 import * as S from "@effect-ts-demo/core/ext/Schema"
-import { TaskListEntryOrGroup } from "@effect-ts-demo/todo-client/Tasks/GetMe"
+import {
+  TaskListEntry,
+  TaskListEntryOrGroup,
+} from "@effect-ts-demo/todo-client/Tasks/GetMe"
 
 const defaultLists = [] as readonly TaskListEntryOrGroup[]
 
@@ -67,7 +70,7 @@ const FolderListView = ({ category }: { category: O.Option<Todo.Category> }) => 
           count: unfilteredTasks["|>"](filterByCategory("inbox")).length,
         }),
         ...lists["|>"](
-          A.filter((x) => x._tag !== "TaskList" || O.isNone(x.parentListId))
+          A.filter((x) => !TaskListEntry.Guard(x) || O.isNone(x.parentListId))
         )["|>"](
           A.map(
             TaskListEntryOrGroup.Api.matchW({

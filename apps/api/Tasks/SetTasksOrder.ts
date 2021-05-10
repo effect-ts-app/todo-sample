@@ -1,13 +1,10 @@
-import { TaskList, TaskListOrGroup, User } from "@effect-ts-demo/todo-types"
+import { TaskList, User } from "@effect-ts-demo/todo-types"
 import * as T from "@effect-ts/core/Effect"
 import * as Lens from "@effect-ts/monocle/Lens"
-
-import { NotFoundError } from "@/errors"
 
 import * as TaskContext from "./TaskContext"
 import { authorizeTaskList, handle } from "./shared"
 
-import { flow } from "@effect-ts-demo/core/ext/Function"
 import { UserSVC } from "@effect-ts-demo/infra/services"
 import * as SetTasksOrder from "@effect-ts-demo/todo-client/Tasks/SetTasksOrder"
 
@@ -23,15 +20,9 @@ export default handle(SetTasksOrder)((_) =>
       return
     }
     yield* $(
-      TaskContext.updateListM(
+      TaskContext.updateTaskListM(
         _.listId,
-        flow(
-          TaskListOrGroup.Api.matchW({
-            TaskList: authorizeTaskList.authorize(user.id, order.set(_.order)),
-            TaskListGroup: () => T.fail(new NotFoundError("TaskList", _.listId)),
-          }),
-          T.union
-        )
+        authorizeTaskList.authorize(user.id, order.set(_.order))
       )
     )
   })
