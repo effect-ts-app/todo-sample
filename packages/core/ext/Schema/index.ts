@@ -48,7 +48,7 @@ export function withDefaultConstructorFields<
     ParserError,
     ParsedShape,
     Omit<ConstructorInput, keyof Changes> &
-      // @ts-expect-error
+      // @ts-expect-error we know keyof Changes matches
       Partial<Pick<ConstructorInput, keyof Changes>>,
     ConstructorError,
     ConstructedShape,
@@ -63,7 +63,7 @@ export function withDefaultConstructorFields<
           ...u,
           ...Object.keys(kvs).reduce((prev, cur) => {
             if (typeof u[cur] === "undefined") {
-              // @ts-expect-error
+              // @ts-expect-error we know we may run and assign
               prev[cur] = kvs[cur]()
             }
             return prev

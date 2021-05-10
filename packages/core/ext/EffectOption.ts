@@ -86,13 +86,12 @@ export const ap_ = <R, E, A, B, R2, E2>(
 
 export const apFirst: <R, E, B>(
   fb: EffectOption<R, E, B>
-) => <A, R2, E2>(fa: EffectOption<R2, E2, A>) => EffectOption<R & R2, E | E2, A> = (
-  fb
-) => (fa) =>
-  ap_(
-    map_(fa, (a) => () => a),
-    fb
-  )
+) => <A, R2, E2>(fa: EffectOption<R2, E2, A>) => EffectOption<R & R2, E | E2, A> =
+  (fb) => (fa) =>
+    ap_(
+      map_(fa, (a) => () => a),
+      fb
+    )
 
 export const apFirst_: <A, R2, E2, R, E, B>(
   fa: EffectOption<R2, E2, A>,
@@ -103,13 +102,13 @@ export const apFirst_: <A, R2, E2, R, E, B>(
     fb
   )
 
-export const apSecond = <R, E, B>(fb: EffectOption<R, E, B>) => <A, R2, E2>(
-  fa: EffectOption<R2, E2, A>
-): EffectOption<R & R2, E | E2, B> =>
-  ap_(
-    map_(fa, () => (b: B) => b),
-    fb
-  )
+export const apSecond =
+  <R, E, B>(fb: EffectOption<R, E, B>) =>
+  <A, R2, E2>(fa: EffectOption<R2, E2, A>): EffectOption<R & R2, E | E2, B> =>
+    ap_(
+      map_(fa, () => (b: B) => b),
+      fb
+    )
 
 export const apSecond_ = <A, R2, E2, R, E, B>(
   fa: EffectOption<R2, E2, A>,
@@ -139,14 +138,15 @@ export function zipRight_<R, E, A, R1, E1, A1>(
 
 export const fromOption = <A>(a: O.Option<A>): UIO<A> => T.succeed(a)
 
-export const mapNone = <A2>(f: () => A2) => <R, E, A>(
-  _: EffectOption<R, E, A>
-): EffectOption<R, E, A | A2> => T.map_(_, (x) => (O.isNone(x) ? O.some(f()) : x))
+export const mapNone =
+  <A2>(f: () => A2) =>
+  <R, E, A>(_: EffectOption<R, E, A>): EffectOption<R, E, A | A2> =>
+    T.map_(_, (x) => (O.isNone(x) ? O.some(f()) : x))
 
-export const chainNone = <R2, E2, A2>(f: EffectOption<R2, E2, A2>) => <R, E, A>(
-  _: EffectOption<R, E, A>
-): EffectOption<R & R2, E | E2, A | A2> =>
-  T.chain_(_, (x) => (O.isNone(x) ? f : T.succeed(x as O.Option<A | A2>)))
+export const chainNone =
+  <R2, E2, A2>(f: EffectOption<R2, E2, A2>) =>
+  <R, E, A>(_: EffectOption<R, E, A>): EffectOption<R & R2, E | E2, A | A2> =>
+    T.chain_(_, (x) => (O.isNone(x) ? f : T.succeed(x as O.Option<A | A2>)))
 
 export const tap = <R, E, A>(bind: FunctionN<[A], T.Effect<R, E, unknown>>) =>
   T.tap(O.fold(() => none, bind))
@@ -155,10 +155,12 @@ export const fromOptionS = <R, E, A>(
   onNone: T.Effect<R, E, O.Option<A>>
 ): ((opt: O.Option<A>) => EffectOption<R, E, A>) => O.fold(() => onNone, some)
 
-export const fromEffectOptionS = <R, R2, E, E2, A>(onNone: EffectOption<R, E, A>) => (
-  eff: EffectOption<R2, E2, A>
-) => T.chain_(eff, fromOptionS(onNone))
+export const fromEffectOptionS =
+  <R, R2, E, E2, A>(onNone: EffectOption<R, E, A>) =>
+  (eff: EffectOption<R2, E2, A>) =>
+    T.chain_(eff, fromOptionS(onNone))
 
-export const chainEffect = <R, R2, E, E2, A, A2>(
-  eff: (a: A) => T.Effect<R2, E2, A2>
-) => (eo: EffectOption<R, E, A>) => chain_(eo, flow(eff, fromEffect))
+export const chainEffect =
+  <R, R2, E, E2, A, A2>(eff: (a: A) => T.Effect<R2, E2, A2>) =>
+  (eo: EffectOption<R, E, A>) =>
+    chain_(eo, flow(eff, fromEffect))

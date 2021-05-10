@@ -61,13 +61,16 @@ export declare type Exact<T, X extends T> = T &
       })[keyof X]]?: never
   }
 
-export const exact = <T>() => <AA extends Exact<T, AA>>(a: AA) => {
-  return a as T
-}
+export const exact =
+  <T>() =>
+  <AA extends Exact<T, AA>>(a: AA) => {
+    return a as T
+  }
 
-export const withNiceMessage = (message: (i: unknown) => string) => <A>(
-  codec: Decoder<A>
-) => withNiceMessage_(codec, message)
+export const withNiceMessage =
+  (message: (i: unknown) => string) =>
+  <A>(codec: Decoder<A>) =>
+    withNiceMessage_(codec, message)
 
 // Fixes that when a message is specified in the parent
 // we still try to show the child errors...
@@ -75,7 +78,7 @@ export function withNiceMessage_<A>(
   codec: Decoder<A>,
   message: (i: unknown) => string
 ) {
-  const codecc = (codec as any) as { with(validate: Validate<A>): Decoder<A> }
+  const codecc = codec as any as { with(validate: Validate<A>): Decoder<A> }
   return codecc.with(function (i, c) {
     return pipe(
       codec.validate(i, c),
@@ -99,14 +102,15 @@ export function withNiceMessage_<A>(
   })
 }
 
-export const withMessage = (message: (i: unknown) => string) => <A>(
-  codec: Decoder<A>
-) => withMessage_(codec, message)
+export const withMessage =
+  (message: (i: unknown) => string) =>
+  <A>(codec: Decoder<A>) =>
+    withMessage_(codec, message)
 
 // Fixes that when a message is specified in the parent
 // we still try to show the child errors...
 export function withMessage_<A>(codec: Decoder<A>, message: (i: unknown) => string) {
-  const codecc = (codec as any) as { with(validate: Validate<A>): Decoder<A> }
+  const codecc = codec as any as { with(validate: Validate<A>): Decoder<A> }
   return codecc.with(function (i, c) {
     return pipe(
       codec.validate(i, c),
@@ -221,9 +225,10 @@ export const toValidationError = flow(decodeErrors, (errors) =>
   })
 )
 
-export const makeStrict = <E, A>(dec: (i: unknown, mode?: Mode) => T.IO<E, A>) => (
-  i: unknown
-) => dec(i, "strict")
+export const makeStrict =
+  <E, A>(dec: (i: unknown, mode?: Mode) => T.IO<E, A>) =>
+  (i: unknown) =>
+    dec(i, "strict")
 
 export interface Interpreter<E, A> {
   meta: {
@@ -279,9 +284,8 @@ const ValidationError_ = make((F) =>
 export interface ValidationError extends AType<typeof ValidationError_> {}
 export interface ValidationErrorE extends EType<typeof ValidationError_> {}
 
-export const ValidationError = opaque<ValidationErrorE, ValidationError>()(
-  ValidationError_
-)
+export const ValidationError =
+  opaque<ValidationErrorE, ValidationError>()(ValidationError_)
 
 // const asInvalidContract = (context: unknown) => <A>(a: T.IO<ValidationError, A>) =>
 //   pipe(
@@ -610,14 +614,16 @@ export function createWithShort<T>(computeState: (cd: Date, id: ShortId) => T) {
 }
 
 type GetErrorTag<T> = T extends { _errorTag: infer K } ? K : never
-export const isOfErrorType = <T extends { _errorTag: string }>(
-  tag: GetErrorTag<T>
-) => (e: { _errorTag: string }): e is T => e._errorTag === tag
+export const isOfErrorType =
+  <T extends { _errorTag: string }>(tag: GetErrorTag<T>) =>
+  (e: { _errorTag: string }): e is T =>
+    e._errorTag === tag
 
 type GetTag<T> = T extends { _tag: infer K } ? K : never
-export const isOfType = <T extends { _tag: string }>(tag: GetTag<T>) => (e: {
-  _tag: string
-}): e is T => e._tag === tag
+export const isOfType =
+  <T extends { _tag: string }>(tag: GetTag<T>) =>
+  (e: { _tag: string }): e is T =>
+    e._tag === tag
 
 export function withEmptyStringAsNullable<A extends string>(
   codec: Decoder<O.Option<A>>

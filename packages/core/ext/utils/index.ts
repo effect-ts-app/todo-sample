@@ -24,12 +24,14 @@ export const unsafeRight = <E, A>(ei: E.Either<E, A>) => {
   return ei.right
 }
 
-export const unsafeSome = (makeErrorMessage: () => string) => <A>(o: O.Option<A>) => {
-  if (O.isNone(o)) {
-    throw new Error(makeErrorMessage())
+export const unsafeSome =
+  (makeErrorMessage: () => string) =>
+  <A>(o: O.Option<A>) => {
+    if (O.isNone(o)) {
+      throw new Error(makeErrorMessage())
+    }
+    return o.value
   }
-  return o.value
-}
 
 export function toString(v: unknown) {
   return `${v}`
@@ -56,6 +58,7 @@ export function dropUndefined<A>(input: Dictionary<A | undefined>): Dictionary<A
 }
 
 type GetTag<T> = T extends { _tag: infer K } ? K : never
-export const isOfType = <T extends { _tag: string }>(tag: GetTag<T>) => (e: {
-  _tag: string
-}): e is T => e._tag === tag
+export const isOfType =
+  <T extends { _tag: string }>(tag: GetTag<T>) =>
+  (e: { _tag: string }): e is T =>
+    e._tag === tag

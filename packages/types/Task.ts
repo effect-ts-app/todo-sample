@@ -152,39 +152,45 @@ export class User extends S.Model<User>()(
       })
   )
 ) {
-  static readonly createTask = (
-    a: Omit<S.ConstructorInputOf<typeof Task["Model"]>, "createdBy">
-  ) => (u: User) => new Task({ ...a, createdBy: u.id })
-  static readonly createTask_ = (u: User) => (
-    a: Omit<S.ConstructorInputOf<typeof Task["Model"]>, "createdBy">
-  ) => new Task({ ...a, createdBy: u.id })
+  static readonly createTask =
+    (a: Omit<S.ConstructorInputOf<typeof Task["Model"]>, "createdBy">) => (u: User) =>
+      new Task({ ...a, createdBy: u.id })
+  static readonly createTask_ =
+    (u: User) => (a: Omit<S.ConstructorInputOf<typeof Task["Model"]>, "createdBy">) =>
+      new Task({ ...a, createdBy: u.id })
 
-  static readonly createTaskList = (
-    a: Omit<S.ConstructorInputOf<typeof TaskList["Model"]>, "ownerId">
-  ) => (u: User) => new TaskList({ ...a, ownerId: u.id })
-  static readonly createTaskList_ = (u: User) => (
-    a: Omit<S.ConstructorInputOf<typeof TaskList["Model"]>, "ownerId">
-  ) => new TaskList({ ...a, ownerId: u.id })
+  static readonly createTaskList =
+    (a: Omit<S.ConstructorInputOf<typeof TaskList["Model"]>, "ownerId">) => (u: User) =>
+      new TaskList({ ...a, ownerId: u.id })
+  static readonly createTaskList_ =
+    (u: User) => (a: Omit<S.ConstructorInputOf<typeof TaskList["Model"]>, "ownerId">) =>
+      new TaskList({ ...a, ownerId: u.id })
 
-  static readonly createTaskListGroup = (
-    a: Omit<S.ConstructorInputOf<typeof TaskListGroup["Model"]>, "ownerId">
-  ) => (u: User) => new TaskListGroup({ ...a, ownerId: u.id })
-  static readonly createTaskListGroup_ = (u: User) => (
-    a: Omit<S.ConstructorInputOf<typeof TaskListGroup["Model"]>, "ownerId">
-  ) => new TaskListGroup({ ...a, ownerId: u.id })
+  static readonly createTaskListGroup =
+    (a: Omit<S.ConstructorInputOf<typeof TaskListGroup["Model"]>, "ownerId">) =>
+    (u: User) =>
+      new TaskListGroup({ ...a, ownerId: u.id })
+  static readonly createTaskListGroup_ =
+    (u: User) =>
+    (a: Omit<S.ConstructorInputOf<typeof TaskListGroup["Model"]>, "ownerId">) =>
+      new TaskListGroup({ ...a, ownerId: u.id })
 
   static readonly getMyDay = (t: Task) => (u: User) =>
     A.findFirst_(u.myDay, (x) => x.id === t.id)["|>"](O.map((m) => m.date))
-  static readonly addToMyDay = (t: Task, date: Date) => (u: User): User => ({
-    ...u,
-    myDay: A.findIndex_(u.myDay, (m) => m.id === t.id)
-      ["|>"](O.chain((idx) => A.modifyAt_(u.myDay, idx, (m) => ({ ...m, date }))))
-      ["|>"](O.getOrElse(() => A.snoc_(u.myDay, { id: t.id, date }))),
-  })
-  static readonly removeFromMyDay = (t: Task) => (u: User): User => ({
-    ...u,
-    myDay: u.myDay["|>"](A.filter((m) => m.id !== t.id)),
-  })
+  static readonly addToMyDay =
+    (t: Task, date: Date) =>
+    (u: User): User => ({
+      ...u,
+      myDay: A.findIndex_(u.myDay, (m) => m.id === t.id)
+        ["|>"](O.chain((idx) => A.modifyAt_(u.myDay, idx, (m) => ({ ...m, date }))))
+        ["|>"](O.getOrElse(() => A.snoc_(u.myDay, { id: t.id, date }))),
+    })
+  static readonly removeFromMyDay =
+    (t: Task) =>
+    (u: User): User => ({
+      ...u,
+      myDay: u.myDay["|>"](A.filter((m) => m.id !== t.id)),
+    })
   static readonly toggleMyDay = (t: Task, myDay: Option<Date>) =>
     O.fold_(
       myDay,

@@ -45,8 +45,7 @@ export function Model<M>() {
     self: Self
   ): Model<M, Self> => {
     const of_ = S.Constructor.for(self)["|>"](unsafe)
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
+    // @ts-expect-error the following is correct
     return class {
       static [schemaField] = self
       static get Model() {
@@ -69,67 +68,13 @@ export function Model<M>() {
       }
       [fromFields](fields: any) {
         for (const k of Object.keys(fields)) {
-          // @ts-expect-error !!!
+          // @ts-expect-error The following is allowed
           this[k] = fields[k]
         }
       }
     }
   }
 }
-
-// export function schema<Self extends ModelOut<any>>(self: Self) {
-//   const guard = (u: unknown): u is ShapeFromClass<Self> => u instanceof self
-//   const of_ = S.Constructor.for(self[schemaField])
-//   const parse_ = S.Parser.for(self[schemaField])
-//   const arb = Arbitrary.for(self[schemaField])
-
-//   const schema = pipe(
-//     self[schemaField],
-//     S.guard(guard),
-//     S.constructor((u: any): any => {
-//       const res = of_(u)
-//       if (res.effect._tag === "Left") {
-//         return Th.fail(res.effect.left)
-//       }
-//       const warnings = res.effect.right.get(1)
-//       const out = res.effect.right.get(0)
-//       // @ts-expect-error
-//       const x = new self()
-//       x[fromFields](out)
-//       if (warnings._tag === "Some") {
-//         return Th.warn(x, warnings.value)
-//       }
-//       return Th.succeed(x)
-//     }),
-//     S.parser((u: any): any => {
-//       const res = parse_(u)
-//       if (res.effect._tag === "Left") {
-//         return Th.fail(res.effect.left)
-//       }
-//       const warnings = res.effect.right.get(1)
-//       const out = res.effect.right.get(0)
-//       // @ts-expect-error
-//       const x = new self()
-//       x[fromFields](out)
-//       if (warnings._tag === "Some") {
-//         return Th.warn(x, warnings.value)
-//       }
-//       return Th.succeed(x)
-//     }),
-//     S.arbitrary((_) =>
-//       arb(_).map((out) => {
-//         // @ts-expect-error
-//         const x = new self()
-//         x[fromFields](out)
-//         return x
-//       })
-//     ),
-//     S.mapApi(() => self[schemaField].Api)
-//   )
-
-//   return schema as SchemaForModel<Self>
-// }
-
 export type ReqRes<E, A> = S.Schema<
   unknown, //ParserInput,
   unknown, // S.AnyError //ParserError,

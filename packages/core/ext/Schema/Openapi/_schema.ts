@@ -4,8 +4,6 @@ import { HasContinuation, Schema, SchemaAny, SchemaContinuationSymbol } from "..
 
 export * from "../"
 
-type JsonSchema<T> = JSONSchema
-
 export class SchemaOpenApi<
     ParserInput,
     ParserError,
@@ -26,7 +24,8 @@ export class SchemaOpenApi<
     Encoded,
     Api
   >
-  implements HasContinuation {
+  implements HasContinuation
+{
   readonly Api = this.self.Api;
   readonly [SchemaContinuationSymbol]: SchemaAny
   constructor(
@@ -40,14 +39,14 @@ export class SchemaOpenApi<
       Encoded,
       Api
     >,
-    readonly jsonSchema: () => JsonSchema<ParsedShape>
+    readonly jsonSchema: () => JSONSchema
   ) {
     super()
     this[SchemaContinuationSymbol] = self
   }
 }
 
-export function openapi<A extends ParsedShape, ParsedShape>(f: () => JsonSchema<A>) {
+export function openapi<ParsedShape>(f: () => JSONSchema) {
   return <
     ParserInput,
     ParserError,
@@ -99,7 +98,7 @@ export function openapi_<
     Encoded,
     Api
   >,
-  f: () => JsonSchema<ParsedShape>
+  f: () => JSONSchema
 ): Schema<
   ParserInput,
   ParserError,

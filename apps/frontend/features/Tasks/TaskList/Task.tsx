@@ -8,7 +8,6 @@ import React from "react"
 import { Draggable } from "react-beautiful-dnd"
 import styled from "styled-components"
 
-import { Todo } from "@/index"
 import {
   ClickableMixin,
   Completable,
@@ -18,6 +17,7 @@ import {
 } from "@/components"
 import { useServiceContext } from "@/context"
 import { memo, withLoading } from "@/data"
+import { Todo } from "@/index"
 import { renderIf_ } from "@/utils"
 
 import { useTaskCommandsResolved } from "../data"
@@ -53,12 +53,8 @@ export const Task = memo(function ({
   index: number
   setSelectedTaskId: (id: Todo.TaskId) => void
 }) {
-  const {
-    findResult,
-    toggleTaskChecked,
-    toggleTaskFavorite,
-    updateResult,
-  } = useTaskCommandsResolved(t)
+  const { findResult, toggleTaskChecked, toggleTaskFavorite, updateResult } =
+    useTaskCommandsResolved(t)
   const isRefreshingTask = datumEither.isRefresh(findResult)
   const isUpdatingTask = datumEither.isPending(updateResult) || isRefreshingTask
 

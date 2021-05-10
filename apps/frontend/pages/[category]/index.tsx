@@ -1,10 +1,10 @@
 import * as O from "@effect-ts/core/Option"
 import React from "react"
 
-import { Todo } from "@/index"
 import { useMemo } from "@/data"
 import TasksScreen from "@/features/Tasks"
 import { Order, OrderDir } from "@/features/Tasks/data"
+import { Todo } from "@/index"
 import { useRouteParams } from "@/routing"
 
 function CategoryPage() {

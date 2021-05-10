@@ -37,18 +37,18 @@ export const RecordCache = Has.tag<RecordCache>()
 
 export const LiveRecordCache = L.fromFunction(RecordCache)(makeLiveRecordCache)
 
-const getM = <T>(type: string) => <R, E, A>(
-  eff: (m: EffectMap<string, CachedRecord<T>>) => T.Effect<R, E, A>
-) =>
-  T.gen(function* ($) {
-    const { get } = yield* $(RecordCache)
-    return yield* $(
-      pipe(
-        get<T>(type),
-        T.chain((m) => eff(m))
+const getM =
+  <T>(type: string) =>
+  <R, E, A>(eff: (m: EffectMap<string, CachedRecord<T>>) => T.Effect<R, E, A>) =>
+    T.gen(function* ($) {
+      const { get } = yield* $(RecordCache)
+      return yield* $(
+        pipe(
+          get<T>(type),
+          T.chain((m) => eff(m))
+        )
       )
-    )
-  })
+    })
 
 export function find<R, RDecode, EDecode, E, EA, A>(
   tryRead: (id: string) => T.Effect<R, E, O.Option<CachedRecord<EA>>>,

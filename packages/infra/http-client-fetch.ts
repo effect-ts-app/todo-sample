@@ -25,7 +25,7 @@ function getBody(
     requestType,
     () => JSON.stringify(body),
     () => querystring.stringify(body as any),
-    () => (body as any) as FormData,
+    () => body as any as FormData,
     () => body as Buffer
   )
 }

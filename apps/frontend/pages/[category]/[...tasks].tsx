@@ -8,7 +8,12 @@ import { Todo } from "@/index"
 import { useRouteParams } from "@/routing"
 
 function TasksPage() {
-  const { category, order, orderDirection, tasks: taskId } = useRouteParams({
+  const {
+    category,
+    order,
+    orderDirection,
+    tasks: taskId,
+  } = useRouteParams({
     category: Todo.Category,
     order: Order,
     orderDirection: OrderDir,

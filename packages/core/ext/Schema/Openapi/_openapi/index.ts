@@ -43,9 +43,7 @@ import {
   unionIdentifier,
 } from "../_schema"
 
-type JsonSchema<T> = JSONSchema
-
-export type Gen<T> = T.UIO<JsonSchema<T>>
+export type Gen<T> = T.UIO<JSONSchema>
 
 const interpreterCache = new WeakMap()
 const interpretedCache = new WeakMap()
@@ -179,10 +177,8 @@ function processId(schema, meta = {}) {
         return new ArraySchema({ items: yield* $(processId(schema.meta.self)) })
       case structIdentifier: {
         // todo; recursive
-        const {
-          required: requiredProps = {},
-          optional: optionalProps = {},
-        } = schema.meta
+        const { required: requiredProps = {}, optional: optionalProps = {} } =
+          schema.meta
         const properties = {}
         const required = []
         for (const k in requiredProps) {
@@ -282,9 +278,8 @@ function merge(schema) {
   }
   const a = b as AllOfSchema
   if (a.allOf) {
-    const [
-      { description: ____, nullable: ___, title: __, type: _____, ...first },
-    ] = a.allOf
+    const [{ description: ____, nullable: ___, title: __, type: _____, ...first }] =
+      a.allOf
     const nb = {
       title: a.title,
       type: "object",

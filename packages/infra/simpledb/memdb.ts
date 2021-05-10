@@ -55,7 +55,7 @@ export function createContext<TKey extends string, EA, A extends DBRecord<TKey>>
               pipe(
                 decode(cr.data),
                 T.chain((d) =>
-                  eq.equals(keys, (d as unknown) as V)
+                  eq.equals(keys, d as unknown as V)
                     ? Sy.succeed(d)
                     : Sy.fail("not equals")
                 ),

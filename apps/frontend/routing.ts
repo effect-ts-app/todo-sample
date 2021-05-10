@@ -7,7 +7,6 @@ import { useRouter } from "next/router"
 import { typedKeysOf } from "./utils"
 
 import * as S from "@effect-ts-demo/core/ext/Schema"
-import { ReqRes, SchemaAny } from "@effect-ts-demo/core/ext/Schema"
 
 export function getQueryParam(search: ParsedUrlQuery, param: string) {
   const v = search[param]
@@ -21,7 +20,7 @@ export function getQueryParam(search: ParsedUrlQuery, param: string) {
 // taskId per route
 // order and order direction
 
-export const parseOption = <E, A>(t: ReqRes<E, A>) => {
+export const parseOption = <E, A>(t: S.ReqRes<E, A>) => {
   // TODO: Clenup
   const dec = flow(S.Parser.for(t), (x) => {
     return x.effect._tag === "Right"
@@ -34,10 +33,10 @@ export const parseOption = <E, A>(t: ReqRes<E, A>) => {
 }
 export const getQueryParamO = flow(getQueryParam, O.fromNullable)
 
-export const useRouteParam = <A>(t: SchemaAny, key: string) => {
-  const r = useRouter()
-  return getQueryParamO(r.query, key)["|>"](O.chain(parseOption(t)))
-}
+// export const useRouteParam = (t: SchemaAny, key: string) => {
+//   const r = useRouter()
+//   return getQueryParamO(r.query, key)["|>"](O.chain(parseOption(t)))
+// }
 export const useRouteParams = <NER extends Record<string, S.SchemaAny>>(
   t: NER // enforce non empty
 ): {

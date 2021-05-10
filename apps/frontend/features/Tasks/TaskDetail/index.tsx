@@ -26,9 +26,10 @@ const TaskDetailView = ({
 
   const { setSelectedTaskId } = useRouting(category, order)
 
-  const closeTaskDetail = useCallback(() => setSelectedTaskId(null), [
-    setSelectedTaskId,
-  ])
+  const closeTaskDetail = useCallback(
+    () => setSelectedTaskId(null),
+    [setSelectedTaskId]
+  )
 
   if (!datumEither.isSuccess(tasksResult)) {
     return <>Loading Task...</>

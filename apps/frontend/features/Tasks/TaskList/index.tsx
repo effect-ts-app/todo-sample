@@ -50,7 +50,7 @@ const TaskListView = memo(function ({
   const [newResult, addNewTask] = useNewTask(
     category,
     !isDynamicCategory && category !== "tasks"
-      ? ((category as any) as Todo.TaskListId)
+      ? (category as any as Todo.TaskListId)
       : undefined
   )
   const [findResult, getTask] = useGetTask()
@@ -91,7 +91,7 @@ const TaskListView = memo(function ({
         A.sortBy(
           order["|>"](
             O.map((o) =>
-              NA.single(Todo.orders[(o.kind as any) as keyof typeof Todo.orders])["|>"](
+              NA.single(Todo.orders[o.kind as any as keyof typeof Todo.orders])["|>"](
                 NA.map((ord) => (o.dir === "down" ? ORD.inverted(ord) : ord))
               )
             )
