@@ -121,8 +121,8 @@ const TaskListView = memo(function ({
               ),
             }),
       }))
-      TodoClient.TasksClient.SetTasksOrder({
-        listId: category === "tasks" ? "inbox" : (category as any),
+      TodoClient.TasksClient.UpdateTaskListOrder({
+        id: category === "tasks" ? "inbox" : (category as any),
         order,
       })["|>"](runWithErrorLog)
     }

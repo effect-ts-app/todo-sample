@@ -155,8 +155,8 @@ export function useModifyMe() {
 //       const reorder = Todo.updateTaskIndex(t, didx)
 //       modifyTasks(reorder)
 //       const reorderedTasks = tasks["|>"](reorder)
-//       TodoClient.TasksClient.SetTasksOrder({
-//         listId: tlid as any,
+//       TodoClient.TasksClient.UpdateTaskListOrder({
+//         id: tlid as any,
 //         order: A.map_(reorderedTasks, (t) => t.id),
 //       })["|>"](runWithErrorLog)
 //     },

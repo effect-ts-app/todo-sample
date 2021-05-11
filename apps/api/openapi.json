@@ -348,68 +348,6 @@
         }
       }
     },
-    "/tasks-order": {
-      "post": {
-        "tags": [
-          "Tasks"
-        ],
-        "parameters": [
-          {
-            "name": "x-user-id",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "minLength": 1,
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "properties": {
-                  "order": {
-                    "items": {
-                      "format": "uuid",
-                      "type": "string"
-                    },
-                    "type": "array"
-                  },
-                  "listId": {
-                    "oneOf": [
-                      {
-                        "format": "uuid",
-                        "type": "string"
-                      },
-                      {
-                        "enum": [
-                          "inbox"
-                        ],
-                        "type": "string"
-                      }
-                    ]
-                  }
-                },
-                "required": [
-                  "order",
-                  "listId"
-                ],
-                "type": "object"
-              }
-            }
-          }
-        },
-        "responses": {
-          "204": {
-            "description": "Empty"
-          },
-          "400": {
-            "description": "ValidationError"
-          }
-        }
-      }
-    },
     "/lists/:id": {
       "patch": {
         "tags": [
@@ -486,6 +424,71 @@
             }
           }
         ],
+        "responses": {
+          "204": {
+            "description": "Empty"
+          },
+          "400": {
+            "description": "ValidationError"
+          },
+          "404": {
+            "description": "NotFoundError"
+          }
+        }
+      }
+    },
+    "/lists/:id/order": {
+      "post": {
+        "tags": [
+          "Lists"
+        ],
+        "parameters": [
+          {
+            "name": "x-user-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "minLength": 1,
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "order": {
+                    "items": {
+                      "format": "uuid",
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "id": {
+                    "oneOf": [
+                      {
+                        "format": "uuid",
+                        "type": "string"
+                      },
+                      {
+                        "enum": [
+                          "inbox"
+                        ],
+                        "type": "string"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "order",
+                  "id"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
         "responses": {
           "204": {
             "description": "Empty"

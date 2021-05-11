@@ -11,17 +11,17 @@ import { UserSVC } from "@effect-ts-demo/infra/services"
 const inboxOrder = User.lens["|>"](Lens.prop("inboxOrder"))
 const order = TaskList.lens["|>"](Lens.prop("order"))
 
-export default handle(Tasks.SetTasksOrder)((_) =>
+export default handle(Tasks.UpdateTaskListOrder)((_) =>
   T.gen(function* ($) {
     const user = yield* $(UserSVC.UserEnv)
 
-    if (_.listId === "inbox") {
+    if (_.id === "inbox") {
       yield* $(TaskContext.updateUser(user.id, inboxOrder.set(_.order)))
       return
     }
     yield* $(
       TaskContext.updateTaskListM(
-        _.listId,
+        _.id,
         authorizeTaskList.authorize(user.id, order.set(_.order))
       )
     )

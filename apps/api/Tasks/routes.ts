@@ -9,10 +9,10 @@ import FindTask from "./FindTask"
 import GetMe from "./GetMe"
 import GetTasks from "./GetTasks"
 import RemoveTaskListMember from "./RemoveTaskListMember"
-import SetTasksOrder from "./SetTasksOrder"
 import UpdateTask from "./UpdateTask"
 import UpdateTaskList from "./UpdateTaskList"
 import UpdateTaskListGroup from "./UpdateTaskListGroup"
+import UpdateTaskListOrder from "./UpdateTaskListOrder"
 
 import { demandLoggedIn } from "@effect-ts-demo/infra/express/schema/requestHandler"
 import * as R from "@effect-ts-demo/infra/express/schema/routing"
@@ -24,9 +24,9 @@ export const routes = T.tuple(
   R.matchA(FindTask, demandLoggedIn),
   R.matchA(UpdateTask, demandLoggedIn),
   R.matchA(DeleteTask, demandLoggedIn),
-  R.matchA(SetTasksOrder, demandLoggedIn),
 
   R.matchA(UpdateTaskList, demandLoggedIn),
+  R.matchA(UpdateTaskListOrder, demandLoggedIn),
   R.matchA(DeleteTaskList, demandLoggedIn),
   R.matchA(AddTaskListMember, demandLoggedIn),
   R.matchA(RemoveTaskListMember, demandLoggedIn),
