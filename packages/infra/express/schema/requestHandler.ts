@@ -21,10 +21,36 @@ import {
 } from "../../errors"
 import { UserSVC } from "../../services"
 
-export function demandLoggedIn(req: express.Request) {
-  return UserSVC.LiveUserEnv(req.headers["x-user-id"] as unknown)["|>"](
-    L.mapError(() => new NotLoggedInError())
-  )
+// Todo; or "Security" section instead of directly in headers
+
+const AuthHeaders = S.required({ "x-user-id": S.nonEmptyString })
+export function demandLoggedIn<
+  R,
+  PathA,
+  CookieA,
+  QueryA,
+  BodyA,
+  HeaderA,
+  ReqA extends PathA & QueryA & BodyA,
+  ResA = void
+>(handler: RequestHandler<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA>) {
+  return {
+    handler: {
+      ...handler,
+      Request: class extends handler.Request {
+        static Headers = (handler.Request.Headers
+          ? handler.Request.Headers["|>"](S.intersect(AuthHeaders))
+          : AuthHeaders) as S.ReqRes<
+          Record<string, string>,
+          HeaderA & S.ParsedShapeOf<typeof AuthHeaders>
+        >
+      },
+    },
+    handle: (req: express.Request) =>
+      UserSVC.LiveUserEnv(req.headers["x-user-id"] as unknown)["|>"](
+        L.mapError(() => new NotLoggedInError())
+      ),
+  }
 }
 
 export type Request<
@@ -226,7 +252,7 @@ export interface RequestHandlerOptRes<
   ReqA extends PathA & QueryA & BodyA,
   ResA
 > {
-  (i: PathA & QueryA & BodyA & {}): T.Effect<R, SupportedErrors, ResA>
+  h: (i: PathA & QueryA & BodyA & {}) => T.Effect<R, SupportedErrors, ResA>
   Request: Request<PathA, CookieA, QueryA, BodyA, HeaderA, ReqA>
   Response?: S.ReqRes<unknown, ResA> | S.ReqResSchemed<unknown, ResA>
 }
@@ -241,9 +267,30 @@ export interface RequestHandler<
   ReqA extends PathA & QueryA & BodyA,
   ResA
 > {
-  (i: PathA & QueryA & BodyA & {}): T.Effect<R, SupportedErrors, ResA>
+  h: (i: PathA & QueryA & BodyA & {}) => T.Effect<R, SupportedErrors, ResA>
   Request: Request<PathA, CookieA, QueryA, BodyA, HeaderA, ReqA>
   Response: S.ReqRes<unknown, ResA> | S.ReqResSchemed<unknown, ResA>
+}
+
+export type Middleware<
+  R,
+  PathA,
+  CookieA,
+  QueryA,
+  BodyA,
+  HeaderA,
+  ReqA extends PathA & QueryA & BodyA,
+  ResA,
+  R2 = unknown,
+  PR = unknown
+> = (
+  handler: RequestHandler<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA>
+) => {
+  handler: typeof handler
+  handle: (
+    req: express.Request,
+    res: express.Response
+  ) => L.Layer<R2, SupportedErrors, PR>
 }
 
 export function makeRequestHandler<
@@ -287,7 +334,7 @@ export function makeRequestHandler<
     unknown,
     R2,
     PR
-  >(makeRequestParsers(Request), encodeResponse, handle, h)
+  >(makeRequestParsers(Request), encodeResponse, handle.h, h)
 }
 function makeRequestParsers<
   R,

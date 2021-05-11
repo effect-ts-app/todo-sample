@@ -25,7 +25,6 @@ export function withDefaultConstructorFields<
   ParsedShape,
   ConstructorInput,
   ConstructorError,
-  ConstructedShape extends ParsedShape,
   Encoded,
   Api
 >(
@@ -35,7 +34,6 @@ export function withDefaultConstructorFields<
     ParsedShape,
     ConstructorInput,
     ConstructorError,
-    ConstructedShape,
     Encoded,
     Api
   >
@@ -51,7 +49,6 @@ export function withDefaultConstructorFields<
       // @ts-expect-error we know keyof Changes matches
       Partial<Pick<ConstructorInput, keyof Changes>>,
     ConstructorError,
-    ConstructedShape,
     Encoded,
     Api
   > => {
@@ -77,6 +74,9 @@ export function withDefaultConstructorFields<
 export const constArray = constant(A.empty)
 
 export * from "./_api"
+// TODO; vendor Model.
+export { Model } from "./Model"
+export type { SchemaForModel } from "./Model"
 export * from "./Model"
 
 export * from "./vendor"

@@ -3,7 +3,7 @@ import { TaskId } from "@effect-ts-demo/todo-types"
 
 import { TaskView } from "./views"
 
-export class Request extends S.ReadRequest<Request>()({
+export class Request extends S.ReadRequest<Request>()("GET", "/tasks/:id", {
   path: S.required({ id: TaskId }),
 }) {}
 

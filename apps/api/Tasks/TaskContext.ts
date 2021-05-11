@@ -141,6 +141,12 @@ const makeMockTaskContext = T.gen(function* ($) {
       T.chain(({ tuple: [tasks] }) => tasksRef.set(tasks["|>"](Map.remove(id))))
     )
 
+  const deleteList = (id: TaskListId) =>
+    pipe(
+      T.tuple(listsRef.get, get(id)),
+      T.chain(({ tuple: [lists] }) => listsRef.set(lists["|>"](Map.remove(id))))
+    )
+
   const allTaskLists = flow(
     allLists,
     T.map(Chunk.filterMap((x) => (TaskList.Guard(x) ? O.some(x) : O.none)))
@@ -211,6 +217,7 @@ const makeMockTaskContext = T.gen(function* ($) {
     updateM,
     add,
     delete: del,
+    deleteList,
     remove: (t: Task) => del(t.id),
   }
 })
@@ -226,6 +233,7 @@ export const {
   all,
   allLists,
   allTaskLists,
+  deleteList,
   find,
   get,
   getList,
@@ -243,6 +251,7 @@ export const {
     "allTaskLists",
     "all",
     "add",
+    "deleteList",
     "get",
     "getUser",
     "getList",

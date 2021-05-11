@@ -225,7 +225,7 @@ function del<
 export { del as delete }
 
 export function makeFromMorphic(
-  e: RouteDescriptor<any, any, any, any, any, any, any, any>
+  e: RouteDescriptor<any, any, any, any, any, any, any>
 ) {
   const { Request: Req, Response: Res } = e.handler
   // TODO: use the path vs body etc serialisation also in the Client.

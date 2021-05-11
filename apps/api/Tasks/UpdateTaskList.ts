@@ -2,20 +2,19 @@ import { Tasks } from "@effect-ts-demo/todo-client"
 import * as T from "@effect-ts/core/Effect"
 
 import * as TaskContext from "./TaskContext"
-import { authorizeTaskListGroup, handle } from "./shared"
+import { authorizeTaskList, handle } from "./shared"
 
 import { UserSVC } from "@effect-ts-demo/infra/services"
 
-export default handle(Tasks.UpdateTaskListGroup)(({ id, ..._ }) =>
+export default handle(Tasks.UpdateTaskList)(({ id, ..._ }) =>
   T.gen(function* ($) {
     const user = yield* $(UserSVC.UserEnv)
     yield* $(
-      TaskContext.updateTaskListGroupM(
+      TaskContext.updateTaskListM(
         id,
-        authorizeTaskListGroup.authorize(user.id, (g) => ({
+        authorizeTaskList.authorize(user.id, (g) => ({
           ...g,
           ..._,
-          updatedAt: new Date(),
         }))
       )
     )

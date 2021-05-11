@@ -10,7 +10,6 @@ export class SchemaOpenApi<
     ParsedShape,
     ConstructorInput,
     ConstructorError,
-    ConstructedShape extends ParsedShape,
     Encoded,
     Api
   >
@@ -20,7 +19,6 @@ export class SchemaOpenApi<
     ParsedShape,
     ConstructorInput,
     ConstructorError,
-    ConstructedShape,
     Encoded,
     Api
   >
@@ -35,7 +33,6 @@ export class SchemaOpenApi<
       ParsedShape,
       ConstructorInput,
       ConstructorError,
-      ConstructedShape,
       Encoded,
       Api
     >,
@@ -47,22 +44,13 @@ export class SchemaOpenApi<
 }
 
 export function openapi<ParsedShape>(f: () => JSONSchema) {
-  return <
-    ParserInput,
-    ParserError,
-    ConstructorInput,
-    ConstructorError,
-    ConstructedShape extends ParsedShape,
-    Encoded,
-    Api
-  >(
+  return <ParserInput, ParserError, ConstructorInput, ConstructorError, Encoded, Api>(
     self: Schema<
       ParserInput,
       ParserError,
       ParsedShape,
       ConstructorInput,
       ConstructorError,
-      ConstructedShape,
       Encoded,
       Api
     >
@@ -72,7 +60,6 @@ export function openapi<ParsedShape>(f: () => JSONSchema) {
     ParsedShape,
     ConstructorInput,
     ConstructorError,
-    ConstructedShape,
     Encoded,
     Api
   > => new SchemaOpenApi(self, f) as any
@@ -84,7 +71,6 @@ export function openapi_<
   ParsedShape,
   ConstructorInput,
   ConstructorError,
-  ConstructedShape extends ParsedShape,
   Encoded,
   Api
 >(
@@ -94,7 +80,6 @@ export function openapi_<
     ParsedShape,
     ConstructorInput,
     ConstructorError,
-    ConstructedShape,
     Encoded,
     Api
   >,
@@ -105,7 +90,6 @@ export function openapi_<
   ParsedShape,
   ConstructorInput,
   ConstructorError,
-  ConstructedShape,
   Encoded,
   Api
 > {

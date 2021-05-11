@@ -139,11 +139,11 @@ export function union<Props extends readonly S.SchemaAny[]>(
         : never
     }[number]
   >,
-  {
-    [K in keyof Props]: Props[K] extends S.SchemaAny
-      ? S.ConstructedShapeOf<Props[K]>
-      : never
-  }[number],
+  //   {
+  //     [K in keyof Props]: Props[K] extends S.SchemaAny
+  //       ? S.ConstructedShapeOf<Props[K]>
+  //       : never
+  //   }[number],
   {
     [K in keyof Props]: Props[K] extends S.SchemaAny ? S.EncodedOf<Props[K]> : never
   }[number],
@@ -282,7 +282,7 @@ export function union<Props extends readonly S.SchemaAny[]>(
         >,
         {
           [K in keyof Props]: Props[K] extends S.SchemaAny
-            ? S.ConstructedShapeOf<Props[K]>
+            ? S.ParsedShapeOf<Props[K]>
             : never
         }[number]
       > => {

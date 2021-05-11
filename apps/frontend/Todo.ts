@@ -130,29 +130,23 @@ const order = typedKeysOf(orders)
 export type Order = typeof order[number]
 
 const isOrder = (u: any): u is Order & S.NonEmptyString => u in orders
-export const Order = S.nonEmptyString["|>"](
-  S.compose(
-    pipe(
-      S.identity(isOrder),
-      S.parser((x) => (isOrder(x) ? S.These.succeed(x) : S.These.fail("not order"))),
-      S.constructor((x) =>
-        isOrder(x) ? S.These.succeed(x) : S.These.fail("not order")
-      )
-    )
+export const Order = S.nonEmptyString[">>>"](
+  pipe(
+    S.identity(isOrder),
+    S.parser((x) => (isOrder(x) ? S.These.succeed(x) : S.These.fail("not order"))),
+    S.constructor((x) => (isOrder(x) ? S.These.succeed(x) : S.These.fail("not order")))
   )
 ) // TODO
 
 const orderDir = ["up", "down"] as const
 export type OrderDir = typeof orderDir[number]
 const isOrderDir = (u: any): u is OrderDir & S.NonEmptyString => u in orders
-export const OrderDir = S.nonEmptyString["|>"](
-  S.compose(
-    pipe(
-      S.identity(isOrderDir),
-      S.parser((x) => (isOrderDir(x) ? S.These.succeed(x) : S.These.fail("not order"))),
-      S.constructor((x) =>
-        isOrderDir(x) ? S.These.succeed(x) : S.These.fail("not order")
-      )
+export const OrderDir = S.nonEmptyString[">>>"](
+  pipe(
+    S.identity(isOrderDir),
+    S.parser((x) => (isOrderDir(x) ? S.These.succeed(x) : S.These.fail("not order"))),
+    S.constructor((x) =>
+      isOrderDir(x) ? S.These.succeed(x) : S.These.fail("not order")
     )
   )
 ) // TODO

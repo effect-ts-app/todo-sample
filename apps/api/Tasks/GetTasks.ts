@@ -1,3 +1,4 @@
+import { Tasks } from "@effect-ts-demo/todo-client"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as Chunk from "@effect-ts/core/Collections/Immutable/Chunk"
 import * as T from "@effect-ts/core/Effect"
@@ -6,9 +7,7 @@ import * as O from "@effect-ts/core/Option"
 import * as TaskContext from "./TaskContext"
 import { getLoggedInUser, handle } from "./shared"
 
-import * as GetTasks from "@effect-ts-demo/todo-client/Tasks/GetTasks"
-
-export default handle(GetTasks)((_) =>
+export default handle(Tasks.GetTasks)((_) =>
   T.gen(function* ($) {
     const user = yield* $(getLoggedInUser)
     const tasks = yield* $(TaskContext.all(user.id))

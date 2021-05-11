@@ -5,10 +5,10 @@
     "license": "MIT",
     "dependencies": {
         "@effect-ts-demo/core": "*",
-        "@effect-ts/core": "^0.37.8",
+        "@effect-ts/core": "^0.37.9",
         "@effect-ts/monocle": "^0.31.1",
         "@effect-ts/morphic": "^0.34.1",
-        "@effect-ts/schema": "^0.2.1",
+        "@effect-ts/schema": "^0.3.0",
         "uuid": "^8.3.2"
     },
     "devDependencies": {

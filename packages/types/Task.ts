@@ -22,7 +22,7 @@ export type TaskListIdU = S.ParsedShapeOf<typeof TaskListIdU>
 
 @S.namedC
 export class Step extends S.Model<Step>()(
-  pipe(S.required({ title: S.nonEmptyString, completed: S.bool }), S.asBuilder, (s) =>
+  pipe(S.required({ title: S.nonEmptyString, completed: S.bool }), (s) =>
     S.withDefaultConstructorFields(s)({ completed: constant(false) })
   )
 ) {
@@ -55,7 +55,6 @@ export class Task extends S.Model<Task>()(
       listId: TaskListIdU,
       ...EditableTaskProps,
     }),
-    S.asBuilder,
     (s) =>
       S.withDefaultConstructorFields(s)({
         id: makeUuid,
@@ -79,8 +78,12 @@ export class Task extends S.Model<Task>()(
 
 @S.namedC
 export class Membership extends S.Model<Membership>()(
-  pipe(S.struct({ required: { id: UserId, name: S.nonEmptyString } }), S.asBuilder)
+  pipe(S.struct({ required: { id: UserId, name: S.nonEmptyString } }))
 ) {}
+
+export const EditableTaskListProps = {
+  title: S.nonEmptyString,
+}
 
 @S.namedC
 export class TaskList extends S.Model<TaskList>()(
@@ -88,7 +91,7 @@ export class TaskList extends S.Model<TaskList>()(
     S.struct({
       required: {
         id: TaskListId,
-        title: S.nonEmptyString,
+        ...EditableTaskListProps,
         order: S.array(TaskId),
 
         members: S.array(Membership.Model),
@@ -96,7 +99,6 @@ export class TaskList extends S.Model<TaskList>()(
         // tasks: F.array(TaskOrVirtualTask(F))
       },
     }),
-    S.asBuilder,
     S.tag("TaskList"),
     (s) =>
       S.withDefaultConstructorFields(s)({
@@ -123,7 +125,6 @@ export class TaskListGroup extends S.Model<TaskListGroup>()(
         ownerId: UserId,
       },
     }),
-    S.asBuilder,
     S.tag("TaskListGroup"),
     (s) => S.withDefaultConstructorFields(s)({ id: makeUuid, lists: S.constArray })
   )
@@ -144,7 +145,6 @@ export class User extends S.Model<User>()(
       inboxOrder: S.array(TaskId),
       myDay: S.array(MyDay) /* position */,
     }),
-    S.asBuilder,
     (s) =>
       S.withDefaultConstructorFields(s)({
         inboxOrder: S.constArray,

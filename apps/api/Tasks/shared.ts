@@ -16,11 +16,16 @@ import * as TaskContext from "./TaskContext"
 
 import { flow } from "@effect-ts-demo/core/ext/Function"
 import * as S from "@effect-ts-demo/core/ext/Schema"
+import { NotLoggedInError } from "@effect-ts-demo/infra/errors"
 import { UserSVC } from "@effect-ts-demo/infra/services"
 
 export const getLoggedInUser = T.gen(function* ($) {
   const user = yield* $(UserSVC.UserEnv)
-  return yield* $(TaskContext.getUser(user.id))
+  return yield* $(
+    T.catch_(TaskContext.getUser(user.id), "_tag", "NotFoundError", () =>
+      T.fail(new NotLoggedInError())
+    )
+  )
 })
 
 export function makeHandler<
@@ -40,8 +45,7 @@ export function handle<
     h: (
       r: S.ParsedShapeOf<TReq["Model"]>
     ) => T.Effect<R, E, S.ParsedShapeOf<Extr<TRes>>>
-  ) =>
-    Object.assign(h, { Request: _.Request, Response: (_.Response ?? S.Void) as TRes })
+  ) => ({ h, Request: _.Request, Response: (_.Response ?? S.Void) as TRes })
 }
 
 type Extr<T> = T extends { Model: SchemaAny }
@@ -70,8 +74,9 @@ export function authorize_<T, Err>(
   canAccess: (rsc: T, userId: UserId) => boolean,
   bad: (rsc: T, userId: UserId) => Err
 ) {
+  const auth = authorizeM_(canAccess, bad)
   return <A>(rsc: T, userId: UserId, ok: (rsc: T) => A) =>
-    authorizeM_(canAccess, bad)(rsc, userId, flow(ok, T.succeed))
+    auth(rsc, userId, flow(ok, T.succeed))
 }
 
 export function authorizeM<T, Err>(
@@ -91,8 +96,8 @@ export function authorize<T, Err>(
   canAccess: (rsc: T, userId: UserId) => boolean,
   bad: (rsc: T, userId: UserId) => Err
 ) {
-  return <A>(userId: UserId, ok: (rsc: T) => A) =>
-    authorizeM(canAccess, bad)(userId, flow(ok, T.succeed))
+  const auth = authorizeM(canAccess, bad)
+  return <A>(userId: UserId, ok: (rsc: T) => A) => auth(userId, flow(ok, T.succeed))
 }
 
 export function makeAuthorize<T>(

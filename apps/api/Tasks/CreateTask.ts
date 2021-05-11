@@ -1,3 +1,4 @@
+import { Tasks } from "@effect-ts-demo/todo-client"
 import { User } from "@effect-ts-demo/todo-types"
 import { pipe } from "@effect-ts/core"
 import * as T from "@effect-ts/core/Effect"
@@ -7,9 +8,8 @@ import * as TaskContext from "./TaskContext"
 import { authorizeTaskList, getLoggedInUser, handle } from "./shared"
 
 import * as EO from "@effect-ts-demo/core/ext/EffectOption"
-import * as CreateTask from "@effect-ts-demo/todo-client/Tasks/CreateTask"
 
-export default handle(CreateTask)(({ myDay, ..._ }) =>
+export default handle(Tasks.CreateTask)(({ myDay, ..._ }) =>
   T.gen(function* ($) {
     const user = yield* $(getLoggedInUser)
 

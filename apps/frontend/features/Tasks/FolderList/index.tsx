@@ -132,7 +132,7 @@ const FolderListView = ({ category }: { category: O.Option<Todo.Category> }) => 
         }
 
         runWithErrorLog(
-          TodoClient.Tasks.updateGroup({
+          TodoClient.TasksClient.UpdateTaskListGroup({
             id: group.id,
             lists: group.lists["|>"](A.filter((l) => l !== list.id))
               ["|>"](A.insertAt(destination.index, list.id))

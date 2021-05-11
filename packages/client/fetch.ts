@@ -7,6 +7,7 @@ import { flow } from "@effect-ts/core/Function"
 import { M } from "@effect-ts/morphic"
 import { Decode, decode, Errors } from "@effect-ts/morphic/Decoder"
 import * as MO from "@effect-ts/morphic/Encoder"
+import "abort-controller/polyfill"
 import fetch from "cross-fetch"
 
 import { getConfig } from "./config"

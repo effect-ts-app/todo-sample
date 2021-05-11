@@ -1,0 +1,26 @@
+{
+    "Model": {
+        "prefix": "moo",
+        "body": [
+            "export class $1 extends S.Model<$1>()($2) {}",
+            ""
+        ],
+        "description": "Defines a Model signature"
+    },
+    "ReadRequest": {
+        "prefix": "roo",
+        "body": [
+            "export class $1 extends S.ReadRequest<$1>()({$2}) {}",
+            ""
+        ],
+        "description": "Defines a ReadRequest signature"
+    },
+    "WriteRequest": {
+        "prefix": "woo",
+        "body": [
+            "export class $1 extends S.WriteRequest<$1>()({$2}) {}",
+            ""
+        ],
+        "description": "Defines a WriteRequest signature"
+    },
+}

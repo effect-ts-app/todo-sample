@@ -12,7 +12,6 @@ export function makeCodec<
   ParsedShape extends { id: Id },
   ConstructorInput,
   ConstructorError,
-  ConstructedShape extends ParsedShape,
   Encoded,
   Api,
   Id
@@ -23,7 +22,6 @@ export function makeCodec<
     ParsedShape,
     ConstructorInput,
     ConstructorError,
-    ConstructedShape,
     Encoded,
     Api
   >

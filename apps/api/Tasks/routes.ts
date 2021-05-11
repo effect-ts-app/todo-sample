@@ -1,25 +1,35 @@
 import * as T from "@effect-ts/core/Effect"
 
+import AddTaskListMember from "./AddTaskListMember"
 import CreateTask from "./CreateTask"
 import DeleteTask from "./DeleteTask"
+import DeleteTaskList from "./DeleteTaskList"
 import FindTask from "./FindTask"
 import GetMe from "./GetMe"
 import GetTasks from "./GetTasks"
+import RemoveTaskListMember from "./RemoveTaskListMember"
 import SetTasksOrder from "./SetTasksOrder"
 import UpdateTask from "./UpdateTask"
+import UpdateTaskList from "./UpdateTaskList"
 import UpdateTaskListGroup from "./UpdateTaskListGroup"
 
 import { demandLoggedIn } from "@effect-ts-demo/infra/express/schema/requestHandler"
 import * as R from "@effect-ts-demo/infra/express/schema/routing"
 
 export const routes = T.tuple(
-  R.get("/me", GetMe, demandLoggedIn),
-  R.get("/tasks", GetTasks, demandLoggedIn),
-  R.post("/tasks", CreateTask, demandLoggedIn),
-  R.get("/tasks/:id", FindTask, demandLoggedIn),
-  R.patch("/tasks/:id", UpdateTask, demandLoggedIn),
-  R.delete("/tasks/:id", DeleteTask, demandLoggedIn),
-  R.post("/tasks-order", SetTasksOrder, demandLoggedIn),
+  R.matchA(GetMe, demandLoggedIn),
+  R.matchA(GetTasks, demandLoggedIn),
+  R.matchA(CreateTask, demandLoggedIn),
+  R.matchA(FindTask, demandLoggedIn),
+  R.matchA(UpdateTask, demandLoggedIn),
+  R.matchA(DeleteTask, demandLoggedIn),
+  R.matchA(SetTasksOrder, demandLoggedIn),
 
-  R.patch("/groups/:id", UpdateTaskListGroup, demandLoggedIn)
+  R.matchA(UpdateTaskList, demandLoggedIn),
+  R.matchA(DeleteTaskList, demandLoggedIn),
+
+  R.matchA(AddTaskListMember, demandLoggedIn),
+  R.matchA(RemoveTaskListMember, demandLoggedIn),
+
+  R.matchA(UpdateTaskListGroup, demandLoggedIn)
 )

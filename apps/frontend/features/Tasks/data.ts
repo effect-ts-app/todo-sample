@@ -43,7 +43,7 @@ import { Parser } from "@effect-ts-demo/core/ext/Schema"
 //   ] as const
 // }
 
-const fetchMe = constant(TodoClient.Tasks.getMe)
+const fetchMe = constant(TodoClient.TasksClient.GetMe({}))
 
 export function useMe() {
   const { runWithErrorLog } = useServiceContext()
@@ -60,7 +60,7 @@ export function useMe() {
 }
 
 const fetchLatestTasks = constant(
-  TodoClient.Tasks.getTasks["|>"](T.map((r) => r.items))
+  TodoClient.TasksClient.GetTasks({})["|>"](T.map((r) => r.items))
 )
 
 export function useTasks() {
@@ -80,7 +80,7 @@ export function useTasks() {
 const newTask =
   (v: Todo.TaskView | S.NonEmptyString, listId: Todo.TaskListIdU = "inbox") =>
   (newTitle: string) =>
-    TodoClient.Tasks.createTaskE({
+    TodoClient.TasksClient.CreateTask({
       title: newTitle,
       isFavorite: false,
       myDay: null,
@@ -88,7 +88,7 @@ const newTask =
       ...(v === "important"
         ? { isFavorite: true }
         : v === "my-day"
-        ? { myDay: new Date().toISOString() }
+        ? { myDay: new Date() }
         : {}),
     })
 export function useNewTask(
@@ -119,22 +119,22 @@ export function useNewTask(
 // }
 
 export function useFindTask() {
-  return useFetch(TodoClient.Tasks.findTask)
+  return useFetch(TodoClient.TasksClient.FindTask)
 }
 
-const deleteTask = (id: Todo.TaskId) => TodoClient.Tasks.deleteTask({ id })
+const deleteTask = (id: Todo.TaskId) => TodoClient.TasksClient.DeleteTask({ id })
 export function useDeleteTask() {
   return useFetch(deleteTask)
 }
 
 export function useUpdateTask() {
-  return useFetch(TodoClient.Tasks.updateTask)
+  return useFetch(TodoClient.TasksClient.UpdateTask)
 }
 
 export function useUpdateTask2(id: string) {
   // let's use the refetch for now, but in future make a mutation queue e.g via semaphore
   // or limit to always just 1
-  return useQuery(`update-task-${id}`, TodoClient.Tasks.updateTask)
+  return useQuery(`update-task-${id}`, TodoClient.TasksClient.UpdateTask)
 }
 export function useModifyTasks() {
   return useModify<A.Array<Todo.Task>>("latestTasks")
@@ -160,7 +160,7 @@ export function useModifyMe() {
 //       const reorder = Todo.updateTaskIndex(t, didx)
 //       modifyTasks(reorder)
 //       const reorderedTasks = tasks["|>"](reorder)
-//       TodoClient.Tasks.setTasksOrder({
+//       TodoClient.TasksClient.SetTasksOrder({
 //         listId: tlid as any,
 //         order: A.map_(reorderedTasks, (t) => t.id),
 //       })["|>"](runWithErrorLog)
@@ -177,7 +177,7 @@ export function useGetTask() {
     useCallback(
       (id: Todo.TaskId) =>
         pipe(
-          findTask(id),
+          findTask({ id }),
           EO.tap((t) =>
             T.succeedWith(() =>
               modifyTasks((tasks) =>

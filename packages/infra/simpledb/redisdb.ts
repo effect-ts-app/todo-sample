@@ -188,5 +188,5 @@ export class RedisSerializedDBRecord extends S.Model<RedisSerializedDBRecord>()(
     version: S.stringNumber,
     timestamp: S.date,
     data: S.string,
-  })["|>"](S.asBuilder)
+  })
 ) {}

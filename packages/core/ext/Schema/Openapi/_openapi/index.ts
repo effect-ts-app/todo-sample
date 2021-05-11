@@ -85,9 +85,9 @@ export const interpreters: ((schema: S.SchemaAny) => O.Option<Gen<unknown>>)[] =
 
       return (_) => _ // ??
     }
-    if (schema instanceof S.SchemaCompose) {
-      return for_(schema.that)
-    }
+    // if (schema instanceof S.SchemaCompose) {
+    //   return for_(schema.that)
+    // }
 
     if (schema instanceof S.SchemaRefinement) {
       return for_(schema.self)
@@ -301,7 +301,6 @@ function for_<
   ParsedShape,
   ConstructorInput,
   ConstructorError,
-  ConstructedShape extends ParsedShape,
   Encoded,
   Api
 >(
@@ -311,7 +310,6 @@ function for_<
     ParsedShape,
     ConstructorInput,
     ConstructorError,
-    ConstructedShape,
     Encoded,
     Api
   >

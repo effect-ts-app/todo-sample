@@ -1,15 +1,13 @@
 import * as S from "@effect-ts-demo/core/ext/Schema"
 import { TaskListId, TaskId } from "@effect-ts-demo/todo-types"
 
-export class Request extends S.ReadRequest<Request>()({
-  headers: S.required({ "x-user-id": S.nonEmptyString }),
-}) {}
+export class Request extends S.ReadRequest<Request>()("GET", "/me", {}) {}
 
 export class TaskListEntryBase extends S.Model<TaskListEntryBase>()(
   S.required({
     id: TaskListId,
     order: S.array(TaskId),
-  })["|>"](S.asBuilder)
+  })
 ) {}
 
 @S.namedC
@@ -21,9 +19,7 @@ export class TaskListEntry extends S.Model<TaskListEntry>()(
         parentListId: S.nullable(TaskListId),
       })
     )
-  )
-    ["|>"](S.tag("TaskList"))
-    ["|>"](S.asBuilder)
+  )["|>"](S.tag("TaskList"))
 ) {}
 
 // TaskListEntryGroups contains tasklists
@@ -33,9 +29,7 @@ export class TaskListEntryGroup extends S.Model<TaskListEntryGroup>()(
     id: TaskListId,
     title: S.nonEmptyString,
     lists: S.array(TaskListId),
-  })
-    ["|>"](S.tag("TaskListGroup"))
-    ["|>"](S.asBuilder)
+  })["|>"](S.tag("TaskListGroup"))
 ) {}
 
 export const TaskListEntryOrGroup = S.tagged(

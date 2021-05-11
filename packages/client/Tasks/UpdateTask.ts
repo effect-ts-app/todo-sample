@@ -5,7 +5,7 @@ import {
   TaskId,
 } from "@effect-ts-demo/todo-types"
 
-export class Request extends S.WriteRequest<Request>()({
+export class Request extends S.WriteRequest<Request>()("PATCH", "/tasks/:id", {
   path: S.required({ id: TaskId }),
   body: S.partial({
     ...EditableTaskProps,

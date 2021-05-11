@@ -11,16 +11,14 @@ import * as OpenApi from "@effect-ts-demo/core/ext/Schema/Openapi"
 import { pipe } from "@effect-ts/core"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as T from "@effect-ts/core/Effect"
-import * as L from "@effect-ts/core/Effect/Layer"
 import * as O from "@effect-ts/core/Option"
 import * as Ex from "@effect-ts/express"
-import express from "express"
 
 import {
   makeRequestHandler,
+  Middleware,
   RequestHandler,
   RequestHandlerOptRes,
-  SupportedErrors,
 } from "./requestHandler"
 
 type Methods = "GET" | "PUT" | "POST" | "PATCH" | "DELETE"
@@ -71,6 +69,42 @@ export function makeRouteDescriptor<
     METHOD
   >
 }
+
+export function matchA<
+  R,
+  PathA,
+  CookieA,
+  QueryA,
+  BodyA,
+  HeaderA,
+  ReqA extends PathA & QueryA & BodyA,
+  ResA,
+  R2 = unknown,
+  PR = unknown
+>(
+  r: RequestHandler<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA>,
+  mw?: Middleware<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA, R2, PR>
+) {
+  let h = undefined
+  if (mw) {
+    const { handle, handler } = mw(r)
+    r = handler
+    h = handle
+  }
+  return pipe(
+    Ex.match(r.Request.method.toLowerCase())(
+      r.Request.path,
+      makeRequestHandler<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA, R2, PR>(
+        r,
+        h
+      )
+    ),
+    T.zipRight(
+      T.succeedWith(() => makeRouteDescriptor(r.Request.path, r.Request.method, r))
+    )
+  )
+}
+
 export function get<
   R,
   PathA,
@@ -85,8 +119,14 @@ export function get<
 >(
   path: string,
   r: RequestHandler<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA>,
-  h?: (req: express.Request, res: express.Response) => L.Layer<R2, SupportedErrors, PR>
+  mw?: Middleware<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA, R2, PR>
 ) {
+  let h = undefined
+  if (mw) {
+    const { handle, handler } = mw(r)
+    r = handler
+    h = handle
+  }
   return pipe(
     Ex.get(
       path,
@@ -112,9 +152,15 @@ export function post<
   PR = unknown
 >(
   path: string,
-  r: RequestHandlerOptRes<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA>,
-  h?: (req: express.Request, res: express.Response) => L.Layer<R2, SupportedErrors, PR>
+  r: RequestHandler<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA>,
+  mw?: Middleware<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA, R2, PR>
 ) {
+  let h = undefined
+  if (mw) {
+    const { handle, handler } = mw(r)
+    r = handler
+    h = handle
+  }
   return pipe(
     Ex.post(
       path,
@@ -140,9 +186,15 @@ export function put<
   PR = unknown
 >(
   path: string,
-  r: RequestHandlerOptRes<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA>,
-  h?: (req: express.Request, res: express.Response) => L.Layer<R2, SupportedErrors, PR>
+  r: RequestHandler<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA>,
+  mw?: Middleware<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA, R2, PR>
 ) {
+  let h = undefined
+  if (mw) {
+    const { handle, handler } = mw(r)
+    r = handler
+    h = handle
+  }
   return pipe(
     Ex.put(
       path,
@@ -168,9 +220,15 @@ export function patch<
   PR = unknown
 >(
   path: string,
-  r: RequestHandlerOptRes<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA>,
-  h?: (req: express.Request, res: express.Response) => L.Layer<R2, SupportedErrors, PR>
+  r: RequestHandler<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA>,
+  mw?: Middleware<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA, R2, PR>
 ) {
+  let h = undefined
+  if (mw) {
+    const { handle, handler } = mw(r)
+    r = handler
+    h = handle
+  }
   return pipe(
     Ex.patch(
       path,
@@ -196,9 +254,15 @@ function del<
   PR = unknown
 >(
   path: string,
-  r: RequestHandlerOptRes<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA>,
-  h?: (req: express.Request, res: express.Response) => L.Layer<R2, SupportedErrors, PR>
+  r: RequestHandler<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA>,
+  mw?: Middleware<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA, R2, PR>
 ) {
+  let h = undefined
+  if (mw) {
+    const { handle, handler } = mw(r)
+    r = handler
+    h = handle
+  }
   return pipe(
     Ex.delete(
       path,
