@@ -1,0 +1,72 @@
+# Creating a Usecase
+
+Below is a sample implementation for Creating a Task.
+We're taking an iterative approach, where we define the Request and Response classes with the handler at first.
+
+## API
+
+1. Create a file under `apps/api/Tasks`
+2. Create a `Request` class: `WriteRequest` or `ReadRequest`
+```ts
+export class Request extends S.WriteRequest<Request>()("POST", "/tasks", {
+  body: S.required({
+    listId: TaskListIdU,
+    title: S.nonEmptyString,
+    isFavorite: S.bool,
+    myDay: S.nullable(S.date),
+  }),
+}) {}
+```
+3. Create a `Response` class, if the Response is something else than `void`:
+```ts
+export class Response extends S.Model<Response>()(S.required({ id: TaskId })) {}
+```
+4. Create the Handler (omit `Response` if you didn't create one)
+```ts
+// (Request) => T.Effect<Has<UserEnv> & Has<TaskContext.TaskContext>, NotFoundError | UnauthorizedError | NotLoggedInError, Response>
+export default handle({ Request, Response })(({ myDay, ..._ }) =>
+  T.gen(function* ($) {
+    const user = yield* $(getLoggedInUser)
+
+    if (_.listId !== "inbox") {
+      const list = yield* $(TaskContext.getTaskList(_.listId))
+      yield* $(authorizeTaskList.authorize_(list, user.id, identity))
+    }
+
+    const task = user["|>"](User.createTask(_))
+    yield* $(TaskContext.add(task))
+    yield* $(
+      pipe(
+        EO.fromOption(myDay),
+        EO.chainEffect((date) =>
+          TaskContext.updateUser(user.id, User.addToMyDay(task, date))
+        )
+      )
+    )
+
+    return { id: task.id }
+  })
+)
+```
+5. Add to `routes.ts`: `import CreateTask from "./CreateTask"` and add to routes tuple: `R.matchA(CreateTask, demandLoggedIn)`
+
+Test api and enjoy
+
+## Update Client for Frontend
+
+1. Move `Request` and `Response` to `packages/client/Tasks/CreateTask.ts`
+2. Export in `_index.ts`: `export * as CreateTask from "./CreateTask"`
+3. Update the handler in api: `export default handle(Tasks.CreateTask)`
+
+## Consume in Frontend
+
+1. Use
+```ts
+// (req: TodoClient.Tasks.CreateTask.Request) => T.Effect<Has<TodoClient.ApiConfig>, FetchError | ResponseError, TodoClient.Tasks.CreateTask.Response>
+TodoClient.TasksClient.CreateTask
+```
+e.g:
+```ts
+const { runWithErrorLog } = useServiceContext()
+TodoClient.TasksClient.CreateTask({...data})["|>"](runWithErrorLog)
+```
