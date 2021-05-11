@@ -7,7 +7,7 @@
         "@effect-ts-demo/core": "*",
         "@effect-ts-demo/todo-client": "*",
         "@effect-ts-demo/todo-types": "*",
-        "@effect-ts/core": "^0.37.9",
+        "@effect-ts/core": "^0.38.1",
         "@effect-ts/monocle": "^0.31.1",
         "@effect-ts/morphic": "^0.34.1",
         "@effect-ts/react": "^0.1.4",
@@ -74,7 +74,7 @@
         "eslint-plugin-jsx-a11y": "^6.4.1",
         "eslint-plugin-react": "^7.23.2",
         "eslint-plugin-react-hooks": "^4.2.0",
-        "eslint-plugin-testing-library": "^4.2.1",
+        "eslint-plugin-testing-library": "^4.3.0",
         "eslint-webpack-plugin": "^2.5.4"
     },
     "scripts": {
