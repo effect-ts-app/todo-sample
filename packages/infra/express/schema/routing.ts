@@ -21,7 +21,15 @@ import {
   RequestHandlerOptRes,
 } from "./requestHandler"
 
-type Methods = "GET" | "PUT" | "POST" | "PATCH" | "DELETE"
+type Methods =
+  | "GET"
+  | "PUT"
+  | "POST"
+  | "PATCH"
+  | "DELETE"
+  | "OPTIONS"
+  | "HEAD"
+  | "TRACE"
 
 export interface RouteDescriptor<
   R,
@@ -92,7 +100,7 @@ export function matchA<
     h = handle
   }
   return pipe(
-    Ex.match(r.Request.method.toLowerCase())(
+    Ex.match(r.Request.method.toLowerCase() as any)(
       r.Request.path,
       makeRequestHandler<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA, R2, PR>(
         r,

@@ -43,7 +43,7 @@ import { Parser } from "@effect-ts-demo/core/ext/Schema"
 //   ] as const
 // }
 
-const fetchMe = constant(TodoClient.TasksClient.GetMe({}))
+const fetchMe = constant(TodoClient.TasksClient.GetMe)
 
 export function useMe() {
   const { runWithErrorLog } = useServiceContext()
@@ -60,7 +60,7 @@ export function useMe() {
 }
 
 const fetchLatestTasks = constant(
-  TodoClient.TasksClient.GetTasks({})["|>"](T.map((r) => r.items))
+  TodoClient.TasksClient.GetTasks["|>"](T.map((r) => r.items))
 )
 
 export function useTasks() {
@@ -79,17 +79,12 @@ export function useTasks() {
 
 const newTask =
   (v: Todo.TaskView | S.NonEmptyString, listId: Todo.TaskListIdU = "inbox") =>
-  (newTitle: string) =>
+  (newTitle: S.NonEmptyString) =>
     TodoClient.TasksClient.CreateTask({
       title: newTitle,
-      isFavorite: false,
-      myDay: null,
+      isFavorite: v === "important",
+      myDay: v === "my-day" ? O.some(new Date()) : O.none,
       listId,
-      ...(v === "important"
-        ? { isFavorite: true }
-        : v === "my-day"
-        ? { myDay: new Date() }
-        : {}),
     })
 export function useNewTask(
   v: Todo.TaskView | S.NonEmptyString,

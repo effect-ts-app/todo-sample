@@ -2,7 +2,12 @@
 import { Erase } from "@effect-ts-demo/core/ext/Effect"
 import * as EO from "@effect-ts-demo/core/ext/EffectOption"
 import * as S from "@effect-ts-demo/core/ext/Schema"
-import { Encoder, extractSchema, Parser } from "@effect-ts-demo/core/ext/Schema"
+import {
+  Encoder,
+  extractSchema,
+  Methods,
+  Parser,
+} from "@effect-ts-demo/core/ext/Schema"
 import { DSL } from "@effect-ts/core"
 import { makeAssociative } from "@effect-ts/core/Associative"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
@@ -61,6 +66,8 @@ export type Request<
   HeaderA,
   ReqA extends PathA & QueryA & BodyA
 > = S.ReqResSchemed<unknown, ReqA> & {
+  method: Methods
+  path: string
   Cookie?: S.ReqRes<Record<string, string>, CookieA>
   Path?: S.ReqRes<Record<string, string>, PathA>
   Body?: S.ReqRes<unknown, BodyA>
