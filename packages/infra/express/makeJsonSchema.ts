@@ -16,8 +16,8 @@ type Methods = "GET" | "PUT" | "POST" | "PATCH" | "DELETE"
 export function makeJsonSchema(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   r: Iterable<
-    | RM.RouteDescriptor<any, any, any, any, any, any, any>
-    | RS.RouteDescriptor<any, any, any, any, any, any, any>
+    | RM.RouteDescriptor<any, any, any, any, any, any, any, any>
+    | RS.RouteDescriptor<any, any, any, any, any, any, any, any>
   >
 ) {
   return pipe(
