@@ -1,3 +1,4 @@
+import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as T from "@effect-ts/core/Effect"
 
 import AddTaskListMember from "./AddTaskListMember"
@@ -27,9 +28,23 @@ export const routes = T.tuple(
 
   R.matchA(UpdateTaskList, demandLoggedIn),
   R.matchA(DeleteTaskList, demandLoggedIn),
-
   R.matchA(AddTaskListMember, demandLoggedIn),
   R.matchA(RemoveTaskListMember, demandLoggedIn),
 
   R.matchA(UpdateTaskListGroup, demandLoggedIn)
+)["|>"](
+  T.map((x) =>
+    A.map_(x.tuple, (i) => ({
+      ...i,
+      info: {
+        tags: [
+          i.path.startsWith("/lists")
+            ? "Lists"
+            : i.path.startsWith("/groups")
+            ? "Groups"
+            : "Tasks",
+        ],
+      },
+    }))
+  )
 )

@@ -45,7 +45,14 @@ export function makeOpenApiSpecs(
           : undefined,
         version: info.version,
       },
-      //tags,
+      tags: [
+        {
+          name: "Tasks",
+          description: "Everything Tasks related",
+        },
+        { name: "Lists", description: "Everything about the Task Lists" },
+        { name: "Groups", description: "Everything about the Task List Group" },
+      ],
       paths,
       components,
       //test,

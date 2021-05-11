@@ -4,9 +4,26 @@
     "title": "@effect-ts-demo/todo-api",
     "version": "0.0.1"
   },
+  "tags": [
+    {
+      "name": "Tasks",
+      "description": "Everything Tasks related"
+    },
+    {
+      "name": "Lists",
+      "description": "Everything about the Task Lists"
+    },
+    {
+      "name": "Groups",
+      "description": "Everything about the Task List Group"
+    }
+  ],
   "paths": {
     "/me": {
       "get": {
+        "tags": [
+          "Tasks"
+        ],
         "parameters": [
           {
             "name": "x-user-id",
@@ -37,6 +54,9 @@
     },
     "/tasks": {
       "get": {
+        "tags": [
+          "Tasks"
+        ],
         "parameters": [
           {
             "name": "x-user-id",
@@ -76,6 +96,9 @@
         }
       },
       "post": {
+        "tags": [
+          "Tasks"
+        ],
         "parameters": [
           {
             "name": "x-user-id",
@@ -158,6 +181,9 @@
     },
     "/tasks/:id": {
       "get": {
+        "tags": [
+          "Tasks"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -196,6 +222,9 @@
         }
       },
       "patch": {
+        "tags": [
+          "Tasks"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -283,6 +312,9 @@
         }
       },
       "delete": {
+        "tags": [
+          "Tasks"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -318,6 +350,9 @@
     },
     "/tasks-order": {
       "post": {
+        "tags": [
+          "Tasks"
+        ],
         "parameters": [
           {
             "name": "x-user-id",
@@ -377,6 +412,9 @@
     },
     "/lists/:id": {
       "patch": {
+        "tags": [
+          "Lists"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -425,6 +463,9 @@
         }
       },
       "delete": {
+        "tags": [
+          "Lists"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -460,6 +501,9 @@
     },
     "/lists/:id/members": {
       "post": {
+        "tags": [
+          "Lists"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -513,6 +557,9 @@
     },
     "/lists/:id/members/:memberId": {
       "delete": {
+        "tags": [
+          "Lists"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -557,6 +604,9 @@
     },
     "/groups/:id": {
       "patch": {
+        "tags": [
+          "Groups"
+        ],
         "parameters": [
           {
             "name": "id",

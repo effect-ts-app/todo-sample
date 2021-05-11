@@ -45,6 +45,9 @@ export interface RouteDescriptor<
   path: string
   method: METHOD
   handler: RequestHandler<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA>
+  info?: {
+    tags: A.Array<string>
+  }
   _tag: "Schema"
 }
 
@@ -340,6 +343,7 @@ export function makeFromSchema<ResA>(
       return {
         path: e.path,
         method: e.method.toLowerCase(),
+        tags: e.info?.tags,
         parameters: [
           ..._.reqPath["|>"](makeParameters("path")),
           ..._.reqQuery["|>"](makeParameters("query")),
