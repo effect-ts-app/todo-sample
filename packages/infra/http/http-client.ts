@@ -1,6 +1,6 @@
-import { pipe, Predicate } from "@effect-ts-demo/core/ext/Function"
 import * as T from "@effect-ts/core/Effect"
 import * as L from "@effect-ts/core/Effect/Layer"
+import { pipe, Predicate } from "@effect-ts/core/Function"
 import * as Has from "@effect-ts/core/Has"
 import * as O from "@effect-ts/core/Option"
 import { ParsedQuery } from "query-string"
