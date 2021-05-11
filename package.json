@@ -46,8 +46,7 @@
         "ultra-runner": "^3.10.5"
     },
     "resolutions": {
-        "typescript": "^4.2.4",
-        "@effect-ts/core": "^0.38.1"
+        "typescript": "^4.2.4"
     },
     "scripts": {
         "start": "concurrently -k -p \"[{name}]\" -n \"API,Frontend\" -c \"cyan.bold,green.bold,blue.bold\" \"yarn start:api\" \"yarn start:frontend\"",

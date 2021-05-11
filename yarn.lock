@@ -1074,7 +1074,7 @@
   dependencies:
     "@date-io/core" "^2.10.7"
 
-"@effect-ts/core@^0.37.8", "@effect-ts/core@^0.38.1":
+"@effect-ts/core@^0.38.1":
   version "0.38.1"
   resolved "https://registry.yarnpkg.com/@effect-ts/core/-/core-0.38.1.tgz#721eefc6ea565514089c7abe2c6465d41673aebd"
   integrity sha512-7KUuiNo199JZeayaUH38ZKx2oyTRisns2e+4Taqc2jJlvRP3YUoS/v6jF3oGnHUN4+04ZZd4js8zqWB/yDqZRw==
@@ -1111,12 +1111,12 @@
   resolved "https://registry.yarnpkg.com/@effect-ts/react/-/react-0.1.4.tgz#2cc0cdf57187c2a4c236b510749b3b8b92b9ce57"
   integrity sha512-1l1OLDx0fM980SiLSMC4iq6VnVlZ+zEWwm3EQU9cfpx1IMGjZyddYlP6JgL2rVIeF7xgPlYzK+ETsR6rd+9Mfw==
 
-"@effect-ts/schema@^0.3.0":
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/@effect-ts/schema/-/schema-0.3.0.tgz#3b93ed71ee2d9770ccc917fd4edf64d49ff99649"
-  integrity sha512-uZZVoEBl2XwhRBYepxmHp2pqi05I6sFKqpdSsHJdh85/AR/ItrBKoDRDNQntU1OBgeTHhIeWoCuluDntNKT09A==
+"@effect-ts/schema@^0.4.0":
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/@effect-ts/schema/-/schema-0.4.0.tgz#4ea89623934a6a1281ef58e151b206f53e455c9e"
+  integrity sha512-dtnbw4ADvaZkA0IF+JOPP8j0ov3SNLam5LaRc4bGx2Ll/iBIrEHlnFqGUxAm9vV7kTrZ0uAZ+Ct7COuZPgpRtw==
   dependencies:
-    "@effect-ts/core" "^0.37.8"
+    "@effect-ts/core" "^0.38.1"
 
 "@effect-ts/system@^0.35.1":
   version "0.35.1"

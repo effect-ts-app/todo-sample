@@ -11,7 +11,7 @@
         "@effect-ts/monocle": "^0.31.1",
         "@effect-ts/morphic": "^0.34.1",
         "@effect-ts/react": "^0.1.4",
-        "@effect-ts/schema": "^0.3.0",
+        "@effect-ts/schema": "^0.4.0",
         "@emotion/react": "^11.4.0",
         "@emotion/styled": "^11.3.0",
         "@material-ui/core": "next",
