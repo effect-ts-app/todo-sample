@@ -83,19 +83,21 @@ const auth = cfg.AUTH_DISABLED
     )
 
 const program = pipe(
+  // Host our openapi docs
+  openapiRoutes,
   // Host some classic middleware
-  T.tuple(
-    auth,
-    Ex.use(Ex.classic(cors())),
-    Ex.use(Ex.classic(urlencoded({ extended: false }))),
-    Ex.use(Ex.classic(json()))
+  T.zipRight(
+    T.tuple(
+      auth,
+      Ex.use(Ex.classic(cors())),
+      Ex.use(Ex.classic(urlencoded({ extended: false }))),
+      Ex.use(Ex.classic(json()))
+    )
   ),
   // Host our app
   T.zipRight(taskRoutes),
   // Write our docs
   T.tap(writeOpenapiDocs),
-  // Host our openapi docs
-  T.zipRight(openapiRoutes),
   T.zipRight(
     T.succeedWith(() => {
       console.log(`Running on ${cfg.HOST}:${cfg.PORT}`)

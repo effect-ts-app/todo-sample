@@ -13,7 +13,7 @@ const AUTH_DISABLED = PROVIDED_AUTH_DISABLED === "true"
 const url = new URL(API_ROOT)
 
 const apiProxy = createProxyMiddleware({
-  target: API_ROOT, // takes only the host + port.
+  target: `${url.protocol}//${url.host}`,
   changeOrigin: true,
   pathRewrite: { [`^/api/proxy`]: url.pathname === "/" ? "" : url.pathname },
   secure: false,
@@ -24,26 +24,26 @@ const apiProxy = createProxyMiddleware({
   //     })
   //     res.end()
   //   },
-  //   onProxyReq(proxyReq, req: any, res) {
-  //     /**
-  //      * manually overwrite origin for CORS (changeOrigin might not work)
-  //      */
-  //     //proxyReq.setHeader("origin", ENDPOINT_PROXY_ORIGIN)
+  onProxyReq(proxyReq, req: any, res) {
+    /**
+     * manually overwrite origin for CORS (changeOrigin might not work)
+     */
+    //proxyReq.setHeader("origin", ENDPOINT_PROXY_ORIGIN)
 
-  //     //const requestId = greq.headers[HEADER_REQUEST_ID] // passed from fetch (Browser) to keep request id in browser too
-  //     const endpoint = req.url
-  //     const { method } = req
+    //const requestId = greq.headers[HEADER_REQUEST_ID] // passed from fetch (Browser) to keep request id in browser too
+    const endpoint = req.url
+    const { method } = req
 
-  //     console.info(`REQ ${endpoint} ${method} dest: ${API_ROOT}`)
-  //   },
-  //   onProxyRes(proxyRes, req: any, res) {
-  //     //const requestId = greq.headers[HEADER_REQUEST_ID] // passed from fetch (Browser) to keep request id in browser too
-  //     const endpoint = req.url
-  //     const { method } = req
-  //     const status = proxyRes.statusCode
+    console.info(`REQ ${endpoint} ${method} dest: ${API_ROOT}`)
+  },
+  onProxyRes(proxyRes, req: any, res) {
+    //const requestId = greq.headers[HEADER_REQUEST_ID] // passed from fetch (Browser) to keep request id in browser too
+    const endpoint = req.url
+    const { method } = req
+    const status = proxyRes.statusCode
 
-  //     console.info(`(RES ${endpoint} ${method} ${status}  dest: ${API_ROOT}`)
-  //   },
+    console.info(`(RES ${endpoint} ${method} ${status}  dest: ${API_ROOT}`)
+  },
 })
 
 export default AUTH_DISABLED
@@ -66,9 +66,3 @@ export default AUTH_DISABLED
     })
 
 export const config = { api: { externalResolver: true, bodyParser: false } }
-
-export async function getServerSideProps() {
-  return {
-    props: {}, // will be passed to the page component as props
-  }
-}
