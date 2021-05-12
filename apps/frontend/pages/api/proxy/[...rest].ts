@@ -36,3 +36,9 @@ export default AUTH_DISABLED
     })
 
 export const config = { api: { externalResolver: true, bodyParser: false } }
+
+export async function getServerSideProps() {
+  return {
+    props: {}, // will be passed to the page component as props
+  }
+}
