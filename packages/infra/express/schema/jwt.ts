@@ -20,7 +20,7 @@ export const jwtFromString: S.Schema<
   }),
   S.constructor((n) => Th.succeed(n)),
   //   S.arbitrary((_) => {
-  //     throw new Error("Cannot id JWT")
+  //     throw new Error("Cannot arb JWT")
   //   }), // TODO
   //   S.encoder((_) => {
   //     throw new Error("can't encode")

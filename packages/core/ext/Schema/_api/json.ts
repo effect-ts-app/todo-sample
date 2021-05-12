@@ -14,7 +14,7 @@ export const jsonFromString: S.Schema<
 > = pipe(
   S.identity((u): u is string => typeof u === "string"),
   S.constructor((n) => Th.succeed(n)),
-  //S.arbitrary((_) => _.anything()),
+  S.arbitrary((_) => _.anything()),
   S.encoder((_) => JSON.stringify(_)),
   S.parser((p: string) => {
     try {
