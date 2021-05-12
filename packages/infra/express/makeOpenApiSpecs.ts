@@ -17,7 +17,13 @@ export function makeOpenApiSpecs(
     const refs = yield* $(ref.get)
     const parameterRefs: Record<string, any> = {} // todos
     const schemas: Record<string, any> = {}
-    const securitySchemes = {} // { basicAuth: { type: "http", scheme: "basic" } }
+    const securitySchemes = {
+      bearerAuth: {
+        type: "http",
+        scheme: "bearer",
+        bearerFormat: "JWT",
+      },
+    } // { basicAuth: { type: "http", scheme: "basic" } }
     const components = { securitySchemes, schemas, parameters: parameterRefs }
 
     for (const entry of refs.entries()) {

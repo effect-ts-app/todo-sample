@@ -23,8 +23,9 @@ export class Response extends S.Model<Response>()(S.required({ id: TaskId })) {}
 ```
 4. Create the Handler (omit `Response` if you didn't create one)
 ```ts
+export default handle({ Request, Response })(
 // (Request) => T.Effect<Has<UserEnv> & Has<TaskContext.TaskContext>, NotFoundError | UnauthorizedError | NotLoggedInError, Response>
-export default handle({ Request, Response })(({ myDay, ..._ }) =>
+({ myDay, ..._ }) =>
   T.gen(function* ($) {
     const user = yield* $(getLoggedInUser)
 
@@ -64,11 +65,24 @@ or visit the local [swagger](http://localhost:3330/swagger)
 
 1. Use
 ```ts
-// (req: TodoClient.Tasks.CreateTask.Request) => T.Effect<Has<TodoClient.ApiConfig>, FetchError | ResponseError, TodoClient.Tasks.CreateTask.Response>
+// (req: TodoClient.Tasks.CreateTask.Request) => T.Effect<Has<TodoClient.ApiConfig> & Has<Http>, FetchError | ResponseError, TodoClient.Tasks.CreateTask.Response>
 TodoClient.TasksClient.CreateTask
 ```
 e.g:
 ```ts
 const { runWithErrorLog } = useServiceContext()
-TodoClient.TasksClient.CreateTask({...data})["|>"](runWithErrorLog)
+TodoClient.TasksClient.CreateTask({...data})
+    ["|>"](runWithErrorLog)
+```
+\
+**Note**: if there is no input required, the signature is just an Effect:
+```ts
+// T.Effect<Has<TodoClient.ApiConfig> & Has<Http>, FetchError | ResponseError, TodoClient.Tasks.GetTasks.Response>
+TodoClient.TasksClient.GetTasks
+```
+which would be used so:
+```ts
+const { runWithErrorLog } = useServiceContext()
+TodoClient.TasksClient.GetTasks
+    ["|>"](runWithErrorLog)
 ```

@@ -11,7 +11,7 @@
 				"method": "GET",
 				"header": [
 					{
-						"key": "x-user-id",
+						"key": "Authorization",
 						"value": "{{UserId}}",
 						"type": "text"
 					}
@@ -36,7 +36,7 @@
 				"method": "GET",
 				"header": [
 					{
-						"key": "X-User-Id",
+						"key": "Authorization",
 						"value": "{{UserId}}",
 						"type": "text"
 					}
@@ -61,7 +61,7 @@
 				"method": "GET",
 				"header": [
 					{
-						"key": "X-User-Id",
+						"key": "Authorization",
 						"value": "{{UserId}}",
 						"type": "text"
 					}
@@ -99,7 +99,7 @@
 				"method": "POST",
 				"header": [
 					{
-						"key": "x-User-Id",
+						"key": "Authorization",
 						"value": "{{UserId}}",
 						"type": "text"
 					}
@@ -133,7 +133,7 @@
 				"method": "DELETE",
 				"header": [
 					{
-						"key": "X-User-Id",
+						"key": "Authorization",
 						"value": "{{UserId}}",
 						"type": "text"
 					}
@@ -159,7 +159,7 @@
 				"method": "PATCH",
 				"header": [
 					{
-						"key": "X-User-Id",
+						"key": "Authorization",
 						"value": "{{UserId}}",
 						"type": "text"
 					}
@@ -205,14 +205,14 @@
 				"method": "POST",
 				"header": [
 					{
-						"key": "X-User-Id",
+						"key": "Authorization",
 						"value": "{{UserId}}",
 						"type": "text"
 					}
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"listId\": \"inbox\",\n    \"order\": []\n}",
+					"raw": "{\n\n    \"order\": []\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -220,14 +220,16 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:3330/tasks-order",
+					"raw": "http://localhost:3330/lists/inbox/order",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "3330",
 					"path": [
-						"tasks-order"
+						"lists",
+						"inbox",
+						"order"
 					]
 				}
 			},

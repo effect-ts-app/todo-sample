@@ -1,3 +1,4 @@
+//import { withPageAuthRequired } from "@auth0/nextjs-auth0"
 import * as O from "@effect-ts/core/Option"
 import React from "react"
 
@@ -20,7 +21,8 @@ function HomePage() {
   return <TasksScreen category={O.none} order={o} taskId={O.none} />
 }
 
-// disable static generation :/
+// disable static generation :/ and use auth
+//export const getServerSideProps = withPageAuthRequired()
 export async function getServerSideProps() {
   return {
     props: {}, // will be passed to the page component as props

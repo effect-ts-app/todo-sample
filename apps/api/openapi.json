@@ -24,17 +24,7 @@
         "tags": [
           "Tasks"
         ],
-        "parameters": [
-          {
-            "name": "x-user-id",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "minLength": 1,
-              "type": "string"
-            }
-          }
-        ],
+        "parameters": [],
         "responses": {
           "200": {
             "description": "OK",
@@ -57,17 +47,7 @@
         "tags": [
           "Tasks"
         ],
-        "parameters": [
-          {
-            "name": "x-user-id",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "minLength": 1,
-              "type": "string"
-            }
-          }
-        ],
+        "parameters": [],
         "responses": {
           "200": {
             "description": "OK",
@@ -99,17 +79,7 @@
         "tags": [
           "Tasks"
         ],
-        "parameters": [
-          {
-            "name": "x-user-id",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "minLength": 1,
-              "type": "string"
-            }
-          }
-        ],
+        "parameters": [],
         "requestBody": {
           "content": {
             "application/json": {
@@ -193,15 +163,6 @@
               "format": "uuid",
               "type": "string"
             }
-          },
-          {
-            "name": "x-user-id",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "minLength": 1,
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -232,15 +193,6 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string"
-            }
-          },
-          {
-            "name": "x-user-id",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "minLength": 1,
               "type": "string"
             }
           }
@@ -284,8 +236,8 @@
                     "type": "array"
                   },
                   "assignedTo": {
-                    "minimum": 0,
-                    "type": "number",
+                    "minLength": 1,
+                    "type": "string",
                     "nullable": true
                   },
                   "myDay": {
@@ -324,15 +276,6 @@
               "format": "uuid",
               "type": "string"
             }
-          },
-          {
-            "name": "x-user-id",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "minLength": 1,
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -360,15 +303,6 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string"
-            }
-          },
-          {
-            "name": "x-user-id",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "minLength": 1,
               "type": "string"
             }
           }
@@ -413,15 +347,6 @@
               "format": "uuid",
               "type": "string"
             }
-          },
-          {
-            "name": "x-user-id",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "minLength": 1,
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -444,12 +369,22 @@
         ],
         "parameters": [
           {
-            "name": "x-user-id",
-            "in": "header",
+            "name": "id",
+            "in": "path",
             "required": true,
             "schema": {
-              "minLength": 1,
-              "type": "string"
+              "oneOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "enum": [
+                    "inbox"
+                  ],
+                  "type": "string"
+                }
+              ]
             }
           }
         ],
@@ -464,25 +399,10 @@
                       "type": "string"
                     },
                     "type": "array"
-                  },
-                  "id": {
-                    "oneOf": [
-                      {
-                        "format": "uuid",
-                        "type": "string"
-                      },
-                      {
-                        "enum": [
-                          "inbox"
-                        ],
-                        "type": "string"
-                      }
-                    ]
                   }
                 },
                 "required": [
-                  "order",
-                  "id"
+                  "order"
                 ],
                 "type": "object"
               }
@@ -516,15 +436,6 @@
               "format": "uuid",
               "type": "string"
             }
-          },
-          {
-            "name": "x-user-id",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "minLength": 1,
-              "type": "string"
-            }
           }
         ],
         "requestBody": {
@@ -533,8 +444,8 @@
               "schema": {
                 "properties": {
                   "memberId": {
-                    "minimum": 0,
-                    "type": "number"
+                    "minLength": 1,
+                    "type": "string"
                   }
                 },
                 "required": [
@@ -578,15 +489,6 @@
             "in": "path",
             "required": true,
             "schema": {
-              "minimum": 0,
-              "type": "number"
-            }
-          },
-          {
-            "name": "x-user-id",
-            "in": "header",
-            "required": true,
-            "schema": {
               "minLength": 1,
               "type": "string"
             }
@@ -617,15 +519,6 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string"
-            }
-          },
-          {
-            "name": "x-user-id",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "minLength": 1,
               "type": "string"
             }
           }
@@ -667,7 +560,13 @@
     }
   },
   "components": {
-    "securitySchemes": {},
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
     "schemas": {
       "TaskListEntry": {
         "title": "TaskListEntry",
@@ -800,8 +699,8 @@
             "type": "string"
           },
           "createdBy": {
-            "minimum": 0,
-            "type": "number"
+            "minLength": 1,
+            "type": "string"
           },
           "listId": {
             "oneOf": [
@@ -851,8 +750,8 @@
             "type": "array"
           },
           "assignedTo": {
-            "minimum": 0,
-            "type": "number",
+            "minLength": 1,
+            "type": "string",
             "nullable": true
           },
           "myDay": {

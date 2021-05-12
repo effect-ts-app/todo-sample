@@ -2,6 +2,8 @@ import { Membership, Step, Task, User, UserId } from "@effect-ts-demo/todo-types
 import { flow } from "@effect-ts/core/Function"
 import { Lens } from "@effect-ts/monocle"
 
+import { AUTH_DISABLED } from "@/config"
+
 import * as O from "@effect-ts-demo/core/ext/Option"
 import * as S from "@effect-ts-demo/core/ext/Schema"
 
@@ -26,16 +28,17 @@ function makeUserTaskCreator(u: User) {
 }
 
 export function makeTestDataUnsafe() {
+  // TODO: users from Auth0 / create local shadow.
   const patrick = new User({
-    id: createUserId(0),
+    id: createUserId(AUTH_DISABLED ? "0" : "google-oauth2|118082603933712729435"),
     name: createNES("Patrick Roza"),
   })
   const mike = new User({
-    id: createUserId(1),
+    id: createUserId("1"),
     name: createNES("Mike Arnaldi"),
   })
   const markus = new User({
-    id: createUserId(2),
+    id: createUserId("2"),
     name: createNES("Markus Nomizz"),
   })
 

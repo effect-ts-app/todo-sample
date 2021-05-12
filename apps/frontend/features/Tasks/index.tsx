@@ -1,3 +1,4 @@
+import { useUser } from "@auth0/nextjs-auth0"
 import * as O from "@effect-ts/core/Option"
 import { Box, Link, Typography } from "@material-ui/core"
 import ArrowLeft from "@material-ui/icons/ArrowLeft"
@@ -15,18 +16,35 @@ import { Ordery } from "./data"
 
 const users = [
   {
-    id: 0,
+    id: "0",
     name: "Patrick",
   },
   {
-    id: 1,
+    id: "1",
     name: "Mike",
   },
   {
-    id: 2,
+    id: "2",
     name: "Markus",
   },
 ]
+
+function LoginOut() {
+  const { error, isLoading, user } = useUser()
+
+  if (isLoading) return <div>Loading...</div>
+  if (error) return <div>{error.message}</div>
+
+  if (user) {
+    return (
+      <div>
+        Welcome {user.name}! <a href="/api/auth/logout">Logout</a>
+      </div>
+    )
+  }
+  return <a href="/api/auth/login">Login</a>
+}
+
 const TasksScreen = memo(function ({
   category,
   order,
@@ -56,6 +74,7 @@ const TasksScreen = memo(function ({
               <i>Fork Me</i>
             </Link>
           </Typography>
+          <LoginOut />
         </Box>
         <Box display="flex">
           Switch to
@@ -147,7 +166,7 @@ const TasksScreen = memo(function ({
 function useUserId() {
   const [userId, setUserId] = useState("0")
   useEffect(() => {
-    setUserId(window.localStorage.getItem("user-id") ?? "0")
+    setUserId(window.sessionStorage.getItem("user-id") ?? "0")
   }, [])
 
   return userId

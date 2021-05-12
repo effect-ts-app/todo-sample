@@ -1,3 +1,4 @@
+import { useUser } from "@auth0/nextjs-auth0"
 import { Fiber, pipe } from "@effect-ts/core"
 import * as T from "@effect-ts/core/Effect"
 import { pretty } from "@effect-ts/core/Effect/Cause"
@@ -11,8 +12,10 @@ import { TodoClient } from "@/index"
 
 import { useConfig } from "./config"
 
+import * as HF from "@effect-ts-demo/core/http/http-client-fetch"
+
 function makeLayers(config: TodoClient.ApiConfig) {
-  return TodoClient.LiveApiConfig(config)
+  return TodoClient.LiveApiConfig(config)[">+>"](HF.Client(fetch))
 }
 type GetProvider<P> = P extends L.Layer<unknown, unknown, infer TP> ? TP : never
 export type ProvidedEnv = T.DefaultEnv & GetProvider<ReturnType<typeof makeLayers>>
@@ -34,7 +37,20 @@ const ServiceContext = createContext<ServiceContext>({
 })
 
 export const LiveServiceContext = ({ children }: { children: ReactNode }) => {
-  const config = useConfig()
+  const cfg = useConfig()
+  //   const { user } = useUser()
+  const config = useMemo(
+    () => ({
+      ...cfg,
+      userProfileHeader: JSON.stringify({
+        sub:
+          (typeof sessionStorage !== "undefined" &&
+            sessionStorage.getItem("user-id")) ||
+          "0",
+      }),
+    }),
+    [cfg]
+  )
   const provider = useMemo(() => L.unsafeMainProvider(makeLayers(config)), [config])
 
   const ctx = useMemo(

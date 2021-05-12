@@ -7,7 +7,7 @@ const SetUser = () => {
 
   useEffect(() => {
     if (r.query.userId) {
-      window.localStorage.setItem("user-id", r.query.userId as string)
+      window.sessionStorage.setItem("user-id", r.query.userId as string)
       window.location.href = "/tasks"
     }
   }, [r.query.userId])

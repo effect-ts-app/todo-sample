@@ -9,7 +9,6 @@
         "@effect-ts/core": "^0.38.1",
         "@effect-ts/monocle": "^0.31.1",
         "@effect-ts/morphic": "^0.34.1",
-        "abort-controller": "^3.0.0",
         "cross-fetch": "^3.1.4",
         "path-parser": "^6.1.0"
     },

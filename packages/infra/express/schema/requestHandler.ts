@@ -17,6 +17,7 @@ import { flow, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import * as EU from "@effect-ts/core/Utils"
 import express from "express"
+import jwt_decode from "jwt-decode"
 
 import {
   NotFoundError,
@@ -26,9 +27,14 @@ import {
 } from "../../errors"
 import { UserSVC } from "../../services"
 
-// Todo; or "Security" section instead of directly in headers
+const { AUTH_DISABLED: PROVIDED_AUTH_DISABLED = "false" } = process.env
+const AUTH_DISABLED = PROVIDED_AUTH_DISABLED === "true"
 
-const AuthHeaders = S.required({ "x-user-id": S.nonEmptyString })
+// Todo; or "Security" section instead of directly in headers
+// Todo: use userProfile: (unknown) -> (string) -> (Json/unknown) -> UserProfile
+//const AuthHeaders = S.required({ ["authorization"]: S.nonEmptyString })
+const parseNES = S.Parser.for(S.nonEmptyString)["|>"](S.unsafe)
+
 export function demandLoggedIn<
   R,
   PathA,
@@ -40,21 +46,24 @@ export function demandLoggedIn<
   ResA = void
 >(handler: RequestHandler<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA>) {
   return {
-    handler: {
-      ...handler,
-      Request: class extends handler.Request {
-        static Headers = (handler.Request.Headers
-          ? handler.Request.Headers["|>"](S.intersect(AuthHeaders))
-          : AuthHeaders) as S.ReqRes<
-          Record<string, string>,
-          HeaderA & S.ParsedShapeOf<typeof AuthHeaders>
-        >
-      },
-    },
+    handler,
+    // handler: {
+    //   ...handler,
+    //   Request: class extends handler.Request {
+    //     static Headers = (handler.Request.Headers
+    //       ? handler.Request.Headers["|>"](S.intersect(AuthHeaders))
+    //       : AuthHeaders) as S.ReqRes<
+    //       Record<string, string>,
+    //       HeaderA & S.ParsedShapeOf<typeof AuthHeaders>
+    //     >
+    //   },
+    // },
     handle: (req: express.Request) =>
-      UserSVC.LiveUserEnv(req.headers["x-user-id"] as unknown)["|>"](
-        L.mapError(() => new NotLoggedInError())
-      ),
+      UserSVC.LiveUserEnv(
+        AUTH_DISABLED
+          ? JSON.parse(req.headers["x-user"]!)
+          : jwt_decode(parseNES(req.headers["authorization"] as unknown))
+      )["|>"](L.mapError(() => new NotLoggedInError())),
   }
 }
 

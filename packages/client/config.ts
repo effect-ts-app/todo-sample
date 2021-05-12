@@ -4,6 +4,7 @@ import * as Layer from "@effect-ts/system/Layer"
 
 export interface ApiConfig {
   apiUrl: string
+  userProfileHeader?: string
 }
 
 export const ApiConfig = tag<ApiConfig>()

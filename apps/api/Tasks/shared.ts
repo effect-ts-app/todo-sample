@@ -22,7 +22,7 @@ import { UserSVC } from "@effect-ts-demo/infra/services"
 export const getLoggedInUser = T.gen(function* ($) {
   const user = yield* $(UserSVC.UserEnv)
   return yield* $(
-    T.catch_(TaskContext.getUser(user.id), "_tag", "NotFoundError", () =>
+    T.catch_(TaskContext.getUser(user.sub), "_tag", "NotFoundError", () =>
       T.fail(new NotLoggedInError())
     )
   )

@@ -7,18 +7,19 @@ import * as Ex from "@effect-ts/express"
 import * as N from "@effect-ts/node/Runtime"
 import { urlencoded, json } from "body-parser"
 import cors from "cors"
+import jwt from "express-jwt"
+import jwtAuthz from "express-jwt-authz"
+import jwksRsa from "jwks-rsa"
 import redoc from "redoc-express"
 import { setup, serve } from "swagger-ui-express"
 
 import { MockTaskContext } from "./Tasks/TaskContext"
 import { routes as taskRoutes } from "./Tasks/routes"
+import * as cfg from "./config"
 
 import { makeOpenApiSpecs } from "@effect-ts-demo/infra/express/makeOpenApiSpecs"
 import { RouteDescriptorAny } from "@effect-ts-demo/infra/express/schema/routing"
 import pkg from "package.json"
-
-const HOST = "127.0.0.1"
-const PORT = 3330
 
 const readOpenApiDoc = T.effectAsync((cb) =>
   fs.readFile("./openapi.json", "utf-8", (err, d) =>
@@ -52,9 +53,39 @@ const openapiRoutes = T.tuple(
   )
 )
 
+// Authorization middleware. When used, the
+// Access Token must exist and be verified against
+// the Auth0 JSON Web Key Set
+const checkJwt = jwt({
+  // Dynamically provide a signing key
+  // based on the kid in the header and
+  // the signing keys provided by the JWKS endpoint.
+  secret: jwksRsa.expressJwtSecret({
+    cache: true,
+    rateLimit: true,
+    jwksRequestsPerMinute: 5,
+    jwksUri: `https://effect-ts-demo.eu.auth0.com/.well-known/jwks.json`,
+  }),
+
+  // Validate the audience and the issuer.
+  audience: "http://localhost:3330/api/proxy",
+  issuer: ["https://effect-ts-demo.eu.auth0.com/"],
+  algorithms: ["RS256"],
+})
+
+//const checkScopes = jwtAuthz(["read:tasks"])
+
+const auth = cfg.AUTH_DISABLED
+  ? T.unit
+  : T.tuple(
+      Ex.use(Ex.classic(checkJwt)),
+      Ex.use(Ex.classic(jwtAuthz(["read:tasks"]))) // TODO
+    )
+
 const program = pipe(
   // Host some classic middleware
   T.tuple(
+    auth,
     Ex.use(Ex.classic(cors())),
     Ex.use(Ex.classic(urlencoded({ extended: false }))),
     Ex.use(Ex.classic(json()))
@@ -67,7 +98,7 @@ const program = pipe(
   T.zipRight(openapiRoutes),
   T.zipRight(
     T.succeedWith(() => {
-      console.log(`Running on ${HOST}:${PORT}`)
+      console.log(`Running on ${cfg.HOST}:${cfg.PORT}`)
     })
   ),
   T.tap(() => T.never)
@@ -75,7 +106,7 @@ const program = pipe(
 
 pipe(
   program,
-  T.provideSomeLayer(Ex.LiveExpress(HOST, PORT)),
+  T.provideSomeLayer(Ex.LiveExpress(cfg.HOST, parseInt(cfg.PORT))),
   T.provideSomeLayer(MockTaskContext),
   N.runMain
 )

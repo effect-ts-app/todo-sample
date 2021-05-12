@@ -35,11 +35,26 @@ export type HEAD = typeof HEAD
 export const TRACE = "TRACE"
 export type TRACE = typeof TRACE
 
-export type Methods = GET | POST | PUT | PATCH | DELETE | OPTIONS | HEAD | TRACE
-export type ReadMethods = GET | OPTIONS | HEAD | TRACE
+export type ReadMethods = GET
 export type WriteMethods = POST | PUT | PATCH | DELETE
 
+export type Methods = ReadMethods | WriteMethods
 export const requestBrand = Symbol()
+
+export type StringRecord = Record<string, string>
+
+export type AnyRecord = Record<string, any>
+
+export type AnyRecordSchema = S.Schema<unknown, any, any, any, any, AnyRecord, any>
+export type StringRecordSchema = S.Schema<
+  unknown,
+  any,
+  any,
+  any,
+  any,
+  StringRecord,
+  any
+>
 
 export type SchemaForModel<M, Self extends S.SchemaAny> = S.Schema<
   S.ParserInputOf<Self>,
@@ -53,9 +68,9 @@ export type SchemaForModel<M, Self extends S.SchemaAny> = S.Schema<
 
 export interface ReadRequest<
   M,
-  Path extends S.SchemaAny | undefined,
-  Query extends S.SchemaAny | undefined,
-  Headers extends S.SchemaAny | undefined,
+  Path extends StringRecordSchema | undefined,
+  Query extends StringRecordSchema | undefined,
+  Headers extends StringRecordSchema | undefined,
   Self extends S.SchemaAny
 > extends Model2<Self, M, SchemaForModel<M, Self>> {
   [schemaField]: Self
@@ -69,10 +84,10 @@ export interface ReadRequest<
 
 export interface WriteRequest<
   M,
-  Path extends S.SchemaAny | undefined,
-  Body extends S.SchemaAny | undefined,
-  Query extends S.SchemaAny | undefined,
-  Headers extends S.SchemaAny | undefined,
+  Path extends StringRecordSchema | undefined,
+  Body extends AnyRecordSchema | undefined,
+  Query extends StringRecordSchema | undefined,
+  Headers extends StringRecordSchema | undefined,
   Self extends S.SchemaAny
 > extends Model2<Self, M, SchemaForModel<M, Self>> {
   [schemaField]: Self
@@ -108,14 +123,14 @@ type OrAny<T> = T extends S.SchemaAny ? T : S.SchemaAny
 //type Ensure<M, Self extends S.SchemaAny> = M extends S.ParsedShapeOf<Self> ? M : never
 // TODO: intersect with Query
 export function ReadRequest<M>() {
-  function a<Headers extends S.SchemaAny>(
+  function a<Headers extends StringRecordSchema>(
     method: ReadMethods,
     path: string,
     _: {
       headers?: Headers
     }
   ): ReadRequest<M, undefined, undefined, Headers, S.SchemaAny>
-  function a<Path extends S.SchemaAny, Headers extends S.SchemaAny>(
+  function a<Path extends StringRecordSchema, Headers extends StringRecordSchema>(
     method: ReadMethods,
     path: string,
     _: {
@@ -123,7 +138,7 @@ export function ReadRequest<M>() {
       path: Path
     }
   ): ReadRequest<M, Path, undefined, Headers, Path>
-  function a<Query extends S.SchemaAny, Headers extends S.SchemaAny>(
+  function a<Query extends StringRecordSchema, Headers extends StringRecordSchema>(
     method: ReadMethods,
     path: string,
     {
@@ -135,19 +150,19 @@ export function ReadRequest<M>() {
     }
   ): ReadRequest<M, undefined, Query, Headers, Query>
   function a<
-    SelfParserError extends S.SchemaError<any>,
-    SelfParsedShape extends Record<string, any>,
-    SelfConstructorInput,
-    SelfConstructorError extends S.SchemaError<any>,
-    SelfEncoded extends Record<string, any>,
-    SelfApi,
+    QueryParserError extends S.SchemaError<any>,
+    QueryParsedShape extends AnyRecord,
+    QueryConstructorInput,
+    QueryConstructorError extends S.SchemaError<any>,
+    QueryEncoded extends StringRecord,
+    QueryApi,
     PathParserError extends S.SchemaError<any>,
-    PathParsedShape extends Record<string, any>,
+    PathParsedShape extends AnyRecord,
     PathConstructorInput,
     PathConstructorError extends S.SchemaError<any>,
-    PathEncoded extends Record<string, any>,
+    PathEncoded extends StringRecord,
     PathApi,
-    Headers extends S.SchemaAny
+    Headers extends StringRecordSchema
   >(
     method: ReadMethods,
     path: string,
@@ -164,12 +179,12 @@ export function ReadRequest<M>() {
       >
       query: S.Schema<
         unknown,
-        SelfParserError,
-        SelfParsedShape,
-        SelfConstructorInput,
-        SelfConstructorError,
-        SelfEncoded,
-        SelfApi
+        QueryParserError,
+        QueryParsedShape,
+        QueryConstructorInput,
+        QueryConstructorError,
+        QueryEncoded,
+        QueryApi
       >
     }
   ): ReadRequest<
@@ -185,30 +200,30 @@ export function ReadRequest<M>() {
     >,
     S.Schema<
       unknown,
-      SelfParserError,
-      SelfParsedShape,
-      SelfConstructorInput,
-      SelfConstructorError,
-      SelfEncoded,
-      SelfApi
+      QueryParserError,
+      QueryParsedShape,
+      QueryConstructorInput,
+      QueryConstructorError,
+      QueryEncoded,
+      QueryApi
     >,
     Headers,
     S.Schema<
       unknown,
-      S.IntersectionE<S.MemberE<0, SelfParserError> | S.MemberE<1, PathParserError>>,
-      SelfParsedShape & PathParsedShape,
-      SelfConstructorInput & PathConstructorInput,
+      S.IntersectionE<S.MemberE<0, QueryParserError> | S.MemberE<1, PathParserError>>,
+      QueryParsedShape & PathParsedShape,
+      QueryConstructorInput & PathConstructorInput,
       S.IntersectionE<
-        S.MemberE<0, SelfConstructorError> | S.MemberE<1, PathConstructorError>
+        S.MemberE<0, QueryConstructorError> | S.MemberE<1, PathConstructorError>
       >,
-      SelfEncoded & PathEncoded,
+      QueryEncoded & PathEncoded,
       {}
     >
   >
   function a<
-    Path extends S.SchemaAny,
-    Query extends S.SchemaAny,
-    Headers extends S.SchemaAny
+    Path extends StringRecordSchema,
+    Query extends StringRecordSchema,
+    Headers extends StringRecordSchema
   >(
     method: ReadMethods,
     path: string,
@@ -273,14 +288,14 @@ export function ReadRequest<M>() {
 }
 
 export function WriteRequest<M>() {
-  function a<Headers extends S.SchemaAny>(
+  function a<Headers extends StringRecordSchema>(
     method: WriteMethods,
     path: string,
     _: {
       headers?: Headers
     }
   ): WriteRequest<M, undefined, undefined, undefined, Headers, S.SchemaAny>
-  function a<Path extends S.SchemaAny, Headers extends S.SchemaAny>(
+  function a<Path extends StringRecordSchema, Headers extends StringRecordSchema>(
     method: WriteMethods,
     path: string,
     _: {
@@ -288,7 +303,7 @@ export function WriteRequest<M>() {
       path: Path
     }
   ): WriteRequest<M, Path, undefined, undefined, Headers, Path>
-  function a<Body extends S.SchemaAny, Headers extends S.SchemaAny>(
+  function a<Body extends AnyRecordSchema, Headers extends StringRecordSchema>(
     method: WriteMethods,
     path: string,
     _: {
@@ -297,19 +312,19 @@ export function WriteRequest<M>() {
     }
   ): WriteRequest<M, undefined, Body, undefined, Headers, Body>
   function a<
-    SelfParserError extends S.SchemaError<any>,
-    SelfParsedShape extends Record<string, any>,
-    SelfConstructorInput,
-    SelfConstructorError extends S.SchemaError<any>,
-    SelfEncoded extends Record<string, any>,
-    SelfApi,
+    BodyParserError extends S.SchemaError<any>,
+    BodyParsedShape extends AnyRecord,
+    BodyConstructorInput,
+    BodyConstructorError extends S.SchemaError<any>,
+    BodyEncoded extends AnyRecord,
+    BodyApi,
     QueryParserError extends S.SchemaError<any>,
-    QueryParsedShape extends Record<string, any>,
+    QueryParsedShape extends AnyRecord,
     QueryConstructorInput,
     QueryConstructorError extends S.SchemaError<any>,
-    QueryEncoded extends Record<string, any>,
+    QueryEncoded extends StringRecord,
     QueryApi,
-    Headers extends S.SchemaAny
+    Headers extends StringRecordSchema
   >(
     method: WriteMethods,
     path: string,
@@ -317,12 +332,12 @@ export function WriteRequest<M>() {
       headers?: Headers
       body: S.Schema<
         unknown,
-        SelfParserError,
-        SelfParsedShape,
-        SelfConstructorInput,
-        SelfConstructorError,
-        SelfEncoded,
-        SelfApi
+        BodyParserError,
+        BodyParsedShape,
+        BodyConstructorInput,
+        BodyConstructorError,
+        BodyEncoded,
+        BodyApi
       >
       query: S.Schema<
         unknown,
@@ -339,12 +354,12 @@ export function WriteRequest<M>() {
     undefined,
     S.Schema<
       unknown,
-      SelfParserError,
-      SelfParsedShape,
-      SelfConstructorInput,
-      SelfConstructorError,
-      SelfEncoded,
-      SelfApi
+      BodyParserError,
+      BodyParsedShape,
+      BodyConstructorInput,
+      BodyConstructorError,
+      BodyEncoded,
+      BodyApi
     >,
     S.Schema<
       unknown,
@@ -358,108 +373,30 @@ export function WriteRequest<M>() {
     Headers,
     S.Schema<
       unknown,
-      S.IntersectionE<S.MemberE<0, SelfParserError> | S.MemberE<1, QueryParserError>>,
-      SelfParsedShape & QueryParsedShape,
-      SelfConstructorInput & QueryConstructorInput,
+      S.IntersectionE<S.MemberE<0, BodyParserError> | S.MemberE<1, QueryParserError>>,
+      BodyParsedShape & QueryParsedShape,
+      BodyConstructorInput & QueryConstructorInput,
       S.IntersectionE<
-        S.MemberE<0, SelfConstructorError> | S.MemberE<1, QueryConstructorError>
+        S.MemberE<0, BodyConstructorError> | S.MemberE<1, QueryConstructorError>
       >,
-      SelfEncoded & QueryEncoded,
+      BodyEncoded & QueryEncoded,
       {}
     >
   >
   function a<
-    SelfParserError extends S.SchemaError<any>,
-    SelfParsedShape extends Record<string, any>,
-    SelfConstructorInput,
-    SelfConstructorError extends S.SchemaError<any>,
-    SelfEncoded extends Record<string, any>,
-    SelfApi,
-    ThatParserError extends S.SchemaError<any>,
-    ThatParsedShape extends Record<string, any>,
-    ThatConstructorInput,
-    ThatConstructorError extends S.SchemaError<any>,
-    ThatEncoded extends Record<string, any>,
-    ThatApi,
-    Headers extends S.SchemaAny
-  >(
-    method: WriteMethods,
-    path: string,
-    _: {
-      headers?: Headers
-      path: S.Schema<
-        unknown,
-        ThatParserError,
-        ThatParsedShape,
-        ThatConstructorInput,
-        ThatConstructorError,
-        ThatEncoded,
-        ThatApi
-      >
-      body: S.Schema<
-        unknown,
-        SelfParserError,
-        SelfParsedShape,
-        SelfConstructorInput,
-        SelfConstructorError,
-        SelfEncoded,
-        SelfApi
-      >
-    }
-  ): WriteRequest<
-    M,
-    S.Schema<
-      unknown,
-      ThatParserError,
-      ThatParsedShape,
-      ThatConstructorInput,
-      ThatConstructorError,
-      ThatEncoded,
-      ThatApi
-    >,
-    S.Schema<
-      unknown,
-      SelfParserError,
-      SelfParsedShape,
-      SelfConstructorInput,
-      SelfConstructorError,
-      SelfEncoded,
-      SelfApi
-    >,
-    undefined,
-    Headers,
-    S.Schema<
-      unknown,
-      S.IntersectionE<S.MemberE<0, SelfParserError> | S.MemberE<1, ThatParserError>>,
-      SelfParsedShape & ThatParsedShape,
-      SelfConstructorInput & ThatConstructorInput,
-      S.IntersectionE<
-        S.MemberE<0, SelfConstructorError> | S.MemberE<1, ThatConstructorError>
-      >,
-      SelfEncoded & ThatEncoded,
-      {}
-    >
-  >
-  function a<
-    SelfParserError extends S.SchemaError<any>,
-    SelfParsedShape extends Record<string, any>,
-    SelfConstructorInput,
-    SelfConstructorError extends S.SchemaError<any>,
-    SelfEncoded extends Record<string, any>,
-    SelfApi,
-    PathParserError extends S.SchemaError<any>,
-    PathParsedShape extends Record<string, any>,
-    PathConstructorInput,
-    PathConstructorError extends S.SchemaError<any>,
-    PathEncoded extends Record<string, any>,
-    PathApi,
     QueryParserError extends S.SchemaError<any>,
-    QueryParsedShape extends Record<string, any>,
+    QueryParsedShape extends AnyRecord,
     QueryConstructorInput,
     QueryConstructorError extends S.SchemaError<any>,
-    QueryEncoded extends Record<string, any>,
+    QueryEncoded extends StringRecord,
     QueryApi,
-    Headers extends S.SchemaAny
+    PathParserError extends S.SchemaError<any>,
+    PathParsedShape extends AnyRecord,
+    PathConstructorInput,
+    PathConstructorError extends S.SchemaError<any>,
+    PathEncoded extends StringRecord,
+    PathApi,
+    Headers extends StringRecordSchema
   >(
     method: WriteMethods,
     path: string,
@@ -473,15 +410,6 @@ export function WriteRequest<M>() {
         PathConstructorError,
         PathEncoded,
         PathApi
-      >
-      body: S.Schema<
-        unknown,
-        SelfParserError,
-        SelfParsedShape,
-        SelfConstructorInput,
-        SelfConstructorError,
-        SelfEncoded,
-        SelfApi
       >
       query: S.Schema<
         unknown,
@@ -506,12 +434,171 @@ export function WriteRequest<M>() {
     >,
     S.Schema<
       unknown,
-      SelfParserError,
-      SelfParsedShape,
-      SelfConstructorInput,
-      SelfConstructorError,
-      SelfEncoded,
-      SelfApi
+      QueryParserError,
+      QueryParsedShape,
+      QueryConstructorInput,
+      QueryConstructorError,
+      QueryEncoded,
+      QueryApi
+    >,
+    undefined,
+    Headers,
+    S.Schema<
+      unknown,
+      S.IntersectionE<S.MemberE<0, QueryParserError> | S.MemberE<1, PathParserError>>,
+      QueryParsedShape & PathParsedShape,
+      QueryConstructorInput & PathConstructorInput,
+      S.IntersectionE<
+        S.MemberE<0, QueryConstructorError> | S.MemberE<1, PathConstructorError>
+      >,
+      QueryEncoded & PathEncoded,
+      {}
+    >
+  >
+  function a<
+    BodyParserError extends S.SchemaError<any>,
+    BodyParsedShape extends AnyRecord,
+    BodyConstructorInput,
+    BodyConstructorError extends S.SchemaError<any>,
+    BodyEncoded extends AnyRecord,
+    BodyApi,
+    PathParserError extends S.SchemaError<any>,
+    PathParsedShape extends AnyRecord,
+    PathConstructorInput,
+    PathConstructorError extends S.SchemaError<any>,
+    PathEncoded extends StringRecord,
+    PathApi,
+    Headers extends StringRecordSchema
+  >(
+    method: WriteMethods,
+    path: string,
+    _: {
+      headers?: Headers
+      path: S.Schema<
+        unknown,
+        PathParserError,
+        PathParsedShape,
+        PathConstructorInput,
+        PathConstructorError,
+        PathEncoded,
+        PathApi
+      >
+      body: S.Schema<
+        unknown,
+        BodyParserError,
+        BodyParsedShape,
+        BodyConstructorInput,
+        BodyConstructorError,
+        BodyEncoded,
+        BodyApi
+      >
+    }
+  ): WriteRequest<
+    M,
+    S.Schema<
+      unknown,
+      PathParserError,
+      PathParsedShape,
+      PathConstructorInput,
+      PathConstructorError,
+      PathEncoded,
+      PathApi
+    >,
+    S.Schema<
+      unknown,
+      BodyParserError,
+      BodyParsedShape,
+      BodyConstructorInput,
+      BodyConstructorError,
+      BodyEncoded,
+      BodyApi
+    >,
+    undefined,
+    Headers,
+    S.Schema<
+      unknown,
+      S.IntersectionE<S.MemberE<0, BodyParserError> | S.MemberE<1, PathParserError>>,
+      BodyParsedShape & PathParsedShape,
+      BodyConstructorInput & PathConstructorInput,
+      S.IntersectionE<
+        S.MemberE<0, BodyConstructorError> | S.MemberE<1, PathConstructorError>
+      >,
+      BodyEncoded & PathEncoded,
+      {}
+    >
+  >
+  function a<
+    BodyParserError extends S.SchemaError<any>,
+    BodyParsedShape extends AnyRecord,
+    BodyConstructorInput,
+    BodyConstructorError extends S.SchemaError<any>,
+    BodyEncoded extends AnyRecord,
+    BodyApi,
+    PathParserError extends S.SchemaError<any>,
+    PathParsedShape extends AnyRecord,
+    PathConstructorInput,
+    PathConstructorError extends S.SchemaError<any>,
+    PathEncoded extends StringRecord,
+    PathApi,
+    QueryParserError extends S.SchemaError<any>,
+    QueryParsedShape extends AnyRecord,
+    QueryConstructorInput,
+    QueryConstructorError extends S.SchemaError<any>,
+    QueryEncoded extends StringRecord,
+    QueryApi,
+    Headers extends StringRecordSchema
+  >(
+    method: WriteMethods,
+    path: string,
+    _: {
+      headers?: Headers
+      path: S.Schema<
+        unknown,
+        PathParserError,
+        PathParsedShape,
+        PathConstructorInput,
+        PathConstructorError,
+        PathEncoded,
+        PathApi
+      >
+      body: S.Schema<
+        unknown,
+        BodyParserError,
+        BodyParsedShape,
+        BodyConstructorInput,
+        BodyConstructorError,
+        BodyEncoded,
+        BodyApi
+      >
+      query: S.Schema<
+        unknown,
+        QueryParserError,
+        QueryParsedShape,
+        QueryConstructorInput,
+        QueryConstructorError,
+        QueryEncoded,
+        QueryApi
+      >
+    }
+  ): WriteRequest<
+    M,
+    S.Schema<
+      unknown,
+      PathParserError,
+      PathParsedShape,
+      PathConstructorInput,
+      PathConstructorError,
+      PathEncoded,
+      PathApi
+    >,
+    S.Schema<
+      unknown,
+      BodyParserError,
+      BodyParsedShape,
+      BodyConstructorInput,
+      BodyConstructorError,
+      BodyEncoded,
+      BodyApi
     >,
     S.Schema<
       unknown,
@@ -526,26 +613,26 @@ export function WriteRequest<M>() {
     S.Schema<
       unknown,
       S.IntersectionE<
-        | S.MemberE<0, SelfParserError>
+        | S.MemberE<0, BodyParserError>
         | S.MemberE<1, PathParserError>
         | S.MemberE<2, QueryParserError>
       >,
-      SelfParsedShape & PathParsedShape & QueryParsedShape,
-      SelfConstructorInput & PathConstructorInput & QueryConstructorInput,
+      BodyParsedShape & PathParsedShape & QueryParsedShape,
+      BodyConstructorInput & PathConstructorInput & QueryConstructorInput,
       S.IntersectionE<
-        | S.MemberE<0, SelfConstructorError>
+        | S.MemberE<0, BodyConstructorError>
         | S.MemberE<1, PathConstructorError>
         | S.MemberE<2, QueryConstructorError>
       >,
-      SelfEncoded & PathEncoded & QueryEncoded,
+      BodyEncoded & PathEncoded & QueryEncoded,
       {}
     >
   >
   function a<
-    Path extends S.SchemaAny,
-    Body extends S.SchemaAny,
-    Query extends S.SchemaAny,
-    Headers extends S.SchemaAny
+    Path extends StringRecordSchema,
+    Body extends AnyRecordSchema,
+    Query extends StringRecordSchema,
+    Headers extends StringRecordSchema
   >(
     method: WriteMethods,
     path: string,
@@ -658,7 +745,12 @@ export type ReqResSchemed<E, A> = {
   new (...args: any[]): any
   Encoder: S.Encoder.Encoder<A, E>
   Model: ReqRes<E, A>
-} //Model<M, ReqRes<E, A>> // ?
+}
+
+export type RequestSchemed<E, A> = ReqResSchemed<E, A> & {
+  method: Methods
+  path: string
+}
 
 export function extractSchema<ResE, ResA>(
   Res_: ReqRes<ResE, ResA> | ReqResSchemed<ResE, ResA>

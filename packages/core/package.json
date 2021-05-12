@@ -4,6 +4,7 @@
     "main": "index.ts",
     "license": "MIT",
     "dependencies": {
+        "abort-controller": "^3.0.0",
         "short-uuid": "^4.1.0",
         "uuid": "^8.3.2",
         "validator": "^13.6.0"

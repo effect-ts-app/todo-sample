@@ -4,6 +4,7 @@ import { DSL, Has } from "@effect-ts/core"
 import { makeAssociative } from "@effect-ts/core/Associative"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as T from "@effect-ts/core/Effect"
+import * as L from "@effect-ts/core/Effect/Layer"
 import { flow, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import * as Sy from "@effect-ts/core/Sync"
@@ -15,7 +16,7 @@ import { strict } from "@effect-ts/morphic/Strict"
 import { strictDecoder } from "@effect-ts/morphic/StrictDecoder"
 import express from "express"
 
-import { NotFoundError } from "../../errors"
+import { NotFoundError, NotLoggedInError } from "../../errors"
 import { UserSVC } from "../../services"
 
 export type Request<
@@ -189,7 +190,11 @@ function handleRequest<R, PathA, CookieA, QueryA, BodyA, HeaderA, ResA, ResE>(
           ...O.toUndefined(path),
         } as PathA & QueryA & BodyA)["|>"](
           // TODO; able to configure only when needed.
-          T.provideSomeLayer(UserSVC.LiveUserEnv(req.headers["x-user-id"] as unknown))
+          T.provideSomeLayer(
+            UserSVC.LiveUserEnv(req.headers["authorization"] as unknown)["|>"](
+              L.mapError(() => new NotLoggedInError())
+            )
+          )
         )
       ),
       T.chain(respond(res)),

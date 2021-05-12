@@ -51,7 +51,7 @@
     "scripts": {
         "start": "concurrently -k -p \"[{name}]\" -n \"API,Frontend\" -c \"cyan.bold,green.bold,blue.bold\" \"yarn start:api\" \"yarn start:frontend\"",
         "start:api": "cd apps/api && yarn start",
-        "dev": "concurrently -k -p \"[{name}]\" -n \"API,Frontend\" -c \"cyan.bold,green.bold,blue.bold\" \"yarn start:api\" \"yarn dev:frontend\"",
+        "dev": "AUTH_DISABLED=true concurrently -k -p \"[{name}]\" -n \"API,Frontend\" -c \"cyan.bold,green.bold,blue.bold\" \"yarn start:api\" \"yarn dev:frontend\"",
         "dev:frontend": "cd apps/frontend && yarn dev",
         "build": "cd apps/frontend && yarn build",
         "start:frontend": "cd apps/frontend && yarn start -p $PORT",

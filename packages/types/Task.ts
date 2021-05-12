@@ -7,7 +7,7 @@ import { Option } from "@effect-ts/core/Option"
 import * as Lens from "@effect-ts/monocle/Lens"
 import { constant } from "@effect-ts/system/Function"
 
-export const UserId = S.positiveInt
+export const UserId = S.nonEmptyString
 export type UserId = S.ParsedShapeOf<typeof UserId>
 
 export const TaskId = S.UUID

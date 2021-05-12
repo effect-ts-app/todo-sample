@@ -1,9 +1,9 @@
+import { UserProvider } from "@auth0/nextjs-auth0"
 import { StyledEngineProvider, useMediaQuery } from "@material-ui/core"
 import { createTheme, ThemeProvider } from "@material-ui/core/styles"
 import AdapterDateFns from "@material-ui/lab/AdapterDateFns"
 import LocalizationProvider from "@material-ui/lab/LocalizationProvider"
 import { StylesProvider } from "@material-ui/styles"
-import "nprogress/nprogress.css"
 import { useRouter } from "next/router"
 import NProgress from "nprogress"
 import React, { useEffect } from "react"
@@ -11,7 +11,13 @@ import React, { useEffect } from "react"
 import GlobalStyle from "@/GlobalStyle"
 import { LiveFetchContext, LiveServiceContext } from "@/context"
 
+import "nprogress/nprogress.css"
+
 function MyApp({ Component, pageProps }: any) {
+  // You can optionally pass the `user` prop from pages that require server-side
+  // rendering to prepopulate the `useUser` hook.
+  const { user } = pageProps
+
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)")
 
   const theme = React.useMemo(
@@ -46,12 +52,14 @@ function MyApp({ Component, pageProps }: any) {
       <StylesProvider injectFirst>
         <ThemeProvider theme={theme}>
           <LocalizationProvider dateAdapter={AdapterDateFns}>
-            <LiveServiceContext>
-              <LiveFetchContext>
-                <GlobalStyle />
-                <Component {...pageProps} />
-              </LiveFetchContext>
-            </LiveServiceContext>
+            <UserProvider user={user}>
+              <LiveServiceContext>
+                <LiveFetchContext>
+                  <GlobalStyle />
+                  <Component {...pageProps} />
+                </LiveFetchContext>
+              </LiveServiceContext>
+            </UserProvider>
           </LocalizationProvider>
         </ThemeProvider>
       </StylesProvider>

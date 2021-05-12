@@ -6,7 +6,6 @@ const withTM = require('next-transpile-modules')([
     '@effect-ts-demo/todo-types'
 ]);
 
-const { API_ROOT = "http://localhost:3330" } = process.env
 
 // eslint-disable-next-line no-undef
 module.exports = withTM({
@@ -36,14 +35,24 @@ module.exports = withTM({
 //     return config
 //   },
 
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: `${API_ROOT}/:path*` // Proxy to Backend
-      }
-    ]
-  },
+//   async rewrites() {
+//       // TODO: Fix swagger* css js etc.
+//       // currently "auth" route is taken by auth0
+//       const paths = ["tasks", "lists", "groups", "me", "swagger", "docs"]
+//     return [
+//         ...paths.map(p => ({
+//                 source: `/api/${p}`,
+//                 destination: `${API_ROOT}/${p}` // Proxy to Backend
+//               })
+
+//         ),
+
+//     //   {
+//     //     source: '/api/:path*',
+//     //     destination: `${API_ROOT}/:path*` // Proxy to Backend
+//     //   }
+//     ]
+//   },
   future: {
     webpack5: true
   }
