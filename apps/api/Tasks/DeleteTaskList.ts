@@ -12,7 +12,9 @@ export default handle(Tasks.DeleteTaskList)((_) =>
     const list = yield* $(TaskContext.getList(_.id))
 
     return yield* $(
-      list["|>"](authorizeList.authorizeM(user.id, (t) => TaskContext.deleteList(t.id)))
+      list["|>"](
+        authorizeList.authorizeM(user.sub, (t) => TaskContext.deleteList(t.id))
+      )
     )
   })
 )

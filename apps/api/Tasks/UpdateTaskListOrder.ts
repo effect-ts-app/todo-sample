@@ -16,13 +16,13 @@ export default handle(Tasks.UpdateTaskListOrder)((_) =>
     const user = yield* $(UserSVC.UserEnv)
 
     if (_.id === "inbox") {
-      yield* $(TaskContext.updateUser(user.id, inboxOrder.set(_.order)))
+      yield* $(TaskContext.updateUser(user.sub, inboxOrder.set(_.order)))
       return
     }
     yield* $(
       TaskContext.updateTaskListM(
         _.id,
-        authorizeTaskList.authorize(user.id, order.set(_.order))
+        authorizeTaskList.authorize(user.sub, order.set(_.order))
       )
     )
   })

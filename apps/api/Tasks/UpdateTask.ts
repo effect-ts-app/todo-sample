@@ -10,12 +10,12 @@ import { UserSVC } from "@effect-ts-demo/infra/services"
 export default handle(Tasks.UpdateTask)(({ id, myDay, ..._ }) =>
   T.gen(function* ($) {
     const user = yield* $(UserSVC.UserEnv)
-    const taskLists = yield* $(TaskContext.allTaskLists(user.id))
+    const taskLists = yield* $(TaskContext.allTaskLists(user.sub))
 
     const task = yield* $(
       TaskContext.updateM(
         id,
-        authorizeTask(taskLists).authorize(user.id, (t) => ({
+        authorizeTask(taskLists).authorize(user.sub, (t) => ({
           ...t,
           ..._,
           updatedAt: new Date(),
@@ -23,7 +23,7 @@ export default handle(Tasks.UpdateTask)(({ id, myDay, ..._ }) =>
       )
     )
     if (myDay) {
-      yield* $(TaskContext.updateUser(user.id, User.toggleMyDay(task, myDay)))
+      yield* $(TaskContext.updateUser(user.sub, User.toggleMyDay(task, myDay)))
     }
   })
 )

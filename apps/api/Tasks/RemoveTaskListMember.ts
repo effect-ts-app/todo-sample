@@ -13,7 +13,7 @@ export default handle(Tasks.RemoveTaskListMember)(({ id, ..._ }) =>
     yield* $(
       TaskContext.updateTaskListM(
         id,
-        authorizeTaskList.authorize(user.id, (g) => ({
+        authorizeTaskList.authorize(user.sub, (g) => ({
           ...g,
           members: A.filter_(g.members, (m) => m.id !== _.memberId),
         }))
