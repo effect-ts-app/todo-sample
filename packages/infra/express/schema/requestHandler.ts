@@ -17,7 +17,6 @@ import { flow, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import * as EU from "@effect-ts/core/Utils"
 import express from "express"
-import jwt_decode from "jwt-decode"
 
 import {
   NotFoundError,
@@ -33,7 +32,6 @@ const AUTH_DISABLED = PROVIDED_AUTH_DISABLED === "true"
 // Todo; or "Security" section instead of directly in headers
 // Todo: use userProfile: (unknown) -> (string) -> (Json/unknown) -> UserProfile
 //const AuthHeaders = S.required({ ["authorization"]: S.nonEmptyString })
-const parseNES = S.Parser.for(S.nonEmptyString)["|>"](S.unsafe)
 
 export function demandLoggedIn<
   R,
@@ -59,11 +57,12 @@ export function demandLoggedIn<
     //   },
     // },
     handle: (req: express.Request) =>
-      UserSVC.LiveUserEnv(
+      pipe(
         AUTH_DISABLED
-          ? JSON.parse(req.headers["x-user"]!)
-          : jwt_decode(parseNES(req.headers["authorization"] as unknown))
-      )["|>"](L.mapError(() => new NotLoggedInError())),
+          ? UserSVC.LiveUserEnvFromUserHeader(req.headers["x-user"])
+          : UserSVC.LiveUserEnvFromAuthorizationHeader(req.headers["authorization"]),
+        L.mapError(() => new NotLoggedInError())
+      ),
   }
 }
 
