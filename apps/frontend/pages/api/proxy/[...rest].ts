@@ -4,6 +4,7 @@ import { createProxyMiddleware } from "http-proxy-middleware"
 const {
   API_ROOT = "http://localhost:3330",
   AUTH_DISABLED: PROVIDED_AUTH_DISABLED = "false",
+  AUTH0_BASE_URL = "http://localhost:3133",
 } = process.env
 const AUTH_DISABLED = PROVIDED_AUTH_DISABLED === "true"
 
@@ -14,6 +15,33 @@ const apiProxy = createProxyMiddleware({
   changeOrigin: true,
   pathRewrite: { [`^/api/proxy`]: "" },
   secure: false,
+
+  onError(err, req, res: any) {
+    res.writeHead(302, {
+      Location: `${AUTH0_BASE_URL}/exception?message=${err.message}`,
+    })
+    res.end()
+  },
+  onProxyReq(proxyReq, req: any, res) {
+    /**
+     * manually overwrite origin for CORS (changeOrigin might not work)
+     */
+    //proxyReq.setHeader("origin", ENDPOINT_PROXY_ORIGIN)
+
+    //const requestId = greq.headers[HEADER_REQUEST_ID] // passed from fetch (Browser) to keep request id in browser too
+    const endpoint = req.url
+    const { method } = req
+
+    console.info(`REQ ${endpoint} ${method} dest: ${API_ROOT}`)
+  },
+  onProxyRes(proxyRes, req: any, res) {
+    //const requestId = greq.headers[HEADER_REQUEST_ID] // passed from fetch (Browser) to keep request id in browser too
+    const endpoint = req.url
+    const { method } = req
+    const status = proxyRes.statusCode
+
+    console.info(`(RES ${endpoint} ${method} ${status}  dest: ${API_ROOT}`)
+  },
 })
 
 export default AUTH_DISABLED
