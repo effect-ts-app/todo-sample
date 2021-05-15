@@ -1,3 +1,7 @@
+import { flow } from "@effect-ts-demo/core/ext/Function"
+import * as S from "@effect-ts-demo/core/ext/Schema"
+import { NotLoggedInError } from "@effect-ts-demo/infra/errors"
+import { UserSVC } from "@effect-ts-demo/infra/services"
 import { TaskList, UserId } from "@effect-ts-demo/todo-types/"
 import * as T from "@effect-ts/core/Effect"
 import { AType, M } from "@effect-ts/morphic"
@@ -13,11 +17,6 @@ import {
 import { UnauthorizedError, NotFoundError } from "@/errors"
 
 import * as TaskContext from "./TaskContext"
-
-import { flow } from "@effect-ts-demo/core/ext/Function"
-import * as S from "@effect-ts-demo/core/ext/Schema"
-import { NotLoggedInError } from "@effect-ts-demo/infra/errors"
-import { UserSVC } from "@effect-ts-demo/infra/services"
 
 export const getLoggedInUser = T.gen(function* ($) {
   const user = yield* $(UserSVC.UserEnv)

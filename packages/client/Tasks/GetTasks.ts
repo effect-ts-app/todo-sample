@@ -5,7 +5,5 @@ import { TaskView } from "./views"
 export class Request extends S.ReadRequest<Request>()("GET", "/tasks", {}) {}
 
 export class Response extends S.Model<Response>()(
-  S.struct({
-    required: { items: S.array(TaskView.Model) },
-  })
+  S.props({ items: S.prop(S.array(TaskView.Model)) })
 ) {}

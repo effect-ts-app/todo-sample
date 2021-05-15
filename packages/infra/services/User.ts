@@ -6,16 +6,12 @@ import * as L from "@effect-ts/core/Effect/Layer"
 import { jwt } from "../express/schema/jwt"
 
 export class UserProfile extends S.Model<UserProfile>()(
-  S.mapField(
-    S.required({
-      /**
-       * Mapped from "sub"
-       */
-      id: S.nonEmptyString,
-    }),
-    "id",
-    "sub"
-  )
+  S.props({
+    /**
+     * Mapped from "sub"
+     */
+    id: S.prop(S.nonEmptyString).from("sub"),
+  })
 ) {}
 
 export interface UserEnv extends UserProfile {}
@@ -34,3 +30,10 @@ export const LiveUserEnvFromAuthorizationHeader = (authorization: unknown) =>
   )
 export const LiveUserEnvFromUserHeader = (user: unknown) =>
   L.fromEffect(UserEnv)(pipe(parseUserProfileFromJson["|>"](S.condemnFail)(user)))
+
+// const parseUnsafe = S.Parser.for(UserProfile.Model)["|>"](S.unsafe)
+// const p1 = parseUnsafe({ sub: "bla" })
+// console.log(p1)
+// const p2 = parseUnsafe({ id: "bla" })
+// console.log(p2)
+// console.log(parseUnsafe(undefined))

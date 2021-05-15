@@ -2,6 +2,7 @@ import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import { v4 } from "uuid"
 
 import { constant, Lazy, pipe } from "../Function"
+import { typedKeysOf } from "../utils"
 
 import * as S from "./_schema"
 import { schemaField } from "./_schema"
@@ -69,6 +70,22 @@ export function withDefaultConstructorFields<
       )
     )
   }
+}
+
+export function makeOptional<NER extends Record<string, S.AnyProperty>>(
+  t: NER // TODO: enforce non empty
+): {
+  [K in keyof NER]: S.Property<
+    NER[K]["_schema"],
+    "optional",
+    NER[K]["_as"],
+    NER[K]["_def"]
+  >
+} {
+  return typedKeysOf(t).reduce((prev, cur) => {
+    prev[cur] = t[cur].opt()
+    return prev
+  }, {} as any)
 }
 
 export const constArray = constant(A.empty)

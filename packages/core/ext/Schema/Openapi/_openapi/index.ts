@@ -11,6 +11,9 @@ import {
   referenced,
   StringSchema,
 } from "@atlas-ts/plutus"
+import * as A from "@effect-ts/core/Collections/Immutable/Array"
+import * as D from "@effect-ts/core/Collections/Immutable/Dictionary"
+import { tuple } from "@effect-ts/core/Collections/Immutable/Tuple"
 import * as T from "@effect-ts/core/Effect"
 import * as O from "@effect-ts/core/Option"
 import {
@@ -23,12 +26,10 @@ import {
   literalIdentifier,
   nonEmptyStringFromStringIdentifier,
   numberIdentifier,
-  partialIdentifier,
   positiveIntFromNumber,
   positiveIntIdentifier,
-  requiredIdentifier,
+  propertiesIdentifier,
   stringIdentifier,
-  taggedUnionIdentifier,
 } from "@effect-ts/schema"
 
 import * as S from "../_schema"
@@ -39,7 +40,6 @@ import {
   hasContinuation,
   intersectIdentifier,
   SchemaContinuationSymbol,
-  structIdentifier,
   unionIdentifier,
 } from "../_schema"
 
@@ -49,17 +49,12 @@ const interpreterCache = new WeakMap()
 const interpretedCache = new WeakMap()
 
 export const interpreters: ((schema: S.SchemaAny) => O.Option<Gen<unknown>>)[] = [
-  O.partial((miss) => (schema: S.SchemaAny): Gen<unknown> => {
-    if (schema instanceof S.SchemaNamed) {
-      return processId(schema)
-    }
-    // TODO: openapi meta; ref
-    // what about name, get from named?
+  O.partial((_miss) => (schema: S.SchemaAny): Gen<unknown> => {
     if (schema instanceof S.SchemaOpenApi) {
       const cfg = schema.jsonSchema()
       return processId(schema, cfg)
     }
-    //console.log("$$$openapi parser", schema.constructor, schema)
+
     if (schema instanceof S.SchemaRecursive) {
       if (interpreterCache.has(schema)) {
         return interpreterCache.get(schema)
@@ -75,29 +70,17 @@ export const interpreters: ((schema: S.SchemaAny) => O.Option<Gen<unknown>>)[] =
       interpreterCache.set(schema, parser)
       return parser
     }
-    if (schema instanceof S.SchemaIdentified) {
-      // todo; apply and extract ref.
-      //const cfg = processId(schema)
-      return processId(schema)
-    }
-    if (schema instanceof S.SchemaIdentity) {
-      //console.log("$$$ id", schema)
 
-      return (_) => _ // ??
-    }
-    // if (schema instanceof S.SchemaCompose) {
-    //   return for_(schema.that)
-    // }
+    return processId(schema)
 
-    if (schema instanceof S.SchemaRefinement) {
-      return for_(schema.self)
-    }
-
-    return miss()
+    //return miss()
   }),
 ]
 
-function processId(schema, meta = {}) {
+function processId(schema: S.SchemaAny, meta = {}) {
+  if (!schema) {
+    throw new Error("schema undefined")
+  }
   return T.gen(function* ($) {
     if (meta) {
       //console.log(meta, schema)
@@ -116,7 +99,7 @@ function processId(schema, meta = {}) {
       return yield* $(processId(schema.self, { title: schema.name }))
     }
 
-    switch (schema.identifier) {
+    switch (schema.annotation) {
       case intersectIdentifier: {
         const { openapiRef, ...rest } = meta
         const ref = openapiRef || rest.title
@@ -131,18 +114,61 @@ function processId(schema, meta = {}) {
         // is desired. Lets make it configurable if someone needs it :)
         return yield* $(referenced({ openapiRef: ref })(T.succeed(ref ? merge(s) : s)))
       }
-      case taggedUnionIdentifier:
-        return new OneOfSchema({
-          ...meta,
-          oneOf: yield* $(T.collectAll(schema.meta.props.map(processId))),
-          discriminator: {
-            propertyName: schema.meta.key,
-          },
-        })
       case unionIdentifier:
+        // TODO: tag should be fined in union annotation instead.
+        const entries = D.collect_(schema.meta.props, (k, v) => [k, v] as const)
+        const head = entries[0]![1]
+        const tag: O.Option<{
+          key: string
+          index: D.Dictionary<string>
+          reverse: D.Dictionary<string>
+          values: readonly string[]
+        }> =
+          "fields" in head.Api
+            ? A.findFirstMap_(Object.keys(head.Api["fields"]), (key) => {
+                const prop = head.Api["fields"][key]
+
+                if ("value" in prop && typeof prop["value"] === "string") {
+                  const tags = A.filterMap_(entries, ([k, s]) => {
+                    if (
+                      "fields" in s.Api &&
+                      key in s.Api["fields"] &&
+                      "value" in s.Api["fields"][key] &&
+                      typeof s.Api["fields"][key]["value"] === "string"
+                    ) {
+                      return O.some(tuple(s.Api["fields"][key]["value"], k))
+                    }
+                    return O.none
+                  })["|>"](A.uniq({ equals: (x, y) => x.get(0) === y.get(0) }))
+
+                  if (tags.length === entries.length) {
+                    return O.some({
+                      key,
+                      index: D.fromArray(tags),
+                      reverse: D.fromArray(
+                        tags.map(({ tuple: [a, b] }) => tuple(b, a))
+                      ),
+                      values: tags.map((_) => _.get(0)),
+                    })
+                  }
+                }
+
+                return O.none
+              })
+            : O.none
+
         return new OneOfSchema({
           ...meta,
-          oneOf: yield* $(T.collectAll(schema.meta.props.map(processId))),
+          oneOf: yield* $(
+            T.collectAll(
+              Object.keys(schema.meta.props).map((x) => processId(schema.meta.props[x]))
+            )
+          ),
+          discriminator: tag["|>"](
+            O.map(({ key }) => ({
+              propertyName: key, // TODO
+            }))
+          )["|>"](O.toUndefined),
         })
       case stringIdentifier:
         return new StringSchema()
@@ -175,20 +201,15 @@ function processId(schema, meta = {}) {
         return new ArraySchema({ items: yield* $(processId(schema.meta.self)) })
       case fromChunkIdentifier:
         return new ArraySchema({ items: yield* $(processId(schema.meta.self)) })
-      case structIdentifier: {
-        // todo; recursive
-        const { required: requiredProps = {}, optional: optionalProps = {} } =
-          schema.meta
+      case propertiesIdentifier: {
         const properties = {}
         const required = []
-        for (const k in requiredProps) {
-          const p = requiredProps[k]
-          properties[k] = yield* $(processId(p))
-          required.push(k)
-        }
-        for (const k in optionalProps) {
-          const p = optionalProps[k]
-          properties[k] = yield* $(processId(p))
+        for (const k in schema.meta.props) {
+          const p: S.AnyProperty = schema.meta.props[k]
+          properties[k] = yield* $(processId(p["_schema"]))
+          if (p["_optional"] === "required") {
+            required.push(k)
+          }
         }
         const { openapiRef, ...rest } = meta
         return yield* $(
@@ -203,50 +224,7 @@ function processId(schema, meta = {}) {
           )
         )
       }
-      case requiredIdentifier: {
-        // todo; recursive
-        const { props } = schema.meta
-        const properties = {}
-        const required = []
-        for (const k in props) {
-          const p = props[k]
-          properties[k] = yield* $(processId(p))
-          required.push(k)
-        }
-        const { openapiRef, ...rest } = meta
-        return yield* $(
-          referenced({ openapiRef: openapiRef || rest.title })(
-            T.succeed(
-              new ObjectSchema({
-                ...rest,
-                properties,
-                required: required.length ? required : undefined,
-              })
-            )
-          )
-        )
-      }
-      case partialIdentifier: {
-        // todo; recursive
-        const { props } = schema.meta
-        const properties = {}
-        for (const k in props) {
-          const p = props[k]
-          properties[k] = yield* $(processId(p))
-        }
 
-        const { openapiRef, ...rest } = meta
-        return yield* $(
-          referenced({ openapiRef: openapiRef || rest.title })(
-            T.succeed(
-              new ObjectSchema({
-                ...rest,
-                properties,
-              })
-            )
-          )
-        )
-      }
       default: {
         if (hasContinuation(schema)) {
           return yield* $(processId(schema[SchemaContinuationSymbol], meta))

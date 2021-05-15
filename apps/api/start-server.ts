@@ -1,14 +1,16 @@
 import fs from "fs"
 
 import * as Plutus from "@atlas-ts/plutus"
+import { makeOpenApiSpecs } from "@effect-ts-demo/infra/express/makeOpenApiSpecs"
+import { RouteDescriptorAny } from "@effect-ts-demo/infra/express/schema/routing"
 import * as T from "@effect-ts/core/Effect"
 import { constVoid, pipe } from "@effect-ts/core/Function"
 import * as Ex from "@effect-ts/express"
 import * as N from "@effect-ts/node/Runtime"
 import { urlencoded, json } from "body-parser"
 import cors from "cors"
-import jwt from "express-jwt"
 import jwtAuthz from "express-jwt-authz"
+import jwt from "express-jwt"
 import jwksRsa from "jwks-rsa"
 import redoc from "redoc-express"
 import { setup, serve } from "swagger-ui-express"
@@ -17,8 +19,6 @@ import { MockTaskContext } from "./Tasks/TaskContext"
 import { routes as taskRoutes } from "./Tasks/routes"
 import * as cfg from "./config"
 
-import { makeOpenApiSpecs } from "@effect-ts-demo/infra/express/makeOpenApiSpecs"
-import { RouteDescriptorAny } from "@effect-ts-demo/infra/express/schema/routing"
 import pkg from "package.json"
 
 const readOpenApiDoc = T.effectAsync((cb) =>

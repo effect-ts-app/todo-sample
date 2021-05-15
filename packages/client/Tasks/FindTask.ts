@@ -4,7 +4,7 @@ import { TaskId } from "@effect-ts-demo/todo-types"
 import { TaskView } from "./views"
 
 export class Request extends S.ReadRequest<Request>()("GET", "/tasks/:id", {
-  path: S.required({ id: TaskId }),
+  path: S.props({ id: S.prop(TaskId) }),
 }) {}
 
 export const Response = S.nullable(TaskView.Model)

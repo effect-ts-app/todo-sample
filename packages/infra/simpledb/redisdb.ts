@@ -184,9 +184,9 @@ export function createContext<TKey extends string, EA, A extends DBRecord<TKey>>
 }
 
 export class RedisSerializedDBRecord extends S.Model<RedisSerializedDBRecord>()(
-  S.required({
-    version: S.stringNumber,
-    timestamp: S.date,
-    data: S.string,
+  S.props({
+    version: S.prop(S.stringNumber),
+    timestamp: S.prop(S.date),
+    data: S.prop(S.string),
   })
 ) {}
