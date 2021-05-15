@@ -5,7 +5,6 @@ import {
   ConstructorInputOf,
   date,
   literal,
-  makeUuid,
   Model,
   namedC,
   nonEmptyString,
@@ -16,19 +15,14 @@ import {
   prop,
   props,
   include,
-  defDate,
-  defArray,
-  defBool,
   withDefault,
+  defaultProp,
 } from "@effect-ts-demo/core/ext/Schema"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as O from "@effect-ts/core/Option"
 import { Option } from "@effect-ts/core/Option"
 import * as Lens from "@effect-ts/monocle/Lens"
 import { constant } from "@effect-ts/system/Function"
-
-const UUIDid = prop(UUID).def(makeUuid, "constructor")
-//const Ided = { id: Id }
 
 export const UserId = nonEmptyString
 export type UserId = ParsedShapeOf<typeof UserId>
@@ -47,7 +41,7 @@ export type TaskListIdU = ParsedShapeOf<typeof TaskListIdU>
 export class Step extends Model<Step>()(
   props({
     title: prop(nonEmptyString),
-    completed: defBool,
+    completed: defaultProp(bool),
   })
 ) {
   static complete = Lens.id<Step>()["|>"](Lens.prop("completed")).set(true)
@@ -71,11 +65,11 @@ export const EditablePersonalTaskProps = {
 
 export class Task extends Model<Task>()(
   props({
-    id: UUIDid,
+    id: defaultProp(TaskId),
     createdBy: prop(UserId),
     listId: defProp(TaskListIdU, constant("inbox" as const)),
-    createdAt: defDate,
-    updatedAt: defDate,
+    createdAt: defaultProp(date),
+    updatedAt: defaultProp(date),
     ...include(
       EditableTaskProps,
       ({ assignedTo, completed, due, isFavorite, note, reminder, steps, ...rest }) => ({
@@ -109,11 +103,11 @@ export const EditableTaskListProps = {
 export class TaskList extends Model<TaskList>()(
   props({
     _tag: prop(literal("TaskList")),
-    id: UUIDid,
+    id: defaultProp(TaskListId),
     ...EditableTaskListProps,
-    order: defArray(TaskId),
+    order: defaultProp(array(TaskId)),
 
-    members: defArray(Membership.Model),
+    members: defaultProp(array(Membership.Model)),
     ownerId: prop(UserId),
   })
 ) {}
@@ -127,7 +121,7 @@ export const EditableTaskListGroupProps = {
 export class TaskListGroup extends Model<TaskListGroup>()(
   props({
     _tag: prop(literal("TaskListGroup")),
-    id: UUIDid,
+    id: defaultProp(TaskListId),
     ...include(EditableTaskListGroupProps, ({ lists, ...rest }) => ({
       ...rest,
       lists: lists["|>"](withDefault),
@@ -151,8 +145,8 @@ export class User extends Model<User>()(
   props({
     id: prop(UserId),
     name: prop(nonEmptyString),
-    inboxOrder: defArray(TaskId),
-    myDay: defArray(MyDay),
+    inboxOrder: defaultProp(TaskId),
+    myDay: defaultProp(array(MyDay)),
   })
 ) {
   // TODO: could these just be type specialisations with new defaults?

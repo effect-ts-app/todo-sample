@@ -6,7 +6,7 @@ import { constant, Lazy, pipe } from "../Function"
 import { typedKeysOf } from "../utils"
 
 import * as S from "./_schema"
-import { schemaField } from "./_schema"
+import { schemaField, UUID } from "./_schema"
 
 export function makeUuid() {
   return v4() as S.UUID
@@ -76,27 +76,6 @@ export function withDefaultConstructorFields<
 export function makeCurrentDate() {
   return new Date()
 }
-
-export function defArray<
-  ParserError extends S.AnyError,
-  ParsedShape,
-  ConstructorInput,
-  ConstructorError extends S.AnyError,
-  Encoded,
-  Api
->(
-  self: S.Schema<
-    unknown,
-    ParserError,
-    ParsedShape,
-    ConstructorInput,
-    ConstructorError,
-    Encoded,
-    Api
-  >
-) {
-  return defProp(S.array(self), constArray)
-}
 export function defaultConstructor<
   Self extends S.SchemaUPI,
   As extends O.Option<PropertyKey>,
@@ -105,8 +84,9 @@ export function defaultConstructor<
   return (makeDefault: () => S.ParsedShapeOf<Self>) => p.def(makeDefault, "constructor")
 }
 
+type SupportedDefaults = A.Array<any> | O.Some<any> | O.None | Date | boolean | UUID
 export function withDefault<
-  ParsedShape extends A.Array<any> | O.Some<any> | O.None | Date | boolean,
+  ParsedShape extends SupportedDefaults,
   As extends O.Option<PropertyKey>,
   Def extends O.Option<
     [
@@ -141,6 +121,9 @@ export function withDefault<
   if (S.isAnnotated(p._schema, S.boolIdentifier)) {
     return p.def(() => false as any, "constructor")
   }
+  if (S.isAnnotated(p._schema, S.UUIDIdentifier)) {
+    return p.def(makeUuid as any, "constructor")
+  }
   throw new Error("Not supported")
 }
 
@@ -151,8 +134,11 @@ export function defProp<Self extends S.SchemaUPI>(
   return S.prop(schema).def(makeDefault, "constructor")
 }
 
-export const defDate = S.prop(S.date)["|>"](withDefault)
-export const defBool = S.prop(S.bool)["|>"](withDefault)
+export function defaultProp<ParsedShape extends SupportedDefaults>(
+  schema: S.Schema<unknown, S.AnyError, ParsedShape, any, S.AnyError, any, any>
+) {
+  return S.prop(schema)["|>"](withDefault)
+}
 
 export function include<
   Props extends Record<string, S.AnyProperty>,
