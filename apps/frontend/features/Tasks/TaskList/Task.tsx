@@ -1,11 +1,12 @@
+import * as A from "@effect-ts-demo/core/ext/Array"
 import * as O from "@effect-ts/core/Option"
 import { Box, Card, Checkbox } from "@material-ui/core"
 import Alarm from "@material-ui/icons/Alarm"
 import CalendarToday from "@material-ui/icons/CalendarToday"
 import Today from "@material-ui/icons/Today"
 import { datumEither } from "@nll/datum"
-import React from "react"
 import { Draggable } from "react-beautiful-dnd"
+import React from "react"
 import styled from "styled-components"
 
 import {
@@ -21,8 +22,6 @@ import { Todo } from "@/index"
 import { renderIf_ } from "@/utils"
 
 import { useTaskCommandsResolved } from "../data"
-
-import * as A from "@effect-ts-demo/core/ext/Array"
 
 function makeStepCount(steps: Todo.Task["steps"]) {
   if (steps.length === 0) {

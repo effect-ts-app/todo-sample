@@ -1,3 +1,6 @@
+import * as T from "@effect-ts-demo/core/ext/Effect"
+import * as EO from "@effect-ts-demo/core/ext/EffectOption"
+import { makeCodec } from "@effect-ts-demo/infra/context/schema"
 import {
   Task,
   TaskListOrGroup,
@@ -21,10 +24,6 @@ import { canAccessList, canAccessTaskE } from "@/access"
 import { NotFoundError } from "@/errors"
 
 import { makeTestDataUnsafe } from "./TaskContext.testdata"
-
-import * as T from "@effect-ts-demo/core/ext/Effect"
-import * as EO from "@effect-ts-demo/core/ext/EffectOption"
-import { makeCodec } from "@effect-ts-demo/infra/context/schema"
 
 const [decodeUser, encodeUser, encodeUsersToMap] = makeCodec(User.Model)
 const [decodeTask, encodeTask, encodeTasksToMap] = makeCodec(Task.Model)

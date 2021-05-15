@@ -1,15 +1,14 @@
+import * as A from "@effect-ts-demo/core/ext/Array"
 import * as O from "@effect-ts/core/Option"
 import { Typography } from "@material-ui/core"
-import React, { useEffect, useState } from "react"
 import { Droppable, DragDropContext } from "react-beautiful-dnd"
+import React, { useEffect, useState } from "react"
 import styled from "styled-components"
 
 import { memo } from "@/data"
 import { Todo } from "@/index"
 
 import { TaskCard, Task } from "./Task"
-
-import * as A from "@effect-ts-demo/core/ext/Array"
 
 const CardList = styled.div`
   > ${TaskCard} {

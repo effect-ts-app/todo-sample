@@ -167,6 +167,7 @@ export class User extends Model<User>()(
       })
   )
 ) {
+  // TODO: could these just be type specialisations with new defaults?
   static readonly createTask =
     (a: Omit<ConstructorInputOf<typeof Task["Model"]>, "createdBy">) => (u: User) =>
       new Task({ ...a, createdBy: u.id })

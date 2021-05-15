@@ -1,4 +1,4 @@
-import { useUser } from "@auth0/nextjs-auth0"
+import * as HF from "@effect-ts-demo/core/http/http-client-fetch"
 import { Fiber, pipe } from "@effect-ts/core"
 import * as T from "@effect-ts/core/Effect"
 import { pretty } from "@effect-ts/core/Effect/Cause"
@@ -11,8 +11,6 @@ import React, { createContext, ReactNode, useContext, useEffect, useMemo } from 
 import { TodoClient } from "@/index"
 
 import { useConfig } from "./config"
-
-import * as HF from "@effect-ts-demo/core/http/http-client-fetch"
 
 function makeLayers(config: TodoClient.ApiConfig) {
   return TodoClient.LiveApiConfig(config)[">+>"](HF.Client(fetch))

@@ -24,7 +24,7 @@ const apiProxy = createProxyMiddleware({
   //     })
   //     res.end()
   //   },
-  onProxyReq(proxyReq, req: any, res) {
+  onProxyReq(_proxyReq, req: any, _res) {
     /**
      * manually overwrite origin for CORS (changeOrigin might not work)
      */
@@ -36,7 +36,7 @@ const apiProxy = createProxyMiddleware({
 
     console.info(`REQ ${endpoint} ${method} dest: ${API_ROOT}`)
   },
-  onProxyRes(proxyRes, req: any, res) {
+  onProxyRes(proxyRes, req: any, _res) {
     //const requestId = greq.headers[HEADER_REQUEST_ID] // passed from fetch (Browser) to keep request id in browser too
     const endpoint = req.url
     const { method } = req

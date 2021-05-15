@@ -1,8 +1,13 @@
+import * as S from "@effect-ts-demo/core/ext/Schema"
+import {
+  TaskListEntry,
+  TaskListEntryOrGroup,
+} from "@effect-ts-demo/todo-client/Tasks/GetMe"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as O from "@effect-ts/core/Option"
 import { datumEither } from "@nll/datum"
-import React from "react"
 import { DragDropContext } from "react-beautiful-dnd"
+import React from "react"
 
 import { useServiceContext } from "@/context"
 import { Todo, TodoClient } from "@/index"
@@ -21,12 +26,6 @@ import {
 } from "../data"
 
 import { FolderList } from "./FolderList"
-
-import * as S from "@effect-ts-demo/core/ext/Schema"
-import {
-  TaskListEntry,
-  TaskListEntryOrGroup,
-} from "@effect-ts-demo/todo-client/Tasks/GetMe"
 
 const defaultLists = [] as readonly TaskListEntryOrGroup[]
 

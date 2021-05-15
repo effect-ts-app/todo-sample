@@ -1,4 +1,5 @@
 /* eslint-disable react/display-name */
+import * as S from "@effect-ts-demo/core/ext/Schema"
 import * as O from "@effect-ts/core/Option"
 import { Box, List, ListItem, ListItemIcon, ListItemText } from "@material-ui/core"
 import Balance from "@material-ui/icons/AccountBalance"
@@ -7,13 +8,11 @@ import Calendar from "@material-ui/icons/CalendarViewMonth"
 import Home from "@material-ui/icons/Home"
 import Star from "@material-ui/icons/Star"
 import Link from "next/link"
-import React from "react"
 import { Draggable, Droppable } from "react-beautiful-dnd"
+import React from "react"
 
 import { memo } from "@/data"
 import { Todo } from "@/index"
-
-import * as S from "@effect-ts-demo/core/ext/Schema"
 
 const icons: Record<string, JSX.Element> = {
   all: <Balance />,

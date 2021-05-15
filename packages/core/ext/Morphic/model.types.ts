@@ -1,9 +1,7 @@
-import type { Branded } from "@effect-ts/core/Branded"
 import { constVoid } from "@effect-ts/core/Function"
 import * as Sy from "@effect-ts/core/Sync"
 import { IntBrand, PositiveBrand } from "@effect-ts/schema"
 
-import type { Arbitrary, FC } from "../FastCheck"
 import { flow, pipe } from "../Function"
 import * as V from "../validation"
 
@@ -18,6 +16,9 @@ import {
   EncoderURI,
   opaque,
 } from "./model"
+
+import type { Arbitrary, FC } from "../FastCheck"
+import type { Branded } from "@effect-ts/core/Branded"
 
 export const UUID = make((F) => F.uuid())
 export type UUID = AType<typeof UUID>

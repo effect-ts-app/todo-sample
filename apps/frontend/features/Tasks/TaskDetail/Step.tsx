@@ -1,7 +1,7 @@
 import { Box, Checkbox, IconButton } from "@material-ui/core"
 import Delete from "@material-ui/icons/Delete"
-import React from "react"
 import { Draggable } from "react-beautiful-dnd"
+import React from "react"
 
 import { Completable, TextFieldWithEditor } from "@/components"
 import { onSuccess, PromiseExit, WithLoading } from "@/data"

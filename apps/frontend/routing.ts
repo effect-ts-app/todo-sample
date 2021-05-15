@@ -1,12 +1,11 @@
 import { ParsedUrlQuery } from "querystring"
 
+import * as S from "@effect-ts-demo/core/ext/Schema"
 import { flow } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import { useRouter } from "next/router"
 
 import { typedKeysOf } from "./utils"
-
-import * as S from "@effect-ts-demo/core/ext/Schema"
 
 export function getQueryParam(search: ParsedUrlQuery, param: string) {
   const v = search[param]

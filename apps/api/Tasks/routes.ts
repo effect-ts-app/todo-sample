@@ -1,3 +1,5 @@
+import { demandLoggedIn } from "@effect-ts-demo/infra/express/schema/requestHandler"
+import * as R from "@effect-ts-demo/infra/express/schema/routing"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as T from "@effect-ts/core/Effect"
 
@@ -13,9 +15,6 @@ import UpdateTask from "./UpdateTask"
 import UpdateTaskList from "./UpdateTaskList"
 import UpdateTaskListGroup from "./UpdateTaskListGroup"
 import UpdateTaskListOrder from "./UpdateTaskListOrder"
-
-import { demandLoggedIn } from "@effect-ts-demo/infra/express/schema/requestHandler"
-import * as R from "@effect-ts-demo/infra/express/schema/routing"
 
 export const routes = T.tuple(
   R.matchA(GetMe, demandLoggedIn),

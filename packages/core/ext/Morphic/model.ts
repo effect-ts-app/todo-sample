@@ -2,7 +2,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // TODO: Convert to @effect-ts/morphic
 
-import type { Branded } from "@effect-ts/core/Branded"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as O from "@effect-ts/core/Option"
 import {
@@ -13,7 +12,6 @@ import {
   make,
   opaque as opaqueOriginal,
 } from "@effect-ts/morphic"
-import type { UUID } from "@effect-ts/morphic/Algebra/Primitives"
 import {
   Context,
   ContextEntry,
@@ -37,6 +35,9 @@ import { pipe, flow } from "../Function"
 import * as Ord from "../Order"
 import * as T from "../Sync"
 import * as u from "../utils"
+
+import type { Branded } from "@effect-ts/core/Branded"
+import type { UUID } from "@effect-ts/morphic/Algebra/Primitives"
 
 import "@effect-ts/core/Operator"
 

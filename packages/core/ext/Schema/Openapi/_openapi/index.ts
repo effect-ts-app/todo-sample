@@ -114,7 +114,7 @@ function processId(schema: S.SchemaAny, meta = {}) {
         // is desired. Lets make it configurable if someone needs it :)
         return yield* $(referenced({ openapiRef: ref })(T.succeed(ref ? merge(s) : s)))
       }
-      case unionIdentifier:
+      case unionIdentifier: {
         // TODO: tag should be fined in union annotation instead.
         const entries = D.collect_(schema.meta.props, (k, v) => [k, v] as const)
         const head = entries[0]![1]
@@ -170,6 +170,7 @@ function processId(schema: S.SchemaAny, meta = {}) {
             }))
           )["|>"](O.toUndefined),
         })
+      }
       case stringIdentifier:
         return new StringSchema()
       case literalIdentifier:

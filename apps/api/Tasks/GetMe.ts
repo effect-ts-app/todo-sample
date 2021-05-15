@@ -1,4 +1,5 @@
 import { Tasks } from "@effect-ts-demo/todo-client"
+import { TaskListGroup, TaskListOrGroup } from "@effect-ts-demo/todo-types/Task"
 import * as Chunk from "@effect-ts/core/Collections/Immutable/Chunk"
 import * as T from "@effect-ts/core/Effect"
 import * as O from "@effect-ts/core/Option"
@@ -6,8 +7,6 @@ import * as O from "@effect-ts/core/Option"
 import { getLoggedInUser, handle } from "@/Tasks/shared"
 
 import * as UserContext from "../Tasks/TaskContext"
-
-import { TaskListGroup, TaskListOrGroup } from "@effect-ts-demo/todo-types/Task"
 
 export default handle(Tasks.GetMe)((_) =>
   T.gen(function* ($) {

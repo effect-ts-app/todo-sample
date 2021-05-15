@@ -29,17 +29,17 @@ export function clientFor<M extends Requests>(models: M) {
       .flatMap((x) => x.Api.props)
     // todo; automatically determine if need a request input etc
     // auto determine if need headers? ie via: { input: (body/query), headers: Z } or as separate arguments ?
-    // @ts-expect-error
+    // @ts-expect-error doc
     prev[cur] =
       h.Request.method === "GET"
         ? props.length === 0
           ? pipe(
               fetchApi(h.Request.method, h.Request.path),
               T.chain(
-                // @ts-expect-error
+                // @ts-expect-error doc
                 flow(
                   (res.Parser ?? S.Parser.for(res))["|>"](S.condemnFail),
-                  // @ts-expect-error
+                  // @ts-expect-error doc
                   mapResponseErrorS
                 )
               )
@@ -48,10 +48,10 @@ export function clientFor<M extends Requests>(models: M) {
               pipe(
                 fetchApi(h.Request.method, new Path(h.Request.path).build(req)),
                 T.chain(
-                  // @ts-expect-error
+                  // @ts-expect-error doc
                   flow(
                     (res.Parser ?? S.Parser.for(res))["|>"](S.condemnFail),
-                    // @ts-expect-error
+                    // @ts-expect-error doc
                     mapResponseErrorS
                   )
                 )

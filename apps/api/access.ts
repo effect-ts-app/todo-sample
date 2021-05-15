@@ -1,3 +1,5 @@
+import * as O from "@effect-ts-demo/core/ext/Option"
+import * as S from "@effect-ts-demo/core/ext/Schema"
 import {
   Task,
   TaskList,
@@ -6,9 +8,6 @@ import {
   UserId,
 } from "@effect-ts-demo/todo-types/"
 import * as Chunk from "@effect-ts/core/Collections/Immutable/Chunk"
-
-import * as O from "@effect-ts-demo/core/ext/Option"
-import * as S from "@effect-ts-demo/core/ext/Schema"
 
 export function canAccessTaskList(userId: UserId) {
   return (l: TaskList) => canAccessTaskList_(l, userId)

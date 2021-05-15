@@ -1,3 +1,6 @@
+import * as A from "@effect-ts-demo/core/ext/Array"
+import * as T from "@effect-ts-demo/core/ext/Effect"
+import * as EO from "@effect-ts-demo/core/ext/EffectOption"
 import * as NA from "@effect-ts/core/Collections/Immutable/NonEmptyArray"
 import { flow } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
@@ -14,8 +17,8 @@ import useInterval from "use-interval"
 import { Field } from "@/components"
 import { useServiceContext } from "@/context"
 import { memo, withLoading } from "@/data"
-import { Todo } from "@/index"
 import { TodoClient } from "@/index"
+import { Todo } from "@/index"
 import { renderIf_, toUpperCaseFirst } from "@/utils"
 
 import { useGetTask, useMe, useModifyMe, useNewTask, useTasks } from "../data"
@@ -23,10 +26,6 @@ import { useRouting } from "../routing"
 
 import TaskList from "./TaskList"
 import { TaskListMenu } from "./TaskListMenu"
-
-import * as A from "@effect-ts-demo/core/ext/Array"
-import * as T from "@effect-ts-demo/core/ext/Effect"
-import * as EO from "@effect-ts-demo/core/ext/EffectOption"
 
 const TaskListView = memo(function ({
   category,

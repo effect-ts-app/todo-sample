@@ -8,10 +8,11 @@ import {
   succeedWith,
   fail,
 } from "@effect-ts/core/Effect"
-import type * as Ei from "@effect-ts/core/Either"
 import * as O from "@effect-ts/core/Option"
 
 import { flow, Lazy, pipe } from "./Function"
+
+import type * as Ei from "@effect-ts/core/Either"
 
 export const encaseEither = <E, A>(ei: Ei.Either<E, A>) => fromEither(() => ei)
 export const chainEither = <E, A, A2>(ei: (a: A2) => Ei.Either<E, A>) =>

@@ -1,3 +1,7 @@
+import * as T from "@effect-ts-demo/core/ext/Effect"
+import * as EO from "@effect-ts-demo/core/ext/EffectOption"
+import * as S from "@effect-ts-demo/core/ext/Schema"
+import { Parser } from "@effect-ts-demo/core/ext/Schema"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import { constant, flow, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
@@ -7,11 +11,6 @@ import { useCallback, useEffect, useMemo } from "react"
 import { useServiceContext } from "@/context"
 import { useFetch, useModify, useQuery } from "@/data"
 import { TodoClient, Todo } from "@/index"
-
-import * as T from "@effect-ts-demo/core/ext/Effect"
-import * as EO from "@effect-ts-demo/core/ext/EffectOption"
-import * as S from "@effect-ts-demo/core/ext/Schema"
-import { Parser } from "@effect-ts-demo/core/ext/Schema"
 
 // export function useModifyTasks() {
 //   return useModify<A.Array<Todo.Task>>("latestTasks")

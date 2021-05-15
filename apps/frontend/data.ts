@@ -1,3 +1,4 @@
+import * as A from "@effect-ts-demo/core/ext/Array"
 import { Fiber, Semaphore } from "@effect-ts/core"
 import * as T from "@effect-ts/core/Effect"
 import { Cause } from "@effect-ts/core/Effect/Cause"
@@ -12,8 +13,6 @@ import { DatumEither } from "@nll/datum/DatumEither"
 import React, { useState } from "react"
 
 import { Fetcher, useFetchContext } from "./context"
-
-import * as A from "@effect-ts-demo/core/ext/Array"
 
 // class UnknownError {
 //   public readonly _trag = "UnknownError"

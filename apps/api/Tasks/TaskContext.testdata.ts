@@ -1,11 +1,10 @@
+import * as O from "@effect-ts-demo/core/ext/Option"
+import * as S from "@effect-ts-demo/core/ext/Schema"
 import { Membership, Step, Task, User, UserId } from "@effect-ts-demo/todo-types"
 import { flow } from "@effect-ts/core/Function"
 import { Lens } from "@effect-ts/monocle"
 
 import { AUTH_DISABLED } from "@/config"
-
-import * as O from "@effect-ts-demo/core/ext/Option"
-import * as S from "@effect-ts-demo/core/ext/Schema"
 
 // Model problems:
 // - isFavorite/reminder are per Task, not per User. Probably should store per user (like myDay now is), and then merge in?
