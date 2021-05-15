@@ -13,9 +13,10 @@ import {
   ParsedShapeOf,
   union,
   UUID,
-  withDefaultConstructorFields,
   prop,
   props,
+  include,
+  makeCurrentDate,
 } from "@effect-ts-demo/core/ext/Schema"
 import { pipe } from "@effect-ts/core"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
@@ -23,6 +24,9 @@ import * as O from "@effect-ts/core/Option"
 import { Option } from "@effect-ts/core/Option"
 import * as Lens from "@effect-ts/monocle/Lens"
 import { constant } from "@effect-ts/system/Function"
+
+const UUIDid = prop(UUID).def(makeUuid, "constructor")
+//const Ided = { id: Id }
 
 export const UserId = nonEmptyString
 export type UserId = ParsedShapeOf<typeof UserId>
@@ -39,9 +43,10 @@ export type TaskListIdU = ParsedShapeOf<typeof TaskListIdU>
 
 @namedC
 export class Step extends Model<Step>()(
-  pipe(props({ title: prop(nonEmptyString), completed: prop(bool) }), (s) =>
-    withDefaultConstructorFields(s)({ completed: constant(false) })
-  )
+  props({
+    title: prop(nonEmptyString),
+    completed: prop(bool).def(constant(false), "constructor"),
+  })
 ) {
   static complete = Lens.id<Step>()["|>"](Lens.prop("completed")).set(true)
 }
@@ -63,30 +68,26 @@ export const EditablePersonalTaskProps = {
 }
 
 export class Task extends Model<Task>()(
-  pipe(
-    props({
-      id: prop(TaskId),
-      createdAt: prop(date),
-      updatedAt: prop(date),
-      createdBy: prop(UserId),
-      listId: prop(TaskListIdU),
-      ...EditableTaskProps,
-    }),
-    (s) =>
-      withDefaultConstructorFields(s)({
-        id: makeUuid,
-        isFavorite: constant(false),
-        steps: constArray,
-        listId: constant("inbox"),
-        createdAt: () => new Date(),
-        updatedAt: () => new Date(),
-        completed: constant(O.none),
-        due: constant(O.none),
-        reminder: constant(O.none),
-        note: constant(O.none),
-        assignedTo: constant(O.none),
+  props({
+    id: UUIDid,
+    createdBy: prop(UserId),
+    listId: prop(TaskListIdU).def(constant("inbox"), "constructor"),
+    createdAt: prop(date).def(makeCurrentDate, "constructor"),
+    updatedAt: prop(date).def(makeCurrentDate, "constructor"),
+    ...include(
+      EditableTaskProps,
+      ({ assignedTo, completed, due, isFavorite, note, reminder, steps, ...rest }) => ({
+        ...rest,
+        assignedTo: assignedTo.def(constant(O.none), "constructor"),
+        completed: completed.def(constant(O.none), "constructor"),
+        due: due.def(constant(O.none), "constructor"),
+        note: note.def(constant(O.none), "constructor"),
+        reminder: reminder.def(constant(O.none), "constructor"),
+        isFavorite: isFavorite.def(constant(false), "constructor"),
+        steps: steps.def(constArray, "constructor"),
       })
-  )
+    ),
+  })
 ) {
   static complete = Lens.id<Task>()
     ["|>"](Lens.prop("completed"))
@@ -104,23 +105,15 @@ export const EditableTaskListProps = {
 
 @namedC
 export class TaskList extends Model<TaskList>()(
-  pipe(
-    props({
-      id: prop(TaskListId),
-      ...EditableTaskListProps,
-      order: prop(array(TaskId)),
+  props({
+    id: UUIDid,
+    ...EditableTaskListProps,
+    order: prop(array(TaskId)).def(constArray, "constructor"),
 
-      members: prop(array(Membership.Model)),
-      ownerId: prop(UserId),
-      _tag: prop(literal("TaskList")),
-    }),
-    (s) =>
-      withDefaultConstructorFields(s)({
-        id: makeUuid,
-        order: constArray,
-        members: constArray,
-      })
-  )
+    members: prop(array(Membership.Model)).def(constArray, "constructor"),
+    ownerId: prop(UserId),
+    _tag: prop(literal("TaskList")),
+  })
 ) {}
 
 export const EditableTaskListGroupProps = {
@@ -132,13 +125,15 @@ export const EditableTaskListGroupProps = {
 export class TaskListGroup extends Model<TaskListGroup>()(
   pipe(
     props({
-      id: prop(TaskListId),
-      ...EditableTaskListGroupProps,
+      id: UUIDid,
+      ...include(EditableTaskListGroupProps, ({ lists, ...rest }) => ({
+        ...rest,
+        lists: lists.def(constArray, "constructor"),
+      })),
 
       ownerId: prop(UserId),
       _tag: prop(literal("TaskListGroup")),
-    }),
-    (s) => withDefaultConstructorFields(s)({ id: makeUuid, lists: constArray })
+    })
   )
 ) {}
 
@@ -148,24 +143,17 @@ export const TaskListOrGroup = union({
 })
 export type TaskListOrGroup = ParsedShapeOf<typeof TaskListOrGroup>
 
-const MyDay = props({ id: prop(TaskId), date: prop(date) })
+const MyDay = props({ id: prop(TaskId), date: prop(date) /* position */ })
 type MyDay = ParsedShapeOf<typeof MyDay>
 
 @namedC
 export class User extends Model<User>()(
-  pipe(
-    props({
-      id: prop(UserId),
-      name: prop(nonEmptyString),
-      inboxOrder: prop(array(TaskId)),
-      myDay: prop(array(MyDay)) /* position */,
-    }),
-    (s) =>
-      withDefaultConstructorFields(s)({
-        inboxOrder: constArray,
-        myDay: constArray,
-      })
-  )
+  props({
+    id: prop(UserId),
+    name: prop(nonEmptyString),
+    inboxOrder: prop(array(TaskId)).def(constArray, "constructor"),
+    myDay: prop(array(MyDay)).def(constArray, "constructor"),
+  })
 ) {
   // TODO: could these just be type specialisations with new defaults?
   static readonly createTask =
