@@ -1,13 +1,22 @@
-import * as S from "@effect-ts-demo/core/ext/Schema"
+import {
+  bool,
+  date,
+  Model,
+  nonEmptyString,
+  nullable,
+  prop,
+  props,
+  WriteRequest,
+} from "@effect-ts-demo/core/ext/Schema"
 import { TaskListIdU, TaskId } from "@effect-ts-demo/todo-types"
 
-export class Request extends S.WriteRequest<Request>()("POST", "/tasks", {
-  body: S.props({
-    listId: S.prop(TaskListIdU),
-    title: S.prop(S.nonEmptyString),
-    isFavorite: S.prop(S.bool),
-    myDay: S.prop(S.nullable(S.date)),
+export class Request extends WriteRequest<Request>()("POST", "/tasks", {
+  body: props({
+    listId: prop(TaskListIdU),
+    title: prop(nonEmptyString),
+    isFavorite: prop(bool),
+    myDay: prop(nullable(date)),
   }),
 }) {}
 
-export class Response extends S.Model<Response>()(S.props({ id: S.prop(TaskId) })) {}
+export class Response extends Model<Response>()(props({ id: prop(TaskId) })) {}

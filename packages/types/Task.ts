@@ -69,8 +69,7 @@ export class Task extends Model<Task>()(
     listId: defaultProp(TaskListIdU, constant("inbox" as const)),
     createdAt: defaultProp(date),
     updatedAt: defaultProp(date),
-    ...include(
-      EditableTaskProps,
+    ...include(EditableTaskProps)(
       ({ assignedTo, completed, due, isFavorite, note, reminder, steps, ...rest }) => ({
         ...rest,
         assignedTo: assignedTo["|>"](withDefault),
@@ -121,7 +120,7 @@ export class TaskListGroup extends Model<TaskListGroup>()(
   props({
     _tag: prop(literal("TaskListGroup")),
     id: defaultProp(TaskListId),
-    ...include(EditableTaskListGroupProps, ({ lists, ...rest }) => ({
+    ...include(EditableTaskListGroupProps)(({ lists, ...rest }) => ({
       ...rest,
       lists: lists["|>"](withDefault),
     })),

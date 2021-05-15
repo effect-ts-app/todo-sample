@@ -1,8 +1,6 @@
-import * as S from "@effect-ts-demo/core/ext/Schema"
+import { intersect, Model, named, props } from "@effect-ts-demo/core/ext/Schema"
 import { EditablePersonalTaskProps, Task } from "@effect-ts-demo/todo-types"
 
-export class TaskView extends S.Model<TaskView>()(
-  Task.Model["|>"](S.intersect(S.props(EditablePersonalTaskProps)))["|>"](
-    S.named("Task")
-  )
+export class TaskView extends Model<TaskView>()(
+  Task.Model["|>"](intersect(props(EditablePersonalTaskProps)))["|>"](named("Task"))
 ) {}

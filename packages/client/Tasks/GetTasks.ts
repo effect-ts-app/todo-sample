@@ -1,9 +1,9 @@
-import * as S from "@effect-ts-demo/core/ext/Schema"
+import { array, Model, prop, props, ReadRequest } from "@effect-ts-demo/core/ext/Schema"
 
 import { TaskView } from "./views"
 
-export class Request extends S.ReadRequest<Request>()("GET", "/tasks", {}) {}
+export class Request extends ReadRequest<Request>()("GET", "/tasks", {}) {}
 
-export class Response extends S.Model<Response>()(
-  S.props({ items: S.prop(S.array(TaskView.Model)) })
+export class Response extends Model<Response>()(
+  props({ items: prop(array(TaskView.Model)) })
 ) {}

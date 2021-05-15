@@ -1,20 +1,20 @@
-import type * as T from "@effect-ts/core/Effect"
-import type { _R, UnionToIntersection } from "@effect-ts/core/Utils"
-import type * as MO from "@effect-ts/morphic"
+import {
+  InternalServerError,
+  MalformedRequestError,
+  NotFoundError,
+  UnauthorizedError,
+} from "../Errors"
 
 import type {
   InternalServerErrorE,
   MalformedRequestErrorE,
   NotFoundErrorE,
-  UnauthorizedErrorE
-} from "../Errors"
-import {
-  InternalServerError,
-  MalformedRequestError,
-  NotFoundError,
-  UnauthorizedError
+  UnauthorizedErrorE,
 } from "../Errors"
 import type { ResponseCode } from "./code"
+import type * as T from "@effect-ts/core/Effect"
+import type { _R, UnionToIntersection } from "@effect-ts/core/Utils"
+import type * as MO from "@effect-ts/morphic"
 
 export type Type<E, A> = MO.M<{}, E, A>
 
@@ -264,14 +264,14 @@ export interface License {
 export function contact(_: Untagged<ContactInfo>): ContactInfo {
   return {
     _tag: "ContactInfo",
-    ..._
+    ..._,
   }
 }
 
 export function license(_: Untagged<License>): License {
   return {
     _tag: "License",
-    ..._
+    ..._,
   }
 }
 
@@ -301,29 +301,29 @@ export function response<X extends Type<any, any>, C extends ResponseCode>(
   return {
     [code]: {
       _tag: "Response",
-      ...reponse
-    }
+      ...reponse,
+    },
   } as any
 }
 
 export const MalformedRequestErrorResponse = response("400", {
   description: "A Malformed Request Error",
-  content: MalformedRequestError
+  content: MalformedRequestError,
 })
 
 export const UnauthorizedErrorResponse = response("401", {
   description: "A Unauthorized Error",
-  content: UnauthorizedError
+  content: UnauthorizedError,
 })
 
 export const NotFoundErrorResponse = response("404", {
   description: "A Not Found Error",
-  content: NotFoundError
+  content: NotFoundError,
 })
 
 export const InternalServerErrorResponse = response("500", {
   description: "A Unexpected Server Error",
-  content: InternalServerError
+  content: InternalServerError,
 })
 
 export function requestBody<Env, B extends Type<any, any>, R extends boolean>(
@@ -335,7 +335,7 @@ export function requestBody<Env, B extends Type<any, any>, R extends boolean>(
     _tag: "RequestBody",
     required,
     examples,
-    ...b
+    ...b,
   }
 }
 
@@ -353,7 +353,7 @@ export interface TagElement<N extends string> {
 export function tag<N extends string>(x: Untagged<TagElement<N>>): TagElement<N> {
   return {
     _tag: "TagElement",
-    ...x
+    ...x,
   }
 }
 
@@ -374,14 +374,14 @@ export function parameter<
     [name]: {
       _tag: "Parameter",
       required,
-      ...param
-    }
+      ...param,
+    },
   } as any
 }
 
 export function api<Tags extends readonly TagElement<any>[]>({
   info,
-  tags
+  tags,
 }: {
   info: Info
   tags: Tags
@@ -442,12 +442,12 @@ export function api<Tags extends readonly TagElement<any>[]>({
                 operation: (op: any) => ({
                   _tag: "Operation",
                   ...op({
-                    parameters: (p: any) => p
-                  })
+                    parameters: (p: any) => p,
+                  }),
                 }),
-                methods: (_) => _
-              })
-            }
+                methods: (_) => _,
+              }),
+            },
           } as any),
         tags: (...ts) => ts,
         responses: (_) => ({
@@ -455,8 +455,8 @@ export function api<Tags extends readonly TagElement<any>[]>({
           ...MalformedRequestErrorResponse,
           ...InternalServerErrorResponse,
           ...UnauthorizedErrorResponse,
-          ...NotFoundErrorResponse
-        })
+          ...NotFoundErrorResponse,
+        }),
       }),
       tags
     )
@@ -520,7 +520,7 @@ export function optionalParameter<P extends { [k in keyof P]: Parameter<any, any
     q[k] = {
       // @ts-expect-error
       ...p[k],
-      required: false
+      required: false,
     }
   }
   // @ts-expect-error
@@ -540,7 +540,7 @@ export function requiredParameter<P extends { [k in keyof P]: Parameter<any, any
     q[k] = {
       // @ts-expect-error
       ...p[k],
-      required: true
+      required: true,
     }
   }
   // @ts-expect-error

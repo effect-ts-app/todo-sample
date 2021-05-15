@@ -12,6 +12,9 @@ export function makeUuid() {
   return v4() as S.UUID
 }
 
+/**
+ * Automatically assign the name of the Class to the Schema.
+ */
 export const namedC = function (cls: any) {
   cls[schemaField] = cls[schemaField]["|>"](S.named(cls.name))
   return cls
@@ -158,7 +161,13 @@ export function defaultProp(
   return makeDefault ? defProp(schema, makeDefault) : S.prop(schema)["|>"](withDefault)
 }
 
-export function include<
+export function include<Props extends Record<string, S.AnyProperty>>(props: Props) {
+  return <NewProps extends Record<string, S.AnyProperty>>(
+    fnc: (props: Props) => NewProps
+  ) => include_(props, fnc)
+}
+
+export function include_<
   Props extends Record<string, S.AnyProperty>,
   NewProps extends Record<string, S.AnyProperty>
 >(props: Props, fnc: (props: Props) => NewProps) {
