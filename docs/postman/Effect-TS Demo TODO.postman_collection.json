@@ -11,8 +11,8 @@
 				"method": "GET",
 				"header": [
 					{
-						"key": "Authorization",
-						"value": "{{UserId}}",
+						"key": "x-user",
+						"value": "{ \"sub\": \"{{UserId}}\" }",
 						"type": "text"
 					}
 				],
@@ -36,8 +36,8 @@
 				"method": "GET",
 				"header": [
 					{
-						"key": "Authorization",
-						"value": "{{UserId}}",
+						"key": "x-user",
+						"value": "{ \"sub\": \"{{UserId}}\" }",
 						"type": "text"
 					}
 				],
@@ -99,8 +99,8 @@
 				"method": "POST",
 				"header": [
 					{
-						"key": "Authorization",
-						"value": "{{UserId}}",
+						"key": "x-user",
+						"value": "{ \"sub\": \"{{UserId}}\" }",
 						"type": "text"
 					}
 				],
@@ -133,8 +133,8 @@
 				"method": "DELETE",
 				"header": [
 					{
-						"key": "Authorization",
-						"value": "{{UserId}}",
+						"key": "x-user",
+						"value": "{ \"sub\": \"{{UserId}}\" }",
 						"type": "text"
 					}
 				],
@@ -159,8 +159,8 @@
 				"method": "PATCH",
 				"header": [
 					{
-						"key": "Authorization",
-						"value": "{{UserId}}",
+						"key": "x-user",
+						"value": "{ \"sub\": \"{{UserId}}\" }",
 						"type": "text"
 					}
 				],
@@ -205,8 +205,8 @@
 				"method": "POST",
 				"header": [
 					{
-						"key": "Authorization",
-						"value": "{{UserId}}",
+						"key": "x-user",
+						"value": "{ \"sub\": \"{{UserId}}\" }",
 						"type": "text"
 					}
 				],
