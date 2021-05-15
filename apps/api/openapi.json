@@ -651,6 +651,15 @@
         "properties": {
           "name": {
             "minLength": 1,
+            "maxLength": 255,
+            "type": "string"
+          },
+          "email": {
+            "format": "email",
+            "type": "string"
+          },
+          "phoneNumber": {
+            "format": "phone",
             "type": "string"
           },
           "inboxOrder": {
@@ -676,22 +685,14 @@
               }
             },
             "type": "array"
-          },
-          "email": {
-            "format": "email",
-            "type": "string"
-          },
-          "phoneNumber": {
-            "format": "phone",
-            "type": "string"
           }
         },
         "required": [
           "name",
-          "inboxOrder",
-          "lists",
           "email",
-          "phoneNumber"
+          "phoneNumber",
+          "inboxOrder",
+          "lists"
         ],
         "type": "object"
       },

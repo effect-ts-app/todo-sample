@@ -1,21 +1,21 @@
 import {
-  bool,
   date,
+  include,
   Model,
   nullable,
   prop,
   props,
   WriteRequest,
 } from "@effect-ts-demo/core/ext/Schema"
-import { TaskListIdU, TaskId } from "@effect-ts-demo/todo-types"
-
-import { Task } from "."
+import { TaskId, Task } from "@effect-ts-demo/todo-types"
 
 export class Request extends WriteRequest<Request>()("POST", "/tasks", {
   body: props({
-    listId: prop(TaskListIdU),
-    title: Task.Model.Api.props.title,
-    isFavorite: prop(bool),
+    ...include(Task.Model.Api.props)(({ isFavorite, listId, title }) => ({
+      listId,
+      title,
+      isFavorite,
+    })),
     myDay: prop(nullable(date)),
   }),
 }) {}

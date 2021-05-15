@@ -1,6 +1,7 @@
 import {
   array,
   Email,
+  include,
   literal,
   Model,
   named,
@@ -15,7 +16,7 @@ import {
   reasonableString,
   union,
 } from "@effect-ts-demo/core/ext/Schema"
-import { TaskListId, TaskId } from "@effect-ts-demo/todo-types"
+import { TaskListId, TaskId, User } from "@effect-ts-demo/todo-types"
 
 export class Request extends ReadRequest<Request>()("GET", "/me", {}) {}
 
@@ -53,10 +54,12 @@ export type TaskListEntryOrGroup = ParsedShapeOf<typeof TaskListEntryOrGroup>
 
 export class Response extends Model<Response>()(
   props({
-    name: prop(nonEmptyString),
-    inboxOrder: prop(array(TaskId)),
+    ...include(User.Model.Api.props)(({ email, inboxOrder, name, phoneNumber }) => ({
+      name,
+      email,
+      phoneNumber,
+      inboxOrder,
+    })),
     lists: prop(array(TaskListEntryOrGroup)),
-    email: prop(Email),
-    phoneNumber: prop(PhoneNumber),
   })["|>"](named("Me"))
 ) {}
