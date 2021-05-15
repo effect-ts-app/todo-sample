@@ -94,11 +94,18 @@ export function defArray<
     Api
   >
 ) {
-  return S.prop(S.array(self)).def(constArray, "constructor")
+  return defProp(S.array(self), constArray)
 }
 
-export const defDate = S.prop(S.date).def(makeCurrentDate, "constructor")
-export const defBool = S.prop(S.bool).def(constant(false), "constructor")
+export function defProp<Self extends S.SchemaUPI>(
+  schema: Self,
+  makeDefault: () => S.ParsedShapeOf<Self>
+) {
+  return S.prop(schema).def(makeDefault, "constructor")
+}
+
+export const defDate = defProp(S.date, makeCurrentDate)
+export const defBool = defProp(S.bool, constant(false))
 
 export function include<
   Props extends Record<string, S.AnyProperty>,
