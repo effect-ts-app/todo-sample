@@ -76,6 +76,30 @@ export function makeCurrentDate() {
   return new Date()
 }
 
+export function defArray<
+  ParserError extends S.AnyError,
+  ParsedShape,
+  ConstructorInput,
+  ConstructorError extends S.AnyError,
+  Encoded,
+  Api
+>(
+  self: S.Schema<
+    unknown,
+    ParserError,
+    ParsedShape,
+    ConstructorInput,
+    ConstructorError,
+    Encoded,
+    Api
+  >
+) {
+  return S.prop(S.array(self)).def(constArray, "constructor")
+}
+
+export const defDate = S.prop(S.date).def(makeCurrentDate, "constructor")
+export const defBool = S.prop(S.bool).def(constant(false), "constructor")
+
 export function include<
   Props extends Record<string, S.AnyProperty>,
   NewProps extends Record<string, S.AnyProperty>

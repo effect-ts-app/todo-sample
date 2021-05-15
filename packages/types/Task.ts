@@ -16,9 +16,10 @@ import {
   prop,
   props,
   include,
-  makeCurrentDate,
+  defDate,
+  defArray,
+  defBool,
 } from "@effect-ts-demo/core/ext/Schema"
-import { pipe } from "@effect-ts/core"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as O from "@effect-ts/core/Option"
 import { Option } from "@effect-ts/core/Option"
@@ -45,7 +46,7 @@ export type TaskListIdU = ParsedShapeOf<typeof TaskListIdU>
 export class Step extends Model<Step>()(
   props({
     title: prop(nonEmptyString),
-    completed: prop(bool).def(constant(false), "constructor"),
+    completed: defBool,
   })
 ) {
   static complete = Lens.id<Step>()["|>"](Lens.prop("completed")).set(true)
@@ -72,8 +73,8 @@ export class Task extends Model<Task>()(
     id: UUIDid,
     createdBy: prop(UserId),
     listId: prop(TaskListIdU).def(constant("inbox"), "constructor"),
-    createdAt: prop(date).def(makeCurrentDate, "constructor"),
-    updatedAt: prop(date).def(makeCurrentDate, "constructor"),
+    createdAt: defDate,
+    updatedAt: defDate,
     ...include(
       EditableTaskProps,
       ({ assignedTo, completed, due, isFavorite, note, reminder, steps, ...rest }) => ({
@@ -96,7 +97,7 @@ export class Task extends Model<Task>()(
 
 @namedC
 export class Membership extends Model<Membership>()(
-  pipe(props({ id: prop(UserId), name: prop(nonEmptyString) }))
+  props({ id: prop(UserId), name: prop(nonEmptyString) })
 ) {}
 
 export const EditableTaskListProps = {
@@ -106,13 +107,13 @@ export const EditableTaskListProps = {
 @namedC
 export class TaskList extends Model<TaskList>()(
   props({
+    _tag: prop(literal("TaskList")),
     id: UUIDid,
     ...EditableTaskListProps,
-    order: prop(array(TaskId)).def(constArray, "constructor"),
+    order: defArray(TaskId),
 
-    members: prop(array(Membership.Model)).def(constArray, "constructor"),
+    members: defArray(Membership.Model),
     ownerId: prop(UserId),
-    _tag: prop(literal("TaskList")),
   })
 ) {}
 
@@ -123,18 +124,16 @@ export const EditableTaskListGroupProps = {
 
 @namedC
 export class TaskListGroup extends Model<TaskListGroup>()(
-  pipe(
-    props({
-      id: UUIDid,
-      ...include(EditableTaskListGroupProps, ({ lists, ...rest }) => ({
-        ...rest,
-        lists: lists.def(constArray, "constructor"),
-      })),
+  props({
+    _tag: prop(literal("TaskListGroup")),
+    id: UUIDid,
+    ...include(EditableTaskListGroupProps, ({ lists, ...rest }) => ({
+      ...rest,
+      lists: lists.def(constArray, "constructor"),
+    })),
 
-      ownerId: prop(UserId),
-      _tag: prop(literal("TaskListGroup")),
-    })
-  )
+    ownerId: prop(UserId),
+  })
 ) {}
 
 export const TaskListOrGroup = union({
@@ -151,8 +150,8 @@ export class User extends Model<User>()(
   props({
     id: prop(UserId),
     name: prop(nonEmptyString),
-    inboxOrder: prop(array(TaskId)).def(constArray, "constructor"),
-    myDay: prop(array(MyDay)).def(constArray, "constructor"),
+    inboxOrder: defArray(TaskId),
+    myDay: defArray(MyDay),
   })
 ) {
   // TODO: could these just be type specialisations with new defaults?
