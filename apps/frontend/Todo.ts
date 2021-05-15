@@ -1,5 +1,20 @@
 import * as A from "@effect-ts-demo/core/ext/Array"
-import * as S from "@effect-ts-demo/core/ext/Schema"
+import {
+  array,
+  constructor,
+  Model,
+  literal,
+  NonEmptyString,
+  nonEmptyString,
+  number,
+  ParsedShapeOf,
+  parser,
+  prop,
+  props,
+  string,
+  These,
+  union,
+} from "@effect-ts-demo/core/ext/Schema"
 import * as Todo from "@effect-ts-demo/todo-client/Tasks"
 import { TaskId, TaskListId } from "@effect-ts-demo/todo-client/Tasks"
 import { constant, flow, identity, pipe } from "@effect-ts/core/Function"
@@ -13,15 +28,14 @@ const stepCompleted = Todo.Step.lens["|>"](Lens.prop("completed"))
 
 export const toggleBoolean = Lens.modify<boolean>((x) => !x)
 export class Step extends Todo.Step {
-  static create = (title: S.NonEmptyString) =>
-    new Todo.Step({ title, completed: false })
+  static create = (title: NonEmptyString) => new Todo.Step({ title, completed: false })
   static toggleCompleted = stepCompleted["|>"](toggleBoolean)
 }
 
 const taskSteps = Todo.Task.lens["|>"](Lens.prop("steps"))
 const createAndAddStep = flow(Step.create, A.snoc)
 const toggleStepCompleted = (s: Step) => A.modifyOrOriginal(s, Step.toggleCompleted)
-const updateStepTitle = (s: Step) => (stepTitle: S.NonEmptyString) =>
+const updateStepTitle = (s: Step) => (stepTitle: NonEmptyString) =>
   A.modifyOrOriginal(s, (s) => ({ ...s, title: stepTitle }))
 
 const pastDate = (d: Date): O.Option<Date> => (d < new Date() ? O.some(d) : O.none)
@@ -45,7 +59,7 @@ export function updateStepIndex(s: Step, newIndex: number) {
 }
 
 export class Task extends Todo.Task {
-  static addStep = (stepTitle: S.NonEmptyString) =>
+  static addStep = (stepTitle: NonEmptyString) =>
     taskSteps["|>"](Lens.modify(createAndAddStep(stepTitle)))
   static deleteStep = (s: Step) => taskSteps["|>"](Lens.modify(A.deleteOrOriginal(s)))
   static toggleCompleted = Todo.Task.lens["|>"](Lens.prop("completed"))["|>"](
@@ -60,7 +74,7 @@ export class Task extends Todo.Task {
   static toggleStepCompleted = (s: Todo.Step) =>
     taskSteps["|>"](Lens.modify(toggleStepCompleted(s)))
 
-  static updateStep = (s: Todo.Step, stepTitle: S.NonEmptyString) =>
+  static updateStep = (s: Todo.Step, stepTitle: NonEmptyString) =>
     taskSteps["|>"](Lens.modify(updateStepTitle(s)(stepTitle)))
 
   static updateStepIndex = (s: Todo.Step, newIndex: number) =>
@@ -73,40 +87,40 @@ export class Task extends Todo.Task {
   )
 }
 
-export class TaskList extends S.Model<TaskList>()(
-  S.props({
-    id: S.prop(TaskListId),
-    title: S.prop(S.nonEmptyString),
-    order: S.prop(S.array(TaskId)),
-    count: S.prop(S.number),
-    _tag: S.prop(S.literal("TaskList")),
+export class TaskList extends Model<TaskList>()(
+  props({
+    id: prop(TaskListId),
+    title: prop(nonEmptyString),
+    order: prop(array(TaskId)),
+    count: prop(number),
+    _tag: prop(literal("TaskList")),
   })
 ) {}
 
-export class TaskListGroup extends S.Model<TaskListGroup>()(
-  S.props({
-    id: S.prop(TaskListId),
-    title: S.prop(S.nonEmptyString),
-    lists: S.prop(S.array(TaskList.Model)),
-    _tag: S.prop(S.literal("TaskListGroup")),
+export class TaskListGroup extends Model<TaskListGroup>()(
+  props({
+    id: prop(TaskListId),
+    title: prop(nonEmptyString),
+    lists: prop(array(TaskList.Model)),
+    _tag: prop(literal("TaskListGroup")),
   })
 ) {}
 
-export class TaskListView extends S.Model<TaskListView>()(
-  S.props({
-    title: S.prop(S.nonEmptyString),
-    count: S.prop(S.number),
-    slug: S.prop(S.string),
-    _tag: S.prop(S.literal("TaskListView")),
+export class TaskListView extends Model<TaskListView>()(
+  props({
+    title: prop(nonEmptyString),
+    count: prop(number),
+    slug: prop(string),
+    _tag: prop(literal("TaskListView")),
   })
 ) {}
 
-export const FolderListADT = S.union({
+export const FolderListADT = union({
   TaskList: TaskList.Model,
   TaskListGroup: TaskListGroup.Model,
   TaskListView: TaskListView.Model,
 })
-export type FolderListADT = S.ParsedShapeOf<typeof FolderListADT>
+export type FolderListADT = ParsedShapeOf<typeof FolderListADT>
 
 export const TaskViews = ["my-day", "important", "planned", "all"] as const
 export type TaskView = typeof TaskViews[number]
@@ -131,25 +145,23 @@ export type Orders = keyof typeof orders
 const order = typedKeysOf(orders)
 export type Order = typeof order[number]
 
-const isOrder = (u: any): u is Order & S.NonEmptyString => u in orders
-export const Order = S.nonEmptyString[">>>"](
+const isOrder = (u: any): u is Order & NonEmptyString => u in orders
+export const Order = nonEmptyString[">>>"](
   pipe(
-    S.identity(isOrder),
-    S.parser((x) => (isOrder(x) ? S.These.succeed(x) : S.These.fail("not order"))),
-    S.constructor((x) => (isOrder(x) ? S.These.succeed(x) : S.These.fail("not order")))
+    identity(isOrder),
+    parser((x) => (isOrder(x) ? These.succeed(x) : These.fail("not order"))),
+    constructor((x) => (isOrder(x) ? These.succeed(x) : These.fail("not order")))
   )
 ) // TODO
 
 const orderDir = ["up", "down"] as const
 export type OrderDir = typeof orderDir[number]
-const isOrderDir = (u: any): u is OrderDir & S.NonEmptyString => u in orders
-export const OrderDir = S.nonEmptyString[">>>"](
+const isOrderDir = (u: any): u is OrderDir & NonEmptyString => u in orders
+export const OrderDir = nonEmptyString[">>>"](
   pipe(
-    S.identity(isOrderDir),
-    S.parser((x) => (isOrderDir(x) ? S.These.succeed(x) : S.These.fail("not order"))),
-    S.constructor((x) =>
-      isOrderDir(x) ? S.These.succeed(x) : S.These.fail("not order")
-    )
+    identity(isOrderDir),
+    parser((x) => (isOrderDir(x) ? These.succeed(x) : These.fail("not order"))),
+    constructor((x) => (isOrderDir(x) ? These.succeed(x) : These.fail("not order")))
   )
 ) // TODO
 
@@ -193,8 +205,8 @@ function isSameDay(today: Date) {
 
 export const emptyTasks = [] as readonly Todo.Task[]
 
-export const Category = S.nonEmptyString
-export type Category = S.NonEmptyString
+export const Category = nonEmptyString
+export type Category = NonEmptyString
 
 export * from "@effect-ts-demo/todo-types"
 export * from "@effect-ts-demo/todo-types/Task"
