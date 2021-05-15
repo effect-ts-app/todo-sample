@@ -67,7 +67,7 @@ export class Task extends Model<Task>()(
   props({
     id: defaultProp(TaskId),
     createdBy: prop(UserId),
-    listId: defProp(TaskListIdU, constant("inbox" as const)),
+    listId: defaultProp(TaskListIdU, constant("inbox" as const)),
     createdAt: defaultProp(date),
     updatedAt: defaultProp(date),
     ...include(

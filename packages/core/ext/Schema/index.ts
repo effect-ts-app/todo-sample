@@ -127,17 +127,35 @@ export function withDefault<
   throw new Error("Not supported")
 }
 
-export function defProp<Self extends S.SchemaUPI>(
+function defProp<Self extends S.SchemaUPI>(
   schema: Self,
   makeDefault: () => S.ParsedShapeOf<Self>
 ) {
   return S.prop(schema).def(makeDefault, "constructor")
 }
 
+export function defaultProp<ParsedShape>(
+  schema: S.Schema<unknown, S.AnyError, ParsedShape, any, S.AnyError, any, any>,
+  makeDefault: () => ParsedShape
+): S.Property<
+  S.Schema<unknown, S.AnyError, ParsedShape, any, S.AnyError, any, any>,
+  "required",
+  O.None,
+  O.Some<["constructor", () => ParsedShape]>
+>
 export function defaultProp<ParsedShape extends SupportedDefaults>(
   schema: S.Schema<unknown, S.AnyError, ParsedShape, any, S.AnyError, any, any>
+): S.Property<
+  S.Schema<unknown, S.AnyError, ParsedShape, any, S.AnyError, any, any>,
+  "required",
+  O.None,
+  O.Some<["constructor", () => ParsedShape]>
+>
+export function defaultProp(
+  schema: S.Schema<unknown, S.AnyError, any, any, S.AnyError, any, any>,
+  makeDefault?: () => any
 ) {
-  return S.prop(schema)["|>"](withDefault)
+  return makeDefault ? defProp(schema, makeDefault) : S.prop(schema)["|>"](withDefault)
 }
 
 export function include<
