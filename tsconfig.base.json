@@ -22,7 +22,6 @@
             ]
         },
         "target": "es2020",
-        "baseUrl": ".",
         "noErrorTruncation": true,
         "noEmit": true,
         "incremental": true,

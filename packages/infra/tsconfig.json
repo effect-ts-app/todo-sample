@@ -1,7 +1,11 @@
 {
     "extends": "../../tsconfig.base.json",
     "compilerOptions": {
-        "baseUrl": "./",
+        "paths": {
+            "@effect-ts-demo/core/*": [
+                "packages/core/*"
+            ]
+        },
         "outDir": "./",
         "sourceMap": false,
         "rootDir": "../../",
