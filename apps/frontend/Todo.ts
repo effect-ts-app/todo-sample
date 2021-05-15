@@ -102,7 +102,7 @@ export class TaskListView extends S.Model<TaskListView>()(
 ) {}
 
 export const FolderListADT = S.union({
-  TasList: TaskList.Model,
+  TaskList: TaskList.Model,
   TaskListGroup: TaskListGroup.Model,
   TaskListView: TaskListView.Model,
 })
