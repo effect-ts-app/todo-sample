@@ -14,6 +14,7 @@ import { AUTH_DISABLED } from "@/config"
 const createUserId = S.Constructor.for(UserId)["|>"](S.unsafe)
 const createRS = S.Constructor.for(S.reasonableString)["|>"](S.unsafe)
 const createEmail = S.Constructor.for(S.Email)["|>"](S.unsafe)
+const createPhoneNumber = S.Constructor.for(S.PhoneNumber)["|>"](S.unsafe)
 
 function makeUserTaskCreator(u: User) {
   return flow(
@@ -30,16 +31,19 @@ export function makeTestDataUnsafe() {
     id: createUserId(AUTH_DISABLED ? "0" : "google-oauth2|118082603933712729435"),
     name: createRS("Patrick Roza"),
     email: createEmail("somewhere@someplace.com"),
+    phoneNumber: createPhoneNumber("+49 1234567"),
   })
   const mike = new User({
     id: createUserId("1"),
     name: createRS("Mike Arnaldi"),
     email: createEmail("somewhere@someplace.com"),
+    phoneNumber: createPhoneNumber("+49 1234567"),
   })
   const markus = new User({
     id: createUserId("2"),
     name: createRS("Markus Nomizz"),
     email: createEmail("somewhere@someplace.com"),
+    phoneNumber: createPhoneNumber("+49 1234567"),
   })
 
   const users = [patrick, mike, markus]

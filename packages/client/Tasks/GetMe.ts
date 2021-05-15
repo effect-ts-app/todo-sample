@@ -8,6 +8,7 @@ import {
   nonEmptyString,
   nullable,
   ParsedShapeOf,
+  PhoneNumber,
   prop,
   props,
   ReadRequest,
@@ -56,5 +57,6 @@ export class Response extends Model<Response>()(
     inboxOrder: prop(array(TaskId)),
     lists: prop(array(TaskListEntryOrGroup)),
     email: prop(Email),
+    phoneNumber: prop(PhoneNumber),
   })["|>"](named("Me"))
 ) {}

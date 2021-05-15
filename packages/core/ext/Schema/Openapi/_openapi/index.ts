@@ -34,6 +34,8 @@ import {
   constrainedStringIdentifier,
   EmailFromStringIdentifier,
   EmailIdentifier,
+  PhoneNumberFromStringIdentifier,
+  PhoneNumberIdentifier,
 } from "../../_api"
 import * as S from "../_schema"
 import {
@@ -145,6 +147,9 @@ function processId(schema: S.SchemaAny, meta = {}) {
       case EmailFromStringIdentifier:
       case EmailIdentifier:
         return new StringSchema({ format: "email" })
+      case PhoneNumberFromStringIdentifier:
+      case PhoneNumberIdentifier:
+        return new StringSchema({ format: "phone" })
 
       case literalIdentifier:
         return new EnumSchema({ enum: schema.meta.literals })

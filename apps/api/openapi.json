@@ -680,13 +680,18 @@
           "email": {
             "format": "email",
             "type": "string"
+          },
+          "phoneNumber": {
+            "format": "phone",
+            "type": "string"
           }
         },
         "required": [
           "name",
           "inboxOrder",
           "lists",
-          "email"
+          "email",
+          "phoneNumber"
         ],
         "type": "object"
       },

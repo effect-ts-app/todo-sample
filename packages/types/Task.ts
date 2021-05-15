@@ -18,6 +18,7 @@ import {
   defaultProp,
   reasonableString,
   Email,
+  PhoneNumber,
 } from "@effect-ts-demo/core/ext/Schema"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as O from "@effect-ts/core/Option"
@@ -148,6 +149,7 @@ export class User extends Model<User>()(
     name: prop(reasonableString),
     inboxOrder: defaultProp(array(TaskId)),
     myDay: defaultProp(array(MyDay)),
+    phoneNumber: prop(PhoneNumber),
   })
 ) {
   // TODO: could these just be type specialisations with new defaults?
