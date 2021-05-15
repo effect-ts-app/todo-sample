@@ -1,7 +1,6 @@
 import {
   array,
   bool,
-  defProp,
   ConstructorInputOf,
   date,
   literal,
