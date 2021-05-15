@@ -11,9 +11,6 @@ import {
   referenced,
   StringSchema,
 } from "@atlas-ts/plutus"
-import * as A from "@effect-ts/core/Collections/Immutable/Array"
-import * as D from "@effect-ts/core/Collections/Immutable/Dictionary"
-import { tuple } from "@effect-ts/core/Collections/Immutable/Tuple"
 import * as T from "@effect-ts/core/Effect"
 import * as O from "@effect-ts/core/Option"
 import {
