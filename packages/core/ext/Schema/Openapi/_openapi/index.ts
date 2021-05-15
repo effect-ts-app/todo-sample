@@ -29,6 +29,7 @@ import {
   stringIdentifier,
 } from "@effect-ts/schema"
 
+import { constrainedStringIdentifier } from "../../_api"
 import * as S from "../_schema"
 import {
   boolIdentifier,
@@ -125,6 +126,12 @@ function processId(schema: S.SchemaAny, meta = {}) {
       }
       case stringIdentifier:
         return new StringSchema()
+      case constrainedStringIdentifier:
+        return new StringSchema({
+          minLength: schema.meta.minLength,
+          maxLength: schema.meta.maxLength,
+        })
+
       case literalIdentifier:
         return new EnumSchema({ enum: schema.meta.literals })
 
@@ -185,7 +192,7 @@ function processId(schema: S.SchemaAny, meta = {}) {
           // cache.set(schema, arb)
           // return arb as Gen<ParsedShape>
         }
-        // console.log("$$$ miss", schema)
+        console.log("$$$ miss", schema)
       }
     }
   })

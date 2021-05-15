@@ -14,6 +14,7 @@ import {
   string,
   These,
   union,
+  reasonableString,
 } from "@effect-ts-demo/core/ext/Schema"
 import * as Todo from "@effect-ts-demo/todo-client/Tasks"
 import { TaskId, TaskListId } from "@effect-ts-demo/todo-client/Tasks"
@@ -28,14 +29,15 @@ const stepCompleted = Todo.Step.lens["|>"](Lens.prop("completed"))
 
 export const toggleBoolean = Lens.modify<boolean>((x) => !x)
 export class Step extends Todo.Step {
-  static create = (title: NonEmptyString) => new Todo.Step({ title, completed: false })
+  static create = (title: Todo.Step["title"]) =>
+    new Todo.Step({ title, completed: false })
   static toggleCompleted = stepCompleted["|>"](toggleBoolean)
 }
 
 const taskSteps = Todo.Task.lens["|>"](Lens.prop("steps"))
 const createAndAddStep = flow(Step.create, A.snoc)
 const toggleStepCompleted = (s: Step) => A.modifyOrOriginal(s, Step.toggleCompleted)
-const updateStepTitle = (s: Step) => (stepTitle: NonEmptyString) =>
+const updateStepTitle = (s: Step) => (stepTitle: Todo.Step["title"]) =>
   A.modifyOrOriginal(s, (s) => ({ ...s, title: stepTitle }))
 
 const pastDate = (d: Date): O.Option<Date> => (d < new Date() ? O.some(d) : O.none)
@@ -59,7 +61,7 @@ export function updateStepIndex(s: Step, newIndex: number) {
 }
 
 export class Task extends Todo.Task {
-  static addStep = (stepTitle: NonEmptyString) =>
+  static addStep = (stepTitle: Todo.Step["title"]) =>
     taskSteps["|>"](Lens.modify(createAndAddStep(stepTitle)))
   static deleteStep = (s: Step) => taskSteps["|>"](Lens.modify(A.deleteOrOriginal(s)))
   static toggleCompleted = Todo.Task.lens["|>"](Lens.prop("completed"))["|>"](
@@ -74,7 +76,7 @@ export class Task extends Todo.Task {
   static toggleStepCompleted = (s: Todo.Step) =>
     taskSteps["|>"](Lens.modify(toggleStepCompleted(s)))
 
-  static updateStep = (s: Todo.Step, stepTitle: NonEmptyString) =>
+  static updateStep = (s: Todo.Step, stepTitle: Todo.Step["title"]) =>
     taskSteps["|>"](Lens.modify(updateStepTitle(s)(stepTitle)))
 
   static updateStepIndex = (s: Todo.Step, newIndex: number) =>
@@ -90,7 +92,7 @@ export class Task extends Todo.Task {
 export class TaskList extends Model<TaskList>()(
   props({
     id: prop(TaskListId),
-    title: prop(nonEmptyString),
+    title: prop(reasonableString),
     order: prop(array(TaskId)),
     count: prop(number),
     _tag: prop(literal("TaskList")),
@@ -100,7 +102,7 @@ export class TaskList extends Model<TaskList>()(
 export class TaskListGroup extends Model<TaskListGroup>()(
   props({
     id: prop(TaskListId),
-    title: prop(nonEmptyString),
+    title: prop(reasonableString),
     lists: prop(array(TaskList.Model)),
     _tag: prop(literal("TaskListGroup")),
   })
@@ -108,7 +110,7 @@ export class TaskListGroup extends Model<TaskListGroup>()(
 
 export class TaskListView extends Model<TaskListView>()(
   props({
-    title: prop(nonEmptyString),
+    title: prop(reasonableString),
     count: prop(number),
     slug: prop(string),
     _tag: prop(literal("TaskListView")),

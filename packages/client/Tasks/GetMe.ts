@@ -10,6 +10,7 @@ import {
   prop,
   props,
   ReadRequest,
+  reasonableString,
   union,
 } from "@effect-ts-demo/core/ext/Schema"
 import { TaskListId, TaskId } from "@effect-ts-demo/todo-types"
@@ -25,7 +26,7 @@ const TaskListEntryProps = props({
 export class TaskListEntry extends Model<TaskListEntry>()(
   props({
     _tag: prop(literal("TaskList")),
-    title: prop(nonEmptyString),
+    title: prop(reasonableString),
     parentListId: prop(nullable(TaskListId)),
     ...TaskListEntryProps.props,
   })
@@ -37,7 +38,7 @@ export class TaskListEntryGroup extends Model<TaskListEntryGroup>()(
   props({
     _tag: prop(literal("TaskListGroup")),
     id: prop(TaskListId),
-    title: prop(nonEmptyString),
+    title: prop(reasonableString),
     lists: prop(array(TaskListId)),
   })
 ) {}

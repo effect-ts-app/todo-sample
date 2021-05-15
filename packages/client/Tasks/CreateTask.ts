@@ -2,7 +2,6 @@ import {
   bool,
   date,
   Model,
-  nonEmptyString,
   nullable,
   prop,
   props,
@@ -10,10 +9,12 @@ import {
 } from "@effect-ts-demo/core/ext/Schema"
 import { TaskListIdU, TaskId } from "@effect-ts-demo/todo-types"
 
+import { Task } from "."
+
 export class Request extends WriteRequest<Request>()("POST", "/tasks", {
   body: props({
     listId: prop(TaskListIdU),
-    title: prop(nonEmptyString),
+    title: Task.Model.Api.props.title,
     isFavorite: prop(bool),
     myDay: prop(nullable(date)),
   }),

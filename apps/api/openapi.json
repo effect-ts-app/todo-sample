@@ -101,6 +101,7 @@
                   },
                   "title": {
                     "minLength": 1,
+                    "maxLength": 255,
                     "type": "string"
                   },
                   "isFavorite": {
@@ -204,6 +205,7 @@
                 "properties": {
                   "title": {
                     "minLength": 1,
+                    "maxLength": 255,
                     "type": "string"
                   },
                   "completed": {
@@ -314,6 +316,7 @@
                 "properties": {
                   "title": {
                     "minLength": 1,
+                    "maxLength": 255,
                     "type": "string"
                   }
                 },
@@ -530,6 +533,7 @@
                 "properties": {
                   "title": {
                     "minLength": 1,
+                    "maxLength": 255,
                     "type": "string"
                   },
                   "lists": {
@@ -579,6 +583,7 @@
           },
           "title": {
             "minLength": 1,
+            "maxLength": 255,
             "type": "string"
           },
           "parentListId": {
@@ -622,6 +627,7 @@
           },
           "title": {
             "minLength": 1,
+            "maxLength": 255,
             "type": "string"
           },
           "lists": {
@@ -684,6 +690,7 @@
         "properties": {
           "title": {
             "minLength": 1,
+            "maxLength": 255,
             "type": "string"
           },
           "completed": {
@@ -732,6 +739,7 @@
           },
           "title": {
             "minLength": 1,
+            "maxLength": 255,
             "type": "string"
           },
           "assignedTo": {

@@ -16,6 +16,7 @@ import {
   include,
   withDefault,
   defaultProp,
+  reasonableString,
 } from "@effect-ts-demo/core/ext/Schema"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as O from "@effect-ts/core/Option"
@@ -39,7 +40,7 @@ export type TaskListIdU = ParsedShapeOf<typeof TaskListIdU>
 @namedC
 export class Step extends Model<Step>()(
   props({
-    title: prop(nonEmptyString),
+    title: prop(reasonableString),
     completed: defaultProp(bool),
   })
 ) {
@@ -47,7 +48,7 @@ export class Step extends Model<Step>()(
 }
 
 export const EditableTaskProps = {
-  title: prop(nonEmptyString),
+  title: prop(reasonableString),
   completed: prop(nullable(date)),
   isFavorite: prop(bool),
 
@@ -90,11 +91,11 @@ export class Task extends Model<Task>()(
 
 @namedC
 export class Membership extends Model<Membership>()(
-  props({ id: prop(UserId), name: prop(nonEmptyString) })
+  props({ id: prop(UserId), name: prop(reasonableString) })
 ) {}
 
 export const EditableTaskListProps = {
-  title: prop(nonEmptyString),
+  title: prop(reasonableString),
 }
 
 @namedC
@@ -111,7 +112,7 @@ export class TaskList extends Model<TaskList>()(
 ) {}
 
 export const EditableTaskListGroupProps = {
-  title: prop(nonEmptyString),
+  title: prop(reasonableString),
   lists: prop(array(TaskListId)),
 }
 
@@ -142,7 +143,7 @@ type MyDay = ParsedShapeOf<typeof MyDay>
 export class User extends Model<User>()(
   props({
     id: prop(UserId),
-    name: prop(nonEmptyString),
+    name: prop(reasonableString),
     inboxOrder: defaultProp(TaskId),
     myDay: defaultProp(array(MyDay)),
   })
