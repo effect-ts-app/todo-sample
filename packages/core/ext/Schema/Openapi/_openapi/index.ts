@@ -22,6 +22,7 @@ import {
   intIdentifier,
   literalIdentifier,
   nonEmptyStringFromStringIdentifier,
+  nonEmptyStringIdentifier,
   numberIdentifier,
   positiveIntFromNumber,
   positiveIntIdentifier,
@@ -29,7 +30,11 @@ import {
   stringIdentifier,
 } from "@effect-ts/schema"
 
-import { constrainedStringIdentifier } from "../../_api"
+import {
+  constrainedStringIdentifier,
+  EmailFromStringIdentifier,
+  EmailIdentifier,
+} from "../../_api"
 import * as S from "../_schema"
 import {
   boolIdentifier,
@@ -124,6 +129,7 @@ function processId(schema: S.SchemaAny, meta = {}) {
           )["|>"](O.toUndefined),
         })
       }
+      case fromStringIdentifier:
       case stringIdentifier:
         return new StringSchema()
       case constrainedStringIdentifier:
@@ -132,17 +138,21 @@ function processId(schema: S.SchemaAny, meta = {}) {
           maxLength: schema.meta.maxLength,
         })
 
+      case nonEmptyStringFromStringIdentifier:
+      case nonEmptyStringIdentifier:
+        return new StringSchema({ minLength: 1 })
+
+      case EmailFromStringIdentifier:
+      case EmailIdentifier:
+        return new StringSchema({ format: "email" })
+
       case literalIdentifier:
         return new EnumSchema({ enum: schema.meta.literals })
 
-      case fromStringIdentifier:
-        return new StringSchema()
       case UUIDFromStringIdentifier:
         return new StringSchema({ format: "uuid" })
       case dateIdentifier:
         return new StringSchema({ format: "date-time" })
-      case nonEmptyStringFromStringIdentifier:
-        return new StringSchema({ minLength: 1 })
       case numberIdentifier:
         return new NumberSchema()
       case intIdentifier:

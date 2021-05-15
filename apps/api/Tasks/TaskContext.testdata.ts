@@ -12,16 +12,14 @@ import { AUTH_DISABLED } from "@/config"
 // - Instead of an Object model, a Data model was defined..
 
 const createUserId = S.Constructor.for(UserId)["|>"](S.unsafe)
-/**
- * Create Non Empty String
- */
-const createNES = S.Constructor.for(S.nonEmptyString)["|>"](S.unsafe)
+const createRS = S.Constructor.for(S.reasonableString)["|>"](S.unsafe)
+const createEmail = S.Constructor.for(S.Email)["|>"](S.unsafe)
 
 function makeUserTaskCreator(u: User) {
   return flow(
     u["|>"](User.createTask_),
     Task.lens["|>"](Lens.prop("title"))["|>"](
-      Lens.modify((t) => createNES(`${u.name} - ${t}`))
+      Lens.modify((t) => createRS(`${u.name} - ${t}`))
     )
   )
 }
@@ -30,50 +28,53 @@ export function makeTestDataUnsafe() {
   // TODO: users from Auth0 / create local shadow.
   const patrick = new User({
     id: createUserId(AUTH_DISABLED ? "0" : "google-oauth2|118082603933712729435"),
-    name: createNES("Patrick Roza"),
+    name: createRS("Patrick Roza"),
+    email: createEmail("somewhere@someplace.com"),
   })
   const mike = new User({
     id: createUserId("1"),
-    name: createNES("Mike Arnaldi"),
+    name: createRS("Mike Arnaldi"),
+    email: createEmail("somewhere@someplace.com"),
   })
   const markus = new User({
     id: createUserId("2"),
-    name: createNES("Markus Nomizz"),
+    name: createRS("Markus Nomizz"),
+    email: createEmail("somewhere@someplace.com"),
   })
 
   const users = [patrick, mike, markus]
 
   const patrickList = patrick["|>"](User.createTaskList_)({
-    title: createNES("Some Patrick List"),
+    title: createRS("Some Patrick List"),
   })
   const patrickSharedList = patrick["|>"](User.createTaskList_)({
-    title: createNES("Patrick's shared List"),
+    title: createRS("Patrick's shared List"),
     members: [
       new Membership({
         id: mike.id,
-        name: createNES("Mike Arnaldi"),
+        name: createRS("Mike Arnaldi"),
       }),
       new Membership({
         id: markus.id,
-        name: createNES("Markus Nomizz"),
+        name: createRS("Markus Nomizz"),
       }),
     ],
   })
   const mikeSharedList = mike["|>"](User.createTaskList_)({
-    title: createNES("Mike's shared List"),
+    title: createRS("Mike's shared List"),
     members: [
       new Membership({
         id: patrick.id,
-        name: createNES("Patrick Roza"),
+        name: createRS("Patrick Roza"),
       }),
     ],
   })
   const markusSharedList = markus["|>"](User.createTaskList_)({
-    title: createNES("Markus's shared List"),
+    title: createRS("Markus's shared List"),
     members: [
       new Membership({
         id: patrick.id,
-        name: createNES("Patrick Roza"),
+        name: createRS("Patrick Roza"),
       }),
     ],
   })
@@ -81,13 +82,13 @@ export function makeTestDataUnsafe() {
   const lists = [
     patrickList,
     patrick["|>"](User.createTaskListGroup_)({
-      title: createNES("Patrick - Some group"),
+      title: createRS("Patrick - Some group"),
       lists: [patrickSharedList.id, patrickList.id],
     }),
     patrickSharedList,
     ///////
     mike["|>"](User.createTaskListGroup_)({
-      title: createNES("Mike - Some group"),
+      title: createRS("Mike - Some group"),
       lists: [mikeSharedList.id],
     }),
     mikeSharedList,
@@ -101,86 +102,86 @@ export function makeTestDataUnsafe() {
 
   const tasks = [
     createPatrickTask({
-      title: createNES("My first Task"),
-      steps: [new Step({ title: createNES("first step") })],
+      title: createRS("My first Task"),
+      steps: [new Step({ title: createRS("first step") })],
     }),
     createPatrickTask({
-      title: createNES("My second Task"),
+      title: createRS("My second Task"),
     }),
     createPatrickTask({
-      title: createNES("My third Task"),
+      title: createRS("My third Task"),
       steps: [
         new Step({
-          title: createNES("first step"),
+          title: createRS("first step"),
           completed: true,
         }),
-        new Step({ title: createNES("second step") }),
+        new Step({ title: createRS("second step") }),
       ],
     })["|>"](Task.complete),
     createPatrickTask({
-      title: createNES("My third Task"),
+      title: createRS("My third Task"),
       steps: [
         new Step({
-          title: createNES("first step"),
+          title: createRS("first step"),
           completed: true,
         }),
         new Step({
-          title: createNES("second step"),
+          title: createRS("second step"),
         }),
       ],
       due: O.some(new Date(2021, 1, 1)),
     }),
     createPatrickTask({
-      title: createNES("My third Task"),
+      title: createRS("My third Task"),
       steps: [
         new Step({
-          title: createNES("first step"),
+          title: createRS("first step"),
           completed: true,
         }),
         new Step({
-          title: createNES("second step"),
+          title: createRS("second step"),
         }),
       ],
       due: O.some(new Date(2021, 2, 1)),
     }),
 
     createPatrickTask({
-      title: createNES("My fourth Task"),
+      title: createRS("My fourth Task"),
       steps: [
         new Step({
-          title: createNES("first step"),
+          title: createRS("first step"),
           completed: true,
         }),
         new Step({
-          title: createNES("second step"),
+          title: createRS("second step"),
         }),
       ],
       reminder: O.some(new Date(2021, 1, 1)),
     }),
 
     createPatrickTask({
-      title: createNES("My fifth Task"),
+      title: createRS("My fifth Task"),
       steps: [
         new Step({
-          title: createNES("first step"),
+          title: createRS("first step"),
           completed: true,
         }),
         new Step({
-          title: createNES("second step"),
+          title: createRS("second step"),
         }),
       ],
       listId: patrickSharedList.id,
       due: O.some(new Date(2021, 2, 1)),
     }),
     createPatrickTask({
-      title: createNES("My sixth Task"),
+      title: createRS("My sixth Task"),
       steps: [
         new Step({
-          title: createNES("first step"),
+          title: createRS("first step"),
           completed: true,
         }),
         new Step({
-          title: createNES("second step"),
+          title: createRS("second step"),
         }),
       ],
       listId: patrickSharedList.id,
@@ -188,14 +189,14 @@ export function makeTestDataUnsafe() {
     }),
 
     createPatrickTask({
-      title: createNES("My seventh Task"),
+      title: createRS("My seventh Task"),
       steps: [
         new Step({
-          title: createNES("first step"),
+          title: createRS("first step"),
           completed: true,
         }),
         new Step({
-          title: createNES("second step"),
+          title: createRS("second step"),
         }),
       ],
       listId: patrickSharedList.id,
@@ -203,36 +204,36 @@ export function makeTestDataUnsafe() {
     }),
 
     createPatrickTask({
-      title: createNES("My eight Task"),
+      title: createRS("My eight Task"),
       steps: [
         new Step({
-          title: createNES("first step"),
+          title: createRS("first step"),
           completed: true,
         }),
         new Step({
-          title: createNES("second step"),
+          title: createRS("second step"),
         }),
       ],
       listId: patrickSharedList.id,
     }),
     ///////
     createMikeTask({
-      title: createNES("My first Task"),
-      steps: [new Step({ title: createNES("first step") })],
+      title: createRS("My first Task"),
+      steps: [new Step({ title: createRS("first step") })],
     }),
     createMikeTask({
-      title: createNES("My second Task"),
-      steps: [new Step({ title: createNES("first step") })],
+      title: createRS("My second Task"),
+      steps: [new Step({ title: createRS("first step") })],
       listId: mikeSharedList.id,
     }),
     ///////
     createMarkusTask({
-      title: createNES("My first Task"),
-      steps: [new Step({ title: createNES("first step") })],
+      title: createRS("My first Task"),
+      steps: [new Step({ title: createRS("first step") })],
     }),
     createMarkusTask({
-      title: createNES("My second Task"),
-      steps: [new Step({ title: createNES("first step") })],
+      title: createRS("My second Task"),
+      steps: [new Step({ title: createRS("first step") })],
       listId: markusSharedList.id,
     }),
   ]

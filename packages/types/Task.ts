@@ -17,6 +17,7 @@ import {
   withDefault,
   defaultProp,
   reasonableString,
+  Email,
 } from "@effect-ts-demo/core/ext/Schema"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as O from "@effect-ts/core/Option"
@@ -143,8 +144,9 @@ type MyDay = ParsedShapeOf<typeof MyDay>
 export class User extends Model<User>()(
   props({
     id: prop(UserId),
+    email: prop(Email),
     name: prop(reasonableString),
-    inboxOrder: defaultProp(TaskId),
+    inboxOrder: defaultProp(array(TaskId)),
     myDay: defaultProp(array(MyDay)),
   })
 ) {

@@ -676,12 +676,17 @@
               }
             },
             "type": "array"
+          },
+          "email": {
+            "format": "email",
+            "type": "string"
           }
         },
         "required": [
           "name",
           "inboxOrder",
-          "lists"
+          "lists",
+          "email"
         ],
         "type": "object"
       },

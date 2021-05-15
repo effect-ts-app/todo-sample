@@ -1,5 +1,6 @@
 import {
   array,
+  Email,
   literal,
   Model,
   named,
@@ -54,5 +55,6 @@ export class Response extends Model<Response>()(
     name: prop(nonEmptyString),
     inboxOrder: prop(array(TaskId)),
     lists: prop(array(TaskListEntryOrGroup)),
+    email: prop(Email),
   })["|>"](named("Me"))
 ) {}

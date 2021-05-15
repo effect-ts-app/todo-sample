@@ -32,6 +32,7 @@ export default handle(Tasks.GetMe)((_) =>
 
     return {
       name: user.name,
+      email: user.email,
       inboxOrder: user.inboxOrder,
       lists,
     }
