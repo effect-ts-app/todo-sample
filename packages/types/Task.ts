@@ -1,5 +1,22 @@
-import { makeUuid } from "@effect-ts-demo/core/ext/Model"
-import * as S from "@effect-ts-demo/core/ext/Schema"
+import {
+  array,
+  bool,
+  constArray,
+  ConstructorInputOf,
+  date,
+  literal,
+  makeUuid,
+  Model,
+  namedC,
+  nonEmptyString,
+  nullable,
+  ParsedShapeOf,
+  union,
+  UUID,
+  withDefaultConstructorFields,
+  prop,
+  props,
+} from "@effect-ts-demo/core/ext/Schema"
 import { pipe } from "@effect-ts/core"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as O from "@effect-ts/core/Option"
@@ -7,59 +24,59 @@ import { Option } from "@effect-ts/core/Option"
 import * as Lens from "@effect-ts/monocle/Lens"
 import { constant } from "@effect-ts/system/Function"
 
-export const UserId = S.nonEmptyString
-export type UserId = S.ParsedShapeOf<typeof UserId>
+export const UserId = nonEmptyString
+export type UserId = ParsedShapeOf<typeof UserId>
 
-export const TaskId = S.UUID
-export type TaskId = S.ParsedShapeOf<typeof TaskId>
+export const TaskId = UUID
+export type TaskId = ParsedShapeOf<typeof TaskId>
 
-export const InboxTaskList = S.literal("inbox")
-export const TaskListId = S.UUID
-export type TaskListId = S.ParsedShapeOf<typeof TaskListId>
+export const InboxTaskList = literal("inbox")
+export const TaskListId = UUID
+export type TaskListId = ParsedShapeOf<typeof TaskListId>
 
-export const TaskListIdU = S.union({ TaskListId, InboxTaskList })
-export type TaskListIdU = S.ParsedShapeOf<typeof TaskListIdU>
+export const TaskListIdU = union({ TaskListId, InboxTaskList })
+export type TaskListIdU = ParsedShapeOf<typeof TaskListIdU>
 
-@S.namedC
-export class Step extends S.Model<Step>()(
-  pipe(S.props({ title: S.prop(S.nonEmptyString), completed: S.prop(S.bool) }), (s) =>
-    S.withDefaultConstructorFields(s)({ completed: constant(false) })
+@namedC
+export class Step extends Model<Step>()(
+  pipe(props({ title: prop(nonEmptyString), completed: prop(bool) }), (s) =>
+    withDefaultConstructorFields(s)({ completed: constant(false) })
   )
 ) {
   static complete = Lens.id<Step>()["|>"](Lens.prop("completed")).set(true)
 }
 
 export const EditableTaskProps = {
-  title: S.prop(S.nonEmptyString),
-  completed: S.prop(S.nullable(S.date)),
-  isFavorite: S.prop(S.bool),
+  title: prop(nonEmptyString),
+  completed: prop(nullable(date)),
+  isFavorite: prop(bool),
 
-  due: S.prop(S.nullable(S.date)),
-  reminder: S.prop(S.nullable(S.date)),
-  note: S.prop(S.nullable(S.nonEmptyString)),
-  steps: S.prop(S.array(Step.Model)),
-  assignedTo: S.prop(S.nullable(UserId)),
+  due: prop(nullable(date)),
+  reminder: prop(nullable(date)),
+  note: prop(nullable(nonEmptyString)),
+  steps: prop(array(Step.Model)),
+  assignedTo: prop(nullable(UserId)),
 }
 
 export const EditablePersonalTaskProps = {
-  myDay: S.prop(S.nullable(S.date)),
+  myDay: prop(nullable(date)),
 }
 
-export class Task extends S.Model<Task>()(
+export class Task extends Model<Task>()(
   pipe(
-    S.props({
-      id: S.prop(TaskId),
-      createdAt: S.prop(S.date),
-      updatedAt: S.prop(S.date),
-      createdBy: S.prop(UserId),
-      listId: S.prop(TaskListIdU),
+    props({
+      id: prop(TaskId),
+      createdAt: prop(date),
+      updatedAt: prop(date),
+      createdBy: prop(UserId),
+      listId: prop(TaskListIdU),
       ...EditableTaskProps,
     }),
     (s) =>
-      S.withDefaultConstructorFields(s)({
+      withDefaultConstructorFields(s)({
         id: makeUuid,
         isFavorite: constant(false),
-        steps: S.constArray,
+        steps: constArray,
         listId: constant("inbox"),
         createdAt: () => new Date(),
         updatedAt: () => new Date(),
@@ -76,101 +93,101 @@ export class Task extends S.Model<Task>()(
     .set(O.some(new Date()))
 }
 
-@S.namedC
-export class Membership extends S.Model<Membership>()(
-  pipe(S.props({ id: S.prop(UserId), name: S.prop(S.nonEmptyString) }))
+@namedC
+export class Membership extends Model<Membership>()(
+  pipe(props({ id: prop(UserId), name: prop(nonEmptyString) }))
 ) {}
 
 export const EditableTaskListProps = {
-  title: S.prop(S.nonEmptyString),
+  title: prop(nonEmptyString),
 }
 
-@S.namedC
-export class TaskList extends S.Model<TaskList>()(
+@namedC
+export class TaskList extends Model<TaskList>()(
   pipe(
-    S.props({
-      id: S.prop(TaskListId),
+    props({
+      id: prop(TaskListId),
       ...EditableTaskListProps,
-      order: S.prop(S.array(TaskId)),
+      order: prop(array(TaskId)),
 
-      members: S.prop(S.array(Membership.Model)),
-      ownerId: S.prop(UserId),
-      _tag: S.prop(S.literal("TaskList")),
+      members: prop(array(Membership.Model)),
+      ownerId: prop(UserId),
+      _tag: prop(literal("TaskList")),
     }),
     (s) =>
-      S.withDefaultConstructorFields(s)({
+      withDefaultConstructorFields(s)({
         id: makeUuid,
-        order: S.constArray,
-        members: S.constArray,
+        order: constArray,
+        members: constArray,
       })
   )
 ) {}
 
 export const EditableTaskListGroupProps = {
-  title: S.prop(S.nonEmptyString),
-  lists: S.prop(S.array(TaskListId)),
+  title: prop(nonEmptyString),
+  lists: prop(array(TaskListId)),
 }
 
-@S.namedC
-export class TaskListGroup extends S.Model<TaskListGroup>()(
+@namedC
+export class TaskListGroup extends Model<TaskListGroup>()(
   pipe(
-    S.props({
-      id: S.prop(TaskListId),
+    props({
+      id: prop(TaskListId),
       ...EditableTaskListGroupProps,
 
-      ownerId: S.prop(UserId),
-      _tag: S.prop(S.literal("TaskListGroup")),
+      ownerId: prop(UserId),
+      _tag: prop(literal("TaskListGroup")),
     }),
-    (s) => S.withDefaultConstructorFields(s)({ id: makeUuid, lists: S.constArray })
+    (s) => withDefaultConstructorFields(s)({ id: makeUuid, lists: constArray })
   )
 ) {}
 
-export const TaskListOrGroup = S.union({
+export const TaskListOrGroup = union({
   TaskList: TaskList.Model,
   TaskListGroup: TaskListGroup.Model,
 })
-export type TaskListOrGroup = S.ParsedShapeOf<typeof TaskListOrGroup>
+export type TaskListOrGroup = ParsedShapeOf<typeof TaskListOrGroup>
 
-const MyDay = S.props({ id: S.prop(TaskId), date: S.prop(S.date) })
-type MyDay = S.ParsedShapeOf<typeof MyDay>
+const MyDay = props({ id: prop(TaskId), date: prop(date) })
+type MyDay = ParsedShapeOf<typeof MyDay>
 
-@S.namedC
-export class User extends S.Model<User>()(
+@namedC
+export class User extends Model<User>()(
   pipe(
-    S.props({
-      id: S.prop(UserId),
-      name: S.prop(S.nonEmptyString),
-      inboxOrder: S.prop(S.array(TaskId)),
-      myDay: S.prop(S.array(MyDay)) /* position */,
+    props({
+      id: prop(UserId),
+      name: prop(nonEmptyString),
+      inboxOrder: prop(array(TaskId)),
+      myDay: prop(array(MyDay)) /* position */,
     }),
     (s) =>
-      S.withDefaultConstructorFields(s)({
-        inboxOrder: S.constArray,
-        myDay: S.constArray,
+      withDefaultConstructorFields(s)({
+        inboxOrder: constArray,
+        myDay: constArray,
       })
   )
 ) {
   static readonly createTask =
-    (a: Omit<S.ConstructorInputOf<typeof Task["Model"]>, "createdBy">) => (u: User) =>
+    (a: Omit<ConstructorInputOf<typeof Task["Model"]>, "createdBy">) => (u: User) =>
       new Task({ ...a, createdBy: u.id })
   static readonly createTask_ =
-    (u: User) => (a: Omit<S.ConstructorInputOf<typeof Task["Model"]>, "createdBy">) =>
+    (u: User) => (a: Omit<ConstructorInputOf<typeof Task["Model"]>, "createdBy">) =>
       new Task({ ...a, createdBy: u.id })
 
   static readonly createTaskList =
-    (a: Omit<S.ConstructorInputOf<typeof TaskList["Model"]>, "ownerId">) => (u: User) =>
+    (a: Omit<ConstructorInputOf<typeof TaskList["Model"]>, "ownerId">) => (u: User) =>
       new TaskList({ ...a, ownerId: u.id })
   static readonly createTaskList_ =
-    (u: User) => (a: Omit<S.ConstructorInputOf<typeof TaskList["Model"]>, "ownerId">) =>
+    (u: User) => (a: Omit<ConstructorInputOf<typeof TaskList["Model"]>, "ownerId">) =>
       new TaskList({ ...a, ownerId: u.id })
 
   static readonly createTaskListGroup =
-    (a: Omit<S.ConstructorInputOf<typeof TaskListGroup["Model"]>, "ownerId">) =>
+    (a: Omit<ConstructorInputOf<typeof TaskListGroup["Model"]>, "ownerId">) =>
     (u: User) =>
       new TaskListGroup({ ...a, ownerId: u.id })
   static readonly createTaskListGroup_ =
     (u: User) =>
-    (a: Omit<S.ConstructorInputOf<typeof TaskListGroup["Model"]>, "ownerId">) =>
+    (a: Omit<ConstructorInputOf<typeof TaskListGroup["Model"]>, "ownerId">) =>
       new TaskListGroup({ ...a, ownerId: u.id })
 
   static readonly getMyDay = (t: Task) => (u: User) =>
