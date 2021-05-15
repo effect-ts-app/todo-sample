@@ -19,6 +19,7 @@ import {
   reasonableString,
   Email,
   PhoneNumber,
+  longString,
 } from "@effect-ts-demo/core/ext/Schema"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as O from "@effect-ts/core/Option"
@@ -56,7 +57,7 @@ export const EditableTaskProps = {
 
   due: prop(nullable(date)),
   reminder: prop(nullable(date)),
-  note: prop(nullable(nonEmptyString)),
+  note: prop(nullable(longString)),
   steps: prop(array(Step.Model)),
   assignedTo: prop(nullable(UserId)),
 }

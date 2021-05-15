@@ -228,6 +228,7 @@
                   },
                   "note": {
                     "minLength": 1,
+                    "maxLength": 2047,
                     "type": "string",
                     "nullable": true
                   },
@@ -770,6 +771,7 @@
           },
           "note": {
             "minLength": 1,
+            "maxLength": 2047,
             "type": "string",
             "nullable": true
           },
