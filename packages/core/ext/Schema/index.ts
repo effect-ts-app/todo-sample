@@ -72,6 +72,17 @@ export function withDefaultConstructorFields<
   }
 }
 
+export function makeCurrentDate() {
+  return new Date()
+}
+
+export function include<
+  Props extends Record<string, S.AnyProperty>,
+  NewProps extends Record<string, S.AnyProperty>
+>(props: Props, fnc: (props: Props) => NewProps) {
+  return fnc(props)
+}
+
 export function makeOptional<NER extends Record<string, S.AnyProperty>>(
   t: NER // TODO: enforce non empty
 ): {

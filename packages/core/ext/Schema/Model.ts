@@ -239,7 +239,7 @@ export function ReadRequest<M>() {
     Headers,
     OrAny<Erase<typeof _.path & typeof _.query, S.SchemaAny>>
   > {
-    const self =
+    const self: S.SchemaAny =
       _.path && _.query
         ? _.path["|>"](S.intersect(_.query))
         : _.path
@@ -658,7 +658,7 @@ export function WriteRequest<M>() {
         : _.body
         ? _.body
         : S.props({})
-    const self = _.query ? s["|>"](S.intersect(_.query)) : s
+    const self: S.SchemaAny = _.query ? s["|>"](S.intersect(_.query)) : s
     type Self = Path
     const of_ = S.Constructor.for(self)["|>"](unsafe)
     // @ts-expect-error the following is correct

@@ -45,9 +45,6 @@ import {
 
 export type Gen<T> = T.UIO<JSONSchema>
 
-const interpreterCache = new WeakMap()
-const interpretedCache = new WeakMap()
-
 export const interpreters: ((schema: S.SchemaAny) => O.Option<Gen<unknown>>)[] = [
   O.partial((_miss) => (schema: S.SchemaAny): Gen<unknown> => {
     if (schema instanceof S.SchemaOpenApi) {
@@ -55,21 +52,21 @@ export const interpreters: ((schema: S.SchemaAny) => O.Option<Gen<unknown>>)[] =
       return processId(schema, cfg)
     }
 
-    if (schema instanceof S.SchemaRecursive) {
-      if (interpreterCache.has(schema)) {
-        return interpreterCache.get(schema)
-      }
-      const parser = () => {
-        if (interpretedCache.has(schema)) {
-          return interpretedCache.get(schema)
-        }
-        const e = for_(schema.self(schema))()
-        interpretedCache.set(schema, e)
-        return e
-      }
-      interpreterCache.set(schema, parser)
-      return parser
-    }
+    // if (schema instanceof S.SchemaRecur) {
+    //   if (interpreterCache.has(schema)) {
+    //     return interpreterCache.get(schema)
+    //   }
+    //   const parser = () => {
+    //     if (interpretedCache.has(schema)) {
+    //       return interpretedCache.get(schema)
+    //     }
+    //     const e = for_(schema.self(schema))()
+    //     interpretedCache.set(schema, e)
+    //     return e
+    //   }
+    //   interpreterCache.set(schema, parser)
+    //   return parser
+    // }
 
     return processId(schema)
 
@@ -115,48 +112,6 @@ function processId(schema: S.SchemaAny, meta = {}) {
         return yield* $(referenced({ openapiRef: ref })(T.succeed(ref ? merge(s) : s)))
       }
       case unionIdentifier: {
-        // TODO: tag should be fined in union annotation instead.
-        const entries = D.collect_(schema.meta.props, (k, v) => [k, v] as const)
-        const head = entries[0]![1]
-        const tag: O.Option<{
-          key: string
-          index: D.Dictionary<string>
-          reverse: D.Dictionary<string>
-          values: readonly string[]
-        }> =
-          "fields" in head.Api
-            ? A.findFirstMap_(Object.keys(head.Api["fields"]), (key) => {
-                const prop = head.Api["fields"][key]
-
-                if ("value" in prop && typeof prop["value"] === "string") {
-                  const tags = A.filterMap_(entries, ([k, s]) => {
-                    if (
-                      "fields" in s.Api &&
-                      key in s.Api["fields"] &&
-                      "value" in s.Api["fields"][key] &&
-                      typeof s.Api["fields"][key]["value"] === "string"
-                    ) {
-                      return O.some(tuple(s.Api["fields"][key]["value"], k))
-                    }
-                    return O.none
-                  })["|>"](A.uniq({ equals: (x, y) => x.get(0) === y.get(0) }))
-
-                  if (tags.length === entries.length) {
-                    return O.some({
-                      key,
-                      index: D.fromArray(tags),
-                      reverse: D.fromArray(
-                        tags.map(({ tuple: [a, b] }) => tuple(b, a))
-                      ),
-                      values: tags.map((_) => _.get(0)),
-                    })
-                  }
-                }
-
-                return O.none
-              })
-            : O.none
-
         return new OneOfSchema({
           ...meta,
           oneOf: yield* $(
@@ -164,7 +119,7 @@ function processId(schema: S.SchemaAny, meta = {}) {
               Object.keys(schema.meta.props).map((x) => processId(schema.meta.props[x]))
             )
           ),
-          discriminator: tag["|>"](
+          discriminator: schema.meta.tag["|>"](
             O.map(({ key }) => ({
               propertyName: key, // TODO
             }))
