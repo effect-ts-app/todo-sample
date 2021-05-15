@@ -1,7 +1,7 @@
 import {
   array,
   bool,
-  constArray,
+  defProp,
   ConstructorInputOf,
   date,
   literal,
@@ -19,6 +19,9 @@ import {
   defDate,
   defArray,
   defBool,
+  defaultOptionConstructor,
+  defaultArrayConstructor,
+  defaultBoolConstructor,
 } from "@effect-ts-demo/core/ext/Schema"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as O from "@effect-ts/core/Option"
@@ -72,20 +75,20 @@ export class Task extends Model<Task>()(
   props({
     id: UUIDid,
     createdBy: prop(UserId),
-    listId: prop(TaskListIdU).def(constant("inbox"), "constructor"),
+    listId: defProp(TaskListIdU, constant("inbox" as const)),
     createdAt: defDate,
     updatedAt: defDate,
     ...include(
       EditableTaskProps,
       ({ assignedTo, completed, due, isFavorite, note, reminder, steps, ...rest }) => ({
         ...rest,
-        assignedTo: assignedTo.def(constant(O.none), "constructor"),
-        completed: completed.def(constant(O.none), "constructor"),
-        due: due.def(constant(O.none), "constructor"),
-        note: note.def(constant(O.none), "constructor"),
-        reminder: reminder.def(constant(O.none), "constructor"),
-        isFavorite: isFavorite.def(constant(false), "constructor"),
-        steps: steps.def(constArray, "constructor"),
+        assignedTo: assignedTo["|>"](defaultOptionConstructor),
+        completed: completed["|>"](defaultOptionConstructor),
+        due: due["|>"](defaultOptionConstructor),
+        note: note["|>"](defaultOptionConstructor),
+        reminder: reminder["|>"](defaultOptionConstructor),
+        isFavorite: isFavorite["|>"](defaultBoolConstructor),
+        steps: steps["|>"](defaultArrayConstructor),
       })
     ),
   })
@@ -129,7 +132,7 @@ export class TaskListGroup extends Model<TaskListGroup>()(
     id: UUIDid,
     ...include(EditableTaskListGroupProps, ({ lists, ...rest }) => ({
       ...rest,
-      lists: lists.def(constArray, "constructor"),
+      lists: lists["|>"](defaultArrayConstructor),
     })),
 
     ownerId: prop(UserId),

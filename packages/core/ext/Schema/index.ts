@@ -1,3 +1,4 @@
+import * as O from "@effect-ts-demo/core/ext/Option"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import { v4 } from "uuid"
 
@@ -95,6 +96,37 @@ export function defArray<
   >
 ) {
   return defProp(S.array(self), constArray)
+}
+export function defaultConstructor<
+  Self extends S.SchemaUPI,
+  As extends O.Option<PropertyKey>,
+  Def extends O.Option<["parser" | "constructor" | "both", () => S.ParsedShapeOf<Self>]>
+>(p: S.Property<Self, "required", As, Def>) {
+  return (makeDefault: () => S.ParsedShapeOf<Self>) => p.def(makeDefault, "constructor")
+}
+
+export function defaultOptionConstructor<
+  Self extends S.Schema<unknown, S.AnyError, O.Option<any>, any, S.AnyError, any, any>,
+  As extends O.Option<PropertyKey>,
+  Def extends O.Option<["parser" | "constructor" | "both", () => S.ParsedShapeOf<Self>]>
+>(p: S.Property<Self, "required", As, Def>) {
+  return p.def(() => O.none as any, "constructor")
+}
+
+export function defaultArrayConstructor<
+  Self extends S.Schema<unknown, S.AnyError, A.Array<any>, any, S.AnyError, any, any>,
+  As extends O.Option<PropertyKey>,
+  Def extends O.Option<["parser" | "constructor" | "both", () => S.ParsedShapeOf<Self>]>
+>(p: S.Property<Self, "required", As, Def>) {
+  return p.def(() => [] as any, "constructor")
+}
+
+export function defaultBoolConstructor<
+  Self extends S.Schema<unknown, S.AnyError, boolean, any, S.AnyError, any, any>,
+  As extends O.Option<PropertyKey>,
+  Def extends O.Option<["parser" | "constructor" | "both", () => S.ParsedShapeOf<Self>]>
+>(p: S.Property<Self, "required", As, Def>) {
+  return p.def(() => false as any, "constructor")
 }
 
 export function defProp<Self extends S.SchemaUPI>(
