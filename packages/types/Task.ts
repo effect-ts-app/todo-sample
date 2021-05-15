@@ -19,9 +19,7 @@ import {
   defDate,
   defArray,
   defBool,
-  defaultOptionConstructor,
-  defaultArrayConstructor,
-  defaultBoolConstructor,
+  withDefault,
 } from "@effect-ts-demo/core/ext/Schema"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as O from "@effect-ts/core/Option"
@@ -82,13 +80,13 @@ export class Task extends Model<Task>()(
       EditableTaskProps,
       ({ assignedTo, completed, due, isFavorite, note, reminder, steps, ...rest }) => ({
         ...rest,
-        assignedTo: assignedTo["|>"](defaultOptionConstructor),
-        completed: completed["|>"](defaultOptionConstructor),
-        due: due["|>"](defaultOptionConstructor),
-        note: note["|>"](defaultOptionConstructor),
-        reminder: reminder["|>"](defaultOptionConstructor),
-        isFavorite: isFavorite["|>"](defaultBoolConstructor),
-        steps: steps["|>"](defaultArrayConstructor),
+        assignedTo: assignedTo["|>"](withDefault),
+        completed: completed["|>"](withDefault),
+        due: due["|>"](withDefault),
+        note: note["|>"](withDefault),
+        reminder: reminder["|>"](withDefault),
+        isFavorite: isFavorite["|>"](withDefault),
+        steps: steps["|>"](withDefault),
       })
     ),
   })
@@ -132,7 +130,7 @@ export class TaskListGroup extends Model<TaskListGroup>()(
     id: UUIDid,
     ...include(EditableTaskListGroupProps, ({ lists, ...rest }) => ({
       ...rest,
-      lists: lists["|>"](defaultArrayConstructor),
+      lists: lists["|>"](withDefault),
     })),
 
     ownerId: prop(UserId),

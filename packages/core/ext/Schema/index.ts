@@ -105,28 +105,43 @@ export function defaultConstructor<
   return (makeDefault: () => S.ParsedShapeOf<Self>) => p.def(makeDefault, "constructor")
 }
 
-export function defaultOptionConstructor<
-  Self extends S.Schema<unknown, S.AnyError, O.Option<any>, any, S.AnyError, any, any>,
+export function withDefault<
+  ParsedShape extends A.Array<any> | O.Some<any> | O.None | Date | boolean,
   As extends O.Option<PropertyKey>,
-  Def extends O.Option<["parser" | "constructor" | "both", () => S.ParsedShapeOf<Self>]>
->(p: S.Property<Self, "required", As, Def>) {
-  return p.def(() => O.none as any, "constructor")
-}
-
-export function defaultArrayConstructor<
-  Self extends S.Schema<unknown, S.AnyError, A.Array<any>, any, S.AnyError, any, any>,
-  As extends O.Option<PropertyKey>,
-  Def extends O.Option<["parser" | "constructor" | "both", () => S.ParsedShapeOf<Self>]>
->(p: S.Property<Self, "required", As, Def>) {
-  return p.def(() => [] as any, "constructor")
-}
-
-export function defaultBoolConstructor<
-  Self extends S.Schema<unknown, S.AnyError, boolean, any, S.AnyError, any, any>,
-  As extends O.Option<PropertyKey>,
-  Def extends O.Option<["parser" | "constructor" | "both", () => S.ParsedShapeOf<Self>]>
->(p: S.Property<Self, "required", As, Def>) {
-  return p.def(() => false as any, "constructor")
+  Def extends O.Option<
+    [
+      "parser" | "constructor" | "both",
+      () => S.ParsedShapeOf<
+        S.Schema<unknown, S.AnyError, ParsedShape, any, S.AnyError, any, any>
+      >
+    ]
+  >
+>(
+  p: S.Property<
+    S.Schema<unknown, S.AnyError, ParsedShape, any, S.AnyError, any, any>,
+    "required",
+    As,
+    Def
+  >
+): S.Property<
+  S.Schema<unknown, S.AnyError, ParsedShape, any, S.AnyError, any, any>,
+  "required",
+  As,
+  O.Some<["constructor", () => ParsedShape]>
+> {
+  if (S.isAnnotated(p._schema, S.dateIdentifier)) {
+    return p.def(makeCurrentDate as any, "constructor")
+  }
+  if (S.isAnnotated(p._schema, S.nullableIdentifier)) {
+    return p.def(() => O.none as any, "constructor")
+  }
+  if (S.isAnnotated(p._schema, S.arrayIdentifier)) {
+    return p.def(() => [] as any, "constructor")
+  }
+  if (S.isAnnotated(p._schema, S.boolIdentifier)) {
+    return p.def(() => false as any, "constructor")
+  }
+  throw new Error("Not supported")
 }
 
 export function defProp<Self extends S.SchemaUPI>(
@@ -136,8 +151,8 @@ export function defProp<Self extends S.SchemaUPI>(
   return S.prop(schema).def(makeDefault, "constructor")
 }
 
-export const defDate = defProp(S.date, makeCurrentDate)
-export const defBool = defProp(S.bool, constant(false))
+export const defDate = S.prop(S.date)["|>"](withDefault)
+export const defBool = S.prop(S.bool)["|>"](withDefault)
 
 export function include<
   Props extends Record<string, S.AnyProperty>,
