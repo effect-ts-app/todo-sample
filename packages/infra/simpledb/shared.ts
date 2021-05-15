@@ -37,12 +37,20 @@ export interface DBRecord<TKey extends string> {
 }
 
 export class SerializedDBRecord extends S.Model<SerializedDBRecord>()(
-  S.required({ version: S.number, timestamp: S.date, data: S.string })
+  S.props({
+    version: S.prop(S.number),
+    timestamp: S.prop(S.date),
+    data: S.prop(S.string),
+  })
 ) {}
 
 // unknown -> string -> SDB?
 export function makeSerialisedDBRecord(s: SchemaAny) {
-  return S.required({ version: S.number, timestamp: S.date, data: s })
+  return S.props({
+    version: S.prop(S.number),
+    timestamp: S.prop(S.date),
+    data: S.prop(s),
+  })
 }
 
 export interface CachedRecord<T> {

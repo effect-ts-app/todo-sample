@@ -13,16 +13,16 @@ export type UserId = S.ParsedShapeOf<typeof UserId>
 export const TaskId = S.UUID
 export type TaskId = S.ParsedShapeOf<typeof TaskId>
 
-export const TaskListIdLiteral = S.literal("inbox")
+export const InboxTaskList = S.literal("inbox")
 export const TaskListId = S.UUID
 export type TaskListId = S.ParsedShapeOf<typeof TaskListId>
 
-export const TaskListIdU = S.union(TaskListId, TaskListIdLiteral)
+export const TaskListIdU = S.union({ TaskListId, InboxTaskList })
 export type TaskListIdU = S.ParsedShapeOf<typeof TaskListIdU>
 
 @S.namedC
 export class Step extends S.Model<Step>()(
-  pipe(S.required({ title: S.nonEmptyString, completed: S.bool }), (s) =>
+  pipe(S.props({ title: S.prop(S.nonEmptyString), completed: S.prop(S.bool) }), (s) =>
     S.withDefaultConstructorFields(s)({ completed: constant(false) })
   )
 ) {
@@ -30,29 +30,29 @@ export class Step extends S.Model<Step>()(
 }
 
 export const EditableTaskProps = {
-  title: S.nonEmptyString,
-  completed: S.nullable(S.date),
-  isFavorite: S.bool, // TODO: Add bool
+  title: S.prop(S.nonEmptyString),
+  completed: S.prop(S.nullable(S.date)),
+  isFavorite: S.prop(S.bool),
 
-  due: S.nullable(S.date),
-  reminder: S.nullable(S.date),
-  note: S.nullable(S.nonEmptyString),
-  steps: S.array(Step.Model),
-  assignedTo: S.nullable(UserId),
+  due: S.prop(S.nullable(S.date)),
+  reminder: S.prop(S.nullable(S.date)),
+  note: S.prop(S.nullable(S.nonEmptyString)),
+  steps: S.prop(S.array(Step.Model)),
+  assignedTo: S.prop(S.nullable(UserId)),
 }
 
 export const EditablePersonalTaskProps = {
-  myDay: S.nullable(S.date),
+  myDay: S.prop(S.nullable(S.date)),
 }
 
 export class Task extends S.Model<Task>()(
   pipe(
-    S.required({
-      id: TaskId,
-      createdAt: S.date,
-      updatedAt: S.date,
-      createdBy: UserId,
-      listId: TaskListIdU,
+    S.props({
+      id: S.prop(TaskId),
+      createdAt: S.prop(S.date),
+      updatedAt: S.prop(S.date),
+      createdBy: S.prop(UserId),
+      listId: S.prop(TaskListIdU),
       ...EditableTaskProps,
     }),
     (s) =>
@@ -78,28 +78,25 @@ export class Task extends S.Model<Task>()(
 
 @S.namedC
 export class Membership extends S.Model<Membership>()(
-  pipe(S.struct({ required: { id: UserId, name: S.nonEmptyString } }))
+  pipe(S.props({ id: S.prop(UserId), name: S.prop(S.nonEmptyString) }))
 ) {}
 
 export const EditableTaskListProps = {
-  title: S.nonEmptyString,
+  title: S.prop(S.nonEmptyString),
 }
 
 @S.namedC
 export class TaskList extends S.Model<TaskList>()(
   pipe(
-    S.struct({
-      required: {
-        id: TaskListId,
-        ...EditableTaskListProps,
-        order: S.array(TaskId),
+    S.props({
+      id: S.prop(TaskListId),
+      ...EditableTaskListProps,
+      order: S.prop(S.array(TaskId)),
 
-        members: S.array(Membership.Model),
-        ownerId: UserId,
-        // tasks: F.array(TaskOrVirtualTask(F))
-      },
+      members: S.prop(S.array(Membership.Model)),
+      ownerId: S.prop(UserId),
+      _tag: S.prop(S.literal("TaskList")),
     }),
-    S.tag("TaskList"),
     (s) =>
       S.withDefaultConstructorFields(s)({
         id: makeUuid,
@@ -110,40 +107,41 @@ export class TaskList extends S.Model<TaskList>()(
 ) {}
 
 export const EditableTaskListGroupProps = {
-  title: S.nonEmptyString,
-  lists: S.array(TaskListId),
+  title: S.prop(S.nonEmptyString),
+  lists: S.prop(S.array(TaskListId)),
 }
 
 @S.namedC
 export class TaskListGroup extends S.Model<TaskListGroup>()(
   pipe(
-    S.struct({
-      required: {
-        id: TaskListId,
-        ...EditableTaskListGroupProps,
+    S.props({
+      id: S.prop(TaskListId),
+      ...EditableTaskListGroupProps,
 
-        ownerId: UserId,
-      },
+      ownerId: S.prop(UserId),
+      _tag: S.prop(S.literal("TaskListGroup")),
     }),
-    S.tag("TaskListGroup"),
     (s) => S.withDefaultConstructorFields(s)({ id: makeUuid, lists: S.constArray })
   )
 ) {}
 
-export const TaskListOrGroup = S.tagged(TaskList.Model, TaskListGroup.Model)
+export const TaskListOrGroup = S.union({
+  TaskList: TaskList.Model,
+  TaskListGroup: TaskListGroup.Model,
+})
 export type TaskListOrGroup = S.ParsedShapeOf<typeof TaskListOrGroup>
 
-const MyDay = S.struct({ required: { id: TaskId, date: S.date } })
+const MyDay = S.props({ id: S.prop(TaskId), date: S.prop(S.date) })
 type MyDay = S.ParsedShapeOf<typeof MyDay>
 
 @S.namedC
 export class User extends S.Model<User>()(
   pipe(
-    S.required({
-      id: UserId,
-      name: S.nonEmptyString,
-      inboxOrder: S.array(TaskId),
-      myDay: S.array(MyDay) /* position */,
+    S.props({
+      id: S.prop(UserId),
+      name: S.prop(S.nonEmptyString),
+      inboxOrder: S.prop(S.array(TaskId)),
+      myDay: S.prop(S.array(MyDay)) /* position */,
     }),
     (s) =>
       S.withDefaultConstructorFields(s)({

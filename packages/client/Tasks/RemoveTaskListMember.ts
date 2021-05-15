@@ -5,6 +5,6 @@ export class Request extends S.WriteRequest<Request>()(
   "DELETE",
   "/lists/:id/members/:memberId",
   {
-    path: S.required({ id: TaskListId, memberId: UserId }),
+    path: S.props({ id: S.prop(TaskListId), memberId: S.prop(UserId) }),
   }
 ) {}

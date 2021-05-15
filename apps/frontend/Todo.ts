@@ -1,14 +1,13 @@
+import * as A from "@effect-ts-demo/core/ext/Array"
+import * as S from "@effect-ts-demo/core/ext/Schema"
+import * as Todo from "@effect-ts-demo/todo-client/Tasks"
+import { TaskId, TaskListId } from "@effect-ts-demo/todo-client/Tasks"
 import { constant, flow, identity, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import * as ORD from "@effect-ts/core/Ord"
 import { Lens } from "@effect-ts/monocle"
 
 import { typedKeysOf } from "./utils"
-
-import * as A from "@effect-ts-demo/core/ext/Array"
-import * as S from "@effect-ts-demo/core/ext/Schema"
-import * as Todo from "@effect-ts-demo/todo-client/Tasks"
-import { TaskId, TaskListId } from "@effect-ts-demo/todo-client/Tasks"
 
 const stepCompleted = Todo.Step.lens["|>"](Lens.prop("completed"))
 
@@ -75,35 +74,38 @@ export class Task extends Todo.Task {
 }
 
 export class TaskList extends S.Model<TaskList>()(
-  S.required({
-    id: TaskListId,
-    title: S.nonEmptyString,
-    order: S.array(TaskId),
-    count: S.number,
-  })["|>"](S.tag("TaskList"))
+  S.props({
+    id: S.prop(TaskListId),
+    title: S.prop(S.nonEmptyString),
+    order: S.prop(S.array(TaskId)),
+    count: S.prop(S.number),
+    _tag: S.prop(S.literal("TaskList")),
+  })
 ) {}
 
 export class TaskListGroup extends S.Model<TaskListGroup>()(
-  S.required({
-    id: TaskListId,
-    title: S.nonEmptyString,
-    lists: S.array(TaskList.Model),
-  })["|>"](S.tag("TaskListGroup"))
+  S.props({
+    id: S.prop(TaskListId),
+    title: S.prop(S.nonEmptyString),
+    lists: S.prop(S.array(TaskList.Model)),
+    _tag: S.prop(S.literal("TaskListGroup")),
+  })
 ) {}
 
 export class TaskListView extends S.Model<TaskListView>()(
-  S.required({
-    title: S.nonEmptyString,
-    count: S.number,
-    slug: S.string,
-  })["|>"](S.tag("TaskListView"))
+  S.props({
+    title: S.prop(S.nonEmptyString),
+    count: S.prop(S.number),
+    slug: S.prop(S.string),
+    _tag: S.prop(S.literal("TaskListView")),
+  })
 ) {}
 
-export const FolderListADT = S.tagged(
-  TaskList.Model,
-  TaskListGroup.Model,
-  TaskListView.Model
-)
+export const FolderListADT = S.union({
+  TasList: TaskList.Model,
+  TaskListGroup: TaskListGroup.Model,
+  TaskListView: TaskListView.Model,
+})
 export type FolderListADT = S.ParsedShapeOf<typeof FolderListADT>
 
 export const TaskViews = ["my-day", "important", "planned", "all"] as const

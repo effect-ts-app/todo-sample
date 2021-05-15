@@ -570,8 +570,22 @@
     "schemas": {
       "TaskListEntry": {
         "title": "TaskListEntry",
-        "type": "object",
         "properties": {
+          "_tag": {
+            "enum": [
+              "TaskList"
+            ],
+            "type": "string"
+          },
+          "title": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "parentListId": {
+            "format": "uuid",
+            "type": "string",
+            "nullable": true
+          },
           "id": {
             "format": "uuid",
             "type": "string"
@@ -582,27 +596,26 @@
               "type": "string"
             },
             "type": "array"
-          },
-          "title": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "parentListId": {
-            "format": "uuid",
-            "type": "string",
-            "nullable": true
           }
         },
         "required": [
-          "id",
-          "order",
+          "_tag",
           "title",
-          "parentListId"
-        ]
+          "parentListId",
+          "id",
+          "order"
+        ],
+        "type": "object"
       },
       "TaskListEntryGroup": {
         "title": "TaskListEntryGroup",
         "properties": {
+          "_tag": {
+            "enum": [
+              "TaskListGroup"
+            ],
+            "type": "string"
+          },
           "id": {
             "format": "uuid",
             "type": "string"
@@ -620,6 +633,7 @@
           }
         },
         "required": [
+          "_tag",
           "id",
           "title",
           "lists"

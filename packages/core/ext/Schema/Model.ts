@@ -3,10 +3,10 @@ import { Erase } from "@effect-ts-demo/core/ext/Effect"
 import * as Lens from "@effect-ts/monocle/Lens"
 import { unsafe } from "@effect-ts/schema/_api/condemn"
 
-import type { Compute } from "../Compute"
-
 import * as S from "./_schema"
 import { fromFields, schemaField } from "./_schema"
+
+import type { Compute } from "../Compute"
 
 export const GET = "GET"
 export type GET = typeof GET
@@ -246,7 +246,7 @@ export function ReadRequest<M>() {
         ? _.path
         : _.query
         ? _.query
-        : S.required({})
+        : S.props({})
     type Self = Path
     const of_ = S.Constructor.for(self)["|>"](unsafe)
     // @ts-expect-error the following is correct
@@ -657,7 +657,7 @@ export function WriteRequest<M>() {
         ? _.path
         : _.body
         ? _.body
-        : S.required({})
+        : S.props({})
     const self = _.query ? s["|>"](S.intersect(_.query)) : s
     type Self = Path
     const of_ = S.Constructor.for(self)["|>"](unsafe)

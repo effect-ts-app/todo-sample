@@ -9,17 +9,17 @@ We're taking an iterative approach, where we define the Request and Response cla
 2. Create a `Request` class: `WriteRequest` or `ReadRequest`
 ```ts
 export class Request extends S.WriteRequest<Request>()("POST", "/tasks", {
-  body: S.required({
-    listId: TaskListIdU,
-    title: S.nonEmptyString,
-    isFavorite: S.bool,
-    myDay: S.nullable(S.date),
+  body: S.props({
+    listId: S.prop(TaskListIdU),
+    title: S.prop(S.nonEmptyString),
+    isFavorite: S.prop(S.bool),
+    myDay: S.prop(S.nullable(S.date)),
   }),
 }) {}
 ```
 3. Create a `Response` class, if the Response is something else than `void`:
 ```ts
-export class Response extends S.Model<Response>()(S.required({ id: TaskId })) {}
+export class Response extends S.Model<Response>()(S.props({ id: S.prop(TaskId) })) {}
 ```
 4. Create the Handler (omit `Response` if you didn't create one)
 ```ts

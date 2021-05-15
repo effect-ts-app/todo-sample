@@ -3,7 +3,7 @@ import * as S from "@effect-ts-demo/core/ext/Schema"
 import { These as Th } from "@effect-ts-demo/core/ext/Schema"
 import jwt_decode from "jwt-decode"
 
-export const jwtIdentifier = Symbol.for("@effect-ts/schema/ids/jwt")
+export const jwtIdentifier = S.makeAnnotation<{}>()
 
 export const jwtFromString: S.Schema<
   string,
@@ -33,7 +33,7 @@ export const jwtFromString: S.Schema<
     }
   }),
   S.mapApi(() => ({})),
-  S.identified(jwtIdentifier, {})
+  S.annotate(jwtIdentifier, {})
 )
 
 export const jwt = S.string[">>>"](jwtFromString)

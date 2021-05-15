@@ -31,7 +31,7 @@ const AUTH_DISABLED = PROVIDED_AUTH_DISABLED === "true"
 
 // Todo; or "Security" section instead of directly in headers
 // Todo: use userProfile: (unknown) -> (string) -> (Json/unknown) -> UserProfile
-//const AuthHeaders = S.required({ ["authorization"]: S.nonEmptyString })
+//const AuthHeaders = S.props({ ["authorization"]: S.prop(S.nonEmptyString) })
 
 export function demandLoggedIn<
   R,

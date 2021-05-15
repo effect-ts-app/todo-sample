@@ -2,12 +2,12 @@ import * as S from "@effect-ts-demo/core/ext/Schema"
 import { TaskListIdU, TaskId } from "@effect-ts-demo/todo-types"
 
 export class Request extends S.WriteRequest<Request>()("POST", "/tasks", {
-  body: S.required({
-    listId: TaskListIdU,
-    title: S.nonEmptyString,
-    isFavorite: S.bool,
-    myDay: S.nullable(S.date),
+  body: S.props({
+    listId: S.prop(TaskListIdU),
+    title: S.prop(S.nonEmptyString),
+    isFavorite: S.prop(S.bool),
+    myDay: S.prop(S.nullable(S.date)),
   }),
 }) {}
 
-export class Response extends S.Model<Response>()(S.required({ id: TaskId })) {}
+export class Response extends S.Model<Response>()(S.props({ id: S.prop(TaskId) })) {}
