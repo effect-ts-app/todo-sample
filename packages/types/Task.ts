@@ -158,22 +158,34 @@ export class User extends Model<User>()(
     phoneNumber: prop(PhoneNumber),
   })
 ) {
-  static readonly createTask =
+  static readonly createTask__ =
     (a: GetPartialConstructor<typeof User["createTask_"]>) => (u: User) =>
-      User.createTask_(u)(a)
+      User.createTask_(u, a)
 
-  static readonly createTask_ = (u: User) => createPartialTask({ createdBy: u.id })
+  static readonly createTask_ = (
+    u: User,
+    a: GetPartialConstructor<typeof User["createTask"]>
+  ) => User.createTask(u)(a)
+  static readonly createTask = (u: User) => createPartialTask({ createdBy: u.id })
 
-  static readonly createTaskList =
+  static readonly createTaskList__ =
     (a: GetPartialConstructor<typeof User["createTaskList_"]>) => (u: User) =>
-      User.createTaskList_(u)(a)
-  static readonly createTaskList_ = (u: User) =>
-    createPartialTaskList({ ownerId: u.id })
+      User.createTaskList_(u, a)
 
-  static readonly createTaskListGroup =
+  static readonly createTaskList_ = (
+    u: User,
+    a: GetPartialConstructor<typeof User["createTaskList"]>
+  ) => User.createTaskList(u)(a)
+  static readonly createTaskList = (u: User) => createPartialTaskList({ ownerId: u.id })
+
+  static readonly createTaskListGroup__ =
     (a: GetPartialConstructor<typeof User["createTaskListGroup_"]>) => (u: User) =>
-      User.createTaskListGroup_(u)(a)
-  static readonly createTaskListGroup_ = (u: User) =>
+      User.createTaskListGroup_(u, a)
+  static readonly createTaskListGroup_ = (
+    u: User,
+    a: GetPartialConstructor<typeof User["createTaskListGroup"]>
+  ) => User.createTaskListGroup(u)(a)
+  static readonly createTaskListGroup = (u: User) =>
     createPartialTaskListGroup({ ownerId: u.id })
 
   static readonly getMyDay = (t: Task) => (u: User) =>

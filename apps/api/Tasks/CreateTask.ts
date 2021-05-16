@@ -17,7 +17,7 @@ export default handle(Tasks.CreateTask)(({ myDay, ..._ }) =>
       yield* $(authorizeTaskList.authorize_(list, user.id, identity))
     }
 
-    const task = user["|>"](User.createTask(_))
+    const task = User.createTask_(user, _)
     yield* $(TaskContext.add(task))
     yield* $(
       pipe(

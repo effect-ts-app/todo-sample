@@ -18,7 +18,7 @@ const createPhoneNumber = S.Constructor.for(S.PhoneNumber)["|>"](S.unsafe)
 
 function makeUserTaskCreator(u: User) {
   return flow(
-    u["|>"](User.createTask_),
+    User.createTask(u),
     Task.lens["|>"](Lens.prop("title"))["|>"](
       Lens.modify((t) => createRS(`${u.name} - ${t}`))
     )
@@ -48,10 +48,11 @@ export function makeTestDataUnsafe() {
 
   const users = [patrick, mike, markus]
 
-  const patrickList = patrick["|>"](User.createTaskList_)({
+  const createPatrickList = User.createTaskList(patrick)
+  const patrickList = createPatrickList({
     title: createRS("Some Patrick List"),
   })
-  const patrickSharedList = patrick["|>"](User.createTaskList_)({
+  const patrickSharedList = createPatrickList({
     title: createRS("Patrick's shared List"),
     members: [
       new Membership({
@@ -64,7 +65,8 @@ export function makeTestDataUnsafe() {
       }),
     ],
   })
-  const mikeSharedList = mike["|>"](User.createTaskList_)({
+
+  const mikeSharedList = User.createTaskList_(mike, {
     title: createRS("Mike's shared List"),
     members: [
       new Membership({
@@ -73,7 +75,8 @@ export function makeTestDataUnsafe() {
       }),
     ],
   })
-  const markusSharedList = markus["|>"](User.createTaskList_)({
+
+  const markusSharedList = User.createTaskList_(markus, {
     title: createRS("Markus's shared List"),
     members: [
       new Membership({
@@ -85,13 +88,13 @@ export function makeTestDataUnsafe() {
 
   const lists = [
     patrickList,
-    patrick["|>"](User.createTaskListGroup_)({
+    User.createTaskListGroup_(patrick, {
       title: createRS("Patrick - Some group"),
       lists: [patrickSharedList.id, patrickList.id],
     }),
     patrickSharedList,
     ///////
-    mike["|>"](User.createTaskListGroup_)({
+    User.createTaskListGroup_(mike, {
       title: createRS("Mike - Some group"),
       lists: [mikeSharedList.id],
     }),
