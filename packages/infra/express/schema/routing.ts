@@ -49,7 +49,6 @@ export interface RouteDescriptor<
   info?: {
     tags: A.Array<string>
   }
-  _tag: "Schema"
 }
 
 export type RouteDescriptorAny = RouteDescriptor<any, any, any, any, any, any, any, any>
@@ -310,9 +309,6 @@ export function makeFromSchema<ResA>(
   //const makeReqSchema = schema(Req)
 
   const makeResSchema = jsonSchema_(Res)
-
-  // TODO: custom void type - 204 response
-  // https://github.com/Effect-TS/morphic/commit/da3a02fb527089807bcd5253652ee5a5b1efa371
 
   function makeParameters(inn: ParameterLocation) {
     return (a: O.Option<JSONSchema | SubSchema>) => {

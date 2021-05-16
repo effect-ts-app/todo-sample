@@ -5,7 +5,6 @@ import * as CNK from "@effect-ts/core/Collections/Immutable/Chunk"
 import * as T from "@effect-ts/core/Effect"
 import { _A } from "@effect-ts/core/Utils"
 
-import * as RM from "./morphic/routing"
 import * as RS from "./schema/routing"
 
 type Methods = "GET" | "PUT" | "POST" | "PATCH" | "DELETE"
@@ -15,17 +14,11 @@ type Methods = "GET" | "PUT" | "POST" | "PATCH" | "DELETE"
  */
 export function makeJsonSchema(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  r: Iterable<
-    | RM.RouteDescriptor<any, any, any, any, any, any, any, any>
-    | RS.RouteDescriptor<any, any, any, any, any, any, any, any>
-  >
+  r: Iterable<RS.RouteDescriptor<any, any, any, any, any, any, any, any>>
 ) {
   return pipe(
     CNK.from(r),
-    //CNK.filter((x) => x._tag === "Morphic"),
-    T.forEach((e) =>
-      e._tag === "Morphic" ? RM.makeFromMorphic(e) : RS.makeFromSchema(e)
-    ),
+    T.forEach(RS.makeFromSchema),
     T.map((e) => {
       const map = ({ method, path, responses, ...rest }: _A<typeof e>) => ({
         [method]: {

@@ -11,9 +11,6 @@ import * as S from "@effect-ts-demo/core/ext/Schema"
 import * as H from "@effect-ts-demo/core/http/http-client"
 import { pipe } from "@effect-ts/core"
 import { flow } from "@effect-ts/core/Function"
-import { M } from "@effect-ts/morphic"
-import { Decode, decode, Errors } from "@effect-ts/morphic/Decoder"
-import * as MO from "@effect-ts/morphic/Encoder"
 import { Path } from "path-parser"
 
 import { getConfig } from "./config"
@@ -28,7 +25,6 @@ export class ResponseError {
   constructor(public readonly error: unknown) {}
 }
 
-export const mapResponseError = T.mapError((err: Errors) => new ResponseError(err))
 export const mapResponseErrorS = T.mapError((err: unknown) => new ResponseError(err))
 
 export function fetchApi(method: H.Method, path: string, body?: unknown) {
@@ -42,21 +38,6 @@ export function fetchApi(method: H.Method, path: string, body?: unknown) {
         )
     )
   )
-}
-
-type Encode<A, E> = MO.Encoder<A, E>["encode"]
-
-export function fetchApi2<RequestA, RequestE, ResponseA>(
-  encodeRequest: Encode<RequestA, RequestE>,
-  decodeResponse: Decode<ResponseA>
-) {
-  const decodeRes = flow(decodeResponse, mapResponseError)
-  return (method: H.Method, path: string) => (req: RequestA) =>
-    pipe(
-      encodeRequest(req),
-      T.chain((r) => fetchApi(method, path, r)),
-      T.chain(decodeRes)
-    )
 }
 
 type ComputeUnlessClass<T> = T extends { new (...args: any[]): any } ? T : Compute<T>
@@ -77,23 +58,6 @@ export function fetchApi2S<RequestA, RequestE, ResponseA>(
       // TODO: as long as we don't use classes for Responses..
       T.map((i) => i as ComputeUnlessClass<ResponseA>)
     )
-}
-
-export function fetchApi3<RequestA, RequestE, ResponseE, ResponseA>(
-  {
-    Request,
-    Response,
-  }: {
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    Request: M<{}, RequestE, RequestA>
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    Response: M<{}, ResponseE, ResponseA>
-  },
-  method: H.Method = "POST"
-) {
-  const encodeRequest = MO.encode(Request)
-  const decodeResponse = decode(Response)
-  return (path: string) => fetchApi2(encodeRequest, decodeResponse)(method, path)
 }
 
 // TODO: validate headers vs path vs body vs query?

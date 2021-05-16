@@ -37,16 +37,9 @@
     "Model": {
         "prefix": "+MO",
         "body": [
-            "import * as MO from \"@effect-ts-demo/core/ext/Model\""
+            "import * as MO from \"@effect-ts-demo/core/ext/Schema\""
         ],
         "description": "Schema as MO"
-    },
-    "Morphic": {
-        "prefix": "+MOR",
-        "body": [
-            "import * as MO from \"@effect-ts-demo/core/ext/Morphic\""
-        ],
-        "description": "Morphic as MO"
     },
     "Effect": {
         "prefix": "+T",

@@ -101,3 +101,9 @@ export function withSetPreInterpreter<E, A>(
       )
     )
 }
+
+
+export function interpretArray<A>(decode: (i: unknown) => T.IO<any, A>) {
+  return <E>(ar: A.Array<E>) =>
+    A.filterMap_(ar, flow(decode, T.runEither, O.fromEither))
+}

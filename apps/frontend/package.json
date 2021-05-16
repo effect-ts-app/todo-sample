@@ -10,7 +10,6 @@
         "@effect-ts-demo/todo-types": "*",
         "@effect-ts/core": "^0.39.0",
         "@effect-ts/monocle": "^0.32.0",
-        "@effect-ts/morphic": "^0.35.0",
         "@effect-ts/react": "^0.2.0",
         "@effect-ts/schema": "^0.7.1",
         "@emotion/react": "^11.4.0",

@@ -1,12 +1,7 @@
-import assert from "assert"
-
-import { pipe } from "@effect-ts-demo/core/ext/Function"
-import * as MO from "@effect-ts-demo/core/ext/Morphic"
 import * as S from "@effect-ts-demo/core/ext/Schema"
 import { SchemaAny } from "@effect-ts-demo/core/ext/Schema"
 import * as T from "@effect-ts/core/Effect"
 import * as O from "@effect-ts/core/Option"
-import * as Sy from "@effect-ts/core/Sync"
 
 class BaseError {
   constructor(public message: string) {}
@@ -89,38 +84,38 @@ export interface EffectMap<TKey, T> {
   set: (k: TKey, v: T) => T.UIO<void>
 }
 
-export function encodeOnlyWhenStrictMatch<A, E>(
-  encode: MO.HasEncoder<A, E>["encode_"],
-  v: A
-) {
-  const e1 = Sy.run(encode(v, "strict"))
-  const e2 = Sy.run(encode(v, "classic"))
-  try {
-    assert.deepStrictEqual(e1, e2)
-  } catch (err) {
-    throw new Error(
-      // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-      "The strict encoding of these objects does not match the classic encoding of these objects. This means that there is a chance of a data-loss, and is probably a programming error\n" +
-        err
-    )
-  }
-  return e1
-}
+// export function encodeOnlyWhenStrictMatch<A, E>(
+//   encode: MO.HasEncoder<A, E>["encode_"],
+//   v: A
+// ) {
+//   const e1 = Sy.run(encode(v, "strict"))
+//   const e2 = Sy.run(encode(v, "classic"))
+//   try {
+//     assert.deepStrictEqual(e1, e2)
+//   } catch (err) {
+//     throw new Error(
+//       // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
+//       "The strict encoding of these objects does not match the classic encoding of these objects. This means that there is a chance of a data-loss, and is probably a programming error\n" +
+//         err
+//     )
+//   }
+//   return e1
+// }
 
-export function decodeOnlyWhenStrictMatch<A, E>(
-  decode: MO.HasDecoder<A, E>["decode_"],
-  u: unknown
-) {
-  return pipe(
-    decode(u, "strict"),
-    Sy.tap((v) =>
-      pipe(
-        decode(u),
-        Sy.tap((v2) => {
-          assert.deepStrictEqual(v, v2)
-          return Sy.succeed(v2)
-        })
-      )
-    )
-  )
-}
+// export function decodeOnlyWhenStrictMatch<A, E>(
+//   decode: MO.HasDecoder<A, E>["decode_"],
+//   u: unknown
+// ) {
+//   return pipe(
+//     decode(u, "strict"),
+//     Sy.tap((v) =>
+//       pipe(
+//         decode(u),
+//         Sy.tap((v2) => {
+//           assert.deepStrictEqual(v, v2)
+//           return Sy.succeed(v2)
+//         })
+//       )
+//     )
+//   )
+// }

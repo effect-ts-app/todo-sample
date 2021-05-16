@@ -12,6 +12,7 @@
         "lint": "eslint . --ext .ts,.tsx"
     },
     "dependencies": {
+        "@effect-ts/morphic": "^0.35.0",
         "redoc-express": "^1.0.0"
     }
 }

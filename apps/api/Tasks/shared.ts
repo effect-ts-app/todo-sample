@@ -4,7 +4,6 @@ import { NotLoggedInError } from "@effect-ts-demo/infra/errors"
 import { UserSVC } from "@effect-ts-demo/infra/services"
 import { TaskList, UserId } from "@effect-ts-demo/todo-types/"
 import * as T from "@effect-ts/core/Effect"
-import { AType, M } from "@effect-ts/morphic"
 import { SchemaAny } from "@effect-ts/schema"
 import { Chunk } from "@effect-ts/system/Collections/Immutable/Chunk"
 
@@ -26,14 +25,6 @@ export const getLoggedInUser = T.gen(function* ($) {
     )
   )
 })
-
-export function makeHandler<
-  TReq extends M<{}, any, any>,
-  TRes extends M<{}, any, any>
->(_: { Request: TReq; Response: TRes }) {
-  // TODO: Prevent over providing, although strict encoding removes it already.
-  return <R, E>(h: (r: AType<TReq>) => T.Effect<R, E, AType<TRes>>) => h
-}
 
 export function handle<
   TReq extends { Model: SchemaAny },
