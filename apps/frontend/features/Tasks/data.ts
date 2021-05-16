@@ -77,8 +77,8 @@ export function useTasks() {
 }
 
 const newTask =
-  (v: Todo.TaskView | S.NonEmptyString, listId: Todo.TaskListIdU = "inbox") =>
-  (newTitle: S.NonEmptyString) =>
+  (v: Todo.TaskView | S.ReasonableString, listId: Todo.TaskListIdU = "inbox") =>
+  (newTitle: S.ReasonableString) =>
     TodoClient.TasksClient.CreateTask({
       title: newTitle,
       isFavorite: v === "important",
@@ -86,7 +86,7 @@ const newTask =
       listId,
     })
 export function useNewTask(
-  v: Todo.TaskView | S.NonEmptyString,
+  v: Todo.TaskView | S.ReasonableString,
   listId?: Todo.TaskListId
 ) {
   return useFetch(newTask(v, listId))
@@ -224,7 +224,8 @@ export function useTaskCommandsResolved(t: Todo.Task) {
   }
 }
 
-const parseNES = Parser.for(S.nonEmptyString)["|>"](S.condemnFail)
+export const parseRS = Parser.for(S.reasonableString)["|>"](S.condemnFail)
+export const parseRSunsafe = Parser.for(S.reasonableString)["|>"](S.unsafe)
 
 export function useTaskCommands(id: Todo.TaskId) {
   const modifyTasks = useModifyTasks()
@@ -263,7 +264,7 @@ export function useTaskCommands(id: Todo.TaskId) {
     function updateStepTitle(t: Todo.Task) {
       return (s: Todo.Step) =>
         flow(
-          parseNES,
+          parseRS,
           T.map((stepTitle) => t["|>"](Todo.Task.updateStep(s, stepTitle))),
           T.chain(updateAndRefreshTask)
         )
@@ -287,7 +288,7 @@ export function useTaskCommands(id: Todo.TaskId) {
 
     function addNewTaskStep(t: Todo.Task) {
       return flow(
-        parseNES,
+        parseRS,
         T.map((title) => t["|>"](Todo.Task.addStep(title))),
         T.chain(updateAndRefreshTask)
       )
@@ -303,7 +304,7 @@ export function useTaskCommands(id: Todo.TaskId) {
 
     function setTitle(t: Todo.Task) {
       return flow(
-        parseNES,
+        parseRS,
         T.map((v) => t["|>"](Todo.Task.lens["|>"](Lens.prop("title")).set(v))),
         T.chain(updateAndRefreshTask)
       )
@@ -321,7 +322,7 @@ export function useTaskCommands(id: Todo.TaskId) {
       return (note: string | null) =>
         pipe(
           EO.fromNullable(note),
-          EO.chainEffect(parseNES),
+          EO.chainEffect(parseRS),
           T.chain((note) => updateAndRefreshTask({ id: t.id, note }))
         )
     }

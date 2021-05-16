@@ -57,14 +57,14 @@ const FolderListView = ({ category }: { category: O.Option<Todo.Category> }) => 
           A.map(
             ({ slug, tasks }) =>
               new TaskListView({
-                title: toUpperCaseFirst(slug) as S.NonEmptyString,
+                title: toUpperCaseFirst(slug) as S.ReasonableString,
                 slug,
                 count: tasks.length,
               })
           )
         ),
         new TaskListView({
-          title: "Tasks" as S.NonEmptyString,
+          title: "Tasks" as S.ReasonableString,
           slug: "tasks",
           count: unfilteredTasks["|>"](filterByCategory("inbox")).length,
         }),

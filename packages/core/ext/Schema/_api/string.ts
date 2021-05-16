@@ -28,7 +28,8 @@ export interface ReasonableStringBrand {
   readonly ReasonableString: unique symbol
 }
 
-export type ReasonableString = S.NonEmptyString & ReasonableStringBrand
+// TODO: Evaluate if it makes sense to inherit the others too.
+export type ReasonableString = TextString & LongString & ReasonableStringBrand
 
 export const reasonableStringFromString = pipe(
   makeConstrainedFromString<ReasonableString>(1, 256 - 1),
@@ -45,7 +46,8 @@ export interface LongStringBrand {
   readonly LongString: unique symbol
 }
 
-export type LongString = S.NonEmptyString & LongStringBrand
+// TODO: Evaluate if it makes sense to inherit the others too.
+export type LongString = TextString & LongStringBrand
 
 export const longStringFromString = pipe(
   makeConstrainedFromString<LongString>(1, 2048 - 1),

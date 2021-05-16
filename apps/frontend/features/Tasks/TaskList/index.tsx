@@ -21,7 +21,14 @@ import { TodoClient } from "@/index"
 import { Todo } from "@/index"
 import { renderIf_, toUpperCaseFirst } from "@/utils"
 
-import { useGetTask, useMe, useModifyMe, useNewTask, useTasks } from "../data"
+import {
+  parseRSunsafe,
+  useGetTask,
+  useMe,
+  useModifyMe,
+  useNewTask,
+  useTasks,
+} from "../data"
 import { useRouting } from "../routing"
 
 import TaskList from "./TaskList"
@@ -81,7 +88,9 @@ const TaskListView = memo(function ({
       ? category === "tasks"
         ? meResult.value.right.inboxOrder
         : A.findFirstMap_(meResult.value.right.lists, (l) =>
-            l._tag === "TaskList" && l.id === category ? O.some(l.order) : O.none
+            l._tag === "TaskList" && l.id === (category as any)
+              ? O.some(l.order)
+              : O.none
           )["|>"](O.getOrElse(() => []))
       : []
     const tasks = unfilteredTasks["|>"](Todo.filterByCategory(category))
@@ -116,7 +125,9 @@ const TaskListView = memo(function ({
           ? { inboxOrder: order }
           : {
               lists: A.map_(r.lists, (l) =>
-                l.id === category && l._tag === "TaskList" ? { ...l, order } : l
+                l.id === (category as any) && l._tag === "TaskList"
+                  ? { ...l, order }
+                  : l
               ),
             }),
       }))
@@ -166,7 +177,7 @@ const TaskListView = memo(function ({
             fullWidth
             placeholder="Add a Task"
             disabled={addTask.loading}
-            onChange={addTask}
+            onChange={flow(parseRSunsafe, addTask)}
           />
         </Box>
       </>

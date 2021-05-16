@@ -55,7 +55,7 @@ function TLG(g: Todo.TaskListGroup) {
                     >
                       <TaskListEntry
                         {...l}
-                        title={("| -- " + l.title) as S.NonEmptyString}
+                        title={("| -- " + l.title) as S.ReasonableString}
                       />
                     </Box>
                   )}

@@ -2,6 +2,7 @@ import * as A from "@effect-ts-demo/core/ext/Array"
 import {
   array,
   constructor,
+  identity,
   Model,
   literal,
   NonEmptyString,
@@ -15,10 +16,13 @@ import {
   These,
   union,
   reasonableString,
+  parseStringE,
+  leafE,
+  ReasonableString,
 } from "@effect-ts-demo/core/ext/Schema"
 import * as Todo from "@effect-ts-demo/todo-client/Tasks"
 import { TaskId, TaskListId } from "@effect-ts-demo/todo-client/Tasks"
-import { constant, flow, identity, pipe } from "@effect-ts/core/Function"
+import { constant, flow, pipe, identity as ident } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import * as ORD from "@effect-ts/core/Ord"
 import { Lens } from "@effect-ts/monocle"
@@ -151,8 +155,12 @@ const isOrder = (u: any): u is Order & NonEmptyString => u in orders
 export const Order = nonEmptyString[">>>"](
   pipe(
     identity(isOrder),
-    parser((x) => (isOrder(x) ? These.succeed(x) : These.fail("not order"))),
-    constructor((x) => (isOrder(x) ? These.succeed(x) : These.fail("not order")))
+    parser((x) =>
+      isOrder(x) ? These.succeed(x) : These.fail(leafE(parseStringE("not order")))
+    ),
+    constructor((x) =>
+      isOrder(x) ? These.succeed(x) : These.fail(leafE(parseStringE("not order")))
+    )
   )
 ) // TODO
 
@@ -162,8 +170,12 @@ const isOrderDir = (u: any): u is OrderDir & NonEmptyString => u in orders
 export const OrderDir = nonEmptyString[">>>"](
   pipe(
     identity(isOrderDir),
-    parser((x) => (isOrderDir(x) ? These.succeed(x) : These.fail("not order"))),
-    constructor((x) => (isOrderDir(x) ? These.succeed(x) : These.fail("not order")))
+    parser((x) =>
+      isOrderDir(x) ? These.succeed(x) : These.fail(leafE(parseStringE("not order")))
+    ),
+    constructor((x) =>
+      isOrderDir(x) ? These.succeed(x) : These.fail(leafE(parseStringE("not order")))
+    )
   )
 ) // TODO
 
@@ -188,10 +200,10 @@ export function filterByCategory(category: TaskView | string) {
       return A.filter((t: Todo.Task) => t.listId === "inbox")
     }
     case "all": {
-      return identity
+      return ident
     }
     default:
-      return A.filter((t: Todo.Task) => t.listId === category)
+      return A.filter((t: Todo.Task) => t.listId === (category as any))
   }
 }
 
@@ -207,8 +219,8 @@ function isSameDay(today: Date) {
 
 export const emptyTasks = [] as readonly Todo.Task[]
 
-export const Category = nonEmptyString
-export type Category = NonEmptyString
+export const Category = reasonableString
+export type Category = ReasonableString
 
 export * from "@effect-ts-demo/todo-types"
 export * from "@effect-ts-demo/todo-types/Task"
