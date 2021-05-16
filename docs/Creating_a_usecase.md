@@ -8,18 +8,18 @@ We're taking an iterative approach, where we define the Request and Response cla
 1. Create a file under `apps/api/Tasks`
 2. Create a `Request` class: `WriteRequest` or `ReadRequest`
 ```ts
-export class Request extends S.WriteRequest<Request>()("POST", "/tasks", {
-  body: S.props({
-    listId: S.prop(TaskListIdU),
-    title: S.prop(S.nonEmptyString),
-    isFavorite: S.prop(S.bool),
-    myDay: S.prop(S.nullable(S.date)),
+export class Request extends WriteRequest<Request>()("POST", "/tasks", {
+  body: props({
+    listId: prop(TaskListIdU),
+    title: prop(nonEmptyString),
+    isFavorite: prop(bool),
+    myDay: prop(nullable(date)),
   }),
 }) {}
 ```
 3. Create a `Response` class, if the Response is something else than `void`:
 ```ts
-export class Response extends S.Model<Response>()(S.props({ id: S.prop(TaskId) })) {}
+export class Response extends Model<Response>()(props({ id: prop(TaskId) })) {}
 ```
 4. Create the Handler (omit `Response` if you didn't create one)
 ```ts
