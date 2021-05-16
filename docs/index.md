@@ -1,7 +1,9 @@
 # Documentation
 
 ## Effect-TS Demo specific
+
  - [Creating a Usecase](Creating_a_usecase.md)
+ - [Gotchas](gotchas.md)
 
 
 ## General
