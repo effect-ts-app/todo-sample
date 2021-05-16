@@ -2,11 +2,28 @@ import * as O from "@effect-ts-demo/core/ext/Option"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import { v4 } from "uuid"
 
+import { Compute } from "../Compute"
 import { constant, Lazy, pipe } from "../Function"
 import { typedKeysOf } from "../utils"
 
 import * as S from "./_schema"
 import { schemaField, UUID } from "./_schema"
+
+export function derivePartialConstructor<ConstructorInput, ParsedShape>(model: {
+  [S.schemaField]: S.Schema<any, any, ParsedShape, ConstructorInput, any, any, any>
+  new (inp: ConstructorInput): ParsedShape
+}): <PartialConstructorInput extends Partial<ConstructorInput>>(
+  partConstructor: PartialConstructorInput
+) => (
+  restConstructor: Compute<Omit<ConstructorInput, keyof PartialConstructorInput>>
+) => ParsedShape {
+  return (partConstructor) => (restConstructor) =>
+    new model({ ...partConstructor, ...restConstructor } as any)
+}
+
+export type GetPartialConstructor<A extends (...args: any) => any> = Parameters<
+  ReturnType<A>
+>[0]
 
 export function makeUuid() {
   return v4() as S.UUID

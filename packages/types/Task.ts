@@ -1,7 +1,6 @@
 import {
   array,
   bool,
-  ConstructorInputOf,
   date,
   literal,
   Model,
@@ -20,6 +19,8 @@ import {
   Email,
   PhoneNumber,
   longString,
+  GetPartialConstructor,
+  derivePartialConstructor,
 } from "@effect-ts-demo/core/ext/Schema"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as O from "@effect-ts/core/Option"
@@ -153,29 +154,24 @@ export class User extends Model<User>()(
     phoneNumber: prop(PhoneNumber),
   })
 ) {
-  // TODO: could these just be type specialisations with new defaults?
   static readonly createTask =
-    (a: Omit<ConstructorInputOf<typeof Task["Model"]>, "createdBy">) => (u: User) =>
-      new Task({ ...a, createdBy: u.id })
-  static readonly createTask_ =
-    (u: User) => (a: Omit<ConstructorInputOf<typeof Task["Model"]>, "createdBy">) =>
-      new Task({ ...a, createdBy: u.id })
+    (a: GetPartialConstructor<typeof User["createTask_"]>) => (u: User) =>
+      User.createTask_(u)(a)
+
+  static readonly createTask_ = (u: User) =>
+    derivePartialConstructor(Task)({ createdBy: u.id })
 
   static readonly createTaskList =
-    (a: Omit<ConstructorInputOf<typeof TaskList["Model"]>, "ownerId">) => (u: User) =>
-      new TaskList({ ...a, ownerId: u.id })
-  static readonly createTaskList_ =
-    (u: User) => (a: Omit<ConstructorInputOf<typeof TaskList["Model"]>, "ownerId">) =>
-      new TaskList({ ...a, ownerId: u.id })
+    (a: GetPartialConstructor<typeof User["createTaskList_"]>) => (u: User) =>
+      User.createTaskList_(u)(a)
+  static readonly createTaskList_ = (u: User) =>
+    derivePartialConstructor(TaskList)({ ownerId: u.id })
 
   static readonly createTaskListGroup =
-    (a: Omit<ConstructorInputOf<typeof TaskListGroup["Model"]>, "ownerId">) =>
-    (u: User) =>
-      new TaskListGroup({ ...a, ownerId: u.id })
-  static readonly createTaskListGroup_ =
-    (u: User) =>
-    (a: Omit<ConstructorInputOf<typeof TaskListGroup["Model"]>, "ownerId">) =>
-      new TaskListGroup({ ...a, ownerId: u.id })
+    (a: GetPartialConstructor<typeof User["createTaskListGroup_"]>) => (u: User) =>
+      User.createTaskListGroup_(u)(a)
+  static readonly createTaskListGroup_ = (u: User) =>
+    derivePartialConstructor(TaskListGroup)({ ownerId: u.id })
 
   static readonly getMyDay = (t: Task) => (u: User) =>
     A.findFirst_(u.myDay, (x) => x.id === t.id)["|>"](O.map((m) => m.date))
