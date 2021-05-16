@@ -1,15 +1,21 @@
-import { HasContinuation, Schema, SchemaAny, SchemaContinuationSymbol } from "../vendor"
+import {
+  AnyError,
+  HasContinuation,
+  Schema,
+  SchemaAny,
+  SchemaContinuationSymbol,
+} from "@effect-ts-demo/core/ext/Schema"
 
 import type { JSONSchema } from "@atlas-ts/plutus"
 
-export * from "../"
+export * from "@effect-ts-demo/core/ext/Schema"
 
 export class SchemaOpenApi<
     ParserInput,
-    ParserError,
+    ParserError extends AnyError,
     ParsedShape,
     ConstructorInput,
-    ConstructorError,
+    ConstructorError extends AnyError,
     Encoded,
     Api
   >
@@ -44,7 +50,14 @@ export class SchemaOpenApi<
 }
 
 export function openapi<ParsedShape>(f: () => JSONSchema) {
-  return <ParserInput, ParserError, ConstructorInput, ConstructorError, Encoded, Api>(
+  return <
+    ParserInput,
+    ParserError extends AnyError,
+    ConstructorInput,
+    ConstructorError extends AnyError,
+    Encoded,
+    Api
+  >(
     self: Schema<
       ParserInput,
       ParserError,
@@ -67,10 +80,10 @@ export function openapi<ParsedShape>(f: () => JSONSchema) {
 
 export function openapi_<
   ParserInput,
-  ParserError,
+  ParserError extends AnyError,
   ParsedShape,
   ConstructorInput,
-  ConstructorError,
+  ConstructorError extends AnyError,
   Encoded,
   Api
 >(

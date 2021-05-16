@@ -7,12 +7,13 @@ import {
 } from "@atlas-ts/plutus"
 import * as EO from "@effect-ts-demo/core/ext/EffectOption"
 import * as S from "@effect-ts-demo/core/ext/Schema"
-import * as OpenApi from "@effect-ts-demo/core/ext/Schema/Openapi"
 import { pipe } from "@effect-ts/core"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as T from "@effect-ts/core/Effect"
 import * as O from "@effect-ts/core/Option"
 import * as Ex from "@effect-ts/express"
+
+import * as OpenApi from "../../Openapi"
 
 import {
   makeRequestHandler,

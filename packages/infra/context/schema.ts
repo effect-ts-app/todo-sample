@@ -8,10 +8,10 @@ import * as Sy from "@effect-ts/core/Sync"
 
 export function makeCodec<
   ParserInput,
-  ParserError, // extends S.AnyError,
+  ParserError extends S.AnyError,
   ParsedShape extends { id: Id },
   ConstructorInput,
-  ConstructorError,
+  ConstructorError extends S.AnyError,
   Encoded,
   Api,
   Id

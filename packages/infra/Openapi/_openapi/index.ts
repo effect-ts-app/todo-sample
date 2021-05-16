@@ -11,9 +11,19 @@ import {
   referenced,
   StringSchema,
 } from "@atlas-ts/plutus"
-import * as T from "@effect-ts/core/Effect"
-import * as O from "@effect-ts/core/Option"
 import {
+  constrainedStringIdentifier,
+  EmailFromStringIdentifier,
+  EmailIdentifier,
+  PhoneNumberFromStringIdentifier,
+  PhoneNumberIdentifier,
+  boolIdentifier,
+  nullableIdentifier,
+  UUIDFromStringIdentifier,
+  hasContinuation,
+  intersectIdentifier,
+  SchemaContinuationSymbol,
+  unionIdentifier,
   arrayIdentifier,
   chunkIdentifier,
   dateIdentifier,
@@ -28,25 +38,11 @@ import {
   positiveIntIdentifier,
   propertiesIdentifier,
   stringIdentifier,
-} from "@effect-ts/schema"
+} from "@effect-ts-demo/core/ext/Schema"
+import * as T from "@effect-ts/core/Effect"
+import * as O from "@effect-ts/core/Option"
 
-import {
-  constrainedStringIdentifier,
-  EmailFromStringIdentifier,
-  EmailIdentifier,
-  PhoneNumberFromStringIdentifier,
-  PhoneNumberIdentifier,
-} from "../../_api"
 import * as S from "../_schema"
-import {
-  boolIdentifier,
-  nullableIdentifier,
-  UUIDFromStringIdentifier,
-  hasContinuation,
-  intersectIdentifier,
-  SchemaContinuationSymbol,
-  unionIdentifier,
-} from "../_schema"
 
 export type Gen<T> = T.UIO<JSONSchema>
 
