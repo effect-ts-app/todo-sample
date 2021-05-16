@@ -1,7 +1,8 @@
+apps/frontend
 Dockerfile
-node_modules/
-.next/
-.git/
-.vscode/
+node_modules
+.next
+.git
+.vscode
 *.log
-docs/
+docs
