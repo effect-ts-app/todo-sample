@@ -32,8 +32,8 @@
         "autofix": "yarn lint --fix && yarn prettier --write",
         "test": "yarn jest",
         "testsuite": "yarn compile && yarn lint && yarn test && yarn circular",
-        "dev": "TSC_WATCHFILE=UseFsEventsWithFallbackDynamicPolling NODE_ENV=development nodemon --watch . --watch ../../packages --exec ts-node -r tsconfig-paths/register --transpile-only ./start-server.ts",
-        "start": "ts-node -r tsconfig-paths/register --transpile-only ./start-server.ts"
+        "dev": "TSC_WATCHFILE=UseFsEventsWithFallbackDynamicPolling NODE_ENV=development nodemon --watch . --watch ../../packages --exec yarn start",
+        "start": "ts-node --compiler ttypescript -r tsconfig-paths/register --transpile-only ./start-server.ts"
     },
     "devDependencies": {
         "@types/body-parser": "^1.19.0",
