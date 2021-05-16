@@ -83,12 +83,19 @@
         ],
         "description": "RefM"
     },
+    "Tuple": {
+        "prefix": "+TUP",
+        "body": [
+            "import * as TUP from \"@effect-ts/core/Collections/Immutable/Tuple\""
+        ],
+        "description": "Tuple as TUP"
+    },
     "Chunk": {
         "prefix": "+Chunk",
         "body": [
-            "import * as Chunk from \"@effect-ts/core/Collections/Immutable/Chunk\""
+            "import * as CNK from \"@effect-ts/core/Collections/Immutable/Chunk\""
         ],
-        "description": "Chunk"
+        "description": "Chunk as CNK"
     },
     "Map": {
         "prefix": "+Map",

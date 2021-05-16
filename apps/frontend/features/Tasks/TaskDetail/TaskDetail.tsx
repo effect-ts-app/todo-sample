@@ -14,8 +14,8 @@ import ArrowRight from "@material-ui/icons/ArrowRight"
 import Delete from "@material-ui/icons/Delete"
 import { DatePicker, DateTimePicker } from "@material-ui/lab"
 import { datumEither } from "@nll/datum"
-import { Droppable, DragDropContext } from "react-beautiful-dnd"
 import React from "react"
+import { Droppable, DragDropContext } from "react-beautiful-dnd"
 import styled from "styled-components"
 
 import {

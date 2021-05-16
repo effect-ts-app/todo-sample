@@ -12,8 +12,8 @@ export default handle(Tasks.DeleteTask)((_) =>
     const taskLists = yield* $(TaskContext.allTaskLists(user.id))
 
     return yield* $(
-      task["|>"](
-        authorizeTask(taskLists).authorizeM(user.id, (t) => TaskContext.delete(t.id))
+      authorizeTask(taskLists).authorizeM_(task, user.id, (t) =>
+        TaskContext.delete(t.id)
       )
     )
   })

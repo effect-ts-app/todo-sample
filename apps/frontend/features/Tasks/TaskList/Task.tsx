@@ -5,8 +5,8 @@ import Alarm from "@material-ui/icons/Alarm"
 import CalendarToday from "@material-ui/icons/CalendarToday"
 import Today from "@material-ui/icons/Today"
 import { datumEither } from "@nll/datum"
-import { Draggable } from "react-beautiful-dnd"
 import React from "react"
+import { Draggable } from "react-beautiful-dnd"
 import styled from "styled-components"
 
 import {

@@ -12,7 +12,7 @@ import {
   TaskListGroup,
 } from "@effect-ts-demo/todo-types"
 import { Has } from "@effect-ts/core"
-import * as Chunk from "@effect-ts/core/Collections/Immutable/Chunk"
+import * as CNK from "@effect-ts/core/Collections/Immutable/Chunk"
 import * as Map from "@effect-ts/core/Collections/Immutable/Map"
 import * as L from "@effect-ts/core/Effect/Layer"
 import * as Ref from "@effect-ts/core/Effect/Ref"
@@ -101,10 +101,10 @@ const makeMockTaskContext = T.gen(function* ($) {
       T.struct({ user: getUser(userId), lists: listsRef.get }),
       T.chain(({ lists }) =>
         pipe(
-          Chunk.from(lists.values()),
-          Chunk.map(decodeList),
+          CNK.from(lists.values()),
+          CNK.map(decodeList),
           T.collectAll,
-          T.map(Chunk.filter(canAccessList(userId)))
+          T.map(CNK.filter(canAccessList(userId)))
         )
       )
     )
@@ -148,7 +148,7 @@ const makeMockTaskContext = T.gen(function* ($) {
 
   const allTaskLists = flow(
     allLists,
-    T.map(Chunk.filterMap((x) => (TaskList.Guard(x) ? O.some(x) : O.none)))
+    T.map(CNK.filterMap((x) => (TaskList.Guard(x) ? O.some(x) : O.none)))
   )
 
   const all = (userId: UserId) =>
@@ -159,8 +159,8 @@ const makeMockTaskContext = T.gen(function* ($) {
       }),
       T.chain(({ lists, tasks }) =>
         pipe(
-          Chunk.from(tasks.values()),
-          Chunk.filter(canAccessTaskE(lists)(userId)),
+          CNK.from(tasks.values()),
+          CNK.filter(canAccessTaskE(lists)(userId)),
           T.forEach(decodeTask)
         )
       )

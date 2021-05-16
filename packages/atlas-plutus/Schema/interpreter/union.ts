@@ -3,7 +3,7 @@ import type { UnionURI } from "@effect-ts/morphic/Algebra/Union"
 import { interpreter } from "@effect-ts/morphic/HKT"
 
 import * as X from "../base"
-import * as Chunk from "@effect-ts/core/Collections/Immutable/Chunk"
+import * as CNK from "@effect-ts/core/Collections/Immutable/Chunk"
 
 export const SchemaUnionInterpreter = interpreter<X.SchemaURI, UnionURI>()(() => ({
   _F: X.SchemaURI,
@@ -14,7 +14,7 @@ export const SchemaUnionInterpreter = interpreter<X.SchemaURI, UnionURI>()(() =>
         pipe(
           types.map((t) => t(env).Schema),
           X.forEach(identity),
-          X.chain((oneOf) => X.succeed({ oneOf: oneOf["|>"](Chunk.toArray) }))
+          X.chain((oneOf) => X.succeed({ oneOf: oneOf["|>"](CNK.toArray) }))
         ),
         env,
         {

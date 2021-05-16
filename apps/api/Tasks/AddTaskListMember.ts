@@ -13,9 +13,9 @@ export default handle(Tasks.AddTaskListMember)((_) =>
     yield* $(
       TaskContext.updateTaskListM(
         _.id,
-        authorizeTaskList.authorize(user.id, (g) => ({
-          ...g,
-          members: A.snoc_(g.members, { id: member.id, name: member.name }),
+        authorizeTaskList.authorize(user.id, (tl) => ({
+          ...tl,
+          members: A.snoc_(tl.members, { id: member.id, name: member.name }),
         }))
       )
     )

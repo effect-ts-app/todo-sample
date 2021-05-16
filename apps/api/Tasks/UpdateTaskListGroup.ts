@@ -11,8 +11,8 @@ export default handle(Tasks.UpdateTaskListGroup)(({ id, ..._ }) =>
     yield* $(
       TaskContext.updateTaskListGroupM(
         id,
-        authorizeTaskListGroup.authorize(user.id, (g) => ({
-          ...g,
+        authorizeTaskListGroup.authorize(user.id, (tlg) => ({
+          ...tlg,
           ..._,
           updatedAt: new Date(),
         }))

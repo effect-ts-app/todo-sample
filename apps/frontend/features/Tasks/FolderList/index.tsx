@@ -6,8 +6,8 @@ import {
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as O from "@effect-ts/core/Option"
 import { datumEither } from "@nll/datum"
-import { DragDropContext } from "react-beautiful-dnd"
 import React from "react"
+import { DragDropContext } from "react-beautiful-dnd"
 
 import { useServiceContext } from "@/context"
 import { Todo, TodoClient } from "@/index"

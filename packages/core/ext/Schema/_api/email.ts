@@ -1,4 +1,4 @@
-import * as Chunk from "@effect-ts/core/Collections/Immutable/Chunk"
+import * as CNK from "@effect-ts/core/Collections/Immutable/Chunk"
 
 import { pipe, Refinement } from "../../Function"
 import { isValidEmail } from "../../validation"
@@ -45,8 +45,8 @@ export const EmailFromString: DefaultSchema<
   fromString,
   S.arbitrary((FC) => FC.emailAddress()),
   nonEmpty,
-  S.mapParserError((_) => Chunk.unsafeHead(_.errors).error),
-  S.mapConstructorError((_) => Chunk.unsafeHead(_.errors).error),
+  S.mapParserError((_) => CNK.unsafeHead(_.errors).error),
+  S.mapConstructorError((_) => CNK.unsafeHead(_.errors).error),
   S.refine(isEmail, (n) => S.leafE(parseUuidE(n))),
   brand<Email>(),
   S.annotate(EmailFromStringIdentifier, {})

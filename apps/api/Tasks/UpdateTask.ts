@@ -14,8 +14,8 @@ export default handle(Tasks.UpdateTask)(({ id, myDay, ..._ }) =>
     const task = yield* $(
       TaskContext.updateM(
         id,
-        authorizeTask(taskLists).authorize(user.id, (t) => ({
-          ...t,
+        authorizeTask(taskLists).authorize(user.id, (tl) => ({
+          ...tl,
           ..._,
           updatedAt: new Date(),
         }))

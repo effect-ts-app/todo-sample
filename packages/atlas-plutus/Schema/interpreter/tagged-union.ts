@@ -1,4 +1,4 @@
-import * as Chunk from "@effect-ts/core/Collections/Immutable/Chunk"
+import * as CNK from "@effect-ts/core/Collections/Immutable/Chunk"
 import * as T from "@effect-ts/core/Effect"
 import { pipe } from "@effect-ts/core/Function"
 import type { TaggedUnionURI } from "@effect-ts/morphic/Algebra/TaggedUnion"
@@ -38,7 +38,7 @@ export const SchemaTaggedUnionInterpreter = interpreter<X.SchemaURI, TaggedUnion
             ),
             X.chain((oneOf) => {
               return X.succeed({
-                oneOf: Chunk.toArray(oneOf),
+                oneOf: CNK.toArray(oneOf),
                 discriminator: { propertyName: _tag },
               })
             })

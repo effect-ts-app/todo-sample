@@ -1,4 +1,4 @@
-import * as Chunk from "@effect-ts/core/Collections/Immutable/Chunk"
+import * as CNK from "@effect-ts/core/Collections/Immutable/Chunk"
 
 import { Numbers } from "../../FastCheck"
 import { pipe, Refinement } from "../../Function"
@@ -48,8 +48,8 @@ export const PhoneNumberFromString: DefaultSchema<
   fromString,
   S.arbitrary((FC) => Numbers(7, 10)(FC)),
   nonEmpty,
-  S.mapParserError((_) => Chunk.unsafeHead(_.errors).error),
-  S.mapConstructorError((_) => Chunk.unsafeHead(_.errors).error),
+  S.mapParserError((_) => CNK.unsafeHead(_.errors).error),
+  S.mapConstructorError((_) => CNK.unsafeHead(_.errors).error),
   S.refine(isPhoneNumber, (n) => S.leafE(parseUuidE(n))),
   brand<PhoneNumber>(),
   S.annotate(PhoneNumberFromStringIdentifier, {})

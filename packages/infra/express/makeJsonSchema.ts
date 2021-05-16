@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { pipe } from "@effect-ts/core"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
-import * as Chunk from "@effect-ts/core/Collections/Immutable/Chunk"
+import * as CNK from "@effect-ts/core/Collections/Immutable/Chunk"
 import * as T from "@effect-ts/core/Effect"
 import { _A } from "@effect-ts/core/Utils"
 
@@ -21,8 +21,8 @@ export function makeJsonSchema(
   >
 ) {
   return pipe(
-    Chunk.from(r),
-    //Chunk.filter((x) => x._tag === "Morphic"),
+    CNK.from(r),
+    //CNK.filter((x) => x._tag === "Morphic"),
     T.forEach((e) =>
       e._tag === "Morphic" ? RM.makeFromMorphic(e) : RS.makeFromSchema(e)
     ),
@@ -40,7 +40,7 @@ export function makeJsonSchema(
           ),
         },
       })
-      return Chunk.reduce_(
+      return CNK.reduce_(
         e,
         {} as Record<string, Record<Methods, ReturnType<typeof map>>>,
         (prev, e) => {

@@ -1,4 +1,4 @@
-import * as Chunk from "@effect-ts/core/Collections/Immutable/Chunk"
+import * as CNK from "@effect-ts/core/Collections/Immutable/Chunk"
 
 import { pipe } from "../../Function"
 import * as S from "../_schema"
@@ -14,8 +14,8 @@ export function makeConstrainedFromString<Brand>(minLength: number, maxLength: n
     S.fromString,
     S.arbitrary((FC) => FC.string({ minLength, maxLength })),
     constrained<Brand>(minLength, maxLength),
-    S.mapParserError((_) => Chunk.unsafeHead(_.errors).error),
-    S.mapConstructorError((_) => Chunk.unsafeHead(_.errors).error),
+    S.mapParserError((_) => CNK.unsafeHead(_.errors).error),
+    S.mapConstructorError((_) => CNK.unsafeHead(_.errors).error),
     S.brand<Brand>(),
     S.annotate(constrainedStringIdentifier, {
       minLength,
