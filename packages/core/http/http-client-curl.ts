@@ -38,7 +38,7 @@ export const Client = (
               _tag: H.HttpErrorReason.Request,
               error: new Error("binary not supported"),
             })
-        : T.effectAsync((done) => {
+        : T.effectAsyncInterrupt((done) => {
             const {
               caPath = path.join(
                 require.resolve("@matechs/http-client-libcurl").replace("index.js", ""),
@@ -135,10 +135,9 @@ export const Client = (
 
             req.perform()
 
-            return (cb) => {
+            return T.succeedWith(() => {
               req.close()
-              cb()
-            }
+            })
           }),
   })
 
