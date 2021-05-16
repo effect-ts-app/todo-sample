@@ -10,6 +10,36 @@ import { typedKeysOf } from "../utils"
 import * as S from "./_schema"
 import { schemaField, UUID } from "./_schema"
 
+export function partialConstructor<ConstructorInput, ParsedShape>(model: {
+  new (inp: ConstructorInput): ParsedShape
+}): <PartialConstructorInput extends Partial<ConstructorInput>>(
+  // TODO: Prevent over provide
+  partConstructor: PartialConstructorInput
+) => (
+  restConstructor: Compute<Omit<ConstructorInput, keyof PartialConstructorInput>>
+) => ParsedShape {
+  return (partConstructor) => (restConstructor) =>
+    partialConstructor_(model, partConstructor)(restConstructor)
+}
+
+export function partialConstructor_<
+  ConstructorInput,
+  ParsedShape,
+  PartialConstructorInput extends Partial<ConstructorInput>
+>(
+  model: {
+    new (inp: ConstructorInput): ParsedShape
+  },
+  // TODO: Prevent over provide
+  partConstructor: PartialConstructorInput
+): (
+  restConstructor: Compute<Omit<ConstructorInput, keyof PartialConstructorInput>>
+) => ParsedShape {
+  return (restConstructor) =>
+    new model({ ...partConstructor, ...restConstructor } as any)
+}
+
+// TODO: morph the schema instead.
 export function derivePartialConstructor<ConstructorInput, ParsedShape>(model: {
   [S.schemaField]: S.Schema<any, any, ParsedShape, ConstructorInput, any, any, any>
   new (inp: ConstructorInput): ParsedShape

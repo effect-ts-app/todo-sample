@@ -20,7 +20,7 @@ import {
   PhoneNumber,
   longString,
   GetPartialConstructor,
-  derivePartialConstructor,
+  partialConstructor,
 } from "@effect-ts-demo/core/ext/Schema"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as O from "@effect-ts/core/Option"
@@ -143,9 +143,9 @@ export type TaskListOrGroup = ParsedShapeOf<typeof TaskListOrGroup>
 const MyDay = props({ id: prop(TaskId), date: prop(date) /* position */ })
 type MyDay = ParsedShapeOf<typeof MyDay>
 
-const createPartialTask = derivePartialConstructor(Task)
-const createPartialTaskList = derivePartialConstructor(TaskList)
-const createPartialTaskListGroup = derivePartialConstructor(TaskListGroup)
+const createPartialTask = partialConstructor(Task)
+const createPartialTaskList = partialConstructor(TaskList)
+const createPartialTaskListGroup = partialConstructor(TaskListGroup)
 
 @namedC
 export class User extends Model<User>()(
