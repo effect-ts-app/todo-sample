@@ -143,6 +143,10 @@ export type TaskListOrGroup = ParsedShapeOf<typeof TaskListOrGroup>
 const MyDay = props({ id: prop(TaskId), date: prop(date) /* position */ })
 type MyDay = ParsedShapeOf<typeof MyDay>
 
+const createPartialTask = derivePartialConstructor(Task)
+const createPartialTaskList = derivePartialConstructor(TaskList)
+const createPartialTaskListGroup = derivePartialConstructor(TaskListGroup)
+
 @namedC
 export class User extends Model<User>()(
   props({
@@ -158,20 +162,19 @@ export class User extends Model<User>()(
     (a: GetPartialConstructor<typeof User["createTask_"]>) => (u: User) =>
       User.createTask_(u)(a)
 
-  static readonly createTask_ = (u: User) =>
-    derivePartialConstructor(Task)({ createdBy: u.id })
+  static readonly createTask_ = (u: User) => createPartialTask({ createdBy: u.id })
 
   static readonly createTaskList =
     (a: GetPartialConstructor<typeof User["createTaskList_"]>) => (u: User) =>
       User.createTaskList_(u)(a)
   static readonly createTaskList_ = (u: User) =>
-    derivePartialConstructor(TaskList)({ ownerId: u.id })
+    createPartialTaskList({ ownerId: u.id })
 
   static readonly createTaskListGroup =
     (a: GetPartialConstructor<typeof User["createTaskListGroup_"]>) => (u: User) =>
       User.createTaskListGroup_(u)(a)
   static readonly createTaskListGroup_ = (u: User) =>
-    derivePartialConstructor(TaskListGroup)({ ownerId: u.id })
+    createPartialTaskListGroup({ ownerId: u.id })
 
   static readonly getMyDay = (t: Task) => (u: User) =>
     A.findFirst_(u.myDay, (x) => x.id === t.id)["|>"](O.map((m) => m.date))
