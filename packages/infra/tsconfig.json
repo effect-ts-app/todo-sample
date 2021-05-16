@@ -1,6 +1,11 @@
 {
     "extends": "../../tsconfig.base.json",
     "compilerOptions": {
+        "lib": [
+            "es2020",
+            "DOM"
+        ],
+        "baseUrl": "./",
         "paths": {
             "@effect-ts-demo/core/*": [
                 "packages/core/*"
