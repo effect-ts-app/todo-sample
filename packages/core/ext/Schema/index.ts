@@ -13,11 +13,30 @@ export function derivePartialConstructor<ConstructorInput, ParsedShape>(model: {
   [S.schemaField]: S.Schema<any, any, ParsedShape, ConstructorInput, any, any, any>
   new (inp: ConstructorInput): ParsedShape
 }): <PartialConstructorInput extends Partial<ConstructorInput>>(
+  // TODO: Prevent over provide
   partConstructor: PartialConstructorInput
 ) => (
   restConstructor: Compute<Omit<ConstructorInput, keyof PartialConstructorInput>>
 ) => ParsedShape {
   return (partConstructor) => (restConstructor) =>
+    derivePartialConstructor_(model, partConstructor)(restConstructor)
+}
+
+export function derivePartialConstructor_<
+  ConstructorInput,
+  ParsedShape,
+  PartialConstructorInput extends Partial<ConstructorInput>
+>(
+  model: {
+    [S.schemaField]: S.Schema<any, any, ParsedShape, ConstructorInput, any, any, any>
+    new (inp: ConstructorInput): ParsedShape
+  },
+  // TODO: Prevent over provide
+  partConstructor: PartialConstructorInput
+): (
+  restConstructor: Compute<Omit<ConstructorInput, keyof PartialConstructorInput>>
+) => ParsedShape {
+  return (restConstructor) =>
     new model({ ...partConstructor, ...restConstructor } as any)
 }
 
@@ -210,9 +229,8 @@ export function makeOptional<NER extends Record<string, S.AnyProperty>>(
 export const constArray = constant(A.empty)
 
 export * from "./_api"
-// TODO; vendor Model.
+// customized Model
 export { Model } from "./Model"
-export type { SchemaForModel } from "./Model"
 export * from "./Model"
 
 export * from "./vendor"
