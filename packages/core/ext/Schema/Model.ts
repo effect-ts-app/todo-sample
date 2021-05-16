@@ -1,12 +1,13 @@
+/* eslint-disable @typescript-eslint/ban-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Erase } from "@effect-ts-demo/core/ext/Effect"
 import * as Lens from "@effect-ts/monocle/Lens"
 import { unsafe } from "@effect-ts/schema/_api/condemn"
 
-import * as S from "./_schema"
-import { fromFields, schemaField } from "./_schema"
+import { Compute } from "../Compute"
 
-import type { Compute } from "../Compute"
+import * as S from "./_schema"
+import { AnyError, fromFields, schemaField, SchemaForModel } from "./_schema"
 
 export const GET = "GET"
 export type GET = typeof GET
@@ -45,35 +46,33 @@ export type StringRecord = Record<string, string>
 
 export type AnyRecord = Record<string, any>
 
-export type AnyRecordSchema = S.Schema<unknown, any, any, any, any, AnyRecord, any>
+export type AnyRecordSchema = S.Schema<
+  unknown,
+  AnyError,
+  any,
+  any,
+  AnyError,
+  AnyRecord,
+  any
+>
 export type StringRecordSchema = S.Schema<
   unknown,
+  AnyError,
   any,
   any,
-  any,
-  any,
+  AnyError,
   StringRecord,
   any
 >
 
-export type SchemaForModel<M, Self extends S.SchemaAny> = S.Schema<
-  S.ParserInputOf<Self>,
-  S.ParserErrorOf<Self>,
-  M,
-  Compute<S.ConstructorInputOf<Self>>,
-  S.ConstructorErrorOf<Self>,
-  Compute<S.EncodedOf<Self>>,
-  S.ApiOf<Self> & S.ApiSelfType<M>
->
-
+// Actually GET + DELETE
 export interface ReadRequest<
   M,
   Path extends StringRecordSchema | undefined,
   Query extends StringRecordSchema | undefined,
   Headers extends StringRecordSchema | undefined,
   Self extends S.SchemaAny
-> extends Model2<Self, M, SchemaForModel<M, Self>> {
-  [schemaField]: Self
+> extends Model<M, Self> {
   Body: undefined
   Path: Path
   Query: Query
@@ -82,6 +81,7 @@ export interface ReadRequest<
   method: ReadMethods
 }
 
+// Actually all other methods except GET + DELETE
 export interface WriteRequest<
   M,
   Path extends StringRecordSchema | undefined,
@@ -89,8 +89,7 @@ export interface WriteRequest<
   Query extends StringRecordSchema | undefined,
   Headers extends StringRecordSchema | undefined,
   Self extends S.SchemaAny
-> extends Model2<Self, M, SchemaForModel<M, Self>> {
-  [schemaField]: Self
+> extends Model<M, Self> {
   Path: Path
   Body: Body
   Query: Query
@@ -99,21 +98,30 @@ export interface WriteRequest<
   method: WriteMethods
 }
 
+// Not inheriting from Schemed because we don't want `copy`
+// passing SelfM down to Model2 so we only compute it once.
 export interface Model<M, Self extends S.SchemaAny>
-  extends Model2<Self, M, SchemaForModel<M, Self>> {
-  [schemaField]: Self
-}
-
-interface Model2<Self extends S.SchemaAny, M, SelfM extends S.SchemaAny> {
-  readonly [schemaField]: SelfM
-  readonly lens: Lens.Lens<M, M>
-  readonly Model: SelfM
-  readonly Parser: S.ParserOf<SelfM>
-  readonly Encoder: S.EncoderOf<SelfM>
-  readonly Guard: S.GuardOf<SelfM>
-  readonly Arbitrary: S.ArbOf<SelfM>
-  readonly Constructor: S.ConstructorOf<SelfM>
+  extends Model2<M, Self, SchemaForModel<M, Self>> {}
+export interface Model2<M, Self extends S.SchemaAny, SelfM extends S.SchemaAny>
+  extends S.Schema<
+    S.ParserInputOf<Self>,
+    S.NamedE<string, S.ParserErrorOf<Self>>,
+    M,
+    S.ConstructorInputOf<Self>,
+    S.NamedE<string, S.ConstructorErrorOf<Self>>,
+    S.EncodedOf<Self>,
+    S.ApiOf<Self>
+  > {
   new (_: Compute<S.ConstructorInputOf<Self>>): Compute<S.ParsedShapeOf<Self>>
+  [S.schemaField]: SelfM
+  readonly Model: SelfM // added
+  readonly lens: Lens.Lens<M, M> // added
+
+  readonly Parser: S.ParserFor<SelfM>
+  readonly Constructor: S.ConstructorFor<SelfM>
+  readonly Encoder: S.EncoderFor<SelfM>
+  readonly Guard: S.GuardFor<SelfM>
+  readonly Arbitrary: S.ArbitraryFor<SelfM>
 }
 
 type OrAny<T> = T extends S.SchemaAny ? T : S.SchemaAny

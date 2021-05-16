@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as O from "@effect-ts-demo/core/ext/Option"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import { v4 } from "uuid"
