@@ -84,7 +84,7 @@ export const metaIdentifier = S.makeAnnotation<Meta>()
 export const metaC = (meta: Meta) => {
   return function (cls: any) {
     cls[schemaField] = cls[schemaField].annotate(metaIdentifier, meta)
-    return namedC()(cls)
+    return cls
   }
 }
 

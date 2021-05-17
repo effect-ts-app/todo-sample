@@ -1,4 +1,10 @@
-import { makeOptional, prop, Patch, metaC } from "@effect-ts-demo/core/ext/Schema"
+import {
+  makeOptional,
+  prop,
+  Patch,
+  metaC,
+  namedC,
+} from "@effect-ts-demo/core/ext/Schema"
 import {
   EditablePersonalTaskProps,
   EditableTaskProps,
@@ -9,6 +15,7 @@ import {
   description: "You can optionally update selected fields of the Task",
   summary: "Update a Task", // no shit.
 })
+@namedC()
 export default class UpdateTask extends Patch("/tasks/:id")<UpdateTask>()({
   id: prop(TaskId),
   ...makeOptional(EditableTaskProps),

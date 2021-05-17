@@ -56,7 +56,19 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Response"
+                  "description": "A list of Tasks",
+                  "properties": {
+                    "items": {
+                      "items": {
+                        "$ref": "#/components/schemas/Task"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "items"
+                  ],
+                  "type": "object"
                 }
               }
             }
@@ -812,22 +824,6 @@
           "isFavorite",
           "steps",
           "myDay"
-        ],
-        "type": "object"
-      },
-      "Response": {
-        "description": "A list of Tasks",
-        "title": "Response",
-        "properties": {
-          "items": {
-            "items": {
-              "$ref": "#/components/schemas/Task"
-            },
-            "type": "array"
-          }
-        },
-        "required": [
-          "items"
         ],
         "type": "object"
       }

@@ -851,6 +851,7 @@ type BuildRequest<
       >
 >
 
+// NOTE: This ignores the original schema after building the new
 export function makeRequest<
   Props extends S.PropertyRecord,
   Path extends string,
