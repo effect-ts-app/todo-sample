@@ -2,15 +2,16 @@ import {
   nullable,
   ParsedShapeOf,
   prop,
-  props,
-  ReadRequest,
+  Get,
+  namedC,
 } from "@effect-ts-demo/core/ext/Schema"
 import { TaskId } from "@effect-ts-demo/todo-types"
 
 import { TaskView } from "./views"
 
-export class Request extends ReadRequest<Request>()("GET", "/tasks/:id", {
-  path: props({ id: prop(TaskId) }),
+@namedC()
+export default class FindTask extends Get("/tasks/:id")<FindTask>()({
+  id: prop(TaskId),
 }) {}
 
 export const Response = nullable(TaskView.Model)

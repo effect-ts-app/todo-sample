@@ -13,7 +13,6 @@ type Methods = "GET" | "PUT" | "POST" | "PATCH" | "DELETE"
  * Work in progress JSONSchema generator.
  */
 export function makeJsonSchema(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   r: Iterable<RS.RouteDescriptor<any, any, any, any, any, any, any, any>>
 ) {
   return pipe(

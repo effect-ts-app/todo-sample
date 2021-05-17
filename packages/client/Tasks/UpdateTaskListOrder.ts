@@ -1,7 +1,10 @@
-import { array, prop, props, WriteRequest } from "@effect-ts-demo/core/ext/Schema"
+import { array, prop, Post, namedC } from "@effect-ts-demo/core/ext/Schema"
 import { TaskId, TaskListIdU } from "@effect-ts-demo/todo-types"
 
-export class Request extends WriteRequest<Request>()("POST", "/lists/:id/order", {
-  path: props({ id: prop(TaskListIdU) }),
-  body: props({ order: prop(array(TaskId)) }),
+@namedC()
+export default class UpdateTaskListOrder extends Post(
+  "/lists/:id/order"
+)<UpdateTaskListOrder>()({
+  id: prop(TaskListIdU),
+  order: prop(array(TaskId)),
 }) {}

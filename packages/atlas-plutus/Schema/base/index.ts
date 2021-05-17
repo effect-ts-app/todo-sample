@@ -1,13 +1,14 @@
-import type * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as T from "@effect-ts/core/Effect"
 import * as TRef from "@effect-ts/core/Effect/Ref"
-import type { Has } from "@effect-ts/core/Has"
 import { tag } from "@effect-ts/core/Has"
 import { getApplyConfig } from "@effect-ts/morphic/HKT"
 import { pipe } from "@effect-ts/system/Function"
 
-import type { JSONSchema, SubSchema } from "../../JsonSchema"
 import { Ref } from "../../JsonSchema"
+
+import type { JSONSchema, SubSchema } from "../../JsonSchema"
+import type * as A from "@effect-ts/core/Collections/Immutable/Array"
+import type { Has } from "@effect-ts/core/Has"
 
 export interface References {
   ref: TRef.Ref<Map<string, SubSchema>>

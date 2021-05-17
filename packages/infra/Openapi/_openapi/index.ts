@@ -12,7 +12,6 @@ import {
   StringSchema,
 } from "@atlas-ts/plutus"
 import {
-  constrainedStringIdentifier,
   EmailFromStringIdentifier,
   EmailIdentifier,
   PhoneNumberFromStringIdentifier,
@@ -38,6 +37,10 @@ import {
   positiveIntIdentifier,
   propertiesIdentifier,
   stringIdentifier,
+  metaIdentifier,
+  minLengthIdentifier,
+  maxLengthIdentifier,
+  SchemaAnnotated,
 } from "@effect-ts-demo/core/ext/Schema"
 import * as T from "@effect-ts/core/Effect"
 import * as O from "@effect-ts/core/Option"
@@ -48,10 +51,10 @@ export type Gen<T> = T.UIO<JSONSchema>
 
 export const interpreters: ((schema: S.SchemaAny) => O.Option<Gen<unknown>>)[] = [
   O.partial((_miss) => (schema: S.SchemaAny): Gen<unknown> => {
-    if (schema instanceof S.SchemaOpenApi) {
-      const cfg = schema.jsonSchema()
-      return processId(schema, cfg)
-    }
+    // if (schema instanceof S.SchemaOpenApi) {
+    //   const cfg = schema.jsonSchema()
+    //   return processId(schema, cfg)
+    // }
 
     // if (schema instanceof S.SchemaRecur) {
     //   if (interpreterCache.has(schema)) {
@@ -75,13 +78,15 @@ export const interpreters: ((schema: S.SchemaAny) => O.Option<Gen<unknown>>)[] =
   }),
 ]
 
+// TODO: Cache
+
 function processId(schema: S.SchemaAny, meta = {}) {
   if (!schema) {
     throw new Error("schema undefined")
   }
   return T.gen(function* ($) {
-    if (meta) {
-      //console.log(meta, schema)
+    if (schema instanceof S.SchemaRefinement) {
+      return yield* $(processId(schema.self, meta))
     }
     //   if (schema instanceof S.SchemaPipe) {
     //     return processId(schema.that, meta)
@@ -89,122 +94,136 @@ function processId(schema: S.SchemaAny, meta = {}) {
     //   if (schema instanceof S.SchemaConstructor) {
     //     return processId(schema.self, meta)
     //   }
-    if (schema instanceof S.SchemaOpenApi) {
-      const cfg = schema.jsonSchema()
-      meta = { ...meta, ...cfg }
-    }
+
+    //console.log("$$$", schema.annotation)
+
+    // if (schema instanceof S.SchemaOpenApi) {
+    //   const cfg = schema.jsonSchema()
+    //   meta = { ...meta, ...cfg }
+    // }
     if (schema instanceof S.SchemaNamed) {
-      return yield* $(processId(schema.self, { title: schema.name }))
+      meta = { title: schema.name, ...meta }
     }
 
-    switch (schema.annotation) {
-      case intersectIdentifier: {
-        const { openapiRef, ...rest } = meta
-        const ref = openapiRef || rest.title
-        const s = new AllOfSchema({
-          ...rest,
-          allOf: [
-            yield* $(processId(schema.meta.self)),
-            yield* $(processId(schema.meta.that)),
-          ],
-        })
-        // If this is a named intersection, we assume that merging the intersected types
-        // is desired. Lets make it configurable if someone needs it :)
-        return yield* $(referenced({ openapiRef: ref })(T.succeed(ref ? merge(s) : s)))
-      }
-      case unionIdentifier: {
-        return new OneOfSchema({
-          ...meta,
-          oneOf: yield* $(
-            T.collectAll(
-              Object.keys(schema.meta.props).map((x) => processId(schema.meta.props[x]))
-            )
-          ),
-          discriminator: schema.meta.tag["|>"](
-            O.map(({ key }) => ({
-              propertyName: key, // TODO
-            }))
-          )["|>"](O.toUndefined),
-        })
-      }
-      case fromStringIdentifier:
-      case stringIdentifier:
-        return new StringSchema()
-      case constrainedStringIdentifier:
-        return new StringSchema({
-          minLength: schema.meta.minLength,
-          maxLength: schema.meta.maxLength,
-        })
-
-      case nonEmptyStringFromStringIdentifier:
-      case nonEmptyStringIdentifier:
-        return new StringSchema({ minLength: 1 })
-
-      case EmailFromStringIdentifier:
-      case EmailIdentifier:
-        return new StringSchema({ format: "email" })
-      case PhoneNumberFromStringIdentifier:
-      case PhoneNumberIdentifier:
-        return new StringSchema({ format: "phone" })
-
-      case literalIdentifier:
-        return new EnumSchema({ enum: schema.meta.literals })
-
-      case UUIDFromStringIdentifier:
-        return new StringSchema({ format: "uuid" })
-      case dateIdentifier:
-        return new StringSchema({ format: "date-time" })
-      case numberIdentifier:
-        return new NumberSchema()
-      case intIdentifier:
-        return new NumberSchema()
-      case positiveIntIdentifier:
-        return new NumberSchema({ minimum: 0 })
-      case positiveIntFromNumber:
-        return new NumberSchema({ minimum: 0 })
-      case boolIdentifier:
-        return new BooleanSchema()
-      case nullableIdentifier:
-        return { ...(yield* $(processId(schema.meta.self))), nullable: true }
-      case arrayIdentifier:
-        return new ArraySchema({ items: yield* $(processId(schema.meta.self)) })
-      case chunkIdentifier:
-        return new ArraySchema({ items: yield* $(processId(schema.meta.self)) })
-      case fromChunkIdentifier:
-        return new ArraySchema({ items: yield* $(processId(schema.meta.self)) })
-      case propertiesIdentifier: {
-        const properties = {}
-        const required = []
-        for (const k in schema.meta.props) {
-          const p: S.AnyProperty = schema.meta.props[k]
-          properties[k] = yield* $(processId(p["_schema"]))
-          if (p["_optional"] === "required") {
-            required.push(k)
-          }
+    if (schema instanceof SchemaAnnotated) {
+      switch (schema.annotation) {
+        case S.reqId: {
+          meta = { noRef: true, ...meta }
+          break
         }
-        const { openapiRef, ...rest } = meta
-        return yield* $(
-          referenced({ openapiRef: openapiRef || rest.title })(
-            T.succeed(
-              new ObjectSchema({
-                ...rest,
-                properties,
-                required: required.length ? required : undefined,
-              })
-            )
+        case metaIdentifier: {
+          meta = { ...schema.meta, ...meta }
+          break
+        }
+        case intersectIdentifier: {
+          const { openapiRef, ...rest } = meta
+          const ref = openapiRef || rest.title
+          const s = new AllOfSchema({
+            ...rest,
+            allOf: [
+              yield* $(processId(schema.meta.self)),
+              yield* $(processId(schema.meta.that)),
+            ],
+          })
+          // If this is a named intersection, we assume that merging the intersected types
+          // is desired. Lets make it configurable if someone needs it :)
+          const obj = ref ? merge(s) : s
+
+          return yield* $(
+            meta.noRef
+              ? T.succeed(obj)
+              : referenced({ openapiRef: ref })(T.succeed(obj))
           )
-        )
-      }
-
-      default: {
-        if (hasContinuation(schema)) {
-          return yield* $(processId(schema[SchemaContinuationSymbol], meta))
-          // const arb = for_(schema[SchemaContinuationSymbol])
-          // cache.set(schema, arb)
-          // return arb as Gen<ParsedShape>
         }
-        console.log("$$$ miss", schema)
+        case unionIdentifier: {
+          return new OneOfSchema({
+            ...meta,
+            oneOf: yield* $(
+              T.collectAll(
+                Object.keys(schema.meta.props).map((x) =>
+                  processId(schema.meta.props[x])
+                )
+              )
+            ),
+            discriminator: schema.meta.tag["|>"](
+              O.map(({ key }) => ({
+                propertyName: key, // TODO
+              }))
+            )["|>"](O.toUndefined),
+          })
+        }
+        case fromStringIdentifier:
+        case stringIdentifier:
+          return new StringSchema(meta)
+        case minLengthIdentifier:
+          meta = { minLength: schema.meta.minLength, ...meta }
+          break
+        case maxLengthIdentifier:
+          meta = { maxLength: schema.meta.maxLength, ...meta }
+          break
+        case nonEmptyStringFromStringIdentifier:
+        case nonEmptyStringIdentifier:
+          return new StringSchema({ minLength: 1, ...meta })
+
+        case EmailFromStringIdentifier:
+        case EmailIdentifier:
+          return new StringSchema({ format: "email", ...meta })
+        case PhoneNumberFromStringIdentifier:
+        case PhoneNumberIdentifier:
+          return new StringSchema({ format: "phone", ...meta })
+
+        case literalIdentifier:
+          return new EnumSchema({ enum: schema.meta.literals, ...meta })
+
+        case UUIDFromStringIdentifier:
+          return new StringSchema({ format: "uuid", ...meta })
+        case dateIdentifier:
+          return new StringSchema({ format: "date-time", ...meta })
+        case numberIdentifier:
+          return new NumberSchema(meta)
+        case intIdentifier:
+          return new NumberSchema(meta)
+        case positiveIntIdentifier:
+          return new NumberSchema({ minimum: 0, ...meta })
+        case positiveIntFromNumber:
+          return new NumberSchema({ minimum: 0, ...meta })
+        case boolIdentifier:
+          return new BooleanSchema(meta)
+        case nullableIdentifier:
+          return { ...(yield* $(processId(schema.meta.self, meta))), nullable: true }
+        case arrayIdentifier:
+          return new ArraySchema({ items: yield* $(processId(schema.meta.self, meta)) })
+        case chunkIdentifier:
+          return new ArraySchema({ items: yield* $(processId(schema.meta.self, meta)) })
+        case fromChunkIdentifier:
+          return new ArraySchema({ items: yield* $(processId(schema.meta.self, meta)) })
+        case propertiesIdentifier: {
+          const properties = {}
+          const required = []
+          for (const k in schema.meta.props) {
+            const p: S.AnyProperty = schema.meta.props[k]
+            properties[k] = yield* $(processId(p["_schema"]))
+            if (p["_optional"] === "required") {
+              required.push(k)
+            }
+          }
+          const { openapiRef, ...rest } = meta
+          const obj = new ObjectSchema({
+            ...rest,
+            properties,
+            required: required.length ? required : undefined,
+          })
+          return yield* $(
+            meta.noRef
+              ? T.succeed(obj)
+              : referenced({ openapiRef: openapiRef || rest.title })(T.succeed(obj))
+          )
+        }
       }
+    }
+
+    if (hasContinuation(schema)) {
+      return yield* $(processId(schema[SchemaContinuationSymbol], meta))
     }
   })
 }
@@ -233,6 +252,7 @@ function merge(schema) {
       title: a.title,
       type: "object",
       description: a.description,
+      summary: a.summary,
       nullable: a.nullable,
       ...first,
     }
@@ -246,10 +266,10 @@ const cache = new WeakMap()
 
 function for_<
   ParserInput,
-  ParserError,
+  ParserError extends S.AnyError,
   ParsedShape,
   ConstructorInput,
-  ConstructorError,
+  ConstructorError extends S.AnyError,
   Encoded,
   Api
 >(
@@ -270,7 +290,7 @@ function for_<
     const _ = interpreter(schema)
     if (_._tag === "Some") {
       cache.set(schema, _.value)
-      return _.value as Gen<ParsedShape>
+      return _.value
     }
   }
   if (hasContinuation(schema)) {

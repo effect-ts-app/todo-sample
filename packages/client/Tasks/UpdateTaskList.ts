@@ -1,12 +1,8 @@
-import {
-  makeOptional,
-  prop,
-  props,
-  WriteRequest,
-} from "@effect-ts-demo/core/ext/Schema"
+import { makeOptional, prop, Patch, namedC } from "@effect-ts-demo/core/ext/Schema"
 import { EditableTaskListProps, TaskListId } from "@effect-ts-demo/todo-types/"
 
-export class Request extends WriteRequest<Request>()("PATCH", "/lists/:id", {
-  path: props({ id: prop(TaskListId) }),
-  body: props({ ...makeOptional(EditableTaskListProps) }),
+@namedC()
+export default class UpdateTaskList extends Patch("/lists/:id")<UpdateTaskList>()({
+  id: prop(TaskListId),
+  ...makeOptional(EditableTaskListProps),
 }) {}

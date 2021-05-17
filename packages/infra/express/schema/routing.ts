@@ -7,6 +7,7 @@ import {
 } from "@atlas-ts/plutus"
 import * as EO from "@effect-ts-demo/core/ext/EffectOption"
 import * as S from "@effect-ts-demo/core/ext/Schema"
+import { Methods } from "@effect-ts-demo/core/ext/Schema"
 import { pipe } from "@effect-ts/core"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as T from "@effect-ts/core/Effect"
@@ -21,16 +22,6 @@ import {
   RequestHandler,
   RequestHandlerOptRes,
 } from "./requestHandler"
-
-type Methods =
-  | "GET"
-  | "PUT"
-  | "POST"
-  | "PATCH"
-  | "DELETE"
-  | "OPTIONS"
-  | "HEAD"
-  | "TRACE"
 
 export interface RouteDescriptor<
   R,
@@ -81,7 +72,42 @@ export function makeRouteDescriptor<
   >
 }
 
-export function matchA<
+// export function match<
+//   R,
+//   Path extends string,
+//   Method extends Methods,
+//   ReqA,
+//   ResA,
+//   R2 = unknown,
+//   PR = unknown
+// >(
+//   r: RequestHandler2<R, Path, Method, ReqA, ResA>,
+//   mw?: Middleware2<R, ReqA, ResA, R2, PR>
+// ) {
+//   //r.Request = S.adaptRequest(r.Request as any) as any
+
+//   let h = undefined
+//   if (mw) {
+//     const { handle, handler } = mw(r)
+//     r = handler as any
+//     h = handle
+//   }
+
+//   return pipe(
+//     Ex.match(r.Request.method.toLowerCase() as any)(
+//       r.Request.path,
+//       //makeRequestHandler2<R, Path, Method, ReqA, ResA, R2, PR>(r, h)
+//       makeRequestHandler<R, any, any, any, any, any, ReqA, ResA, R2, PR>(r, h)
+//     ),
+//     T.zipRight(
+//       T.succeedWith(() =>
+//         makeRouteDescriptor(r.Request.path, r.Request.method, r as any)
+//       )
+//     )
+//   )
+// }
+
+export function match<
   R,
   PathA,
   CookieA,
@@ -328,6 +354,7 @@ export function makeFromSchema<ResA>(
 
   return pipe(
     T.struct({
+      req: jsonSchema(Req.Model),
       reqQuery: makeReqQuerySchema,
       reqHeaders: makeReqHeadersSchema,
       reqBody: makeReqBodySchema,
@@ -336,11 +363,15 @@ export function makeFromSchema<ResA>(
       res: makeResSchema,
     }),
     T.map((_) => {
+      //console.log("$$$ REQ", _.req)
       const isEmpty = !e.handler.Response || e.handler.Response === S.Void
       return {
         path: e.path,
         method: e.method.toLowerCase(),
         tags: e.info?.tags,
+        description: _.req?.description,
+        summary: _.req?.summary,
+        operationId: _.req?.title,
         parameters: [
           ..._.reqPath["|>"](makeParameters("path")),
           ..._.reqQuery["|>"](makeParameters("query")),

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export * from "./config"
 import { flow, pipe } from "@effect-ts-demo/core/ext/Function"
 import * as S from "@effect-ts-demo/core/ext/Schema"
@@ -16,25 +17,29 @@ import {
   ResponseError,
 } from "./fetch"
 
-type Requests = Record<string, { Request: any; Response?: any }>
+type Requests = Record<string, Record<string, any>>
 
 export function clientFor<M extends Requests>(models: M) {
   return typedKeysOf(models).reduce((prev, cur) => {
     const h = models[cur]
     const res = h.Response ?? S.Void
 
+    const Request = S.extractRequest(h)
+
+    const b = Object.assign({}, h, { Request })
+
     // if we don't need props, then also dont require an argument.
-    const props = [h.Request.Body, h.Request.Query, h.Request.Path]
+    const props = [Request.Body, Request.Query, Request.Path]
       .filter((x) => x)
       .flatMap((x) => x.Api.props)
     // todo; automatically determine if need a request input etc
     // auto determine if need headers? ie via: { input: (body/query), headers: Z } or as separate arguments ?
     // @ts-expect-error doc
     prev[cur] =
-      h.Request.method === "GET"
+      Request.method === "GET"
         ? props.length === 0
           ? pipe(
-              fetchApi(h.Request.method, h.Request.path),
+              fetchApi(Request.method, Request.path),
               T.chain(
                 // @ts-expect-error doc
                 flow(
@@ -46,7 +51,7 @@ export function clientFor<M extends Requests>(models: M) {
             )
           : (req) =>
               pipe(
-                fetchApi(h.Request.method, new Path(h.Request.path).build(req)),
+                fetchApi(Request.method, new Path(Request.path).build(req)),
                 T.chain(
                   // @ts-expect-error doc
                   flow(
@@ -57,14 +62,13 @@ export function clientFor<M extends Requests>(models: M) {
                 )
               )
         : props.length === 0
-        ? fetchApi3S(h)({})
-        : (req) => fetchApi3S(h)(req) // generate handler
+        ? fetchApi3S(b)({})
+        : (req) => fetchApi3S(b)(req) // generate handler
 
     return prev
   }, {} as RequestHandlers<Has<ApiConfig> & Has<H.Http>, FetchError | ResponseError, M>)
 }
 
-type JoinIf<A, B> = B extends Record<any, any> ? A & B : A
 type DefaultVoid<T> = T extends Record<any, any> ? T : S.Void
 
 type Extr<T> = T extends { Model: S.SchemaAny }
@@ -81,17 +85,11 @@ export type ParsedShapeOf<X extends S.Schema<any, any, any, any, any, any, any>>
   X["_ParsedShape"]
 >
 
-// TODO: Response should defaults to S.Void
 type RequestHandlers<R, E, M extends Requests> = {
   // TOdo; expose a ClientShape joining Path etc?
-  [K in keyof M]: keyof (M[K]["Request"]["Path"] &
-    M[K]["Request"]["Query"] &
-    M[K]["Request"]["Body"]) extends never
+  [K in keyof M]: keyof S.GetRequest<M[K]>[S.schemaField]["Api"]["props"] extends never
     ? T.Effect<R, E, DefaultVoid<ParsedShapeOf<Extr<M[K]["Response"]>>>>
     : (
-        req: JoinIf<
-          InstanceType<M[K]["Request"]>,
-          ParsedShapeOf<M[K]["Request"]["Path"]>
-        >
+        req: InstanceType<S.GetRequest<M[K]>>
       ) => T.Effect<R, E, DefaultVoid<ParsedShapeOf<Extr<M[K]["Response"]>>>> // TODO
-} // TODO
+}

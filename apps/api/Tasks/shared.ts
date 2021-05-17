@@ -27,15 +27,38 @@ export const getLoggedInUser = T.gen(function* ($) {
 })
 
 export function handle<
-  TReq extends { Model: SchemaAny },
+  TModule extends Record<
+    string,
+    { Model: SchemaAny; new (...args: any[]): any } | SchemaAny
+  >,
   TRes extends { Model: SchemaAny } | SchemaAny = typeof S.Void
->(_: { Request: TReq; Response?: TRes }) {
+>(
+  _: TModule & { Response?: TRes }
+): <R, E>(
+  h: (
+    r: InstanceType<
+      S.GetRequest<TModule> extends { new (...args: any[]): any }
+        ? S.GetRequest<TModule>
+        : never
+    >
+  ) => T.Effect<R, E, S.ParsedShapeOf<Extr<TRes>>>
+) => {
+  h: typeof h
+  Request: S.GetRequest<TModule>
+  Response: TRes
+} {
   // TODO: Prevent over providing // no strict/shrink yet.
+  const Request = S.extractRequest(_)
+
   return <R, E>(
     h: (
-      r: S.ParsedShapeOf<TReq["Model"]>
+      r: InstanceType<
+        S.GetRequest<TModule> extends { new (...args: any[]): any }
+          ? S.GetRequest<TModule>
+          : never
+      >
     ) => T.Effect<R, E, S.ParsedShapeOf<Extr<TRes>>>
-  ) => ({ h, Request: _.Request, Response: (_.Response ?? S.Void) as TRes })
+  ) => ({ h, Request, Response: (_.Response ?? S.Void) as TRes } as any)
 }
 
 type Extr<T> = T extends { Model: SchemaAny }

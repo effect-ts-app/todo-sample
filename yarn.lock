@@ -1091,12 +1091,12 @@
   dependencies:
     "@date-io/core" "^2.10.7"
 
-"@effect-ts/core@^0.39.0":
-  version "0.39.0"
-  resolved "https://registry.yarnpkg.com/@effect-ts/core/-/core-0.39.0.tgz#c6469883f7dcdcd0df600ebaa7cd731b6ad623b3"
-  integrity sha512-vtt859JkfoierDeJ3SzRCQuPJHXK9/NlZIs+mG9dqNE3tlgB5JVe7/Xj3YJy8AK4E0RsacXgRlxMD8WudZ0M1Q==
+"@effect-ts/core@^0.39.2":
+  version "0.39.2"
+  resolved "https://registry.yarnpkg.com/@effect-ts/core/-/core-0.39.2.tgz#e41a980be4bdffbce2015bed02376cd493d7ff28"
+  integrity sha512-/53DZBGpBjlVimkSYNPQLmlrmD0DO+8uRF2nt4FRRijR4c+8trgeyqIXrKZwHxk6kl4p0vQG6mTRuEFmkx5IAg==
   dependencies:
-    "@effect-ts/system" "^0.36.0"
+    "@effect-ts/system" "^0.36.1"
 
 "@effect-ts/express@^0.19.0":
   version "0.19.0"
@@ -1128,17 +1128,17 @@
   resolved "https://registry.yarnpkg.com/@effect-ts/react/-/react-0.2.0.tgz#b56f35006e2432cd441789880681fce8ff967105"
   integrity sha512-oHjNpShJRbBEbQ8FpE0uxtozc29wFL/3p8DNSdUEgR1Y/gIO9YpHQYqX43xp3xoyAjGmPDZQp7a32DMQWlTpew==
 
-"@effect-ts/schema@^0.7.1":
-  version "0.7.1"
-  resolved "https://registry.yarnpkg.com/@effect-ts/schema/-/schema-0.7.1.tgz#1d287553561d5ef4b06e88f2a5a2e55fb111cea4"
-  integrity sha512-OSj3wARlslhZaGPc410rCYCEq59mukjuFOk/z4WvPyDX6QbH+dc50ZboSDflGThwEeQrK23lbTQl1Rbm/s9L3g==
+"@effect-ts/schema@^0.7.3":
+  version "0.7.3"
+  resolved "https://registry.yarnpkg.com/@effect-ts/schema/-/schema-0.7.3.tgz#e85fe3f62a03f4942a1c08bdd7c42074e4ba1e22"
+  integrity sha512-1yUjx3z4dxB/8NKCDT3bvugAuRG9iumoIdeaVASXjP6PRMM5TGUY6Bff0NDGEij5pvMRnbdYtwB9S2rnYRWKAQ==
   dependencies:
-    "@effect-ts/core" "^0.39.0"
+    "@effect-ts/core" "^0.39.2"
 
-"@effect-ts/system@^0.36.0":
-  version "0.36.0"
-  resolved "https://registry.yarnpkg.com/@effect-ts/system/-/system-0.36.0.tgz#3cb2d60a41a44ef6f6115102a510fc61f4538b8b"
-  integrity sha512-IC0sh+XMh5h7hjmLuOwQByYX8sUZvhImFUJS0wh0HXqbvIUdYaDGS78cnD3TXw+6j/mgwy2ukfHJONg0GovtCw==
+"@effect-ts/system@^0.36.1":
+  version "0.36.1"
+  resolved "https://registry.yarnpkg.com/@effect-ts/system/-/system-0.36.1.tgz#9f888c4dec6ecb494f01dda4703f506c74894bbc"
+  integrity sha512-RgrndaKmfj2VCmY+sshhY0WbQ4kWjxBkFsXna2pxzvN1Ohn/PUlfuFWpVOUbHDk+SeorKOXysOkAV09H44uZ3g==
 
 "@effect-ts/tracing-plugin@^0.10.2":
   version "0.10.2"

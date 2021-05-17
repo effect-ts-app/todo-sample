@@ -24,6 +24,7 @@
         "tags": [
           "Tasks"
         ],
+        "operationId": "GetMe",
         "parameters": [],
         "responses": {
           "200": {
@@ -47,6 +48,7 @@
         "tags": [
           "Tasks"
         ],
+        "operationId": "GetTasks",
         "parameters": [],
         "responses": {
           "200": {
@@ -54,18 +56,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "properties": {
-                    "items": {
-                      "items": {
-                        "$ref": "#/components/schemas/Task"
-                      },
-                      "type": "array"
-                    }
-                  },
-                  "required": [
-                    "items"
-                  ],
-                  "type": "object"
+                  "$ref": "#/components/schemas/Response"
                 }
               }
             }
@@ -79,6 +70,7 @@
         "tags": [
           "Tasks"
         ],
+        "operationId": "CreateTask",
         "parameters": [],
         "requestBody": {
           "content": {
@@ -155,6 +147,7 @@
         "tags": [
           "Tasks"
         ],
+        "operationId": "FindTask",
         "parameters": [
           {
             "name": "id",
@@ -187,6 +180,9 @@
         "tags": [
           "Tasks"
         ],
+        "description": "You can optionally update selected fields of the Task",
+        "summary": "Update a Task",
+        "operationId": "UpdateTask",
         "parameters": [
           {
             "name": "id",
@@ -270,6 +266,7 @@
         "tags": [
           "Tasks"
         ],
+        "operationId": "DeleteTask",
         "parameters": [
           {
             "name": "id",
@@ -299,6 +296,7 @@
         "tags": [
           "Lists"
         ],
+        "operationId": "UpdateTaskList",
         "parameters": [
           {
             "name": "id",
@@ -342,6 +340,7 @@
         "tags": [
           "Lists"
         ],
+        "operationId": "DeleteTaskList",
         "parameters": [
           {
             "name": "id",
@@ -371,6 +370,7 @@
         "tags": [
           "Lists"
         ],
+        "operationId": "UpdateTaskListOrder",
         "parameters": [
           {
             "name": "id",
@@ -431,6 +431,7 @@
         "tags": [
           "Lists"
         ],
+        "operationId": "AddTaskListMember",
         "parameters": [
           {
             "name": "id",
@@ -478,6 +479,7 @@
         "tags": [
           "Lists"
         ],
+        "operationId": "RemovetaskListMember",
         "parameters": [
           {
             "name": "id",
@@ -516,6 +518,7 @@
         "tags": [
           "Groups"
         ],
+        "operationId": "UpdateTaskListGroup",
         "parameters": [
           {
             "name": "id",
@@ -717,7 +720,6 @@
       },
       "Task": {
         "title": "Task",
-        "type": "object",
         "properties": {
           "id": {
             "format": "uuid",
@@ -810,7 +812,24 @@
           "isFavorite",
           "steps",
           "myDay"
-        ]
+        ],
+        "type": "object"
+      },
+      "Response": {
+        "description": "A list of Tasks",
+        "title": "Response",
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Task"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "type": "object"
       }
     },
     "parameters": {}

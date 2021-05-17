@@ -104,6 +104,7 @@ export const Ref = ($ref: string): Ref => ({ $ref })
 export class ObjectSchema extends Base<
   DescriptionSchema & {
     description?: string
+    summary?: string
     required?: A.Array<string>
     properties?: Record<string, SubSchema>
     additionalProperties?: SubSchema

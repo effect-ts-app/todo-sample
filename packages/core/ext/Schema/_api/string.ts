@@ -16,11 +16,7 @@ export function makeConstrainedFromString<Brand>(minLength: number, maxLength: n
     constrained<Brand>(minLength, maxLength),
     S.mapParserError((_) => CNK.unsafeHead(_.errors).error),
     S.mapConstructorError((_) => CNK.unsafeHead(_.errors).error),
-    S.brand<Brand>(),
-    S.annotate(constrainedStringIdentifier, {
-      minLength,
-      maxLength,
-    })
+    S.brand<Brand>()
   )
 }
 

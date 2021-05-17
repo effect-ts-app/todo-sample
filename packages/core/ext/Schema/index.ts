@@ -79,14 +79,24 @@ export function makeUuid() {
   return v4() as S.UUID
 }
 
+type Meta = { description?: string; summary?: string }
+export const metaIdentifier = S.makeAnnotation<Meta>()
+export const metaC = (meta: Meta) => {
+  return function (cls: any) {
+    cls[schemaField] = cls[schemaField].annotate(metaIdentifier, meta)
+    return namedC()(cls)
+  }
+}
+
 /**
  * Automatically assign the name of the Class to the Schema.
  */
-export const namedC = function (cls: any) {
-  cls[schemaField] = cls[schemaField]["|>"](S.named(cls.name))
-  return cls
+export const namedC = (customName?: string) => {
+  return function (cls: any) {
+    cls[schemaField] = cls[schemaField]["|>"](S.named(customName ?? cls.name))
+    return cls
+  }
 }
-
 type LazyPartial<T> = {
   [P in keyof T]?: Lazy<T[P]>
 }
@@ -155,6 +165,22 @@ export function defaultConstructor<
 }
 
 type SupportedDefaults = A.Array<any> | O.Some<any> | O.None | Date | boolean | UUID
+
+export function findAnnotation<A>(
+  schema: S.SchemaAny,
+  id: S.Annotation<A>
+): A | undefined {
+  if (S.isAnnotated(schema, id)) {
+    return schema.meta
+  }
+
+  if (S.hasContinuation(schema)) {
+    return findAnnotation(schema[S.SchemaContinuationSymbol], id)
+  }
+
+  return undefined
+}
+
 export function withDefault<
   ParsedShape extends SupportedDefaults,
   As extends O.Option<PropertyKey>,
@@ -179,19 +205,19 @@ export function withDefault<
   As,
   O.Some<["constructor", () => ParsedShape]>
 > {
-  if (S.isAnnotated(p._schema, S.dateIdentifier)) {
+  if (findAnnotation(p._schema, S.dateIdentifier)) {
     return p.def(makeCurrentDate as any, "constructor")
   }
-  if (S.isAnnotated(p._schema, S.nullableIdentifier)) {
+  if (findAnnotation(p._schema, S.nullableIdentifier)) {
     return p.def(() => O.none as any, "constructor")
   }
-  if (S.isAnnotated(p._schema, S.arrayIdentifier)) {
+  if (findAnnotation(p._schema, S.arrayIdentifier)) {
     return p.def(() => [] as any, "constructor")
   }
-  if (S.isAnnotated(p._schema, S.boolIdentifier)) {
+  if (findAnnotation(p._schema, S.boolIdentifier)) {
     return p.def(() => false as any, "constructor")
   }
-  if (S.isAnnotated(p._schema, S.UUIDIdentifier)) {
+  if (findAnnotation(p._schema, S.UUIDIdentifier)) {
     return p.def(makeUuid as any, "constructor")
   }
   throw new Error("Not supported")

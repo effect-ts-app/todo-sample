@@ -5,14 +5,12 @@ import * as L from "@effect-ts/core/Effect/Layer"
 
 import { jwt } from "../express/schema/jwt"
 
-export class UserProfile extends S.Model<UserProfile>()(
-  S.props({
-    /**
-     * Mapped from "sub"
-     */
-    id: S.prop(S.nonEmptyString).from("sub"),
-  })
-) {}
+export class UserProfile extends S.Model<UserProfile>()({
+  /**
+   * Mapped from "sub"
+   */
+  id: S.prop(S.nonEmptyString).from("sub"),
+}) {}
 
 export interface UserEnv extends UserProfile {}
 export const UserEnv = Has.tag<UserEnv>()

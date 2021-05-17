@@ -11,7 +11,6 @@ import {
   ParsedShapeOf,
   parser,
   prop,
-  props,
   string,
   These,
   union,
@@ -93,33 +92,27 @@ export class Task extends Todo.Task {
   )
 }
 
-export class TaskList extends Model<TaskList>()(
-  props({
-    id: prop(TaskListId),
-    title: prop(reasonableString),
-    order: prop(array(TaskId)),
-    count: prop(number),
-    _tag: prop(literal("TaskList")),
-  })
-) {}
+export class TaskList extends Model<TaskList>()({
+  id: prop(TaskListId),
+  title: prop(reasonableString),
+  order: prop(array(TaskId)),
+  count: prop(number),
+  _tag: prop(literal("TaskList")),
+}) {}
 
-export class TaskListGroup extends Model<TaskListGroup>()(
-  props({
-    id: prop(TaskListId),
-    title: prop(reasonableString),
-    lists: prop(array(TaskList.Model)),
-    _tag: prop(literal("TaskListGroup")),
-  })
-) {}
+export class TaskListGroup extends Model<TaskListGroup>()({
+  id: prop(TaskListId),
+  title: prop(reasonableString),
+  lists: prop(array(TaskList.Model)),
+  _tag: prop(literal("TaskListGroup")),
+}) {}
 
-export class TaskListView extends Model<TaskListView>()(
-  props({
-    title: prop(reasonableString),
-    count: prop(number),
-    slug: prop(string),
-    _tag: prop(literal("TaskListView")),
-  })
-) {}
+export class TaskListView extends Model<TaskListView>()({
+  title: prop(reasonableString),
+  count: prop(number),
+  slug: prop(string),
+  _tag: prop(literal("TaskListView")),
+}) {}
 
 export const FolderListADT = union({
   TaskList: TaskList.Model,

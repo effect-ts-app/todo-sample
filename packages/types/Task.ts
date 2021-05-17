@@ -41,13 +41,11 @@ export type TaskListId = ParsedShapeOf<typeof TaskListId>
 export const TaskListIdU = union({ TaskListId, InboxTaskList })
 export type TaskListIdU = ParsedShapeOf<typeof TaskListIdU>
 
-@namedC
-export class Step extends Model<Step>()(
-  props({
-    title: prop(reasonableString),
-    completed: defaultProp(bool),
-  })
-) {
+@namedC()
+export class Step extends Model<Step>()({
+  title: prop(reasonableString),
+  completed: defaultProp(bool),
+}) {
   static complete = Lens.id<Step>()["|>"](Lens.prop("completed")).set(true)
 }
 
@@ -67,72 +65,67 @@ export const EditablePersonalTaskProps = {
   myDay: prop(nullable(date)),
 }
 
-export class Task extends Model<Task>()(
-  props({
-    id: defaultProp(TaskId),
-    createdBy: prop(UserId),
-    listId: defaultProp(TaskListIdU, constant("inbox" as const)),
-    createdAt: defaultProp(date),
-    updatedAt: defaultProp(date),
-    ...include(EditableTaskProps)(
-      ({ assignedTo, completed, due, isFavorite, note, reminder, steps, ...rest }) => ({
-        ...rest,
-        assignedTo: assignedTo["|>"](withDefault),
-        completed: completed["|>"](withDefault),
-        due: due["|>"](withDefault),
-        note: note["|>"](withDefault),
-        reminder: reminder["|>"](withDefault),
-        isFavorite: isFavorite["|>"](withDefault),
-        steps: steps["|>"](withDefault),
-      })
-    ),
-  })
-) {
+export class Task extends Model<Task>()({
+  id: defaultProp(TaskId),
+  createdBy: prop(UserId),
+  listId: defaultProp(TaskListIdU, constant("inbox" as const)),
+  createdAt: defaultProp(date),
+  updatedAt: defaultProp(date),
+  ...include(EditableTaskProps)(
+    ({ assignedTo, completed, due, isFavorite, note, reminder, steps, ...rest }) => ({
+      ...rest,
+      assignedTo: assignedTo["|>"](withDefault),
+      completed: completed["|>"](withDefault),
+      due: due["|>"](withDefault),
+      note: note["|>"](withDefault),
+      reminder: reminder["|>"](withDefault),
+      isFavorite: isFavorite["|>"](withDefault),
+      steps: steps["|>"](withDefault),
+    })
+  ),
+}) {
   static complete = Lens.id<Task>()
     ["|>"](Lens.prop("completed"))
     .set(O.some(new Date()))
 }
 
-@namedC
-export class Membership extends Model<Membership>()(
-  props({ id: prop(UserId), name: prop(reasonableString) })
-) {}
+@namedC()
+export class Membership extends Model<Membership>()({
+  id: prop(UserId),
+  name: prop(reasonableString),
+}) {}
 
 export const EditableTaskListProps = {
   title: prop(reasonableString),
 }
 
-@namedC
-export class TaskList extends Model<TaskList>()(
-  props({
-    _tag: prop(literal("TaskList")),
-    id: defaultProp(TaskListId),
-    ...EditableTaskListProps,
-    order: defaultProp(array(TaskId)),
+@namedC()
+export class TaskList extends Model<TaskList>()({
+  _tag: prop(literal("TaskList")),
+  id: defaultProp(TaskListId),
+  ...EditableTaskListProps,
+  order: defaultProp(array(TaskId)),
 
-    members: defaultProp(array(Membership.Model)),
-    ownerId: prop(UserId),
-  })
-) {}
+  members: defaultProp(array(Membership.Model)),
+  ownerId: prop(UserId),
+}) {}
 
 export const EditableTaskListGroupProps = {
   title: prop(reasonableString),
   lists: prop(array(TaskListId)),
 }
 
-@namedC
-export class TaskListGroup extends Model<TaskListGroup>()(
-  props({
-    _tag: prop(literal("TaskListGroup")),
-    id: defaultProp(TaskListId),
-    ...include(EditableTaskListGroupProps)(({ lists, ...rest }) => ({
-      ...rest,
-      lists: lists["|>"](withDefault),
-    })),
+@namedC()
+export class TaskListGroup extends Model<TaskListGroup>()({
+  _tag: prop(literal("TaskListGroup")),
+  id: defaultProp(TaskListId),
+  ...include(EditableTaskListGroupProps)(({ lists, ...rest }) => ({
+    ...rest,
+    lists: lists["|>"](withDefault),
+  })),
 
-    ownerId: prop(UserId),
-  })
-) {}
+  ownerId: prop(UserId),
+}) {}
 
 export const TaskListOrGroup = union({
   TaskList: TaskList.Model,
@@ -147,17 +140,15 @@ const createPartialTask = partialConstructor(Task)
 const createPartialTaskList = partialConstructor(TaskList)
 const createPartialTaskListGroup = partialConstructor(TaskListGroup)
 
-@namedC
-export class User extends Model<User>()(
-  props({
-    id: prop(UserId),
-    email: prop(Email),
-    name: prop(reasonableString),
-    inboxOrder: defaultProp(array(TaskId)),
-    myDay: defaultProp(array(MyDay)),
-    phoneNumber: prop(PhoneNumber),
-  })
-) {
+@namedC()
+export class User extends Model<User>()({
+  id: prop(UserId),
+  email: prop(Email),
+  name: prop(reasonableString),
+  inboxOrder: defaultProp(array(TaskId)),
+  myDay: defaultProp(array(MyDay)),
+  phoneNumber: prop(PhoneNumber),
+}) {
   static readonly createTask__ =
     (a: GetPartialConstructor<typeof User["createTask_"]>) => (u: User) =>
       User.createTask_(u, a)

@@ -17,20 +17,20 @@ import UpdateTaskListGroup from "./UpdateTaskListGroup"
 import UpdateTaskListOrder from "./UpdateTaskListOrder"
 
 export const routes = T.tuple(
-  R.matchA(GetMe, demandLoggedIn),
-  R.matchA(GetTasks, demandLoggedIn),
-  R.matchA(CreateTask, demandLoggedIn),
-  R.matchA(FindTask, demandLoggedIn),
-  R.matchA(UpdateTask, demandLoggedIn),
-  R.matchA(DeleteTask, demandLoggedIn),
+  R.match(GetMe, demandLoggedIn),
+  R.match(GetTasks, demandLoggedIn),
+  R.match(CreateTask, demandLoggedIn),
+  R.match(FindTask, demandLoggedIn),
+  R.match(UpdateTask, demandLoggedIn),
+  R.match(DeleteTask, demandLoggedIn),
 
-  R.matchA(UpdateTaskList, demandLoggedIn),
-  R.matchA(UpdateTaskListOrder, demandLoggedIn),
-  R.matchA(DeleteTaskList, demandLoggedIn),
-  R.matchA(AddTaskListMember, demandLoggedIn),
-  R.matchA(RemoveTaskListMember, demandLoggedIn),
+  R.match(UpdateTaskList, demandLoggedIn),
+  R.match(UpdateTaskListOrder, demandLoggedIn),
+  R.match(DeleteTaskList, demandLoggedIn),
+  R.match(AddTaskListMember, demandLoggedIn),
+  R.match(RemoveTaskListMember, demandLoggedIn),
 
-  R.matchA(UpdateTaskListGroup, demandLoggedIn)
+  R.match(UpdateTaskListGroup, demandLoggedIn)
 )["|>"](
   T.map((x) =>
     A.map_(x.tuple, (i) => ({

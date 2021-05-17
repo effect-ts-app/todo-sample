@@ -3,6 +3,7 @@
 import { Erase } from "@effect-ts-demo/core/ext/Effect"
 import * as Lens from "@effect-ts/monocle/Lens"
 import { unsafe } from "@effect-ts/schema/_api/condemn"
+import { Path } from "path-parser"
 
 import { Compute } from "../Compute"
 
@@ -40,7 +41,8 @@ export type ReadMethods = GET
 export type WriteMethods = POST | PUT | PATCH | DELETE
 
 export type Methods = ReadMethods | WriteMethods
-export const requestBrand = Symbol()
+export const nModelBrand = Symbol()
+export const reqBrand = Symbol()
 
 export type StringRecord = Record<string, string>
 
@@ -66,7 +68,7 @@ export type StringRecordSchema = S.Schema<
 >
 
 // Actually GET + DELETE
-export interface ReadRequest<
+export interface QueryRequest<
   M,
   Path extends StringRecordSchema | undefined,
   Query extends StringRecordSchema | undefined,
@@ -79,10 +81,11 @@ export interface ReadRequest<
   Headers: Headers
   path: string
   method: ReadMethods
+  [reqBrand]: typeof reqBrand
 }
 
 // Actually all other methods except GET + DELETE
-export interface WriteRequest<
+export interface BodyRequest<
   M,
   Path extends StringRecordSchema | undefined,
   Body extends AnyRecordSchema | undefined,
@@ -96,6 +99,7 @@ export interface WriteRequest<
   Headers: Headers
   path: string
   method: WriteMethods
+  [reqBrand]: typeof reqBrand
 }
 
 // Not inheriting from Schemed because we don't want `copy`
@@ -113,7 +117,7 @@ export interface Model2<M, Self extends S.SchemaAny, SelfM extends S.SchemaAny>
     S.ApiOf<Self>
   > {
   new (_: Compute<S.ConstructorInputOf<Self>>): Compute<S.ParsedShapeOf<Self>>
-  [S.schemaField]: SelfM
+  [S.schemaField]: Self
   readonly Model: SelfM // added
   readonly lens: Lens.Lens<M, M> // added
 
@@ -124,20 +128,46 @@ export interface Model2<M, Self extends S.SchemaAny, SelfM extends S.SchemaAny>
   readonly Arbitrary: S.ArbitraryFor<SelfM>
 }
 
+type RequestString = "Request" | "default" | `${string}Request`
+
+type Filter<U> = U extends RequestString ? U : never
+export type GetRequestKey<U extends Record<RequestString | "Response", any>> = Filter<
+  keyof U
+>
+export type GetRequest<U extends Record<RequestString | "Response", any>> = Filter<
+  keyof U
+> extends never
+  ? never
+  : U[Filter<keyof U>]
+
+export function extractRequest<TModule extends Record<string, any>>(
+  h: TModule
+): GetRequest<TModule> {
+  const reqKey =
+    Object.keys(h).find((x) => x.endsWith("Request")) ||
+    Object.keys(h).find((x) => x === "default")
+  if (!reqKey) {
+    throw new Error("Module appears to have no Request")
+  }
+  const Request = h[reqKey]
+  return Request
+}
+
+export const reqId = S.makeAnnotation()
+
 type OrAny<T> = T extends S.SchemaAny ? T : S.SchemaAny
 //type OrUndefined<T> = T extends S.SchemaAny ? undefined : S.SchemaAny
 
 // TODO: Somehow ensure that Self and M are related..
 //type Ensure<M, Self extends S.SchemaAny> = M extends S.ParsedShapeOf<Self> ? M : never
-// TODO: intersect with Query
-export function ReadRequest<M>() {
+export function QueryRequest<M>() {
   function a<Headers extends StringRecordSchema>(
     method: ReadMethods,
     path: string,
     _: {
       headers?: Headers
     }
-  ): ReadRequest<M, undefined, undefined, Headers, S.SchemaAny>
+  ): QueryRequest<M, undefined, undefined, Headers, S.SchemaAny>
   function a<Path extends StringRecordSchema, Headers extends StringRecordSchema>(
     method: ReadMethods,
     path: string,
@@ -145,7 +175,7 @@ export function ReadRequest<M>() {
       headers?: Headers
       path: Path
     }
-  ): ReadRequest<M, Path, undefined, Headers, Path>
+  ): QueryRequest<M, Path, undefined, Headers, Path>
   function a<Query extends StringRecordSchema, Headers extends StringRecordSchema>(
     method: ReadMethods,
     path: string,
@@ -156,7 +186,7 @@ export function ReadRequest<M>() {
       headers?: Headers
       query: Query
     }
-  ): ReadRequest<M, undefined, Query, Headers, Query>
+  ): QueryRequest<M, undefined, Query, Headers, Query>
   function a<
     QueryParserError extends S.SchemaError<any>,
     QueryParsedShape extends AnyRecord,
@@ -195,7 +225,7 @@ export function ReadRequest<M>() {
         QueryApi
       >
     }
-  ): ReadRequest<
+  ): QueryRequest<
     M,
     S.Schema<
       unknown,
@@ -240,69 +270,38 @@ export function ReadRequest<M>() {
       path?: Path
       query?: Query
     }
-  ): ReadRequest<
+  ): QueryRequest<
     M,
     Path,
     Query,
     Headers,
     OrAny<Erase<typeof _.path & typeof _.query, S.SchemaAny>>
   > {
-    const self: S.SchemaAny =
-      _.path && _.query
-        ? _.path["|>"](S.intersect(_.query))
-        : _.path
-        ? _.path
-        : _.query
-        ? _.query
-        : S.props({})
-    type Self = Path
-    const of_ = S.Constructor.for(self)["|>"](unsafe)
+    const self: S.SchemaAny = S.props({
+      ..._.query?.Api.props,
+      ..._.path?.Api.props,
+    })
     // @ts-expect-error the following is correct
-    return class {
-      static [schemaField] = self
-      static get Model() {
-        return this[schemaField]
-      }
-      static [requestBrand] = requestBrand
-
-      static path = path
-      static method = method
-
+    return class extends Model_<M>()(self["|>"](S.annotate(reqId, {}))) {
       static Path = _.path
       static Query = _.query
       static Headers = _.headers
-      static Parser = S.Parser.for(self)
-      static Encoder = S.Encoder.for(self)
-      static Constructor = S.Constructor.for(self)
-      static Guard = S.Guard.for(self)
-      static Arbitrary = S.Arbitrary.for(self)
-
-      static lens = Lens.id<any>()
-
-      constructor(inp?: S.ConstructorInputOf<Self>) {
-        if (inp) {
-          this[fromFields](of_(inp))
-        }
-      }
-      [fromFields](fields: any) {
-        for (const k of Object.keys(fields)) {
-          // @ts-expect-error The following is allowed
-          this[k] = fields[k]
-        }
-      }
+      static path = path
+      static method = method
+      static [reqBrand] = reqBrand
     }
   }
   return a
 }
 
-export function WriteRequest<M>() {
+export function BodyRequest<M>() {
   function a<Headers extends StringRecordSchema>(
     method: WriteMethods,
     path: string,
     _: {
       headers?: Headers
     }
-  ): WriteRequest<M, undefined, undefined, undefined, Headers, S.SchemaAny>
+  ): BodyRequest<M, undefined, undefined, undefined, Headers, S.SchemaAny>
   function a<Path extends StringRecordSchema, Headers extends StringRecordSchema>(
     method: WriteMethods,
     path: string,
@@ -310,7 +309,7 @@ export function WriteRequest<M>() {
       headers?: Headers
       path: Path
     }
-  ): WriteRequest<M, Path, undefined, undefined, Headers, Path>
+  ): BodyRequest<M, Path, undefined, undefined, Headers, Path>
   function a<Body extends AnyRecordSchema, Headers extends StringRecordSchema>(
     method: WriteMethods,
     path: string,
@@ -318,7 +317,7 @@ export function WriteRequest<M>() {
       headers?: Headers
       body: Body
     }
-  ): WriteRequest<M, undefined, Body, undefined, Headers, Body>
+  ): BodyRequest<M, undefined, Body, undefined, Headers, Body>
   function a<
     BodyParserError extends S.SchemaError<any>,
     BodyParsedShape extends AnyRecord,
@@ -357,7 +356,7 @@ export function WriteRequest<M>() {
         QueryApi
       >
     }
-  ): WriteRequest<
+  ): BodyRequest<
     M,
     undefined,
     S.Schema<
@@ -429,7 +428,7 @@ export function WriteRequest<M>() {
         QueryApi
       >
     }
-  ): WriteRequest<
+  ): BodyRequest<
     M,
     S.Schema<
       unknown,
@@ -501,7 +500,7 @@ export function WriteRequest<M>() {
         BodyApi
       >
     }
-  ): WriteRequest<
+  ): BodyRequest<
     M,
     S.Schema<
       unknown,
@@ -588,7 +587,7 @@ export function WriteRequest<M>() {
         QueryApi
       >
     }
-  ): WriteRequest<
+  ): BodyRequest<
     M,
     S.Schema<
       unknown,
@@ -650,7 +649,7 @@ export function WriteRequest<M>() {
       body?: Body
       query?: Query
     }
-  ): WriteRequest<
+  ): BodyRequest<
     M,
     Path,
     Body,
@@ -658,56 +657,253 @@ export function WriteRequest<M>() {
     Headers,
     OrAny<Erase<typeof _.path & typeof _.body & typeof _.query, S.SchemaAny>>
   > {
-    const s =
-      _.path && _.body
-        ? _.path["|>"](S.intersect(_.body))
-        : _.path
-        ? _.path
-        : _.body
-        ? _.body
-        : S.props({})
-    const self: S.SchemaAny = _.query ? s["|>"](S.intersect(_.query)) : s
-    type Self = Path
-    const of_ = S.Constructor.for(self)["|>"](unsafe)
+    const self: S.SchemaAny = S.props({
+      ..._.body?.Api.props,
+      ..._.query?.Api.props,
+      ..._.path?.Api.props,
+    })
     // @ts-expect-error the following is correct
-    return class {
-      static [schemaField] = self
-      static get Model() {
-        return this[schemaField]
-      }
-      static [requestBrand] = requestBrand
-
+    return class extends Model_<M>()(self["|>"](S.annotate(reqId, {}))) {
       static Path = _.path
       static Body = _.body
       static Query = _.query
       static Headers = _.headers
       static path = path
       static method = method
-      static Parser = S.Parser.for(self)
-      static Encoder = S.Encoder.for(self)
-      static Constructor = S.Constructor.for(self)
-      static Guard = S.Guard.for(self)
-      static Arbitrary = S.Arbitrary.for(self)
-
-      static lens = Lens.id<any>()
-
-      constructor(inp?: S.ConstructorInputOf<Self>) {
-        if (inp) {
-          this[fromFields](of_(inp))
-        }
-      }
-      [fromFields](fields: any) {
-        for (const k of Object.keys(fields)) {
-          // @ts-expect-error The following is allowed
-          this[k] = fields[k]
-        }
-      }
+      static [reqBrand] = reqBrand
     }
   }
   return a
 }
 
+export interface Request<
+  M,
+  Self extends S.SchemaAny,
+  Path extends string,
+  Method extends Methods
+> extends Model<M, Self> {
+  method: Method
+  path: Path
+}
+
+export type PathParams<Path extends string> =
+  Path extends `:${infer Param}/${infer Rest}`
+    ? Param | PathParams<Rest>
+    : Path extends `:${infer Param}`
+    ? Param
+    : // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    Path extends `${infer _Prefix}:${infer Rest}`
+    ? PathParams<`:${Rest}`>
+    : never
+
+export type IfPathPropsProvided<Path extends string, B extends S.PropertyRecord, C> =
+  // Must test the PathParams inside here, as when they evaluate to never, the whole type would otherwise automatically resolve to never
+  PathParams<Path> extends never
+    ? C
+    : PathParams<Path> extends keyof B
+    ? C
+    : ["You must specify the properties that you expect in the path", never]
+
 export function Model<M>() {
+  return <Props extends S.PropertyRecord = {}>(
+    props: Props
+  ): Model<M, S.SchemaProperties<Props>> => Model_<M>()(S.props(props))
+}
+
+/**
+ * Automatically picks path, query and body, based on Path params and Request Method.
+ */
+export function ReqProps<M>() {
+  function a<
+    Path extends string,
+    Method extends Methods,
+    Props extends S.PropertyRecord = {}
+  >(method: Method, path: Path): BuildRequest<Props, Path, Method, M>
+  function a<
+    Path extends string,
+    Method extends Methods,
+    Props extends S.PropertyRecord
+  >(method: Method, path: Path, props: Props): BuildRequest<Props, Path, Method, M>
+  function a<
+    Path extends string,
+    Method extends Methods,
+    Props extends S.PropertyRecord
+  >(method: Method, path: Path, props?: Props) {
+    const req = Req<M>()
+    const r = props ? req(method, path, S.props(props)) : req(method, path)
+    return r
+  }
+
+  return a
+}
+
+export const Delete = MethodReqProps2("DELETE")
+export const Put = MethodReqProps2("PUT")
+export const Get = MethodReqProps2("GET")
+export const Patch = MethodReqProps2("PATCH")
+export const Post = MethodReqProps2("POST")
+
+export function MethodReqProps2<Method extends Methods>(method: Method) {
+  return <Path extends string>(path: Path) =>
+    <M>() => {
+      function a<Props extends S.PropertyRecord = {}>(): BuildRequest<
+        Props,
+        Path,
+        Method,
+        M
+      >
+      function a<Props extends S.PropertyRecord>(
+        props: Props
+      ): BuildRequest<Props, Path, Method, M>
+      function a<Props extends S.PropertyRecord>(props?: Props) {
+        const req = Req<M>()
+        const r = props ? req(method, path, S.props(props)) : req(method, path)
+        return r
+      }
+
+      return a
+    }
+}
+
+export function MethodReqProps<Method extends Methods>(method: Method) {
+  return <M>() => {
+    function a<Path extends string, Props extends S.PropertyRecord = {}>(
+      path: Path
+    ): BuildRequest<Props, Path, Method, M>
+    function a<Path extends string, Props extends S.PropertyRecord>(
+      path: Path,
+      props: Props
+    ): BuildRequest<Props, Path, Method, M>
+    function a<Path extends string, Props extends S.PropertyRecord>(
+      path: Path,
+      props?: Props
+    ) {
+      const req = Req<M>()
+      const r = props ? req(method, path, S.props(props)) : req(method, path)
+      return r
+    }
+
+    return a
+  }
+}
+
+/**
+ * Automatically picks path, query and body, based on Path params and Request Method.
+ */
+export function Req<M>() {
+  function a<
+    Path extends string,
+    Method extends Methods,
+    Props extends S.PropertyRecord = {}
+  >(method: Method, path: Path): BuildRequest<Props, Path, Method, M>
+  function a<
+    Path extends string,
+    Method extends Methods,
+    Props extends S.PropertyRecord
+  >(
+    method: Method,
+    path: Path,
+    self: S.SchemaProperties<Props>
+  ): BuildRequest<Props, Path, Method, M>
+  function a<
+    Path extends string,
+    Method extends Methods,
+    Props extends S.PropertyRecord
+  >(method: Method, path: Path, self?: S.SchemaProperties<Props>) {
+    return makeRequest<Props, Path, Method, M>(
+      method,
+      path,
+      self ?? (S.props({}) as any)
+    )
+  }
+  return a
+}
+
+export function parsePathParams<Path extends string>(path: Path) {
+  const p = new Path(path)
+  const params = p.params as PathParams<Path>[]
+  return params
+}
+
+type BuildRequest<
+  Props extends S.PropertyRecord,
+  Path extends string,
+  Method extends Methods,
+  M
+> = IfPathPropsProvided<
+  Path,
+  Props,
+  Method extends "GET" | "DELETE"
+    ? QueryRequest<
+        M,
+        S.SchemaProperties<Pick<Props, PathParams<Path>>>,
+        S.SchemaProperties<Omit<Props, PathParams<Path>>>,
+        undefined,
+        S.SchemaProperties<Props>
+      >
+    : BodyRequest<
+        M,
+        S.SchemaProperties<Pick<Props, PathParams<Path>>>,
+        S.SchemaProperties<Omit<Props, PathParams<Path>>>,
+        undefined,
+        undefined,
+        S.SchemaProperties<Props>
+      >
+>
+
+export function makeRequest<
+  Props extends S.PropertyRecord,
+  Path extends string,
+  Method extends Methods,
+  M
+>(
+  method: Method,
+  path: Path,
+  self: S.SchemaProperties<Props>
+): BuildRequest<Props, Path, Method, M> {
+  const params = parsePathParams(path)
+  // TODO: path props must be parsed "from string"
+  const remainProps = { ...self.Api.props }
+  const pathProps = params.length
+    ? params.reduce((prev, cur) => {
+        prev[cur] = self.Api.props[cur]
+        delete remainProps[cur]
+        return prev
+      }, {} as Record<typeof params[number], any>)
+    : null
+
+  const dest = method === "GET" || method === "DELETE" ? "query" : "body"
+  const newSchema = {
+    path: pathProps ? S.props(pathProps) : undefined,
+    // TODO: query props must be parsed "from string"
+
+    [dest]: S.props(remainProps),
+  }
+  if (method === "GET" || method === "DELETE") {
+    return class extends QueryRequest<M>()(
+      method as ReadMethods,
+      path,
+      newSchema as any
+    ) {} as any
+  }
+  return class extends BodyRequest<M>()(
+    method as WriteMethods,
+    path,
+    newSchema as any
+  ) {} as any
+}
+
+export function adaptRequest<
+  Props extends S.PropertyRecord,
+  Path extends string,
+  Method extends Methods,
+  M
+>(req: Request<M, S.SchemaProperties<Props>, Path, Method>) {
+  return makeRequest<Props, Path, Method, M>(req.method, req.path, req[S.schemaField])
+}
+
+// We don't want Copy interface from the official implementation
+export function Model_<M>() {
   return <Self extends S.SchemaAny>(self: Self): Model<M, Self> => {
     const of_ = S.Constructor.for(self)["|>"](unsafe)
     // @ts-expect-error the following is correct
@@ -716,7 +912,7 @@ export function Model<M>() {
       static get Model() {
         return this[schemaField]
       }
-      static [requestBrand] = requestBrand
+      static [nModelBrand] = nModelBrand
 
       static Parser = S.Parser.for(self)
       static Encoder = S.Encoder.for(self)

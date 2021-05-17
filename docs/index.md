@@ -9,3 +9,4 @@
 ## General
 
 - Be sure to check The [Effect-TS Doc Wiki](https://github.com/Effect-TS/doc/wiki)
+- Be sure to use [code snippets](../.vscode) to speed up

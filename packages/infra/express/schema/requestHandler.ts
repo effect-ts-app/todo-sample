@@ -26,12 +26,9 @@ import {
 } from "../../errors"
 import { UserSVC } from "../../services"
 
+// TODO
 const { AUTH_DISABLED: PROVIDED_AUTH_DISABLED = "false" } = process.env
 const AUTH_DISABLED = PROVIDED_AUTH_DISABLED === "true"
-
-// Todo; or "Security" section instead of directly in headers
-// Todo: use userProfile: (unknown) -> (string) -> (Json/unknown) -> UserProfile
-//const AuthHeaders = S.props({ ["authorization"]: S.prop(S.nonEmptyString) })
 
 export function demandLoggedIn<
   R,
@@ -82,6 +79,13 @@ export type Request<
   Query?: S.ReqRes<Record<string, string>, QueryA>
   Headers?: S.ReqRes<Record<string, string>, HeaderA>
 }
+
+export type Request2<Path extends string, Method extends Methods, ReqA> =
+  S.ReqResSchemed<unknown, ReqA> & {
+    method: Method
+    path: Path
+  }
+
 type Encode<A, E> = (a: A) => E
 
 export type SupportedErrors =
@@ -201,12 +205,13 @@ function handleRequest<
   HeaderA,
   ResA,
   ResE,
+  ReqA extends PathA & BodyA & QueryA,
   R2 = unknown,
   PR = unknown
 >(
   requestParsers: RequestParsers<PathA, CookieA, QueryA, BodyA, HeaderA>,
   encodeResponse: Encode<ResA, ResE>,
-  handle: (r: PathA & QueryA & BodyA & {}) => T.Effect<R & PR, SupportedErrors, ResA>,
+  handle: (r: ReqA) => T.Effect<R & PR, SupportedErrors, ResA>,
   h?: (req: express.Request, res: express.Response) => L.Layer<R2, SupportedErrors, PR>
 ) {
   const parseRequest = parseRequestParams(requestParsers)
@@ -219,7 +224,7 @@ function handleRequest<
           ...O.toUndefined(body),
           ...O.toUndefined(query),
           ...O.toUndefined(path),
-        } as PathA & QueryA & BodyA)
+        } as ReqA)
         const r = h ? T.provideSomeLayer(h(req, res))(hn) : hn
         return r as T.Effect<Erase<R & R2, PR>, SupportedErrors, ResA>
       }),
@@ -287,6 +292,18 @@ export interface RequestHandler<
   Response: S.ReqRes<unknown, ResA> | S.ReqResSchemed<unknown, ResA>
 }
 
+export interface RequestHandler2<
+  R,
+  Path extends string,
+  Method extends Methods,
+  ReqA,
+  ResA
+> {
+  h: (i: ReqA) => T.Effect<R, SupportedErrors, ResA>
+  Request: Request2<Path, Method, ReqA>
+  Response: S.ReqRes<unknown, ResA> | S.ReqResSchemed<unknown, ResA>
+}
+
 export type Middleware<
   R,
   PathA,
@@ -307,6 +324,19 @@ export type Middleware<
     res: express.Response
   ) => L.Layer<R2, SupportedErrors, PR>
 }
+
+export type Middleware2<R, ReqA, ResA, R2 = unknown, PR = unknown> = Middleware<
+  R,
+  any,
+  any,
+  any,
+  any,
+  any,
+  ReqA,
+  ResA,
+  R2,
+  PR
+>
 
 export function makeRequestHandler<
   R,
@@ -347,10 +377,12 @@ export function makeRequestHandler<
     HeaderA,
     ResA,
     unknown,
+    PathA & BodyA & QueryA,
     R2,
     PR
   >(makeRequestParsers(Request), encodeResponse, handle.h, h)
 }
+
 function makeRequestParsers<
   R,
   PathA,
