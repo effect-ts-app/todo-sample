@@ -1,8 +1,9 @@
 import fs from "fs"
 
-import * as Plutus from "@atlas-ts/plutus"
-import { makeOpenApiSpecs } from "@effect-ts-demo/infra/express/makeOpenApiSpecs"
-import { RouteDescriptorAny } from "@effect-ts-demo/infra/express/schema/routing"
+import * as Plutus from "@effect-ts-app/infra/Openapi/atlas-plutus"
+import { makeOpenApiSpecs } from "@effect-ts-app/infra/express/makeOpenApiSpecs"
+import { RouteDescriptorAny } from "@effect-ts-app/infra/express/schema/routing"
+import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as T from "@effect-ts/core/Effect"
 import { constVoid, pipe } from "@effect-ts/core/Function"
 import * as Ex from "@effect-ts/express"
@@ -15,8 +16,9 @@ import jwksRsa from "jwks-rsa"
 import redoc from "redoc-express"
 import { setup, serve } from "swagger-ui-express"
 
-import { MockTaskContext } from "./Tasks/TaskContext"
+import { routes as taskListRoutes } from "./TaskLists/routes"
 import { routes as taskRoutes } from "./Tasks/routes"
+import { MockTodoContext } from "./TodoContext"
 import * as cfg from "./config"
 
 import pkg from "package.json"
@@ -72,7 +74,6 @@ const checkJwt = jwt({
   issuer: ["https://effect-ts-demo.eu.auth0.com/"],
   algorithms: ["RS256"],
 })
-
 //const checkScopes = jwtAuthz(["read:tasks"])
 
 const auth = cfg.AUTH_DISABLED
@@ -95,7 +96,13 @@ const program = pipe(
     )
   ),
   // Host our app
-  T.zipRight(taskRoutes),
+  T.zipRight(
+    T.tuple(
+      taskRoutes["|>"](T.map((x) => x as A.Array<RouteDescriptorAny>)),
+      taskListRoutes["|>"](T.map((x) => x as A.Array<RouteDescriptorAny>))
+    )
+  ),
+  T.map(({ tuple }) => A.flatten(tuple)),
   // Write our docs
   T.tap(writeOpenapiDocs),
   T.zipRight(
@@ -109,7 +116,7 @@ const program = pipe(
 pipe(
   program,
   T.provideSomeLayer(Ex.LiveExpress(cfg.HOST, parseInt(cfg.PORT))),
-  T.provideSomeLayer(MockTaskContext),
+  T.provideSomeLayer(MockTodoContext),
   N.runMain
 )
 
@@ -124,6 +131,18 @@ function writeOpenapiDocs(rdescs: Iterable<RouteDescriptorAny>) {
         pageTitle: pkg.name,
       })
     ),
+    T.map((_) => ({
+      ..._,
+      // TODO: Export tags as part of modules?
+      tags: [
+        {
+          name: "Tasks",
+          description: "Everything Tasks related",
+        },
+        { name: "Lists", description: "Everything about the Task Lists" },
+        { name: "Groups", description: "Everything about the Task List Group" },
+      ],
+    })),
     T.tap((_) =>
       T.effectAsync((cb) =>
         fs.writeFile(

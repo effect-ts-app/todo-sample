@@ -1,18 +1,17 @@
 import { Tasks } from "@effect-ts-demo/todo-client"
-import { TaskListGroup, TaskListOrGroup } from "@effect-ts-demo/todo-types/Task"
+import { TaskListGroup, TaskListOrGroup } from "@effect-ts-demo/todo-types"
 import * as CNK from "@effect-ts/core/Collections/Immutable/Chunk"
 import * as T from "@effect-ts/core/Effect"
 import * as O from "@effect-ts/core/Option"
 
-import { getLoggedInUser, handle } from "@/Tasks/shared"
-
-import * as UserContext from "../Tasks/TaskContext"
+import { TodoContext } from "@/services"
+import { getLoggedInUser, handle } from "@/shared"
 
 export default handle(Tasks.GetMe)((_) =>
   T.gen(function* ($) {
     const user = yield* $(getLoggedInUser)
 
-    const allLists = yield* $(UserContext.allLists(user.id))
+    const allLists = yield* $(TodoContext.allLists(user.id))
     const groups = CNK.filterMap_(allLists, (l) =>
       TaskListGroup.Guard(l) ? O.some(l) : O.none
     )

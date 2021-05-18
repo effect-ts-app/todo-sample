@@ -1,6 +1,6 @@
 import { ParsedUrlQuery } from "querystring"
 
-import * as S from "@effect-ts-demo/core/ext/Schema"
+import * as S from "@effect-ts-app/core/ext/Schema"
 import { flow } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import { useRouter } from "next/router"

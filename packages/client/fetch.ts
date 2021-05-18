@@ -1,14 +1,14 @@
-import { Compute } from "@effect-ts-demo/core/ext/Compute"
-import * as T from "@effect-ts-demo/core/ext/Effect"
-import * as O from "@effect-ts-demo/core/ext/Option"
+import { Compute } from "@effect-ts-app/core/ext/Compute"
+import * as T from "@effect-ts-app/core/ext/Effect"
+import * as O from "@effect-ts-app/core/ext/Option"
 import {
   Parser,
   ReqRes,
   ReqResSchemed,
   RequestSchemed,
-} from "@effect-ts-demo/core/ext/Schema"
-import * as S from "@effect-ts-demo/core/ext/Schema"
-import * as H from "@effect-ts-demo/core/http/http-client"
+} from "@effect-ts-app/core/ext/Schema"
+import * as S from "@effect-ts-app/core/ext/Schema"
+import * as H from "@effect-ts-app/core/http/http-client"
 import { pipe } from "@effect-ts/core"
 import { flow } from "@effect-ts/core/Function"
 import { Path } from "path-parser"

@@ -1,8 +1,4 @@
-import * as S from "@effect-ts-demo/core/ext/Schema"
-import {
-  TaskListEntry,
-  TaskListEntryOrGroup,
-} from "@effect-ts-demo/todo-client/Tasks/GetMe"
+import * as S from "@effect-ts-app/core/ext/Schema"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as O from "@effect-ts/core/Option"
 import { datumEither } from "@nll/datum"
@@ -10,8 +6,7 @@ import React from "react"
 import { DragDropContext } from "react-beautiful-dnd"
 
 import { useServiceContext } from "@/context"
-import { Todo, TodoClient } from "@/index"
-import { toUpperCaseFirst } from "@/utils"
+import { Todo, TodoClient, utils } from "@/index"
 
 import {
   emptyTasks,
@@ -27,7 +22,7 @@ import {
 
 import { FolderList } from "./FolderList"
 
-const defaultLists = [] as readonly TaskListEntryOrGroup[]
+const defaultLists = [] as readonly Todo.TaskListEntryOrGroup[]
 
 const FolderListView = ({ category }: { category: O.Option<Todo.Category> }) => {
   const [meResult] = useMe()
@@ -57,7 +52,7 @@ const FolderListView = ({ category }: { category: O.Option<Todo.Category> }) => 
           A.map(
             ({ slug, tasks }) =>
               new TaskListView({
-                title: toUpperCaseFirst(slug) as S.ReasonableString,
+                title: utils.capitalize(slug) as S.ReasonableString,
                 slug,
                 count: tasks.length,
               })
@@ -69,10 +64,10 @@ const FolderListView = ({ category }: { category: O.Option<Todo.Category> }) => 
           count: unfilteredTasks["|>"](filterByCategory("inbox")).length,
         }),
         ...lists["|>"](
-          A.filter((x) => !TaskListEntry.Guard(x) || O.isNone(x.parentListId))
+          A.filter((x) => !Todo.TaskListEntry.Guard(x) || O.isNone(x.parentListId))
         )["|>"](
           A.map(
-            TaskListEntryOrGroup.Api.matchW({
+            Todo.TaskListEntryOrGroup.Api.matchW({
               TaskList: (l) =>
                 new TaskList({
                   ...l,
@@ -131,7 +126,7 @@ const FolderListView = ({ category }: { category: O.Option<Todo.Category> }) => 
         }
 
         runWithErrorLog(
-          TodoClient.TasksClient.UpdateTaskListGroup({
+          TodoClient.TaskLists.updateGroup({
             id: group.id,
             lists: group.lists["|>"](A.filter((l) => l !== list.id))
               ["|>"](A.insertAt(destination.index, list.id))

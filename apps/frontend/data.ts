@@ -1,4 +1,4 @@
-import * as A from "@effect-ts-demo/core/ext/Array"
+import * as A from "@effect-ts-app/core/ext/Array"
 import { Fiber, Semaphore } from "@effect-ts/core"
 import * as T from "@effect-ts/core/Effect"
 import { Cause } from "@effect-ts/core/Effect/Cause"
@@ -271,7 +271,7 @@ export function useQuery<R, E, A, Args extends ReadonlyArray<unknown>>(
       // TODO
       //   if (fetcher.listeners.length === 0) {
       //     console.log("deleting fetcher", name)
-      //     delete ctx.fetchers[name]
+      //     remove ctx.fetchers[name]
       //   }
     }
   }, [fetcher])

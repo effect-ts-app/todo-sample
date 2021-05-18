@@ -3,9 +3,10 @@
     "version": "0.0.1",
     "main": "src/index.ts",
     "license": "MIT",
+    "private": true,
     "dependencies": {
-        "@effect-ts-demo/core": "*",
-        "@effect-ts/core": "^0.39.2",
+        "@effect-ts-app/core": "*",
+        "@effect-ts/core": "^0.39.3",
         "@effect-ts/monocle": "^0.32.0",
         "@effect-ts/morphic": "^0.35.0",
         "@effect-ts/schema": "^0.7.3",

@@ -4,11 +4,11 @@ import {
   Schema,
   SchemaAny,
   SchemaContinuationSymbol,
-} from "@effect-ts-demo/core/ext/Schema"
+} from "@effect-ts-app/core/ext/Schema"
 
-import type { JSONSchema } from "@atlas-ts/plutus"
+import type { JSONSchema } from "./atlas-plutus"
 
-export * from "@effect-ts-demo/core/ext/Schema"
+export * from "@effect-ts-app/core/ext/Schema"
 
 export class SchemaOpenApi<
     ParserInput,

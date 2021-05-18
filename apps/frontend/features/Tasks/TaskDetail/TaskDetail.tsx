@@ -11,7 +11,7 @@ import {
   Typography,
 } from "@material-ui/core"
 import ArrowRight from "@material-ui/icons/ArrowRight"
-import Delete from "@material-ui/icons/Delete"
+import Remove from "@material-ui/icons/Remove"
 import { DatePicker, DateTimePicker } from "@material-ui/lab"
 import { datumEither } from "@nll/datum"
 import React from "react"
@@ -31,7 +31,7 @@ import { memo, onSuccess, withLoading } from "@/data"
 import { Todo } from "@/index"
 import { constEmptyString, renderIf_ } from "@/utils"
 
-import { useDeleteTask, useTaskCommandsResolved } from "../data"
+import { useRemoveTask, useTaskCommandsResolved } from "../data"
 
 import { Step } from "./Step"
 
@@ -108,9 +108,9 @@ export const TaskDetail = memo(function ({
                       key={idx}
                       index={idx}
                       step={s}
-                      deleteStep={withLoading(
-                        () => f.deleteStep(s),
-                        f.deleteStep.loading
+                      removeStep={withLoading(
+                        () => f.removeStep(s),
+                        f.removeStep.loading
                       )}
                       updateTitle={withLoading(
                         f.updateStepTitle(s),
@@ -220,10 +220,10 @@ export const TaskDetail = memo(function ({
           <Box>
             <IconButton
               size="small"
-              disabled={f.deleteTask.loading}
-              onClick={() => f.deleteTask()}
+              disabled={f.removeTask.loading}
+              onClick={() => f.removeTask()}
             >
-              <Delete />
+              <Remove />
             </IconButton>
           </Box>
         </Box>
@@ -234,13 +234,13 @@ export const TaskDetail = memo(function ({
 
 function useFuncs(t: Todo.Task) {
   const { runPromise } = useServiceContext()
-  const [deleteResult, deleteTask] = useDeleteTask()
+  const [removeResult, removeTask] = useRemoveTask()
   const {
     addNewTaskStep,
-    deleteTaskStep,
     editNote,
     findResult,
     modifyTasks,
+    removeTaskStep,
     setDue,
     setReminder,
     setTitle,
@@ -257,10 +257,10 @@ function useFuncs(t: Todo.Task) {
   const isUpdatingTask = datumEither.isPending(updateResult) || isRefreshingTask
 
   return {
-    deleteTask: withLoading(
+    removeTask: withLoading(
       () =>
         pipe(
-          deleteTask(t.id),
+          removeTask(t.id),
           T.map(() =>
             modifyTasks((tasks) =>
               A.unsafeDeleteAt_(
@@ -271,7 +271,7 @@ function useFuncs(t: Todo.Task) {
           ),
           runPromise
         ),
-      datumEither.isPending(deleteResult)
+      datumEither.isPending(removeResult)
     ),
     toggleMyDay: withLoading(() => toggleTaskMyDay["|>"](runPromise), isUpdatingTask),
     toggleChecked: withLoading(
@@ -299,6 +299,6 @@ function useFuncs(t: Todo.Task) {
       (s: Todo.Step) => flow(updateStepIndex(s), T.asUnit, runPromise),
       isUpdatingTask
     ),
-    deleteStep: withLoading(flow(deleteTaskStep, runPromise), isUpdatingTask),
+    removeStep: withLoading(flow(removeTaskStep, runPromise), isUpdatingTask),
   }
 }

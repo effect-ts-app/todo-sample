@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Erase } from "@effect-ts-demo/core/ext/Effect"
+import { Erase } from "@effect-ts-app/core/ext/Effect"
 import * as Lens from "@effect-ts/monocle/Lens"
 import { unsafe } from "@effect-ts/schema/_api/condemn"
 import { Path } from "path-parser"

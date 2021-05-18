@@ -1,13 +1,8 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { Erase } from "@effect-ts-demo/core/ext/Effect"
-import * as EO from "@effect-ts-demo/core/ext/EffectOption"
-import * as S from "@effect-ts-demo/core/ext/Schema"
-import {
-  Encoder,
-  extractSchema,
-  Methods,
-  Parser,
-} from "@effect-ts-demo/core/ext/Schema"
+import { Erase } from "@effect-ts-app/core/ext/Effect"
+import * as EO from "@effect-ts-app/core/ext/EffectOption"
+import * as S from "@effect-ts-app/core/ext/Schema"
+import { Encoder, extractSchema, Methods, Parser } from "@effect-ts-app/core/ext/Schema"
 import { DSL } from "@effect-ts/core"
 import { makeAssociative } from "@effect-ts/core/Associative"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"

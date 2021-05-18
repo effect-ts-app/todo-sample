@@ -2,21 +2,21 @@
     "Schema": {
         "prefix": "+SC",
         "body": [
-            "import * as S from \"@effect-ts-demo/core/ext/Schema\""
+            "import * as S from \"@effect-ts-app/core/ext/Schema\""
         ],
         "description": "Schema as S"
     },
     "EffectOption": {
         "prefix": "+EO",
         "body": [
-            "import * as EO from \"@effect-ts-demo/core/ext/EffectOption\""
+            "import * as EO from \"@effect-ts-app/core/ext/EffectOption\""
         ],
         "description": "EffectOption as EO"
     },
     "SyncOption": {
         "prefix": "+SO",
         "body": [
-            "import * as SO from \"@effect-ts-demo/core/ext/SyncOption\""
+            "import * as SO from \"@effect-ts-app/core/ext/SyncOption\""
         ],
         "description": "SyncOption as SO"
     },
@@ -37,7 +37,7 @@
     "Model": {
         "prefix": "+MO",
         "body": [
-            "import * as MO from \"@effect-ts-demo/core/ext/Schema\""
+            "import * as MO from \"@effect-ts-app/core/ext/Schema\""
         ],
         "description": "Schema as MO"
     },
@@ -191,7 +191,7 @@
     "Option": {
         "prefix": "+O",
         "body": [
-            "import * as O from \"@effect-ts-demo/core/ext/Option\""
+            "import * as O from \"@effect-ts-app/core/ext/Option\""
         ],
         "description": "Option as O"
     },

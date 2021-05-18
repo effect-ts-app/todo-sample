@@ -9,7 +9,6 @@ COPY packages/client/package.json ./packages/client/
 COPY packages/types/package.json ./packages/types/
 COPY packages/core/package.json ./packages/core/
 COPY packages/infra/package.json ./packages/infra/
-COPY packages/atlas-plutus/package.json ./packages/atlas-plutus/
 RUN yarn install --frozen-lockfile
 
 COPY . .

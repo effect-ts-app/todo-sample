@@ -7,7 +7,7 @@
             "esnext"
         ],
         "paths": {
-            "@effect-ts-demo/core/*": [
+            "@effect-ts-app/core/*": [
                 "../../packages/core/*"
             ],
             "@effect-ts-demo/todo-client/*": [

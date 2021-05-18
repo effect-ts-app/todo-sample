@@ -1,4 +1,4 @@
-import { constVoid, pipe } from "@effect-ts-demo/core/ext/Function"
+import { constVoid, pipe } from "@effect-ts-app/core/ext/Function"
 import * as T from "@effect-ts/core/Effect"
 import * as L from "@effect-ts/core/Effect/Layer"
 import * as M from "@effect-ts/core/Effect/Managed"

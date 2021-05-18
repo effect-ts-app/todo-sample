@@ -1,4 +1,4 @@
-import * as A from "@effect-ts-demo/core/ext/Array"
+import * as A from "@effect-ts-app/core/ext/Array"
 import {
   array,
   constructor,
@@ -18,8 +18,8 @@ import {
   parseStringE,
   leafE,
   ReasonableString,
-} from "@effect-ts-demo/core/ext/Schema"
-import * as Todo from "@effect-ts-demo/todo-client/Tasks"
+} from "@effect-ts-app/core/ext/Schema"
+import * as Tasks from "@effect-ts-demo/todo-client/Tasks"
 import { TaskId, TaskListId } from "@effect-ts-demo/todo-client/Tasks"
 import { constant, flow, pipe, identity as ident } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
@@ -28,19 +28,19 @@ import { Lens } from "@effect-ts/monocle"
 
 import { typedKeysOf } from "./utils"
 
-const stepCompleted = Todo.Step.lens["|>"](Lens.prop("completed"))
+const stepCompleted = Tasks.Step.lens["|>"](Lens.prop("completed"))
 
 export const toggleBoolean = Lens.modify<boolean>((x) => !x)
-export class Step extends Todo.Step {
-  static create = (title: Todo.Step["title"]) =>
-    new Todo.Step({ title, completed: false })
+export class Step extends Tasks.Step {
+  static create = (title: Tasks.Step["title"]) =>
+    new Tasks.Step({ title, completed: false })
   static toggleCompleted = stepCompleted["|>"](toggleBoolean)
 }
 
-const taskSteps = Todo.Task.lens["|>"](Lens.prop("steps"))
+const taskSteps = Tasks.Task.lens["|>"](Lens.prop("steps"))
 const createAndAddStep = flow(Step.create, A.snoc)
 const toggleStepCompleted = (s: Step) => A.modifyOrOriginal(s, Step.toggleCompleted)
-const updateStepTitle = (s: Step) => (stepTitle: Todo.Step["title"]) =>
+const updateStepTitle = (s: Step) => (stepTitle: Tasks.Step["title"]) =>
   A.modifyOrOriginal(s, (s) => ({ ...s, title: stepTitle }))
 
 const pastDate = (d: Date): O.Option<Date> => (d < new Date() ? O.some(d) : O.none)
@@ -63,31 +63,34 @@ export function updateStepIndex(s: Step, newIndex: number) {
   }
 }
 
-export class Task extends Todo.Task {
-  static addStep = (stepTitle: Todo.Step["title"]) =>
+export class Task extends Tasks.Task {
+  static addStep = (stepTitle: Tasks.Step["title"]) =>
     taskSteps["|>"](Lens.modify(createAndAddStep(stepTitle)))
-  static deleteStep = (s: Step) => taskSteps["|>"](Lens.modify(A.deleteOrOriginal(s)))
-  static toggleCompleted = Todo.Task.lens["|>"](Lens.prop("completed"))["|>"](
+  static removeStep = (s: Step) => taskSteps["|>"](Lens.modify(A.deleteOrOriginal(s)))
+  static toggleCompleted = Tasks.Task.lens["|>"](Lens.prop("completed"))["|>"](
     Lens.modify((x) => (O.isSome(x) ? O.none : O.some(new Date())))
   )
-  static toggleMyDay = Todo.Task.lens["|>"](Lens.prop("myDay"))["|>"](
+  static toggleMyDay = Tasks.Task.lens["|>"](Lens.prop("myDay"))["|>"](
     Lens.modify((x) => (O.isSome(x) ? O.none : O.some(new Date())))
   )
-  static toggleFavorite = Todo.Task.lens["|>"](Lens.prop("isFavorite"))["|>"](
+  static toggleFavorite = Tasks.Task.lens["|>"](Lens.prop("isFavorite"))["|>"](
     toggleBoolean
   )
-  static toggleStepCompleted = (s: Todo.Step) =>
+  static toggleStepCompleted = (s: Tasks.Step) =>
     taskSteps["|>"](Lens.modify(toggleStepCompleted(s)))
 
-  static updateStep = (s: Todo.Step, stepTitle: Todo.Step["title"]) =>
+  static updateStep = (s: Tasks.Step, stepTitle: Tasks.Step["title"]) =>
     taskSteps["|>"](Lens.modify(updateStepTitle(s)(stepTitle)))
 
-  static updateStepIndex = (s: Todo.Step, newIndex: number) =>
+  static updateStepIndex = (s: Tasks.Step, newIndex: number) =>
     taskSteps["|>"](Lens.modify(updateStepIndex(s, newIndex)))
 
-  static dueInPast = flow(Todo.Task.lens["|>"](Lens.prop("due")).get, O.chain(pastDate))
+  static dueInPast = flow(
+    Tasks.Task.lens["|>"](Lens.prop("due")).get,
+    O.chain(pastDate)
+  )
   static reminderInPast = flow(
-    Todo.Task.lens["|>"](Lens.prop("reminder")).get,
+    Tasks.Task.lens["|>"](Lens.prop("reminder")).get,
     O.chain(pastDate)
   )
 }
@@ -127,14 +130,14 @@ export type TaskView = typeof TaskViews[number]
 const defaultDate = constant(new Date(1900, 1, 1))
 
 export const orders = {
-  creation: ORD.contramap_(ORD.date, (t: Todo.Task) => t.createdAt),
-  important: ORD.contramap_(ORD.inverted(ORD.boolean), (t: Todo.Task) => t.isFavorite),
-  alphabetically: ORD.contramap_(ORD.string, (t: Todo.Task) => t.title.toLowerCase()),
-  due: ORD.contramap_(ORD.inverted(ORD.date), (t: Todo.Task) =>
+  creation: ORD.contramap_(ORD.date, (t: Tasks.Task) => t.createdAt),
+  important: ORD.contramap_(ORD.inverted(ORD.boolean), (t: Tasks.Task) => t.isFavorite),
+  alphabetically: ORD.contramap_(ORD.string, (t: Tasks.Task) => t.title.toLowerCase()),
+  due: ORD.contramap_(ORD.inverted(ORD.date), (t: Tasks.Task) =>
     O.getOrElse_(t.due, defaultDate)
   ),
-  // TODO. such order is based on "TaskView"
-  myDay: ORD.contramap_(ORD.inverted(ORD.date), (t: Todo.Task) =>
+  // Tasks. such order is based on "TaskView"
+  myDay: ORD.contramap_(ORD.inverted(ORD.date), (t: Tasks.Task) =>
     O.getOrElse_(t.myDay, defaultDate)
   ),
 }
@@ -180,23 +183,23 @@ export type Ordery = {
 export function filterByCategory(category: TaskView | string) {
   switch (category) {
     case "planned":
-      return A.filter((t: Todo.Task) => O.isSome(t.due))
+      return A.filter((t: Tasks.Task) => O.isSome(t.due))
     case "important":
-      return A.filter((t: Todo.Task) => t.isFavorite)
+      return A.filter((t: Tasks.Task) => t.isFavorite)
     case "my-day": {
       const isToday = isSameDay(new Date())
-      return A.filter((t: Todo.Task) =>
+      return A.filter((t: Tasks.Task) =>
         t.myDay["|>"](O.map(isToday))["|>"](O.getOrElse(() => false))
       )
     }
     case "tasks": {
-      return A.filter((t: Todo.Task) => t.listId === "inbox")
+      return A.filter((t: Tasks.Task) => t.listId === "inbox")
     }
     case "all": {
       return ident
     }
     default:
-      return A.filter((t: Todo.Task) => t.listId === (category as any))
+      return A.filter((t: Tasks.Task) => t.listId === (category as any))
   }
 }
 
@@ -210,10 +213,9 @@ function isSameDay(today: Date) {
   }
 }
 
-export const emptyTasks = [] as readonly Todo.Task[]
+export const emptyTasks = [] as readonly Tasks.Task[]
 
 export const Category = reasonableString
 export type Category = ReasonableString
 
-export * from "@effect-ts-demo/todo-types"
-export * from "@effect-ts-demo/todo-types/Task"
+export * from "@effect-ts-demo/todo-client/Tasks"

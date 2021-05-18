@@ -1,13 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-  isObjectSchema,
-  JSONSchema,
-  ParameterLocation,
-  SubSchema,
-} from "@atlas-ts/plutus"
-import * as EO from "@effect-ts-demo/core/ext/EffectOption"
-import * as S from "@effect-ts-demo/core/ext/Schema"
-import { Methods } from "@effect-ts-demo/core/ext/Schema"
+import * as EO from "@effect-ts-app/core/ext/EffectOption"
+import * as S from "@effect-ts-app/core/ext/Schema"
+import { Methods } from "@effect-ts-app/core/ext/Schema"
 import { pipe } from "@effect-ts/core"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as T from "@effect-ts/core/Effect"
@@ -15,6 +9,12 @@ import * as O from "@effect-ts/core/Option"
 import * as Ex from "@effect-ts/express"
 
 import * as OpenApi from "../../Openapi"
+import {
+  isObjectSchema,
+  JSONSchema,
+  ParameterLocation,
+  SubSchema,
+} from "../../Openapi/atlas-plutus"
 
 import {
   makeRequestHandler,
@@ -311,6 +311,7 @@ function del<
     T.zipRight(T.succeedWith(() => makeRouteDescriptor(path, "DELETE", r)))
   )
 }
+
 export { del as delete }
 
 export function makeFromSchema<ResA>(

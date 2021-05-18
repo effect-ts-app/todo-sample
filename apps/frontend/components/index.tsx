@@ -1,4 +1,4 @@
-import * as S from "@effect-ts-demo/core/ext/Schema"
+import * as S from "@effect-ts-app/core/ext/Schema"
 import { constant } from "@effect-ts/core/Function"
 import { Box, IconButton, TextField, TextFieldProps } from "@material-ui/core"
 import Star from "@material-ui/icons/Star"

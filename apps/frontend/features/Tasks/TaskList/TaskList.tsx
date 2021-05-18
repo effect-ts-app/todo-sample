@@ -1,4 +1,4 @@
-import * as A from "@effect-ts-demo/core/ext/Array"
+import * as A from "@effect-ts-app/core/ext/Array"
 import * as O from "@effect-ts/core/Option"
 import { Typography } from "@material-ui/core"
 import React, { useEffect, useState } from "react"

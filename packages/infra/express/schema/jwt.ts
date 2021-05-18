@@ -1,6 +1,6 @@
-import { pipe } from "@effect-ts-demo/core/ext/Function"
-import * as S from "@effect-ts-demo/core/ext/Schema"
-import { These as Th } from "@effect-ts-demo/core/ext/Schema"
+import { pipe } from "@effect-ts-app/core/ext/Function"
+import * as S from "@effect-ts-app/core/ext/Schema"
+import { These as Th } from "@effect-ts-app/core/ext/Schema"
 import jwt_decode from "jwt-decode"
 
 export const jwtIdentifier = S.makeAnnotation<{}>()
@@ -16,7 +16,7 @@ export const jwtFromString: S.Schema<
 > = pipe(
   //S.identity((u): u is string => typeof u === "string"),
   S.identity((u): u is string => {
-    throw new Error("Cannot id JWT")
+    throw new Error("Cannot id JWT: " + u)
   }),
   S.constructor((n) => Th.succeed(n)),
   //   S.arbitrary((_) => {
@@ -25,11 +25,11 @@ export const jwtFromString: S.Schema<
   //   S.encoder((_) => {
   //     throw new Error("can't encode")
   //   }),
-  S.parser((p: string) => {
+  S.parser((p: any) => {
     try {
       return Th.succeed(jwt_decode(p))
     } catch (err) {
-      return Th.fail("not a JWT: " + err)
+      return Th.fail(S.leafE(S.parseStringE(p))) // "not a JWT: " + err as anyw
     }
   }),
   S.mapApi(() => ({})),

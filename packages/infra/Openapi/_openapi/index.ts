@@ -1,16 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // tracing: off
-import {
-  AllOfSchema,
-  ArraySchema,
-  BooleanSchema,
-  EnumSchema,
-  JSONSchema,
-  NumberSchema,
-  ObjectSchema,
-  OneOfSchema,
-  referenced,
-  StringSchema,
-} from "@atlas-ts/plutus"
 import {
   EmailFromStringIdentifier,
   EmailIdentifier,
@@ -33,7 +22,7 @@ import {
   nonEmptyStringFromStringIdentifier,
   nonEmptyStringIdentifier,
   numberIdentifier,
-  positiveIntFromNumber,
+  positiveIntFromNumberIdentifier,
   positiveIntIdentifier,
   propertiesIdentifier,
   stringIdentifier,
@@ -41,16 +30,28 @@ import {
   minLengthIdentifier,
   maxLengthIdentifier,
   SchemaAnnotated,
-} from "@effect-ts-demo/core/ext/Schema"
+} from "@effect-ts-app/core/ext/Schema"
 import * as T from "@effect-ts/core/Effect"
 import * as O from "@effect-ts/core/Option"
 
 import * as S from "../_schema"
+import {
+  AllOfSchema,
+  ArraySchema,
+  BooleanSchema,
+  EnumSchema,
+  JSONSchema,
+  NumberSchema,
+  ObjectSchema,
+  OneOfSchema,
+  referenced,
+  StringSchema,
+} from "../atlas-plutus"
 
-export type Gen<T> = T.UIO<JSONSchema>
+export type Gen = T.UIO<JSONSchema>
 
-export const interpreters: ((schema: S.SchemaAny) => O.Option<Gen<unknown>>)[] = [
-  O.partial((_miss) => (schema: S.SchemaAny): Gen<unknown> => {
+export const interpreters: ((schema: S.SchemaAny) => O.Option<Gen>)[] = [
+  O.partial((_miss) => (schema: S.SchemaAny): Gen => {
     // if (schema instanceof S.SchemaOpenApi) {
     //   const cfg = schema.jsonSchema()
     //   return processId(schema, cfg)
@@ -79,8 +80,15 @@ export const interpreters: ((schema: S.SchemaAny) => O.Option<Gen<unknown>>)[] =
 ]
 
 // TODO: Cache
+type Meta = S.Meta & {
+  title?: string
+  noRef?: boolean
+  openapiRef?: string
+  minLength?: number
+  maxLength?: number
+}
 
-function processId(schema: S.SchemaAny, meta = {}) {
+function processId(schema: S.SchemaAny, meta: Meta = {}): any {
   if (!schema) {
     throw new Error("schema undefined")
   }
@@ -106,13 +114,15 @@ function processId(schema: S.SchemaAny, meta = {}) {
     }
 
     if (schema instanceof SchemaAnnotated) {
+      // TODO: proper narrow the types
+      const schemaMeta = schema.meta as any
       switch (schema.annotation) {
         case S.reqId: {
           meta = { noRef: true, ...meta }
           break
         }
         case metaIdentifier: {
-          meta = { ...schema.meta, ...meta }
+          meta = { ...schemaMeta, ...meta }
           break
         }
         case intersectIdentifier: {
@@ -121,8 +131,8 @@ function processId(schema: S.SchemaAny, meta = {}) {
           const s = new AllOfSchema({
             ...rest,
             allOf: [
-              yield* $(processId(schema.meta.self)),
-              yield* $(processId(schema.meta.that)),
+              yield* $(processId(schemaMeta.self)) as any,
+              yield* $(processId(schemaMeta.that)) as any,
             ],
           })
           // If this is a named intersection, we assume that merging the intersected types
@@ -140,14 +150,12 @@ function processId(schema: S.SchemaAny, meta = {}) {
             ...meta,
             oneOf: yield* $(
               T.collectAll(
-                Object.keys(schema.meta.props).map((x) =>
-                  processId(schema.meta.props[x])
-                )
+                Object.keys(schemaMeta.props).map((x) => processId(schemaMeta.props[x]))
               )
-            ),
-            discriminator: schema.meta.tag["|>"](
-              O.map(({ key }) => ({
-                propertyName: key, // TODO
+            ) as any,
+            discriminator: schemaMeta.tag["|>"](
+              O.map((_: any) => ({
+                propertyName: _.key, // TODO
               }))
             )["|>"](O.toUndefined),
           })
@@ -156,10 +164,10 @@ function processId(schema: S.SchemaAny, meta = {}) {
         case stringIdentifier:
           return new StringSchema(meta)
         case minLengthIdentifier:
-          meta = { minLength: schema.meta.minLength, ...meta }
+          meta = { minLength: schemaMeta.minLength, ...meta }
           break
         case maxLengthIdentifier:
-          meta = { maxLength: schema.meta.maxLength, ...meta }
+          meta = { maxLength: schemaMeta.maxLength, ...meta }
           break
         case nonEmptyStringFromStringIdentifier:
         case nonEmptyStringIdentifier:
@@ -170,10 +178,10 @@ function processId(schema: S.SchemaAny, meta = {}) {
           return new StringSchema({ format: "email", ...meta })
         case PhoneNumberFromStringIdentifier:
         case PhoneNumberIdentifier:
-          return new StringSchema({ format: "phone", ...meta })
+          return new StringSchema({ format: "phone" as any, ...meta })
 
         case literalIdentifier:
-          return new EnumSchema({ enum: schema.meta.literals, ...meta })
+          return new EnumSchema({ enum: schemaMeta.literals, ...meta })
 
         case UUIDFromStringIdentifier:
           return new StringSchema({ format: "uuid", ...meta })
@@ -185,23 +193,32 @@ function processId(schema: S.SchemaAny, meta = {}) {
           return new NumberSchema(meta)
         case positiveIntIdentifier:
           return new NumberSchema({ minimum: 0, ...meta })
-        case positiveIntFromNumber:
+        case positiveIntFromNumberIdentifier:
           return new NumberSchema({ minimum: 0, ...meta })
         case boolIdentifier:
           return new BooleanSchema(meta)
         case nullableIdentifier:
-          return { ...(yield* $(processId(schema.meta.self, meta))), nullable: true }
+          return {
+            ...((yield* $(processId(schemaMeta.self, meta))) as any),
+            nullable: true,
+          }
         case arrayIdentifier:
-          return new ArraySchema({ items: yield* $(processId(schema.meta.self, meta)) })
+          return new ArraySchema({
+            items: yield* $(processId(schemaMeta.self, meta)) as any,
+          })
         case chunkIdentifier:
-          return new ArraySchema({ items: yield* $(processId(schema.meta.self, meta)) })
+          return new ArraySchema({
+            items: yield* $(processId(schemaMeta.self, meta)) as any,
+          })
         case fromChunkIdentifier:
-          return new ArraySchema({ items: yield* $(processId(schema.meta.self, meta)) })
+          return new ArraySchema({
+            items: yield* $(processId(schemaMeta.self, meta)) as any,
+          })
         case propertiesIdentifier: {
-          const properties = {}
+          const properties: Record<string, any> = {}
           const required = []
-          for (const k in schema.meta.props) {
-            const p: S.AnyProperty = schema.meta.props[k]
+          for (const k in schemaMeta.props) {
+            const p: S.AnyProperty = schemaMeta.props[k]
             properties[k] = yield* $(processId(p["_schema"]))
             if (p["_optional"] === "required") {
               required.push(k)
@@ -228,7 +245,7 @@ function processId(schema: S.SchemaAny, meta = {}) {
   })
 }
 
-function merge(schema) {
+function merge(schema: any) {
   let b = schema as ObjectSchema // TODO: allOfSchema.
   function recurseAllOf(allOf: AllOfSchema["allOf"], nb: any) {
     allOf.forEach((x: any) => {
@@ -244,10 +261,10 @@ function merge(schema) {
       }
     })
   }
-  const a = b as AllOfSchema
+  const a = b as any as AllOfSchema
   if (a.allOf) {
     const [{ description: ____, nullable: ___, title: __, type: _____, ...first }] =
-      a.allOf
+      a.allOf as any
     const nb = {
       title: a.title,
       type: "object",
@@ -282,7 +299,7 @@ function for_<
     Encoded,
     Api
   >
-): Gen<ParsedShape> {
+): Gen {
   if (cache.has(schema)) {
     return cache.get(schema)
   }
@@ -296,7 +313,7 @@ function for_<
   if (hasContinuation(schema)) {
     const arb = for_(schema[SchemaContinuationSymbol])
     cache.set(schema, arb)
-    return arb as Gen<ParsedShape>
+    return arb as Gen
   }
   throw new Error(`Missing openapi integration for: ${schema.constructor}`)
 }

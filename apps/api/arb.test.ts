@@ -1,4 +1,4 @@
-import { Task, User } from "@effect-ts-demo/todo-types/Task"
+import { Task, User } from "@effect-ts-demo/todo-types"
 import * as fc from "fast-check"
 import { Random } from "fast-check"
 import * as rand from "pure-rand"

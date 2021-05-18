@@ -1,6 +1,6 @@
-import * as A from "@effect-ts-demo/core/ext/Array"
-import * as T from "@effect-ts-demo/core/ext/Effect"
-import * as EO from "@effect-ts-demo/core/ext/EffectOption"
+import * as A from "@effect-ts-app/core/ext/Array"
+import * as T from "@effect-ts-app/core/ext/Effect"
+import * as EO from "@effect-ts-app/core/ext/EffectOption"
 import * as NA from "@effect-ts/core/Collections/Immutable/NonEmptyArray"
 import { flow } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
@@ -17,9 +17,7 @@ import useInterval from "use-interval"
 import { Field } from "@/components"
 import { useServiceContext } from "@/context"
 import { memo, withLoading } from "@/data"
-import { TodoClient } from "@/index"
-import { Todo } from "@/index"
-import { renderIf_, toUpperCaseFirst } from "@/utils"
+import { Todo, TodoClient, utils } from "@/index"
 
 import {
   parseRSunsafe,
@@ -131,7 +129,7 @@ const TaskListView = memo(function ({
               ),
             }),
       }))
-      TodoClient.TasksClient.UpdateTaskListOrder({
+      TodoClient.TaskLists.updateOrder({
         id: category === "tasks" ? "inbox" : (category as any),
         order,
       })["|>"](runWithErrorLog)
@@ -141,7 +139,7 @@ const TaskListView = memo(function ({
       <>
         <Box display="flex">
           <Typography variant="h3">
-            {toUpperCaseFirst(category)} {/* TODO */}
+            {utils.capitalize(category)} {/* TODO */}
             {isRefreshing && <Refresh />}
           </Typography>
 
@@ -153,7 +151,7 @@ const TaskListView = memo(function ({
           </Box>
         </Box>
 
-        {renderIf_(order, (o) => (
+        {utils.renderIf_(order, (o) => (
           <div>
             {o.kind}
             <IconButton onClick={() => toggleDirection(o.dir)}>

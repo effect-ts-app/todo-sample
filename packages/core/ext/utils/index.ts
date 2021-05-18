@@ -62,3 +62,11 @@ export const isOfType =
   <T extends { _tag: string }>(tag: GetTag<T>) =>
   (e: { _tag: string }): e is T =>
     e._tag === tag
+
+export function capitalize<T extends string>(string: T): Capitalize<T> {
+  return (string.charAt(0).toUpperCase() + string.slice(1)) as Capitalize<T>
+}
+
+export function uncapitalize<T extends string>(string: T): Uncapitalize<T> {
+  return (string.charAt(0).toLowerCase() + string.slice(1)) as Uncapitalize<T>
+}

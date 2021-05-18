@@ -2,3 +2,7 @@
 node_modules/
 *.log
 **/*/.next/
+packages/**/*.js
+packages/**/*.d.ts
+
+tsconfig.tsbuildinfo

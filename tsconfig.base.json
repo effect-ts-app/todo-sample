@@ -5,13 +5,10 @@
             "es2020"
         ],
         "paths": {
-            "@atlas-ts/plutus/*": [
-                "packages/atlas-ts/plutus/*"
-            ],
-            "@effect-ts-demo/core/*": [
+            "@effect-ts-app/core/*": [
                 "packages/core/*"
             ],
-            "@effect-ts-demo/infra/*": [
+            "@effect-ts-app/infra/*": [
                 "packages/infra/*"
             ],
             "@effect-ts-demo/todo-client/*": [

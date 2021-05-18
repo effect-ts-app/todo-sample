@@ -4,7 +4,7 @@
         "paths": {},
         "outDir": "./",
         "sourceMap": false,
-        "rootDir": "../../",
+        "rootDir": "./",
         "noEmit": false,
         "incremental": false
     },

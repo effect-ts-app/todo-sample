@@ -1,6 +1,6 @@
-import * as EO from "@effect-ts-demo/core/ext/EffectOption"
-import { flow, pipe } from "@effect-ts-demo/core/ext/Function"
-import * as S from "@effect-ts-demo/core/ext/Schema"
+import * as EO from "@effect-ts-app/core/ext/EffectOption"
+import { flow, pipe } from "@effect-ts-app/core/ext/Function"
+import * as S from "@effect-ts-app/core/ext/Schema"
 import * as T from "@effect-ts/core/Effect"
 import * as M from "@effect-ts/core/Effect/Managed"
 
@@ -183,10 +183,8 @@ export function createContext<TKey extends string, EA, A extends DBRecord<TKey>>
   }
 }
 
-export class RedisSerializedDBRecord extends S.Model<RedisSerializedDBRecord>()(
-  S.props({
-    version: S.prop(S.stringNumber),
-    timestamp: S.prop(S.date),
-    data: S.prop(S.string),
-  })
-) {}
+export class RedisSerializedDBRecord extends S.Model<RedisSerializedDBRecord>()({
+  version: S.prop(S.stringNumber),
+  timestamp: S.prop(S.date),
+  data: S.prop(S.string),
+}) {}

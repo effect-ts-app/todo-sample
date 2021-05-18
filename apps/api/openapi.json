@@ -278,7 +278,7 @@
         "tags": [
           "Tasks"
         ],
-        "operationId": "DeleteTask",
+        "operationId": "RemoveTask",
         "parameters": [
           {
             "name": "id",
@@ -352,7 +352,7 @@
         "tags": [
           "Lists"
         ],
-        "operationId": "DeleteTaskList",
+        "operationId": "RemoveTaskList",
         "parameters": [
           {
             "name": "id",
@@ -491,7 +491,7 @@
         "tags": [
           "Lists"
         ],
-        "operationId": "RemovetaskListMember",
+        "operationId": "RemoveTaskListMember",
         "parameters": [
           {
             "name": "id",

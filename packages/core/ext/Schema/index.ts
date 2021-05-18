@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import * as O from "@effect-ts-demo/core/ext/Option"
+import * as O from "@effect-ts-app/core/ext/Option"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import { v4 } from "uuid"
 
@@ -79,7 +79,7 @@ export function makeUuid() {
   return v4() as S.UUID
 }
 
-type Meta = { description?: string; summary?: string }
+export type Meta = { description?: string; summary?: string }
 export const metaIdentifier = S.makeAnnotation<Meta>()
 export const metaC = (meta: Meta) => {
   return function (cls: any) {

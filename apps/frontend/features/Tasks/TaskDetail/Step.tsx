@@ -1,5 +1,5 @@
 import { Box, Checkbox, IconButton } from "@material-ui/core"
-import Delete from "@material-ui/icons/Delete"
+import Remove from "@material-ui/icons/Remove"
 import React from "react"
 import { Draggable } from "react-beautiful-dnd"
 
@@ -8,8 +8,8 @@ import { onSuccess, PromiseExit, WithLoading } from "@/data"
 import { Todo } from "@/index"
 
 export function Step({
-  deleteStep,
   index,
+  removeStep,
   step: s,
   toggleChecked,
   updateTitle,
@@ -18,7 +18,7 @@ export function Step({
   index: number
   toggleChecked: WithLoading<() => void>
   updateTitle: WithLoading<(newTitle: string) => PromiseExit>
-  deleteStep: WithLoading<() => void>
+  removeStep: WithLoading<() => void>
 }) {
   return (
     <Draggable draggableId={index.toString()} index={index}>
@@ -48,8 +48,8 @@ export function Step({
             </TextFieldWithEditor>
           </Box>
           <Box>
-            <IconButton disabled={deleteStep.loading} onClick={deleteStep}>
-              <Delete />
+            <IconButton disabled={removeStep.loading} onClick={removeStep}>
+              <Remove />
             </IconButton>
           </Box>
         </Box>

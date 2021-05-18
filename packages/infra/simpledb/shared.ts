@@ -1,5 +1,5 @@
-import * as S from "@effect-ts-demo/core/ext/Schema"
-import { SchemaAny } from "@effect-ts-demo/core/ext/Schema"
+import * as S from "@effect-ts-app/core/ext/Schema"
+import { SchemaAny } from "@effect-ts-app/core/ext/Schema"
 import * as T from "@effect-ts/core/Effect"
 import * as O from "@effect-ts/core/Option"
 
@@ -31,13 +31,11 @@ export interface DBRecord<TKey extends string> {
   id: TKey
 }
 
-export class SerializedDBRecord extends S.Model<SerializedDBRecord>()(
-  S.props({
-    version: S.prop(S.number),
-    timestamp: S.prop(S.date),
-    data: S.prop(S.string),
-  })
-) {}
+export class SerializedDBRecord extends S.Model<SerializedDBRecord>()({
+  version: S.prop(S.number),
+  timestamp: S.prop(S.date),
+  data: S.prop(S.string),
+}) {}
 
 // unknown -> string -> SDB?
 export function makeSerialisedDBRecord(s: SchemaAny) {

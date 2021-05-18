@@ -1,5 +1,5 @@
-import * as O from "@effect-ts-demo/core/ext/Option"
-import * as S from "@effect-ts-demo/core/ext/Schema"
+import * as O from "@effect-ts-app/core/ext/Option"
+import * as S from "@effect-ts-app/core/ext/Schema"
 import {
   Task,
   TaskList,

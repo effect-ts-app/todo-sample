@@ -128,7 +128,7 @@
 			"response": []
 		},
 		{
-			"name": "Delete Task",
+			"name": "Remove Task",
 			"request": {
 				"method": "DELETE",
 				"header": [

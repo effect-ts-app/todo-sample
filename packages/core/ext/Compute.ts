@@ -1,4 +1,4 @@
-import * as O from "@effect-ts-demo/core/ext/Option"
+import * as O from "@effect-ts-app/core/ext/Option"
 
 import type { If } from "ts-toolbelt/out/Any/If"
 import type { Key } from "ts-toolbelt/out/Any/Key"

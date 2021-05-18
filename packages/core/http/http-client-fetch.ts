@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import * as T from "@effect-ts-demo/core/ext/Effect"
-import { pipe } from "@effect-ts-demo/core/ext/Function"
+import * as T from "@effect-ts-app/core/ext/Effect"
+import { pipe } from "@effect-ts-app/core/ext/Function"
 import * as L from "@effect-ts/core/Effect/Layer"
 import * as O from "@effect-ts/core/Option"
 import fetch from "cross-fetch"

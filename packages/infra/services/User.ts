@@ -1,5 +1,5 @@
-import { pipe } from "@effect-ts-demo/core/ext/Function"
-import * as S from "@effect-ts-demo/core/ext/Schema"
+import { pipe } from "@effect-ts-app/core/ext/Function"
+import * as S from "@effect-ts-app/core/ext/Schema"
 import { Has } from "@effect-ts/core"
 import * as L from "@effect-ts/core/Effect/Layer"
 

@@ -1,4 +1,4 @@
-import * as HF from "@effect-ts-demo/core/http/http-client-fetch"
+import * as HF from "@effect-ts-app/core/http/http-client-fetch"
 import { Fiber, pipe } from "@effect-ts/core"
 import * as T from "@effect-ts/core/Effect"
 import { pretty } from "@effect-ts/core/Effect/Cause"

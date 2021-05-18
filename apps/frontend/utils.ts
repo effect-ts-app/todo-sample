@@ -3,10 +3,7 @@ import { stringify, ParsedUrlQueryInput } from "querystring"
 import { constant } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 
-export function toUpperCaseFirst(s: string) {
-  const f = (s[0] ?? "").toUpperCase()
-  return `${f}${s.slice(1)}`
-}
+export * from "@effect-ts-app/core/ext/utils"
 
 export const typedKeysOf = <T>(obj: T) => Object.keys(obj) as (keyof T)[]
 

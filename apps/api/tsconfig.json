@@ -1,12 +1,16 @@
 {
     "extends": "../../tsconfig.base.json",
     "compilerOptions": {
+        "lib": [
+            "dom",
+            "esnext"
+        ],
         "baseUrl": "./",
         "paths": {
-            "@effect-ts-demo/core/*": [
+            "@effect-ts-app/core/*": [
                 "../../packages/core/*"
             ],
-            "@effect-ts-demo/infra/*": [
+            "@effect-ts-app/infra/*": [
                 "../../packages/infra/*"
             ],
             "@effect-ts-demo/todo-types/*": [
@@ -14,9 +18,6 @@
             ],
             "@effect-ts-demo/todo-client/*": [
                 "../../packages/client/*"
-            ],
-            "@atlas-ts/plutus/*": [
-                "../../packages/atlas-ts/plutus/*"
             ],
             "@/*": [
                 "./*"

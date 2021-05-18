@@ -1,4 +1,4 @@
-import { Model, namedC } from "@effect-ts-demo/core/ext/Schema"
+import { Model, namedC } from "@effect-ts-app/core/ext/Schema"
 import { EditablePersonalTaskProps, Task } from "@effect-ts-demo/todo-types"
 
 @namedC("Task")
