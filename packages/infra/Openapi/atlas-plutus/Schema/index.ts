@@ -16,12 +16,14 @@ import { modelSchemaInterpreter } from "./interpreter"
 
 export function deriveFor<S extends Summoner<any>>(_S: S) {
   return (
-    _: {
-      [k in SchemaURI & keyof SummonerEnv<S>]: SummonerEnv<S>[k]
-    }
-  ) => <L, A>(
-    F: Materialized<SummonerEnv<S>, L, A, SummonerProgURI<S>, SummonerInterpURI<S>>
-  ) => F.derive(modelSchemaInterpreter<SummonerEnv<S>>())(_).Schema
+      _: {
+        [k in SchemaURI & keyof SummonerEnv<S>]: SummonerEnv<S>[k]
+      }
+    ) =>
+    <L, A>(
+      F: Materialized<SummonerEnv<S>, L, A, SummonerProgURI<S>, SummonerInterpURI<S>>
+    ) =>
+      F.derive(modelSchemaInterpreter<SummonerEnv<S>>())(_).Schema
 }
 
 const Schemaes = new Map<any, any>()

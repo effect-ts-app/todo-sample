@@ -14,7 +14,7 @@ import type {
   Parameter,
   RequestBody,
   Response,
-  Type
+  Type,
 } from "../Spec"
 
 export interface OpenApiSpec {
@@ -63,7 +63,7 @@ export function generate<X extends Api<any, any>>(
 
       const path: Record<string, any> = {
         description: pathSpec?.description,
-        summary: pathSpec?.summary
+        summary: pathSpec?.summary,
       }
 
       for (const methodName of Object.keys(pathSpec.methods)) {
@@ -83,9 +83,9 @@ export function generate<X extends Api<any, any>>(
             description: responseSpec.description,
             content: {
               "application/json": {
-                schema: contentSchema
-              }
-            }
+                schema: contentSchema,
+              },
+            },
           }
         }
 
@@ -95,14 +95,14 @@ export function generate<X extends Api<any, any>>(
 
             if (paramSpec.ref === true) {
               parameters.push({
-                $ref: `#/components/parameters/${param}`
+                $ref: `#/components/parameters/${param}`,
               })
               parameterRefs[param] = {
                 name: param,
                 in: in_,
                 description: paramSpec.description,
                 required: paramSpec.required,
-                schema: yield* _(withRef(schema(paramSpec.content)))
+                schema: yield* _(withRef(schema(paramSpec.content))),
               }
             } else {
               parameters.push({
@@ -110,7 +110,7 @@ export function generate<X extends Api<any, any>>(
                 in: in_,
                 description: paramSpec.description,
                 required: paramSpec.required,
-                schema: yield* _(withRef(schema(paramSpec.content)))
+                schema: yield* _(withRef(schema(paramSpec.content))),
               })
             }
           }
@@ -129,9 +129,9 @@ export function generate<X extends Api<any, any>>(
                 schema: yield* _(withRef(schema(yield* _(body.content)))),
                 ...(body.examples
                   ? { examples: mapRecord(body.examples, (v) => ({ value: v })) }
-                  : {})
-              }
-            }
+                  : {}),
+              },
+            },
           }
         }
 
@@ -143,7 +143,7 @@ export function generate<X extends Api<any, any>>(
           tags: methodSpec.tags,
           responses,
           parameters,
-          requestBody
+          requestBody,
         }
 
         path[methodName.toLocaleLowerCase()] = method
@@ -175,24 +175,24 @@ export function generate<X extends Api<any, any>>(
           ? {
               name: api.info.contact.name,
               email: api.info.contact.email,
-              url: api.info.contact.url
+              url: api.info.contact.url,
             }
           : undefined,
         license: api.info.license
           ? {
               name: api.info.license.name,
-              url: api.info.license.url
+              url: api.info.license.url,
             }
           : undefined,
-        version: api.info.version
+        version: api.info.version,
       },
       tags: api.tags.map((tag: any) => ({
         name: tag.name,
         description: tag.description,
-        externalDocs: tag.externalDocs
+        externalDocs: tag.externalDocs,
       })),
       paths,
-      components
+      components,
     }
   })
 }
@@ -246,20 +246,20 @@ export function generateMerged(info: GeneralInfo) {
             ? {
                 name: info.contact.name,
                 email: info.contact.email,
-                url: info.contact.url
+                url: info.contact.url,
               }
             : undefined,
           license: info.license
             ? {
                 name: info.license.name,
-                url: info.license.url
+                url: info.license.url,
               }
             : undefined,
-          version: info.version
+          version: info.version,
         },
         tags,
         paths,
-        components: { schemas: refsSchemas, parameters: refsParameters }
+        components: { schemas: refsSchemas, parameters: refsParameters },
       }
     })
 }

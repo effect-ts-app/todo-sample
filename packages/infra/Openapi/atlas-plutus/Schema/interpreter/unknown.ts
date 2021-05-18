@@ -8,5 +8,5 @@ export const SchemaUnknownInterpreter = interpreter<X.SchemaURI, UnknownURI>()((
   unknown: (config) => (env) =>
     new X.SchemaType(
       X.SchemaApplyConfig(config?.conf)(X.succeed({ type: "object" }), env, {})
-    )
+    ),
 }))

@@ -13,7 +13,7 @@ export const SchemaObjectInterpreter = interpreter<X.SchemaURI, ObjectURI>()(() 
         pipe(projectFieldWithEnv(props, env)("Schema"), (Schema) =>
           X.SchemaApplyConfig(config?.conf)(
             pipe(
-              X.struct((Schema as any) as { x: X.Schema }),
+              X.struct(Schema as any as { x: X.Schema }),
               X.chain((properties) =>
                 X.succeed({
                   type: "object",
@@ -36,7 +36,7 @@ export const SchemaObjectInterpreter = interpreter<X.SchemaURI, ObjectURI>()(() 
         pipe(projectFieldWithEnv(props, env)("Schema"), (Schema) =>
           X.SchemaApplyConfig(config?.conf)(
             pipe(
-              X.struct((Schema as any) as { x: X.Schema }),
+              X.struct(Schema as any as { x: X.Schema }),
               X.chain((properties) =>
                 X.succeed({
                   type: "object",
@@ -61,8 +61,8 @@ export const SchemaObjectInterpreter = interpreter<X.SchemaURI, ObjectURI>()(() 
             X.SchemaApplyConfig(config?.conf)(
               pipe(
                 X.struct({
-                  req: X.struct((Schema as any) as { x: X.Schema }),
-                  par: X.struct((SchemaPartial as any) as { x: X.Schema }),
+                  req: X.struct(Schema as any as { x: X.Schema }),
+                  par: X.struct(SchemaPartial as any as { x: X.Schema }),
                 }),
                 X.chain(({ par, req }) =>
                   X.succeed({

@@ -107,22 +107,25 @@ export const SchemaPrimitiveInterpreter = interpreter<X.SchemaURI, PrimitivesURI
           {}
         )
       ),
-    oneOfLiterals: (..._ls) => (config) => (env) =>
-      new X.SchemaType(
-        X.SchemaApplyConfig(config?.conf)(
-          X.succeed({
-            oneOf: _ls.map((x): EnumSchema | NumberEnumSchema => ({
-              type: typeof x === "string" ? "string" : "number",
-              description: `${x}`,
-              enum: [x] as any,
-              title: config?.name,
-              ...config?.extensions?.openapiMeta,
-            })),
-          }),
-          env,
-          {}
-        )
-      ),
+    oneOfLiterals:
+      (..._ls) =>
+      (config) =>
+      (env) =>
+        new X.SchemaType(
+          X.SchemaApplyConfig(config?.conf)(
+            X.succeed({
+              oneOf: _ls.map((x): EnumSchema | NumberEnumSchema => ({
+                type: typeof x === "string" ? "string" : "number",
+                description: `${x}`,
+                enum: [x] as any,
+                title: config?.name,
+                ...config?.extensions?.openapiMeta,
+              })),
+            }),
+            env,
+            {}
+          )
+        ),
     keysOf: (_keys, config) => (env) =>
       new X.SchemaType(
         X.SchemaApplyConfig(config?.conf)(
@@ -243,10 +246,17 @@ export const SchemaPrimitiveInterpreter = interpreter<X.SchemaURI, PrimitivesURI
           }
         )
       ),
-    tuple: (..._types) => (cfg) => (env) =>
-      new X.SchemaType(
-        X.SchemaApplyConfig(cfg?.conf)(X.dieMessage("tuple is not supported"), env, {})
-      ),
+    tuple:
+      (..._types) =>
+      (cfg) =>
+      (env) =>
+        new X.SchemaType(
+          X.SchemaApplyConfig(cfg?.conf)(
+            X.dieMessage("tuple is not supported"),
+            env,
+            {}
+          )
+        ),
     uuid: (config) => (env) =>
       new X.SchemaType(
         X.SchemaApplyConfig(config?.conf)(

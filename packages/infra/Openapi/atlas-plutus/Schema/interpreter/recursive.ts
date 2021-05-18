@@ -9,7 +9,7 @@ import {
   SchemaApplyConfig,
   SchemaType,
   SchemaURI,
-  succeed
+  succeed,
 } from "../base"
 
 export const SchemaRecursiveInterpreter = interpreter<SchemaURI, RecursiveURI>()(
@@ -35,6 +35,6 @@ export const SchemaRecursiveInterpreter = interpreter<SchemaURI, RecursiveURI>()
         )
       }
       return res
-    }
+    },
   })
 )

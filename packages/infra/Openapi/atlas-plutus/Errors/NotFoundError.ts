@@ -4,13 +4,13 @@ const NotFoundError_ = MO.make((F) =>
   F.interface(
     {
       _tag: F.stringLiteral("NotFoundError"),
-      message: F.string()
+      message: F.string(),
     },
     {
       name: "NotFoundError",
       extensions: {
-        openapiRef: "NotFoundError"
-      }
+        openapiRef: "NotFoundError",
+      },
     }
   )
 )

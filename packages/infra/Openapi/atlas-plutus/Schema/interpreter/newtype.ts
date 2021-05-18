@@ -12,7 +12,7 @@ export const SchemaNewtypeInterpreter = interpreter<SchemaURI, NewtypeURI>()(() 
       (Schema) =>
         new SchemaType(
           SchemaApplyConfig(config?.conf)(Schema, env, {
-            Schema
+            Schema,
           })
         )
     ),
@@ -22,8 +22,8 @@ export const SchemaNewtypeInterpreter = interpreter<SchemaURI, NewtypeURI>()(() 
       (Schema) =>
         new SchemaType(
           SchemaApplyConfig(config?.conf)(Schema, env, {
-            Schema
+            Schema,
           })
         )
-    )
+    ),
 }))

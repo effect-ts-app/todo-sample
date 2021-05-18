@@ -1,7 +1,7 @@
 import type {
   InterfaceLA,
   IntersectionLA,
-  TaggedUnionLA
+  TaggedUnionLA,
 } from "@effect-ts/morphic/Algebra/Config"
 
 import type { Schema, SchemaURI } from "../base"
