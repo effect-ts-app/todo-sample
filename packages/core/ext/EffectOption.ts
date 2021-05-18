@@ -1,10 +1,10 @@
+import { DSL } from "@effect-ts/core"
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as OptionT from "@effect-ts/core/OptionT"
 import * as P from "@effect-ts/core/Prelude"
 import { intersect } from "@effect-ts/core/Utils"
 import * as Utils from "@effect-ts/core/Utils"
 import { _A, _E, _R } from "@effect-ts/system/Effect/commons"
-import { suspend } from "@effect-ts/system/Effect/core"
 import { fail } from "@effect-ts/system/Effect/fail"
 import { fromEither } from "@effect-ts/system/Effect/fromEither"
 import { service } from "@effect-ts/system/Effect/has"
@@ -222,29 +222,4 @@ export interface Adapter {
   <R, E, A>(_: Effect<R, E, A>, __trace?: string): GenEffect<R, E, A>
 }
 
-export function gen<Eff extends GenEffect<any, any, any>, AEff>(
-  f: (i: Adapter) => Generator<Eff, AEff, any>,
-  __trace?: string
-): EffectOption<Utils._R<Eff>, Utils._E<Eff>, AEff> {
-  return suspend(() => {
-    const iterator = f(adapter as any)
-    const state = iterator.next()
-
-    function run(
-      state: IteratorYieldResult<Eff> | IteratorReturnResult<AEff>
-    ): EffectOption<any, any, AEff> {
-      if (state.done) {
-        return succeed(state.value)
-      }
-      return chain_(
-        suspend(
-          () => state.value["effect"] as Effect<any, any, any>,
-          state.value.trace
-        ),
-        (val: any) => run(iterator.next(val))
-      )
-    }
-
-    return run(state)
-  }, __trace)
-}
+export const gen = DSL.genF(Monad, { adapter })
