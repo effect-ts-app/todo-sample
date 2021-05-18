@@ -1,11 +1,23 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as OptionT from "@effect-ts/core/OptionT"
 import * as P from "@effect-ts/core/Prelude"
 import { intersect } from "@effect-ts/core/Utils"
+import * as Utils from "@effect-ts/core/Utils"
+import { _A, _E, _R } from "@effect-ts/system/Effect/commons"
+import { suspend } from "@effect-ts/system/Effect/core"
+import { fail } from "@effect-ts/system/Effect/fail"
+import { fromEither } from "@effect-ts/system/Effect/fromEither"
+import { service } from "@effect-ts/system/Effect/has"
 
 import * as T from "./Effect"
-import { pipe, flow } from "./Function"
 import * as F from "./Function"
+import { pipe, flow } from "./Function"
 import * as O from "./Option"
+
+import type { Either } from "@effect-ts/core/Either"
+import type { Has, Tag } from "@effect-ts/core/Has"
+import type { Option } from "@effect-ts/core/Option"
+import type { Effect } from "@effect-ts/system/Effect/effect"
 
 export const Monad = OptionT.monad(T.Monad)
 export const Applicative = OptionT.applicative(T.Applicative)
@@ -20,7 +32,6 @@ const do_ = P.doF(Monad)
 export { do_ as do }
 export const struct = P.structF(Applicative)
 export const tuple = P.tupleF(Applicative)
-export const gen = P.genF(Monad)
 
 export interface FunctionN<A extends ReadonlyArray<unknown>, B> {
   (...args: A): B
@@ -40,6 +51,12 @@ export const none: UIO<never> =
   (() => T.succeed(O.none))()
 
 export const fromEffect = <R, E, A>(eff: T.Effect<R, E, A>) => pipe(eff, T.map(O.some))
+
+export const fromEffectIf = <R, E, A>(eff: T.Effect<R, E, A>) =>
+  pipe(
+    eff,
+    T.map((x) => (Utils.isOption(x) ? x : O.some(x)))
+  )
 
 export const encaseNullableTask = <T>(
   taskCreator: F.Lazy<Promise<T | null>>
@@ -164,3 +181,70 @@ export const chainEffect =
   <R, R2, E, E2, A, A2>(eff: (a: A) => T.Effect<R2, E2, A2>) =>
   (eo: EffectOption<R, E, A>) =>
     chain_(eo, flow(eff, fromEffect))
+
+export class GenEffect<R, E, A> {
+  readonly [_R]!: (_R: R) => void;
+  readonly [_E]!: () => E;
+  readonly [_A]!: () => A
+
+  constructor(
+    readonly effect: EffectOption<R, E, A>, // | Managed<R, E, A>,
+    readonly trace?: string
+  ) {}
+
+  *[Symbol.iterator](): Generator<GenEffect<R, E, A>, A, any> {
+    return yield this
+  }
+}
+
+function adapter(_: any, __?: any, ___?: any) {
+  if (Utils.isEither(_)) {
+    return new GenEffect(fromEither(() => _)["|>"](fromEffect), __)
+  }
+  if (Utils.isOption(_)) {
+    if (__ && typeof __ === "function") {
+      return new GenEffect(_._tag === "None" ? fail(__()) : succeed(_.value), ___)
+    }
+    return new GenEffect(fromOption(_), __)
+  }
+  if (Utils.isTag(_)) {
+    return new GenEffect(service(_)["|>"](fromEffect), __)
+  }
+  return new GenEffect(_["|>"](fromEffectIf), __)
+}
+
+export interface Adapter {
+  <A>(_: Tag<A>, __trace?: string): GenEffect<Has<A>, never, A>
+
+  <E, A>(_: Option<A>, __trace?: string): GenEffect<unknown, E, A>
+  <E, A>(_: Either<E, A>, __trace?: string): GenEffect<unknown, E, A>
+  <R, E, A>(_: EffectOption<R, E, A>, __trace?: string): GenEffect<R, E, A>
+  <R, E, A>(_: Effect<R, E, A>, __trace?: string): GenEffect<R, E, A>
+}
+
+export function gen<Eff extends GenEffect<any, any, any>, AEff>(
+  f: (i: Adapter) => Generator<Eff, AEff, any>,
+  __trace?: string
+): EffectOption<Utils._R<Eff>, Utils._E<Eff>, AEff> {
+  return suspend(() => {
+    const iterator = f(adapter as any)
+    const state = iterator.next()
+
+    function run(
+      state: IteratorYieldResult<Eff> | IteratorReturnResult<AEff>
+    ): EffectOption<any, any, AEff> {
+      if (state.done) {
+        return succeed(state.value)
+      }
+      return chain_(
+        suspend(
+          () => state.value["effect"] as Effect<any, any, any>,
+          state.value.trace
+        ),
+        (val: any) => run(iterator.next(val))
+      )
+    }
+
+    return run(state)
+  }, __trace)
+}
