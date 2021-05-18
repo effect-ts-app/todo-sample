@@ -5,7 +5,7 @@
     "license": "MIT",
     "dependencies": {
         "@effect-ts-app/core": "^0.9.3",
-        "mongodb": "^3.6.6",
+        "mongodb": "^3.6.7",
         "proper-lockfile": "^4.1.2",
         "query-string": "^7.0.0",
         "redis": "^3.1.2",
@@ -13,7 +13,7 @@
         "winston": "^3.3.3"
     },
     "devDependencies": {
-        "@types/mongodb": "^3.6.12",
+        "@types/mongodb": "^3.6.13",
         "@types/proper-lockfile": "^4.1.1",
         "@types/redis": "^2.8.28",
         "@types/redlock": "^4.0.1",
