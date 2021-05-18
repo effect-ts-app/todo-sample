@@ -1,6 +1,7 @@
 import * as T from "@effect-ts-app/core/ext/Effect"
 import * as EO from "@effect-ts-app/core/ext/EffectOption"
 import { makeCodec } from "@effect-ts-app/infra/context/schema"
+import { UserSVC } from "@effect-ts-app/infra/services"
 import {
   Task,
   TaskListOrGroup,
@@ -21,7 +22,7 @@ import * as O from "@effect-ts/core/Option"
 import { _A } from "@effect-ts/core/Utils"
 
 import { canAccessList, canAccessTaskE } from "@/access"
-import { NotFoundError } from "@/errors"
+import { NotFoundError, NotLoggedInError } from "@/errors"
 
 import { makeTestDataUnsafe } from "./TodoContext.testdata"
 
@@ -310,3 +311,12 @@ export function updateTaskListGroupM<R, E>(
     return yield* $(updateTaskListGroupM(id, mod))
   })
 }
+
+export const getLoggedInUser = T.gen(function* ($) {
+  const user = yield* $(UserSVC.UserEnv)
+  return yield* $(
+    T.catch_(getUser(user.id), "_tag", "NotFoundError", () =>
+      T.fail(new NotLoggedInError())
+    )
+  )
+})

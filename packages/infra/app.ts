@@ -1,18 +1,15 @@
 import { flow } from "@effect-ts-app/core/ext/Function"
 import * as S from "@effect-ts-app/core/ext/Schema"
 import * as T from "@effect-ts/core/Effect"
-import { SchemaAny } from "@effect-ts/schema"
 
-import { UnauthorizedError, NotFoundError } from "@/errors"
-
-// TODO: move to effect-ts-app/infra ?
+import { UnauthorizedError, NotFoundError } from "./errors"
 
 export function handle<
   TModule extends Record<
     string,
-    { Model: SchemaAny; new (...args: any[]): any } | SchemaAny
+    { Model: S.SchemaAny; new (...args: any[]): any } | S.SchemaAny
   >,
-  TRes extends { Model: SchemaAny } | SchemaAny = typeof S.Void
+  TRes extends { Model: S.SchemaAny } | S.SchemaAny = typeof S.Void
 >(
   _: TModule & { Response?: TRes }
 ): <R, E>(
@@ -42,9 +39,9 @@ export function handle<
   ) => ({ h, Request, Response: (_.Response ?? S.Void) as TRes } as any)
 }
 
-type Extr<T> = T extends { Model: SchemaAny }
+type Extr<T> = T extends { Model: S.SchemaAny }
   ? T["Model"]
-  : T extends SchemaAny
+  : T extends S.SchemaAny
   ? T
   : never
 

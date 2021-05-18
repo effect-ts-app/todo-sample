@@ -1,10 +1,11 @@
+import { handle } from "@effect-ts-app/infra/app"
 import { UserSVC } from "@effect-ts-app/infra/services"
 import { Tasks } from "@effect-ts-demo/todo-client"
 import { User } from "@effect-ts-demo/todo-types"
 import * as T from "@effect-ts/core/Effect"
 
+import { authorizeTask } from "@/access"
 import { TodoContext } from "@/services"
-import { authorizeTask, handle } from "@/shared"
 
 export default handle(Tasks.Update)(({ id, myDay, ..._ }) =>
   T.gen(function* ($) {

@@ -5,10 +5,9 @@ import {
   nonEmptyString,
   prop,
 } from "@effect-ts-app/core/ext/Schema"
+import { handle } from "@effect-ts-app/infra/app"
 import { UserSVC } from "@effect-ts-app/infra/services"
 import * as T from "@effect-ts/core/Effect"
-
-import { handle } from "@/shared"
 
 @namedC("AllLoggedInSample")
 export class Request extends Get("/logged-in")<Request>()() {}

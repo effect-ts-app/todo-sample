@@ -1,5 +1,6 @@
 import * as O from "@effect-ts-app/core/ext/Option"
 import * as S from "@effect-ts-app/core/ext/Schema"
+import { makeAuthorize } from "@effect-ts-app/infra/app"
 import {
   Task,
   TaskList,
@@ -66,3 +67,21 @@ export function canAccessTaskE(lists: Chunk<TaskList>) {
   const xs = canAccessTaskE_(lists)
   return (userId: UserId) => (t: S.EncodedOf<typeof Task.Model>) => xs(t, userId)
 }
+
+export const authorizeTask = (lists: Chunk<TaskList>) =>
+  makeAuthorize(canAccessTask_(lists), "Task", (t) => t.id)
+export const authorizeList = makeAuthorize(
+  canAccessList_,
+  "TaskListOrGroup",
+  (t) => t.id
+)
+export const authorizeTaskList = makeAuthorize(
+  canAccessTaskList_,
+  "TaskList",
+  (t) => t.id
+)
+export const authorizeTaskListGroup = makeAuthorize(
+  canAccessTaskListGroup_,
+  "TaskListGroup",
+  (t) => t.id
+)

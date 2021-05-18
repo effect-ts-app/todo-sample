@@ -1,9 +1,10 @@
+import { handle } from "@effect-ts-app/infra/app"
 import { UserSVC } from "@effect-ts-app/infra/services"
 import { TaskLists } from "@effect-ts-demo/todo-client"
 import * as T from "@effect-ts/core/Effect"
 
+import { authorizeList } from "@/access"
 import { TodoContext } from "@/services"
-import { authorizeList, handle } from "@/shared"
 
 export default handle(TaskLists.Remove)((_) =>
   T.gen(function* ($) {
