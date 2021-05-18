@@ -222,4 +222,4 @@ export interface Adapter {
   <R, E, A>(_: Effect<R, E, A>, __trace?: string): GenEffect<R, E, A>
 }
 
-export const gen = DSL.genF(Monad, { adapter })
+export const gen = DSL.genF(Monad, { adapter: adapter as Adapter })
