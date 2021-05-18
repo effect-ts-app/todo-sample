@@ -236,7 +236,7 @@ export function useTaskCommands(id: Todo.TaskId) {
 
   const funcs = useMemo(() => {
     const refreshTask = (t: { id: Todo.TaskId }) => getTask(t.id)
-    const updateAndRefreshTask = (r: TodoClient.Tasks.UpdateTask.Request) =>
+    const updateAndRefreshTask = (r: TodoClient.Tasks.UpdateTask.default) =>
       pipe(updateTask(r), T.zipRight(refreshTask(r)))
 
     function toggleTaskChecked(t: Todo.Task) {
