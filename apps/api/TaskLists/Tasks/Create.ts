@@ -8,7 +8,7 @@ import { identity } from "@effect-ts/system/Function"
 
 import { TodoContext } from "@/services"
 
-import { TaskListAuth } from "./access"
+import { TaskListAuth } from "../access"
 
 export default handle(TaskLists.CreateTask)(({ myDay, ..._ }) =>
   T.gen(function* ($) {
