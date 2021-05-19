@@ -1,9 +1,10 @@
 # Gotchas
 
-## Function names ending with `_`
+## Function suffixes
 
-These are the uncurried versions of the function with the same name.
-
+- `_`: These are the uncurried versions of the function with the same name.
+- `_M`: Monadically. Meaning the passed mapper function is applied with `chain` instead of `map`.
+- `unsaf
 ## When to use Fully Qualified Module names when accessing functions
 
 e.g `S.props` over `props`:
