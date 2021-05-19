@@ -6,7 +6,7 @@ import * as Lens from "@effect-ts/monocle/Lens"
 
 import { TodoContext, UserSVC } from "@/services"
 
-import { TaskListAuth } from "./access"
+import { TaskListAuth } from "./_access"
 
 const inboxOrder = User.lens["|>"](Lens.prop("inboxOrder"))
 const order = TaskList.lens["|>"](Lens.prop("order"))

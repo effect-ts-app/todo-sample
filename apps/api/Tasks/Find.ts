@@ -6,7 +6,7 @@ import { User } from "@effect-ts-demo/todo-types"
 
 import { TodoContext } from "@/services"
 
-import { TaskAuth } from "./access"
+import { TaskAuth } from "./_access"
 
 export default handle(Tasks.Find)((_) =>
   EO.gen(function* ($) {

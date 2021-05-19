@@ -4,7 +4,7 @@ import * as T from "@effect-ts/core/Effect"
 
 import { TodoContext, UserSVC } from "@/services"
 
-import { TaskListAuth } from "./access"
+import { TaskListAuth } from "./_access"
 
 export default handle(TaskLists.Update)(({ id, ..._ }) =>
   T.gen(function* ($) {

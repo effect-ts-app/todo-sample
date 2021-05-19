@@ -5,7 +5,7 @@ import { Task, TaskList, UserId } from "@effect-ts-demo/todo-types"
 import * as CNK from "@effect-ts/core/Collections/Immutable/Chunk"
 import { Chunk } from "@effect-ts/core/Collections/Immutable/Chunk"
 
-import * as TaskListAccess from "@/TaskLists/access"
+import * as TaskListAccess from "@/TaskLists/_access"
 
 export function canAccess_(lists: Chunk<TaskList>) {
   const can = canAccessInternal_(lists)

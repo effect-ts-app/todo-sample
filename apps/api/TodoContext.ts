@@ -21,8 +21,8 @@ import { flow, identity, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import { _A } from "@effect-ts/core/Utils"
 
-import * as ListsAccess from "@/TaskLists/access"
-import * as TasksAccess from "@/Tasks/access"
+import * as ListsAccess from "@/TaskLists/_access"
+import * as TasksAccess from "@/Tasks/_access"
 import { NotFoundError, NotLoggedInError } from "@/errors"
 
 import { makeTestDataUnsafe } from "./TodoContext.testdata"

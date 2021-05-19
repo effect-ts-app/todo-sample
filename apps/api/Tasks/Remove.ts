@@ -4,7 +4,7 @@ import * as T from "@effect-ts/core/Effect"
 
 import { TodoContext, UserSVC } from "@/services"
 
-import { TaskAuth } from "./access"
+import { TaskAuth } from "./_access"
 
 export default handle(Tasks.Remove)((_) =>
   T.gen(function* ($) {
