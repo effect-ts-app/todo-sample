@@ -12,13 +12,18 @@ import {
   reasonableString,
 } from "@effect-ts-app/core/ext/Schema"
 
+import { User } from "./User"
 import { TaskId, TaskListId, UserId } from "./ids"
 
 @namedC()
 export class Membership extends Model<Membership>()({
   id: prop(UserId),
   name: prop(reasonableString),
-}) {}
+}) {
+  static fromUser(user: User) {
+    return new Membership({ id: user.id, name: user.name })
+  }
+}
 
 export const EditableTaskListProps = {
   title: prop(reasonableString),

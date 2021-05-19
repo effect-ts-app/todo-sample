@@ -54,36 +54,17 @@ export function makeTestDataUnsafe() {
   })
   const patrickSharedList = createPatrickList({
     title: createRS("Patrick's shared List"),
-    members: [
-      new Membership({
-        id: mike.id,
-        name: createRS("Mike Arnaldi"),
-      }),
-      new Membership({
-        id: markus.id,
-        name: createRS("Markus Nomizz"),
-      }),
-    ],
+    members: [Membership.fromUser(mike), Membership.fromUser(markus)],
   })
 
   const mikeSharedList = User.createTaskList_(mike, {
     title: createRS("Mike's shared List"),
-    members: [
-      new Membership({
-        id: patrick.id,
-        name: createRS("Patrick Roza"),
-      }),
-    ],
+    members: [Membership.fromUser(patrick)],
   })
 
   const markusSharedList = User.createTaskList_(markus, {
     title: createRS("Markus's shared List"),
-    members: [
-      new Membership({
-        id: patrick.id,
-        name: createRS("Patrick Roza"),
-      }),
-    ],
+    members: [Membership.fromUser(patrick)],
   })
 
   const lists = [
