@@ -77,7 +77,7 @@ export function useTasks() {
 const newTask =
   (v: Todo.TaskView | S.ReasonableString, listId: Todo.TaskListIdU = "inbox") =>
   (newTitle: S.ReasonableString) =>
-    TodoClient.Tasks.create({
+    TodoClient.TaskLists.createTask({
       title: newTitle,
       isFavorite: v === "important",
       myDay: v === "my-day" ? O.some(new Date()) : O.none,

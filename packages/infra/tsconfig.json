@@ -5,12 +5,14 @@
             "es2020",
             "DOM"
         ],
-        "paths": {},
+        "baseUrl": "./",
+        "paths": {
+            "@effect-ts-app/core/*": [
+                "packages/core/*"
+            ]
+        },
         "outDir": "./",
-        "sourceMap": false,
-        "rootDir": "./",
         "noEmit": false,
-        "incremental": false,
         "moduleResolution": "node"
     },
     "include": [

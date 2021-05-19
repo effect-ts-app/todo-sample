@@ -6,11 +6,16 @@
             "DOM"
         ],
         "baseUrl": "./",
-        "outDir": "./",
-        "sourceMap": false,
-        "rootDir": "../../",
-        "noEmit": false,
-        "incremental": false
+        "paths": {
+            "@effect-ts-app/core/*": [
+                "packages/core/*"
+            ],
+            "@effect-ts-demo/todo-types/*": [
+                "packages/types/*"
+            ]
+        },
+        "moduleResolution": "node",
+        "outDir": "./"
     },
     "include": [
         "./"

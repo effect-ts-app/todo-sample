@@ -23,11 +23,7 @@
                 "./*"
             ]
         },
-        "outDir": "./",
-        "sourceMap": false,
-        "rootDir": "../../",
-        "noEmit": false,
-        "incremental": false
+        "outDir": "./"
     },
     "include": [
         "./"

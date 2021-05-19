@@ -9,9 +9,10 @@ import { TodoContext } from "@/services"
 
 export default handle(Tasks.GetMe)((_) =>
   T.gen(function* ($) {
-    const user = yield* $(TodoContext.getLoggedInUser)
+    const { Lists } = yield* $(TodoContext.TodoContext)
 
-    const allLists = yield* $(TodoContext.allLists(user.id))
+    const user = yield* $(TodoContext.getLoggedInUser)
+    const allLists = yield* $(Lists.all(user.id))
     const groups = CNK.filterMap_(allLists, (l) =>
       TaskListGroup.Guard(l) ? O.some(l) : O.none
     )

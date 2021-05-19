@@ -1,12 +1,10 @@
 {
     "extends": "../../tsconfig.base.json",
     "compilerOptions": {
+        "moduleResolution": "node",
         "paths": {},
         "outDir": "./",
-        "sourceMap": false,
-        "rootDir": "./",
-        "noEmit": false,
-        "incremental": false
+        "noEmit": false
     },
     "include": [
         "./"

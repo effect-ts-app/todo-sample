@@ -1,21 +1,22 @@
 import { handle } from "@effect-ts-app/infra/app"
-import { UserSVC } from "@effect-ts-app/infra/services"
 import { Tasks } from "@effect-ts-demo/todo-client"
 import { User } from "@effect-ts-demo/todo-types"
 import * as T from "@effect-ts/core/Effect"
 
-import { authorizeTask } from "@/access"
-import { TodoContext } from "@/services"
+import { TodoContext, UserSVC } from "@/services"
+
+import { TaskAuth } from "./access"
 
 export default handle(Tasks.Update)(({ id, myDay, ..._ }) =>
   T.gen(function* ($) {
-    const user = yield* $(UserSVC.UserEnv)
-    const taskLists = yield* $(TodoContext.allTaskLists(user.id))
+    const { Lists, Tasks, Users } = yield* $(TodoContext.TodoContext)
 
+    const user = yield* $(UserSVC.UserEnv)
+    const taskLists = yield* $(Lists.allLists(user.id))
     const task = yield* $(
-      TodoContext.updateM(
+      Tasks.updateM(
         id,
-        authorizeTask(taskLists).authorize(user.id, (tl) => ({
+        TaskAuth(taskLists).access(user.id, (tl) => ({
           ...tl,
           ..._,
           updatedAt: new Date(),
@@ -23,7 +24,7 @@ export default handle(Tasks.Update)(({ id, myDay, ..._ }) =>
       )
     )
     if (myDay) {
-      yield* $(TodoContext.updateUser(user.id, User.toggleMyDay(task, myDay)))
+      yield* $(Users.update(user.id, User.toggleMyDay(task, myDay)))
     }
   })
 )

@@ -2,11 +2,13 @@
     "extends": "../../tsconfig.base.json",
     "compilerOptions": {
         "baseUrl": "./",
-        "outDir": "./",
-        "sourceMap": false,
-        "rootDir": "../../",
-        "noEmit": false,
-        "incremental": false
+        "paths": {
+            "@effect-ts-app/core/*": [
+                "packages/core/*"
+            ]
+        },
+        "moduleResolution": "node",
+        "outDir": "./"
     },
     "include": [
         "./"

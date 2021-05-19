@@ -19,6 +19,4 @@ export default class CreateTask extends Post("/tasks")<CreateTask>()({
   myDay: prop(nullable(date)),
 }) {}
 
-//export class NotMe {}
-
 export class Response extends Model<Response>()({ id: prop(TaskId) }) {}

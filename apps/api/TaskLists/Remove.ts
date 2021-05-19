@@ -1,18 +1,18 @@
 import { handle } from "@effect-ts-app/infra/app"
-import { UserSVC } from "@effect-ts-app/infra/services"
 import { TaskLists } from "@effect-ts-demo/todo-client"
 import * as T from "@effect-ts/core/Effect"
 
-import { authorizeList } from "@/access"
-import { TodoContext } from "@/services"
+import { TodoContext, UserSVC } from "@/services"
+
+import { ListAuth } from "./access"
 
 export default handle(TaskLists.Remove)((_) =>
   T.gen(function* ($) {
-    const user = yield* $(UserSVC.UserEnv)
-    const list = yield* $(TodoContext.getList(_.id))
+    const { Lists } = yield* $(TodoContext.TodoContext)
 
-    return yield* $(
-      authorizeList.authorizeM_(list, user.id, (tl) => TodoContext.removeList(tl.id))
-    )
+    const user = yield* $(UserSVC.UserEnv)
+    const list = yield* $(Lists.get(_.id))
+
+    return yield* $(ListAuth.accessM_(list, user.id, (tl) => Lists.remove(tl.id)))
   })
 )

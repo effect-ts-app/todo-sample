@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { flow } from "@effect-ts-app/core/ext/Function"
 import * as S from "@effect-ts-app/core/ext/Schema"
 import * as T from "@effect-ts/core/Effect"
@@ -45,7 +46,7 @@ type Extr<T> = T extends { Model: S.SchemaAny }
   ? T
   : never
 
-export function authorizeM_<T, UserId, Err>(
+export function accessM_<T, UserId, Err>(
   canAccess: (rsc: T, userId: UserId) => boolean,
   bad: (rsc: T, userId: UserId) => Err
 ) {
@@ -61,16 +62,16 @@ export function authorizeM_<T, UserId, Err>(
   }
 }
 
-export function authorize_<T, UserId, Err>(
+export function access_<T, UserId, Err>(
   canAccess: (rsc: T, userId: UserId) => boolean,
   bad: (rsc: T, userId: UserId) => Err
 ) {
-  const auth = authorizeM_(canAccess, bad)
+  const auth = accessM_(canAccess, bad)
   return <A>(rsc: T, userId: UserId, ok: (rsc: T) => A) =>
     auth(rsc, userId, flow(ok, T.succeed))
 }
 
-export function authorizeM<T, UserId, Err>(
+export function accessM<T, UserId, Err>(
   canAccess: (rsc: T, userId: UserId) => boolean,
   bad: (rsc: T, userId: UserId) => Err
 ) {
@@ -83,11 +84,11 @@ export function authorizeM<T, UserId, Err>(
     }
 }
 
-export function authorize<T, UserId, Err>(
+export function access<T, UserId, Err>(
   canAccess: (rsc: T, userId: UserId) => boolean,
   bad: (rsc: T, userId: UserId) => Err
 ) {
-  const auth = authorizeM(canAccess, bad)
+  const auth = accessM(canAccess, bad)
   return <A>(userId: UserId, ok: (rsc: T) => A) => auth(userId, flow(ok, T.succeed))
 }
 
@@ -97,14 +98,26 @@ export function makeAuthorize<T, UserId>(
   getId: (t: T) => string | number
 ) {
   return {
-    authorize_: authorize_(canAccess, () => new UnauthorizedError()),
-    authorize: authorize(canAccess, () => new UnauthorizedError()),
-    authorizeM_: authorizeM_(canAccess, () => new UnauthorizedError()),
-    authorizeM: authorizeM(canAccess, () => new UnauthorizedError()),
+    access_: access_(canAccess, () => new UnauthorizedError()),
+    access: access(canAccess, () => new UnauthorizedError()),
+    accessM_: accessM_(canAccess, () => new UnauthorizedError()),
+    accessM: accessM(canAccess, () => new UnauthorizedError()),
 
-    hide_: authorize_(canAccess, (r) => new NotFoundError(type, getId(r).toString())),
-    hide: authorize(canAccess, (r) => new NotFoundError(type, getId(r).toString())),
-    hideM_: authorizeM_(canAccess, (r) => new NotFoundError(type, getId(r).toString())),
-    hideM: authorizeM(canAccess, (r) => new NotFoundError(type, getId(r).toString())),
+    accessOrHide_: access_(
+      canAccess,
+      (r) => new NotFoundError(type, getId(r).toString())
+    ),
+    accessOrHide: access(
+      canAccess,
+      (r) => new NotFoundError(type, getId(r).toString())
+    ),
+    accessOrHideM_: accessM_(
+      canAccess,
+      (r) => new NotFoundError(type, getId(r).toString())
+    ),
+    accessOrHideM: accessM(
+      canAccess,
+      (r) => new NotFoundError(type, getId(r).toString())
+    ),
   }
 }

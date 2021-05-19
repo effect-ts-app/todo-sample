@@ -10,7 +10,7 @@ import { TodoContext } from "@/services"
 export default handle(Tasks.All)((_) =>
   T.gen(function* ($) {
     const user = yield* $(TodoContext.getLoggedInUser)
-    const tasks = yield* $(TodoContext.all(user.id))
+    const tasks = yield* $(TodoContext.allTasks(user.id))
 
     const items = CNK.map_(tasks, (t) => ({
       ...t,

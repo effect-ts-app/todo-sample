@@ -230,19 +230,65 @@ function defProp<Self extends S.SchemaUPI>(
   return S.prop(schema).def(makeDefault, "constructor")
 }
 
-export function defaultProp<ParsedShape>(
-  schema: S.Schema<unknown, S.AnyError, ParsedShape, any, S.AnyError, any, any>,
+export function defaultProp<
+  ParserError extends S.AnyError,
+  ParsedShape,
+  ConstructorInput,
+  ConstructorError extends S.AnyError,
+  Encoded,
+  Api
+>(
+  schema: S.Schema<
+    unknown,
+    ParserError,
+    ParsedShape,
+    ConstructorInput,
+    ConstructorError,
+    Encoded,
+    Api
+  >,
   makeDefault: () => ParsedShape
 ): S.Property<
-  S.Schema<unknown, S.AnyError, ParsedShape, any, S.AnyError, any, any>,
+  S.Schema<
+    unknown,
+    ParserError,
+    ParsedShape,
+    ConstructorInput,
+    ConstructorError,
+    Encoded,
+    Api
+  >,
   "required",
   O.None,
   O.Some<["constructor", () => ParsedShape]>
 >
-export function defaultProp<ParsedShape extends SupportedDefaults>(
-  schema: S.Schema<unknown, S.AnyError, ParsedShape, any, S.AnyError, any, any>
+export function defaultProp<
+  ParserError extends S.AnyError,
+  ParsedShape extends SupportedDefaults,
+  ConstructorInput,
+  ConstructorError extends S.AnyError,
+  Encoded,
+  Api
+>(
+  schema: S.Schema<
+    unknown,
+    ParserError,
+    ParsedShape,
+    ConstructorInput,
+    ConstructorError,
+    Encoded,
+    Api
+  >
 ): S.Property<
-  S.Schema<unknown, S.AnyError, ParsedShape, any, S.AnyError, any, any>,
+  S.Schema<
+    unknown,
+    ParserError,
+    ParsedShape,
+    ConstructorInput,
+    ConstructorError,
+    Encoded,
+    Api
+  >,
   "required",
   O.None,
   O.Some<["constructor", () => ParsedShape]>

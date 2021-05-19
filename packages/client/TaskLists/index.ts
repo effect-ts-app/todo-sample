@@ -3,4 +3,4 @@ import { clientFor } from "../clientFor"
 
 import * as Ts from "./_index"
 
-export const { remove, update, updateGroup, updateOrder } = clientFor(Ts)
+export const { createTask, remove, update, updateGroup, updateOrder } = clientFor(Ts)

@@ -29,21 +29,21 @@ export default handle({ Request, Response })(
 // (Request) => T.Effect<Has<UserEnv> & Has<TodoContext.TodoContext>, NotFoundError | UnauthorizedError | NotLoggedInError, Response>
 ({ myDay, ..._ }) =>
   T.gen(function* ($) {
-    const user = yield* $(getLoggedInUser)
+    const { Lists, Tasks, Users } = yield* $(TodoContext.TodoContext)
+
+    const user = yield* $(TodoContext.getLoggedInUser)
 
     if (_.listId !== "inbox") {
-      const list = yield* $(TodoContext.getTaskList(_.listId))
-      yield* $(authorizeTaskList.authorize_(list, user.id, identity))
+      const list = yield* $(Lists.getList(_.listId))
+      yield* $(TaskListAuth.access_(list, user.id, identity))
     }
 
     const task = User.createTask_(user, _)
-    yield* $(TodoContext.add(task))
+    yield* $(Tasks.add(task))
     yield* $(
       pipe(
         EO.fromOption(myDay),
-        EO.chainEffect((date) =>
-          TodoContext.updateUser(user.id, User.addToMyDay(task, date))
-        )
+        EO.chainEffect((date) => Users.update(user.id, User.addToMyDay(task, date)))
       )
     )
 
