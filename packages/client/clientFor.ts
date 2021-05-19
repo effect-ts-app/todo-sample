@@ -86,5 +86,5 @@ type RequestHandlers<R, E, M extends Requests> = {
     M[K]
   >[S.schemaField]["Api"]["props"] extends never
     ? T.Effect<R, E, Extr<M[K]["Response"]>>
-    : (req: InstanceType<S.GetRequest<M[K]>>) => T.Effect<R, E, Extr<M[K]["Response"]>> // TODO
+    : (req: InstanceType<S.GetRequest<M[K]>>) => T.Effect<R, E, Extr<M[K]["Response"]>>
 }

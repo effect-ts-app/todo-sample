@@ -737,32 +737,73 @@ export function ReqProps<M>() {
   return a
 }
 
-export const Delete = MethodReqProps2("DELETE")
-export const Put = MethodReqProps2("PUT")
-export const Get = MethodReqProps2("GET")
-export const Patch = MethodReqProps2("PATCH")
-export const Post = MethodReqProps2("POST")
+/**
+ * DELETE http method.
+ * Input parameters other than Path, will be sent as QueryString.
+ * Path parameters (specified with `:param_name`) must be present in the provided Schema.
+ */
+export function Delete<Path extends string>(path: Path) {
+  return MethodReqProps2_("DELETE", path)
+}
+/**
+ * PUT http method.
+ * Input parameters other than Path, will be sent as Body.
+ * Path parameters (specified with `:param_name`) must be present in the provided Schema.
+ */
+export function Put<Path extends string>(path: Path) {
+  return MethodReqProps2_("PUT", path)
+}
+/**
+ * GET http method.
+ * Input parameters other than Path, will be sent as QueryString.
+ * Path parameters (specified with `:param_name`) must be present in the provided Schema.
+ */
+export function Get<Path extends string>(path: Path) {
+  return MethodReqProps2_("GET", path)
+}
+/**
+ * PATCH http method.
+ * Input parameters other than Path, will be sent as Body.
+ * Path parameters (specified with `:param_name`) must be present in the provided Schema.
+ */
+export function Patch<Path extends string>(path: Path) {
+  return MethodReqProps2_("PATCH", path)
+}
+/**
+ * POST http method.
+ * Input parameters other than Path, will be sent as Body.
+ * Path parameters (specified with `:param_name`) must be present in the provided Schema.
+ */
+export function Post<Path extends string>(path: Path) {
+  return MethodReqProps2_("POST", path)
+}
 
 export function MethodReqProps2<Method extends Methods>(method: Method) {
-  return <Path extends string>(path: Path) =>
-    <M>() => {
-      function a<Props extends S.PropertyRecord = {}>(): BuildRequest<
-        Props,
-        Path,
-        Method,
-        M
-      >
-      function a<Props extends S.PropertyRecord>(
-        props: Props
-      ): BuildRequest<Props, Path, Method, M>
-      function a<Props extends S.PropertyRecord>(props?: Props) {
-        const req = Req<M>()
-        const r = props ? req(method, path, S.props(props)) : req(method, path)
-        return r
-      }
+  return <Path extends string>(path: Path) => MethodReqProps2_(method, path)
+}
 
-      return a
+export function MethodReqProps2_<Method extends Methods, Path extends string>(
+  method: Method,
+  path: Path
+) {
+  return <M>() => {
+    function a<Props extends S.PropertyRecord = {}>(): BuildRequest<
+      Props,
+      Path,
+      Method,
+      M
+    >
+    function a<Props extends S.PropertyRecord>(
+      props: Props
+    ): BuildRequest<Props, Path, Method, M>
+    function a<Props extends S.PropertyRecord>(props?: Props) {
+      const req = Req<M>()
+      const r = props ? req(method, path, S.props(props)) : req(method, path)
+      return r
     }
+
+    return a
+  }
 }
 
 export function MethodReqProps<Method extends Methods>(method: Method) {
