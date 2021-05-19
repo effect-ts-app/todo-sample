@@ -15,7 +15,8 @@
             ]
         },
         "moduleResolution": "node",
-        "outDir": "./"
+        "outDir": "./",
+        "noEmit": true
     },
     "include": [
         "./"
