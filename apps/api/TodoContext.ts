@@ -242,6 +242,8 @@ function makeTaskContext(tasks: Task[]) {
   })
 }
 
+// TODO: Consider ListsOrGroups + Lists, Groups
+
 const makeMockTodoContext = T.gen(function* ($) {
   const testData = yield* $(T.tryCatch(makeTestDataUnsafe, identity))
 

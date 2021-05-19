@@ -1,11 +1,10 @@
-import { DSL } from "@effect-ts/core"
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { DSL } from "@effect-ts/core"
 import * as OptionT from "@effect-ts/core/OptionT"
 import * as P from "@effect-ts/core/Prelude"
 import { intersect } from "@effect-ts/core/Utils"
 import * as Utils from "@effect-ts/core/Utils"
 import { _A, _E, _R } from "@effect-ts/system/Effect/commons"
-import { fail } from "@effect-ts/system/Effect/fail"
 import { fromEither } from "@effect-ts/system/Effect/fromEither"
 import { service } from "@effect-ts/system/Effect/has"
 
@@ -197,14 +196,14 @@ export class GenEffect<R, E, A> {
   }
 }
 
-function adapter(_: any, __?: any, ___?: any) {
+function adapter(_: any, __?: any) {
   if (Utils.isEither(_)) {
     return new GenEffect(fromEither(() => _)["|>"](fromEffect), __)
   }
   if (Utils.isOption(_)) {
-    if (__ && typeof __ === "function") {
-      return new GenEffect(_._tag === "None" ? fail(__()) : succeed(_.value), ___)
-    }
+    // if (__ && typeof __ === "function") {
+    //   return new GenEffect(_._tag === "None" ? fail(__()) : succeed(_.value), ___)
+    // }
     return new GenEffect(fromOption(_), __)
   }
   if (Utils.isTag(_)) {

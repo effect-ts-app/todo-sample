@@ -8,6 +8,8 @@ import {
   accessService,
   accessServiceM,
   mapError,
+  succeedWith,
+  chain_,
 } from "@effect-ts/core/Sync"
 
 export type ShapeFn<T> = Pick<
@@ -99,5 +101,12 @@ export function deriveLifted<T>(
 export const orDie = mapError((err) => {
   throw err
 })
+
+/**
+ * Lifts an `Either` into a `Sync` value.
+ */
+export function fromEither<E, A>(f: () => E.Either<E, A>) {
+  return chain_(succeedWith(f), E.fold(fail, succeed))
+}
 
 export * from "@effect-ts/core/Sync"
