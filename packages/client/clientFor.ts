@@ -2,6 +2,7 @@
 
 import { flow, pipe } from "@effect-ts-app/core/ext/Function"
 import * as S from "@effect-ts-app/core/ext/Schema"
+import { ParsedShapeOf } from "@effect-ts-app/core/ext/Schema"
 import * as utils from "@effect-ts-app/core/ext/utils"
 import { typedKeysOf } from "@effect-ts-app/core/ext/utils"
 import * as H from "@effect-ts-app/core/http/http-client"
@@ -71,29 +72,19 @@ export function clientFor<M extends Requests>(models: M) {
   }, {} as RequestHandlers<Has<ApiConfig> & Has<H.Http>, FetchError | ResponseError, M>)
 }
 
-type DefaultVoid<T> = T extends Record<any, any> ? T : S.Void
-
 type Extr<T> = T extends { Model: S.SchemaAny }
-  ? T["Model"]
+  ? ParsedShapeOf<T["Model"]>
   : T extends S.SchemaAny
-  ? T
+  ? ParsedShapeOf<T>
+  : T extends unknown
+  ? S.Void
   : never
-
-type RT<T extends (...args: any) => any> = T extends (...args: any) => infer R
-  ? R
-  : unknown
-
-export type ParsedShapeOf<X extends S.Schema<any, any, any, any, any, any, any>> = RT<
-  X["_ParsedShape"]
->
 
 type RequestHandlers<R, E, M extends Requests> = {
   // TOdo; expose a ClientShape joining Path etc?
   [K in keyof M & string as Uncapitalize<K>]: keyof S.GetRequest<
     M[K]
   >[S.schemaField]["Api"]["props"] extends never
-    ? T.Effect<R, E, DefaultVoid<ParsedShapeOf<Extr<M[K]["Response"]>>>>
-    : (
-        req: InstanceType<S.GetRequest<M[K]>>
-      ) => T.Effect<R, E, DefaultVoid<ParsedShapeOf<Extr<M[K]["Response"]>>>> // TODO
+    ? T.Effect<R, E, Extr<M[K]["Response"]>>
+    : (req: InstanceType<S.GetRequest<M[K]>>) => T.Effect<R, E, Extr<M[K]["Response"]>> // TODO
 }
