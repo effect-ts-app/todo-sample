@@ -12,8 +12,9 @@ import {
   reasonableString,
 } from "@effect-ts-app/core/ext/Schema"
 
-import { User } from "./User"
 import { TaskId, TaskListId, UserId } from "./ids"
+
+import type { User } from "./User"
 
 @namedC()
 export class Membership extends Model<Membership>()({
