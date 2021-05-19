@@ -1,6 +1,5 @@
 export * as Create from "./Create"
 export * as Remove from "./Remove"
 export * as Find from "./Find"
-export * as GetMe from "./GetMe"
 export * as All from "./All"
 export * as Update from "./Update"

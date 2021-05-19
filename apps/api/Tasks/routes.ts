@@ -6,12 +6,10 @@ import * as T from "@effect-ts/core/Effect"
 import All from "./All"
 import Create from "./Create"
 import Find from "./Find"
-import GetMe from "./GetMe"
 import Remove from "./Remove"
 import Update from "./Update"
 
 export const routes = T.tuple(
-  R.match(GetMe, demandLoggedIn),
   R.match(All, demandLoggedIn),
   R.match(Create, demandLoggedIn),
   R.match(Find, demandLoggedIn),

@@ -6,6 +6,10 @@
   },
   "tags": [
     {
+      "name": "Me",
+      "description": "Everything Logged In User related"
+    },
+    {
       "name": "Tasks",
       "description": "Everything Tasks related"
     },
@@ -22,7 +26,7 @@
     "/me": {
       "get": {
         "tags": [
-          "Tasks"
+          "Me"
         ],
         "operationId": "GetMe",
         "parameters": [],

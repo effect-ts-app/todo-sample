@@ -42,7 +42,7 @@ import { TodoClient, Todo } from "@/index"
 //   ] as const
 // }
 
-const fetchMe = constant(TodoClient.Tasks.getMe)
+const fetchMe = constant(TodoClient.Me.index)
 
 export function useMe() {
   const { runWithErrorLog } = useServiceContext()
@@ -133,7 +133,7 @@ export function useModifyTasks() {
 }
 
 export function useModifyMe() {
-  return useModify<TodoClient.Tasks.GetMe.Response>("me")
+  return useModify<TodoClient.Me.Index.Response>("me")
 }
 
 // export function useReorder() {

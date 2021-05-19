@@ -23,6 +23,10 @@ export function writeOpenapiDocs(rdescs: Iterable<RouteDescriptorAny>) {
       // TODO: Export tags as part of modules?
       tags: [
         {
+          name: "Me",
+          description: "Everything Logged In User related",
+        },
+        {
           name: "Tasks",
           description: "Everything Tasks related",
         },

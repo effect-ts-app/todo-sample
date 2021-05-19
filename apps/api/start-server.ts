@@ -5,6 +5,7 @@ import { pipe } from "@effect-ts/core/Function"
 import * as Ex from "@effect-ts/express"
 import * as N from "@effect-ts/node/Runtime"
 
+import { routes as meRoutes } from "./Me/routes"
 import { routes as taskListRoutes } from "./TaskLists/routes"
 import { routes as taskRoutes } from "./Tasks/routes"
 import { MockTodoContext } from "./TodoContext"
@@ -16,6 +17,7 @@ const program = pipe(
   middlewares,
   T.zipRight(
     T.tuple(
+      meRoutes["|>"](T.map((x) => x as A.Array<RouteDescriptorAny>)),
       taskRoutes["|>"](T.map((x) => x as A.Array<RouteDescriptorAny>)),
       taskListRoutes["|>"](T.map((x) => x as A.Array<RouteDescriptorAny>))
     )

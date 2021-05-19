@@ -1,5 +1,5 @@
 import { handle } from "@effect-ts-app/infra/app"
-import { Tasks } from "@effect-ts-demo/todo-client"
+import { Me } from "@effect-ts-demo/todo-client"
 import { TaskListGroup, TaskListOrGroup } from "@effect-ts-demo/todo-types"
 import * as CNK from "@effect-ts/core/Collections/Immutable/Chunk"
 import * as T from "@effect-ts/core/Effect"
@@ -7,7 +7,7 @@ import * as O from "@effect-ts/core/Option"
 
 import { TodoContext } from "@/services"
 
-export default handle(Tasks.GetMe)((_) =>
+export default handle(Me.Index)((_) =>
   T.gen(function* ($) {
     const { Lists } = yield* $(TodoContext.TodoContext)
 
@@ -21,7 +21,7 @@ export default handle(Tasks.GetMe)((_) =>
       TaskListOrGroup.Api.matchW({
         TaskListGroup: (g) => g,
         TaskList: (l) =>
-          new Tasks.GetMe.TaskListEntry({
+          new Me.Index.TaskListEntry({
             ...l,
             parentListId: CNK.find_(groups, (g) => g.lists.includes(l.id))["|>"](
               O.map((x) => x.id)
