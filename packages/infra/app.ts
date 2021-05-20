@@ -8,7 +8,7 @@ import { UnauthorizedError, NotFoundError } from "./errors"
 export function handle<
   TModule extends Record<
     string,
-    { Model: S.SchemaAny; new (...args: any[]): any } | S.SchemaAny
+    any //{ Model: S.SchemaAny; new (...args: any[]): any } | S.SchemaAny
   >,
   TRes extends { Model: S.SchemaAny } | S.SchemaAny = typeof S.Void
 >(
