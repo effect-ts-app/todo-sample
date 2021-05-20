@@ -19,44 +19,6 @@ import {
   UnauthorizedError,
   ValidationError,
 } from "../../errors"
-import { UserSVC } from "../../services"
-
-// TODO
-const { AUTH_DISABLED: PROVIDED_AUTH_DISABLED = "false" } = process.env
-const AUTH_DISABLED = PROVIDED_AUTH_DISABLED === "true"
-
-export function demandLoggedIn<
-  R,
-  PathA,
-  CookieA,
-  QueryA,
-  BodyA,
-  HeaderA,
-  ReqA extends PathA & QueryA & BodyA,
-  ResA = void
->(handler: RequestHandler<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA>) {
-  return {
-    handler,
-    // handler: {
-    //   ...handler,
-    //   Request: class extends handler.Request {
-    //     static Headers = (handler.Request.Headers
-    //       ? handler.Request.Headers["|>"](S.intersect(AuthHeaders))
-    //       : AuthHeaders) as S.ReqRes<
-    //       Record<string, string>,
-    //       HeaderA & S.ParsedShapeOf<typeof AuthHeaders>
-    //     >
-    //   },
-    // },
-    handle: (req: express.Request) =>
-      pipe(
-        AUTH_DISABLED
-          ? UserSVC.LiveUserEnvFromUserHeader(req.headers["x-user"])
-          : UserSVC.LiveUserEnvFromAuthorizationHeader(req.headers["authorization"]),
-        L.mapError(() => new NotLoggedInError())
-      ),
-  }
-}
 
 export type Request<
   PathA,

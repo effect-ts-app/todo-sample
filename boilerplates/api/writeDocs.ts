@@ -34,10 +34,10 @@ export function writeOpenapiDocs(rdescs: Iterable<RouteDescriptorAny>) {
         { name: "Groups", description: "Everything about the Task List Group" },
       ],
     })),
-    T.tap((_) =>
+    T.chain((_) =>
       writeTextFile("./openapi.json", JSON.stringify(_, undefined, 2))["|>"](T.orDie)
     ),
-    T.tap(() =>
+    T.chain(() =>
       T.succeedWith(() => console.log("OpenAPI spec written to './openapi.json'"))
     )
   )

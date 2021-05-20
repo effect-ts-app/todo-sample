@@ -1,7 +1,6 @@
 import * as T from "@effect-ts-app/core/ext/Effect"
 import * as EO from "@effect-ts-app/core/ext/EffectOption"
 import { makeCodec } from "@effect-ts-app/infra/context/schema"
-import { UserSVC } from "@effect-ts-app/infra/services"
 import {
   Task,
   TaskListOrGroup,
@@ -26,6 +25,7 @@ import * as TasksAccess from "@/Tasks/_access"
 import { NotFoundError, NotLoggedInError } from "@/errors"
 
 import { makeTestDataUnsafe } from "./TodoContext.testdata"
+import * as UserSVC from "./User"
 
 const [decodeUser, encodeUser, encodeUsersToMap] = makeCodec(User.Model)
 const [decodeTask, encodeTask, encodeTasksToMap] = makeCodec(Task.Model)

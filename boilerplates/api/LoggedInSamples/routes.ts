@@ -1,4 +1,4 @@
-import { demandLoggedIn } from "@effect-ts-app/infra/express/schema/requestHandler"
+import { demandLoggedIn } from "@/middleware"
 import * as R from "@effect-ts-app/infra/express/schema/routing"
 import * as T from "@effect-ts/core/Effect"
 

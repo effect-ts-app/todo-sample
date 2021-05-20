@@ -1,7 +1,8 @@
-import { demandLoggedIn } from "@effect-ts-app/infra/express/schema/requestHandler"
 import * as R from "@effect-ts-app/infra/express/schema/routing"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as T from "@effect-ts/core/Effect"
+
+import { demandLoggedIn } from "@/middleware"
 
 import AddMember from "./Members/Add"
 import RemoveMember from "./Members/Remove"
