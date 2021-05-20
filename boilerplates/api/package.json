@@ -5,8 +5,8 @@
     "license": "MIT",
     "private": true,
     "dependencies": {
-        "@effect-ts-app/core": "^0.9.3",
-        "@effect-ts-app/infra": "^0.9.3",
+        "@effect-ts-app/core": "^0.9.4",
+        "@effect-ts-app/infra": "^0.9.4",
         "@effect-ts/core": "^0.39.3",
         "@effect-ts/express": "^0.19.0",
         "@effect-ts/monocle": "^0.32.0",

@@ -404,23 +404,27 @@
     enabled "2.0.x"
     kuler "^2.0.0"
 
-"@effect-ts-app/core@^0.9.3":
-  version "0.9.3"
-  resolved "https://registry.yarnpkg.com/@effect-ts-app/core/-/core-0.9.3.tgz#f5dd0b87abd1a835303b0832469188b654ebb2f2"
-  integrity sha512-PjwXwlLQszF0uPViTPF6kbyABTlP5IWEADVBK7Jk5fttSyClmpNKWrzTqwV1U8ehnqjjg/GB4y68Q3zobF8/qg==
+"@effect-ts-app/core@^0.9.4":
+  version "0.9.4"
+  resolved "https://registry.yarnpkg.com/@effect-ts-app/core/-/core-0.9.4.tgz#4f25709f6260f70e5c3c2858d58d853bf9f51c90"
+  integrity sha512-vPX9g8YD0QUSx5znj+Tw7pwb0U38C4Gjng+vV/I6rebhgfm242GZDDvEktWMiAEhK5cBAliC3e/I9OseIOkBZA==
   dependencies:
+    "@effect-ts/core" "^0.39.3"
+    "@effect-ts/monocle" "^0.32.0"
+    "@effect-ts/schema" "^0.7.3"
     abort-controller "^3.0.0"
     short-uuid "^4.2.0"
     uuid "^8.3.2"
     validator "^13.6.0"
 
-"@effect-ts-app/infra@^0.9.3":
-  version "0.9.3"
-  resolved "https://registry.yarnpkg.com/@effect-ts-app/infra/-/infra-0.9.3.tgz#e9e6f3e16d54f85ae22cdd27d1fff5788af4c7bb"
-  integrity sha512-WPlmRBcuhOI7MJfhOEDnvrm+m/dgKWsakCIarik9hoYlUr2Wv3azRPnendi3UZNB4pdtvRaZaH+47cUSzhjZgA==
+"@effect-ts-app/infra@^0.9.4":
+  version "0.9.4"
+  resolved "https://registry.yarnpkg.com/@effect-ts-app/infra/-/infra-0.9.4.tgz#326e95fadbd5630ce080b8b3cf4702ba2bca8b1c"
+  integrity sha512-k74yW+ijzlbzJnG3RU7vttFo5ByrIj2aRCEUgDoOe9+LX9a6HL0JNKmTv9H/fReVIl2fpmTflw5YWA42mFrWNw==
   dependencies:
-    "@effect-ts-app/core" "^0.9.3"
-    mongodb "^3.6.6"
+    "@effect-ts-app/core" "^0.9.4"
+    "@effect-ts/morphic" "^0.35.0"
+    mongodb "^3.6.7"
     proper-lockfile "^4.1.2"
     query-string "^7.0.0"
     redis "^3.1.2"
@@ -448,6 +452,11 @@
   version "0.32.0"
   resolved "https://registry.yarnpkg.com/@effect-ts/monocle/-/monocle-0.32.0.tgz#7ce32c3567b3d7c8fa0e441f5247060eb0819446"
   integrity sha512-PfJw+RYh2mwUvGyggGb8Fx2wjcc7S8PIG1Cybf/3CGFgZXqKBYCibz51ijsss6uDkdmlb+twOTfCQ2CNonuEGw==
+
+"@effect-ts/morphic@^0.35.0":
+  version "0.35.0"
+  resolved "https://registry.yarnpkg.com/@effect-ts/morphic/-/morphic-0.35.0.tgz#a4e34b7257b8bfe6b55de4a35293da235ba5b417"
+  integrity sha512-ha458TQZg9k98403MD3cOZDsT4kI8JjV+RaZJMELj+cvgal0EmuBMBxgUgfd5tm6IWpVImKzAcQwKttaq7zE8Q==
 
 "@effect-ts/node@^0.24.0":
   version "0.24.0"
@@ -7019,15 +7028,15 @@ module-lookup-amd@^7.0.0:
     requirejs "^2.3.5"
     requirejs-config-file "^4.0.0"
 
-mongodb@^3.6.6:
-  version "3.6.6"
-  resolved "https://registry.yarnpkg.com/mongodb/-/mongodb-3.6.6.tgz#92e3658f45424c34add3003e3046c1535c534449"
-  integrity sha512-WlirMiuV1UPbej5JeCMqE93JRfZ/ZzqE7nJTwP85XzjAF4rRSeq2bGCb1cjfoHLOF06+HxADaPGqT0g3SbVT1w==
+mongodb@^3.6.7:
+  version "3.6.7"
+  resolved "https://registry.yarnpkg.com/mongodb/-/mongodb-3.6.7.tgz#cea14a4fdca653f689c7831a3dcad4c97dedb81b"
+  integrity sha512-VXW2bWz47LhAEw0qs8Mk2zRgQwgbXH16KAwQFtylBu0zXO8rkQmA8ncsYbmICaVutZeINRlXYXG3MDIz90NM3g==
   dependencies:
     bl "^2.2.1"
     bson "^1.1.4"
     denque "^1.4.1"
-    optional-require "^1.0.2"
+    optional-require "^1.0.3"
     safe-buffer "^5.1.2"
   optionalDependencies:
     saslprep "^1.0.0"
@@ -7600,7 +7609,7 @@ openapi-sampler@^1.0.0-beta.18:
   dependencies:
     json-pointer "^0.6.0"
 
-optional-require@^1.0.2:
+optional-require@^1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/optional-require/-/optional-require-1.0.3.tgz#275b8e9df1dc6a17ad155369c2422a440f89cb07"
   integrity sha512-RV2Zp2MY2aeYK5G+B/Sps8lW5NHAzE5QClbFP15j+PWmP+T9PxlJXBOOLoSAdgwFvS4t0aMR4vpedMkbHfh0nA==

@@ -21,18 +21,7 @@ export function writeOpenapiDocs(rdescs: Iterable<RouteDescriptorAny>) {
     T.map((_) => ({
       ..._,
       // TODO: Export tags as part of modules?
-      tags: [
-        {
-          name: "Me",
-          description: "Everything Logged In User related",
-        },
-        {
-          name: "Tasks",
-          description: "Everything Tasks related",
-        },
-        { name: "Lists", description: "Everything about the Task Lists" },
-        { name: "Groups", description: "Everything about the Task List Group" },
-      ],
+      tags: [],
     })),
     T.chain((_) =>
       writeTextFile("./openapi.json", JSON.stringify(_, undefined, 2))["|>"](T.orDie)
