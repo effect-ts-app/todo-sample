@@ -75,6 +75,7 @@ export function openapi<ParsedShape>(f: () => JSONSchema) {
     ConstructorError,
     Encoded,
     Api
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   > => new SchemaOpenApi(self, f) as any
 }
 

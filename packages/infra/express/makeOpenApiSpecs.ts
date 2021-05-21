@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as T from "@effect-ts/core/Effect"
 import { makeRef } from "@effect-ts/core/Effect/Ref"
 
@@ -28,6 +29,7 @@ export function makeOpenApiSpecs(
     const components = { securitySchemes, schemas, parameters: parameterRefs }
 
     for (const entry of refs.entries()) {
+      // eslint-disable-next-line prefer-destructuring
       schemas[entry[0]] = entry[1]
     }
 

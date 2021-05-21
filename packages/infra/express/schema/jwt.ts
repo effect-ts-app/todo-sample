@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/ban-types */
 import { pipe } from "@effect-ts-app/core/ext/Function"
 import * as S from "@effect-ts-app/core/ext/Schema"
 import { These as Th } from "@effect-ts-app/core/ext/Schema"

@@ -342,7 +342,9 @@ export function makeFromSchema<ResA>(
       return a["|>"](O.chain((o) => (isObjectSchema(o) ? O.some(o) : O.none)))
         ["|>"](
           O.map((x) => {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             return Object.keys(x.properties!).map((p) => {
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               const schema = x.properties![p]
               const required = Boolean(x.required?.includes(p))
               return { name: p, in: inn, required, schema }
