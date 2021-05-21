@@ -17,6 +17,7 @@ import {
   Index,
 } from "./shared"
 import * as simpledb from "./simpledb"
+import { Version } from "./simpledb"
 
 export function createContext<TKey extends string, EA, A extends DBRecord<TKey>>() {
   return <REncode, RDecode, EDecode>(
@@ -40,7 +41,9 @@ export function createContext<TKey extends string, EA, A extends DBRecord<TKey>>
       save: simpledb.store(find(type), store, lockRecordOnDisk(type), type),
     }
 
-    function store(record: A, version: number) {
+    function store(record: A, currentVersion: Version) {
+      const isNew = currentVersion === ""
+      const version = isNew ? "1" : (parseInt(currentVersion) + 1).toString()
       const getData = flow(
         encode,
         T.map((data) =>
@@ -49,7 +52,7 @@ export function createContext<TKey extends string, EA, A extends DBRecord<TKey>>
       )
 
       const idx = makeIndexKey(record)
-      return version === 1
+      return isNew
         ? pipe(
             M.use_(lockIndex(record), () =>
               pipe(

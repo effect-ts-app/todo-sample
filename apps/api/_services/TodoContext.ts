@@ -285,7 +285,7 @@ export const allTasks = (userId: UserId) =>
   })
 
 export const getLoggedInUser = T.gen(function* ($) {
-  const user = yield* $(UserSVC.UserEnv)
+  const user = yield* $(UserSVC.UserProfile)
   const { get } = yield* $(Users)
   return yield* $(
     pipe(

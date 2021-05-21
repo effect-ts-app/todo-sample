@@ -14,7 +14,7 @@ const order = TaskList.lens["|>"](Lens.prop("order"))
 export default handle(TaskLists.UpdateOrder)((_) =>
   T.gen(function* ($) {
     const { Lists, Users } = yield* $(TodoContext.TodoContext)
-    const user = yield* $(UserSVC.UserEnv)
+    const user = yield* $(UserSVC.UserProfile)
 
     if (_.id === "inbox") {
       yield* $(Users.update(user.id, inboxOrder.set(_.order)))

@@ -32,7 +32,7 @@ export interface DBRecord<TKey extends string> {
 }
 
 export class SerializedDBRecord extends S.Model<SerializedDBRecord>()({
-  version: S.prop(S.number),
+  version: S.prop(S.string),
   timestamp: S.prop(S.date),
   data: S.prop(S.string),
 }) {}
@@ -47,7 +47,7 @@ export function makeSerialisedDBRecord(s: SchemaAny) {
 }
 
 export interface CachedRecord<T> {
-  version: number
+  version: string
   data: T
 }
 

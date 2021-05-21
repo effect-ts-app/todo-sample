@@ -4,29 +4,29 @@ import { pipe } from "@effect-ts-app/core/ext/Function"
 import * as S from "@effect-ts-app/core/ext/Schema"
 import { jwt } from "@effect-ts-app/infra/express/schema/jwt"
 
-export class UserProfile extends S.Model<UserProfile>()({
+export class UserProfileScheme extends S.Model<UserProfileScheme>()({
   /**
    * Mapped from "sub"
    */
   id: S.prop(S.nonEmptyString).from("sub"),
 }) {}
 
-export interface UserEnv extends UserProfile {}
-export const UserEnv = Has.tag<UserEnv>()
+export interface UserProfile extends UserProfileScheme {}
+export const UserProfile = Has.tag<UserProfile>()
 
-export const LiveUserEnv = (profile: UserProfile) => L.pure(UserEnv)(profile)
+export const LiveUserProfile = (profile: UserProfile) => L.pure(UserProfile)(profile)
 
-const userProfileFromJson = S.json[">>>"](UserProfile.Model)
+const userProfileFromJson = S.json[">>>"](UserProfileScheme.Model)
 const parseUserProfileFromJson = S.Parser.for(userProfileFromJson)
-const userProfileFromJWT = jwt[">>>"](UserProfile.Model)
+const userProfileFromJWT = jwt[">>>"](UserProfileScheme.Model)
 const parseUserProfileFromJWT = S.Parser.for(userProfileFromJWT)
 
-export const LiveUserEnvFromAuthorizationHeader = (authorization: unknown) =>
-  L.fromEffect(UserEnv)(
+export const LiveUserProfileFromAuthorizationHeader = (authorization: unknown) =>
+  L.fromEffect(UserProfile)(
     pipe(parseUserProfileFromJWT["|>"](S.condemnFail)(authorization))
   )
-export const LiveUserEnvFromUserHeader = (user: unknown) =>
-  L.fromEffect(UserEnv)(pipe(parseUserProfileFromJson["|>"](S.condemnFail)(user)))
+export const LiveUserProfileFromUserHeader = (user: unknown) =>
+  L.fromEffect(UserProfile)(pipe(parseUserProfileFromJson["|>"](S.condemnFail)(user)))
 
 // const parseUnsafe = S.Parser.for(UserProfile.Model)["|>"](S.unsafe)
 // const p1 = parseUnsafe({ sub: "bla" })

@@ -104,8 +104,8 @@ export function demandLoggedIn<
     handle: (req: express.Request) =>
       pipe(
         AUTH_DISABLED
-          ? UserSVC.LiveUserEnvFromUserHeader(req.headers["x-user"])
-          : UserSVC.LiveUserEnvFromAuthorizationHeader(req.headers["authorization"]),
+          ? UserSVC.LiveUserProfileFromUserHeader(req.headers["x-user"])
+          : UserSVC.LiveUserProfileFromAuthorizationHeader(req.headers["authorization"]),
         L.mapError(() => new NotLoggedInError())
       ),
   }

@@ -1,51 +1,13 @@
 import * as T from "@effect-ts/core/Effect"
-import * as L from "@effect-ts/core/Effect/Layer"
-import * as M from "@effect-ts/core/Effect/Managed"
-import * as Has from "@effect-ts/core/Has"
 import * as O from "@effect-ts/core/Option"
-import { _A } from "@effect-ts/core/Utils"
 import * as EO from "@effect-ts-app/core/ext/EffectOption"
 import { constVoid, pipe } from "@effect-ts-app/core/ext/Function"
-import { CollectionInsertOneOptions, IndexSpecification, MongoClient } from "mongodb"
+import { CollectionInsertOneOptions, IndexSpecification } from "mongodb"
 
+import * as Mongo from "../mongo-client"
 import { CachedRecord, DBRecord, OptimisticLockException } from "./shared"
 import * as simpledb from "./simpledb"
-
-// TODO: we should probably share a single client...
-
-const withClient = (url: string) =>
-  M.make_(
-    T.effectAsync<unknown, Error, MongoClient>((res) => {
-      const client = new MongoClient(url)
-      client.connect((err, cl) => {
-        err ? res(T.fail(err)) : res(T.succeed(cl))
-      })
-    }),
-    (cl) =>
-      pipe(
-        T.uninterruptible(
-          T.effectAsync<unknown, Error, void>((res) => {
-            cl.close((err, r) => res(err ? T.fail(err) : T.succeed(r)))
-          })
-        ),
-        T.orDie
-      )
-  )
-
-const makeMongoClientEnv = (url: string, dbName?: string) =>
-  pipe(
-    withClient(url),
-    M.map((x) => ({ db: x.db(dbName) }))
-  )
-
-export interface MongoClientEnv extends _A<ReturnType<typeof makeMongoClientEnv>> {}
-
-export const MongoClientEnv = Has.tag<MongoClientEnv>()
-
-export const { db } = T.deriveLifted(MongoClientEnv)([], [], ["db"])
-
-export const MongoClientEnvLive = (redisUrl: string, dbName?: string) =>
-  L.fromManaged(MongoClientEnv)(makeMongoClientEnv(redisUrl, dbName))
+import { Version } from "./simpledb"
 
 // const makeFromIndexKeys = (indexKeys: string[], unique: boolean) => indexKeys.reduce((prev, cur) => {
 //   prev[cur] = 1
@@ -54,7 +16,7 @@ export const MongoClientEnvLive = (redisUrl: string, dbName?: string) =>
 
 const setup = (type: string, indexes: IndexSpecification[]) =>
   pipe(
-    db,
+    Mongo.db,
     T.tap((db) =>
       T.tryPromise(() => db.createCollection(type).catch((err) => console.warn(err)))
     ),
@@ -80,12 +42,12 @@ export function createContext<TKey extends string, EA, A extends DBRecord<TKey>>
 
     function find(id: string) {
       return pipe(
-        db,
+        Mongo.db,
         T.chain((db) =>
           T.tryPromise(() =>
             db
               .collection(type)
-              .findOne<{ _id: TKey; version: number; data: EA }>({ _id: id })
+              .findOne<{ _id: TKey; version: Version; data: EA }>({ _id: id })
           )
         ),
         T.map(O.fromNullable),
@@ -95,7 +57,7 @@ export function createContext<TKey extends string, EA, A extends DBRecord<TKey>>
 
     function findBy(keys: Record<string, string>) {
       return pipe(
-        db,
+        Mongo.db,
         T.chain((db) =>
           T.tryPromise(() =>
             db.collection(type).findOne<{ _id: TKey }>(keys, { projection: { _id: 1 } })
@@ -106,15 +68,17 @@ export function createContext<TKey extends string, EA, A extends DBRecord<TKey>>
       )
     }
 
-    function store(record: A, version: number) {
+    function store(record: A, currentVersion: Version) {
+      const isNew = currentVersion === ""
+      const version = isNew ? "1" : (parseInt(currentVersion) + 1).toString()
       return pipe(
-        db,
+        Mongo.db,
         T.chain((db) =>
           pipe(
             encode(record),
             T.chain((data) =>
               T.tryPromise(() =>
-                version == 1
+                isNew
                   ? db
                       .collection(type)
                       .insertOne(
@@ -127,8 +91,14 @@ export function createContext<TKey extends string, EA, A extends DBRecord<TKey>>
                   : db
                       .collection(type)
                       .findOneAndUpdate(
-                        { _id: record.id, version: version - 1 },
-                        { $set: { version, timestamp: new Date(), data } },
+                        { _id: record.id, version: currentVersion },
+                        {
+                          $set: {
+                            version,
+                            timestamp: new Date(),
+                            data,
+                          },
+                        },
                         { upsert: false }
                       )
                       .then((x) => {

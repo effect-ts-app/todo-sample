@@ -36,7 +36,7 @@
         }
       }
     },
-    "/logged-in/:id": {
+    "/logged-in/{id}": {
       "get": {
         "operationId": "FindLoggedInSample",
         "parameters": [
@@ -95,7 +95,7 @@
         }
       }
     },
-    "/:id": {
+    "/{id}": {
       "get": {
         "operationId": "FindSample",
         "parameters": [

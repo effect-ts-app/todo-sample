@@ -47,8 +47,10 @@ export function createContext<TKey extends string, EA, A extends DBRecord<TKey>>
       )
     }
 
-    function store(record: A, version: RedisSerializedDBRecord["version"]) {
-      return version === 1
+    function store(record: A, currentVersion: RedisSerializedDBRecord["version"]) {
+      const isNew = currentVersion === ""
+      const version = isNew ? "1" : (parseInt(currentVersion) + 1).toString()
+      return isNew
         ? pipe(
             M.use_(lockIndex(record), () =>
               pipe(
@@ -183,7 +185,7 @@ export function createContext<TKey extends string, EA, A extends DBRecord<TKey>>
 }
 
 export class RedisSerializedDBRecord extends S.Model<RedisSerializedDBRecord>()({
-  version: S.prop(S.stringNumber),
+  version: S.prop(S.string),
   timestamp: S.prop(S.date),
   data: S.prop(S.string),
 }) {}

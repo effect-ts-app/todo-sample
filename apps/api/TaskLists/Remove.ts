@@ -10,7 +10,7 @@ export default handle(TaskLists.Remove)((_) =>
   T.gen(function* ($) {
     const { Lists } = yield* $(TodoContext.TodoContext)
 
-    const user = yield* $(UserSVC.UserEnv)
+    const user = yield* $(UserSVC.UserProfile)
     const list = yield* $(Lists.get(_.id))
 
     return yield* $(ListAuth.accessM_(list, user.id, (tl) => Lists.remove(tl.id)))

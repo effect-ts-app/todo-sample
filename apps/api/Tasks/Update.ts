@@ -11,7 +11,7 @@ export default handle(Tasks.Update)(({ id, myDay, ..._ }) =>
   T.gen(function* ($) {
     const { Lists, Tasks, Users } = yield* $(TodoContext.TodoContext)
 
-    const user = yield* $(UserSVC.UserEnv)
+    const user = yield* $(UserSVC.UserProfile)
     const taskLists = yield* $(Lists.allLists(user.id))
     const task = yield* $(
       Tasks.updateM(

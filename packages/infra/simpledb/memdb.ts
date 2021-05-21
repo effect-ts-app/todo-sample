@@ -15,6 +15,7 @@ import {
   SerializedDBRecord,
 } from "./shared"
 import * as simpledb from "./simpledb"
+import { Version } from "./simpledb"
 
 // When we are in-process, we want to share the same Storage
 // Do not try this at home.
@@ -72,7 +73,9 @@ export function createContext<TKey extends string, EA, A extends DBRecord<TKey>>
       )
     }
 
-    function store(record: A, version: number) {
+    function store(record: A, currentVersion: Version) {
+      const isNew = currentVersion === ""
+      const version = isNew ? "1" : (parseInt(currentVersion) + 1).toString()
       const getData = flow(
         encode,
         T.map(JSON.stringify),
@@ -88,6 +91,7 @@ export function createContext<TKey extends string, EA, A extends DBRecord<TKey>>
     }
   }
 }
+
 function bogusLock() {
   return M.make_(T.succeed(constVoid()), () => T.succeed(constVoid()))
 }

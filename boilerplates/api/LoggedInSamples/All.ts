@@ -18,7 +18,7 @@ export class Response extends Model<Response>()({
 
 export default handle({ Request, Response })((_) =>
   T.gen(function* ($) {
-    const user = yield* $(UserSVC.UserEnv)
+    const user = yield* $(UserSVC.UserProfile)
 
     return {
       userId: user.id,

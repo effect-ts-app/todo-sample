@@ -71,6 +71,17 @@ export const encaseNullableTaskErrorIfNull = <T, E>(
   )
 export const encaseEither = flow(T.encaseEither, fromEffect)
 
+export function asUnit<R, E, X>(self: EffectOption<R, E, X>, __trace?: string) {
+  return chainEffect_(self, () => T.unit, __trace)
+}
+
+/**
+ * Leverage the EffectOption to optionally process computation.
+ * But then ignore the final result.
+ * Useful for use in generators, not to short-circuit the operation on the None case.
+ */
+export const asUnitDiscard = T.asUnit
+
 export const map_ = <R, E, A, B>(
   fa: EffectOption<R, E, A>,
   f: (a: A) => B
@@ -78,11 +89,13 @@ export const map_ = <R, E, A, B>(
 
 export const chain_ = <R, E, A, R2, E2, B>(
   fa: EffectOption<R, E, A>,
-  f: (a: A) => EffectOption<R2, E2, B>
+  f: (a: A) => EffectOption<R2, E2, B>,
+  __trace?: string
 ): EffectOption<R & R2, E | E2, B> =>
   T.chain_(
     fa,
-    O.fold(() => none, f)
+    O.fold(() => none, f),
+    __trace
   )
 
 export const tap_ = <R, E, A, R2, E2>(
@@ -175,10 +188,16 @@ export const fromEffectOptionS =
   (eff: EffectOption<R2, E2, A>) =>
     T.chain_(eff, fromOptionS(onNone))
 
+export const chainEffect_ = <R, R2, E, E2, A, A2>(
+  eo: EffectOption<R, E, A>,
+  eff: (a: A) => T.Effect<R2, E2, A2>,
+  __trace?: string
+) => chain_(eo, flow(eff, fromEffect))
+
 export const chainEffect =
-  <R, R2, E, E2, A, A2>(eff: (a: A) => T.Effect<R2, E2, A2>) =>
+  <R, R2, E, E2, A, A2>(eff: (a: A) => T.Effect<R2, E2, A2>, __trace?: string) =>
   (eo: EffectOption<R, E, A>) =>
-    chain_(eo, flow(eff, fromEffect))
+    chainEffect_(eo, eff, __trace)
 
 export class GenEffect<R, E, A> {
   readonly [_R]!: (_R: R) => void;
@@ -214,10 +233,17 @@ function adapter(_: any, __?: any) {
 export interface Adapter {
   <A>(_: Tag<A>, __trace?: string): GenEffect<Has<A>, never, A>
 
-  <E, A>(_: Option<A>, __trace?: string): GenEffect<unknown, E, A>
+  <A>(_: Option<A>, __trace?: string): GenEffect<unknown, never, A>
   <E, A>(_: Either<E, A>, __trace?: string): GenEffect<unknown, E, A>
   <R, E, A>(_: EffectOption<R, E, A>, __trace?: string): GenEffect<R, E, A>
   <R, E, A>(_: Effect<R, E, A>, __trace?: string): GenEffect<R, E, A>
 }
 
 export const gen = DSL.genF(Monad, { adapter: adapter as Adapter })
+
+/**
+ * Leverage the EffectOption to optionally process computation.
+ * But then ignore the final result.
+ * Useful for use in generators, not to short-circuit the operation on the None case.
+ */
+export const genUnit = flow(gen, asUnitDiscard)

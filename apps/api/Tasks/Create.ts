@@ -1,4 +1,3 @@
-import { pipe } from "@effect-ts/core"
 import * as T from "@effect-ts/core/Effect"
 import { identity } from "@effect-ts/system/Function"
 import * as EO from "@effect-ts-app/core/ext/EffectOption"
@@ -22,11 +21,12 @@ export default handle(Tasks.Create)(({ myDay, ..._ }) =>
     }
 
     const task = User.createTask_(user, _)
-    yield* $(Tasks.add(task))
     yield* $(
-      pipe(
-        EO.fromOption(myDay),
-        EO.chainEffect((date) => Users.update(user.id, User.addToMyDay(task, date)))
+      T.tuplePar(
+        Tasks.add(task),
+        EO.genUnit(function* ($) {
+          yield* $(Users.update(user.id, User.addToMyDay(task, yield* $(myDay))))
+        })
       )
     )
 

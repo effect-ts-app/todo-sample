@@ -10,7 +10,7 @@ import Redlock from "redlock"
 
 import { ConnectionException } from "./simpledb/shared"
 
-const makeRedisClientEnv = (redisUrl: string) =>
+const makeRedisClient = (redisUrl: string) =>
   M.make_(
     T.succeedWith(() => {
       const client = createClient(redisUrl)
@@ -31,18 +31,14 @@ const makeRedisClientEnv = (redisUrl: string) =>
       )
   )
 
-export interface RedisClientEnv extends _A<ReturnType<typeof makeRedisClientEnv>> {}
+export interface RedisClient extends _A<ReturnType<typeof makeRedisClient>> {}
 
-export const RedisClientEnv = Has.tag<RedisClientEnv>()
+export const RedisClient = Has.tag<RedisClient>()
 
-export const { client, lock } = T.deriveLifted(RedisClientEnv)(
-  [],
-  [],
-  ["client", "lock"]
-)
+export const { client, lock } = T.deriveLifted(RedisClient)([], [], ["client", "lock"])
 
-export const RedisClientEnvLive = (redisUrl: string) =>
-  L.fromManaged(RedisClientEnv)(makeRedisClientEnv(redisUrl))
+export const RedisClientLive = (redisUrl: string) =>
+  L.fromManaged(RedisClient)(makeRedisClient(redisUrl))
 
 function createClient(url: string) {
   const client = createRedisClient(url)

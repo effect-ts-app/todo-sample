@@ -26,7 +26,7 @@ export class Response extends Model<Response>()({ id: prop(TaskId) }) {}
 4. Create the Handler (omit `Response` if you didn't create one)
 ```ts
 export default handle({ Request, Response })(
-// (Request) => T.Effect<Has<UserEnv> & Has<TodoContext.TodoContext>, NotFoundError | UnauthorizedError | NotLoggedInError, Response>
+// (Request) => T.Effect<Has<UserProfile> & Has<TodoContext.TodoContext>, NotFoundError | UnauthorizedError | NotLoggedInError, Response>
 ({ myDay, ..._ }) =>
   T.gen(function* ($) {
     const { Lists, Tasks, Users } = yield* $(TodoContext.TodoContext)

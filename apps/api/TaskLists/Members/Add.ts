@@ -11,7 +11,7 @@ export default handle(TaskLists.AddMember)((_) =>
   T.gen(function* ($) {
     const { Lists, Users } = yield* $(TodoContext.TodoContext)
 
-    const user = yield* $(UserSVC.UserEnv)
+    const user = yield* $(UserSVC.UserProfile)
     const member = yield* $(Users.get(_.memberId))
     yield* $(
       Lists.updateListM(

@@ -10,7 +10,7 @@ export default handle(Tasks.Remove)((_) =>
   T.gen(function* ($) {
     const { Lists, Tasks } = yield* $(TodoContext.TodoContext)
 
-    const user = yield* $(UserSVC.UserEnv)
+    const user = yield* $(UserSVC.UserProfile)
     const task = yield* $(Tasks.get(_.id))
     const taskLists = yield* $(Lists.allLists(user.id))
 

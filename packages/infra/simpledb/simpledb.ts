@@ -14,6 +14,8 @@ import {
   OptimisticLockException,
 } from "./shared"
 
+export type Version = string
+
 export function makeLiveRecordCache() {
   const m = new Map<string, EffectMap<string, unknown>>()
   return {
@@ -87,7 +89,7 @@ export function find<R, RDecode, EDecode, E, EA, A>(
 }
 
 export function storeDirectly<R, E, TKey extends string, A extends DBRecord<TKey>>(
-  save: (r: A, version: number) => T.Effect<R, E, CachedRecord<A>>,
+  save: (r: A, version: Version) => T.Effect<R, E, CachedRecord<A>>,
   type: string
 ) {
   const getCache = getM<A>(type)
@@ -98,8 +100,8 @@ export function storeDirectly<R, E, TKey extends string, A extends DBRecord<TKey
         EO.map((x) => x.version),
         T.chain(
           O.fold(
-            () => save(record, 1),
-            (cv) => save(record, cv + 1)
+            () => save(record, ""),
+            (cv) => save(record, cv)
           )
         ),
         T.tap((r) => c.set(record.id, r)),
@@ -110,7 +112,7 @@ export function storeDirectly<R, E, TKey extends string, A extends DBRecord<TKey
 
 export function store<R, E, R2, E2, TKey extends string, EA, A extends DBRecord<TKey>>(
   tryRead: (id: string) => T.Effect<R, E, O.Option<CachedRecord<EA>>>,
-  save: (r: A, version: number) => T.Effect<R, E, CachedRecord<A>>,
+  save: (r: A, version: Version) => T.Effect<R, E, CachedRecord<A>>,
   lock: (id: string) => M.Managed<R2, E2, unknown>,
   type: string
 ) {
@@ -120,14 +122,14 @@ export function store<R, E, R2, E2, TKey extends string, EA, A extends DBRecord<
       pipe(
         c.find(record.id),
         EO.map((x) => x.version),
-        T.chain(O.fold(() => save(record, 1), confirmVersionAndSave(record))),
+        T.chain(O.fold(() => save(record, ""), confirmVersionAndSave(record))),
         T.tap((r) => c.set(record.id, r)),
         T.map((r) => r.data)
       )
     )
 
   function confirmVersionAndSave(record: A) {
-    return (cv: number) =>
+    return (cv: Version) =>
       M.use_(lock(record.id), () =>
         pipe(
           pipe(
@@ -148,7 +150,7 @@ export function store<R, E, R2, E2, TKey extends string, EA, A extends DBRecord<
               ? T.fail(new OptimisticLockException(type, record.id))
               : T.succeed(constVoid())
           ),
-          T.zipRight(save(record, cv + 1))
+          T.zipRight(save(record, cv))
         )
       )
   }
