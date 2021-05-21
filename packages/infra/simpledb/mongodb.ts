@@ -68,52 +68,51 @@ export function createContext<TKey extends string, EA, A extends DBRecord<TKey>>
       )
     }
 
-    function store(record: A, currentVersion: Version) {
-      const isNew = currentVersion === ""
-      const version = isNew ? "1" : (parseInt(currentVersion) + 1).toString()
-      return pipe(
-        Mongo.db,
-        T.chain((db) =>
-          pipe(
-            encode(record),
-            T.chain((data) =>
+    function store(record: A, currentVersion: O.Option<Version>) {
+      return T.gen(function* ($) {
+        const version = currentVersion["|>"](
+          O.map((cv) => (parseInt(cv) + 1).toString())
+        )["|>"](O.getOrElse(() => "1"))
+
+        const db = yield* $(Mongo.db)
+        const data = yield* $(encode(record))
+        yield* $(
+          O.fold_(
+            currentVersion,
+            () =>
               T.tryPromise(() =>
-                isNew
-                  ? db
-                      .collection(type)
-                      .insertOne(
-                        { _id: record.id, version, timestamp: new Date(), data },
-                        {
-                          checkKeys: false, // support for keys with `.` and `$`. NOTE: you can write them, read them, but NOT query for them.
-                        } as CollectionInsertOneOptions
-                      )
-                      .then(constVoid)
-                  : db
-                      .collection(type)
-                      .findOneAndUpdate(
-                        { _id: record.id, version: currentVersion },
-                        {
-                          $set: {
-                            version,
-                            timestamp: new Date(),
-                            data,
-                          },
-                        },
-                        { upsert: false }
-                      )
-                      .then((x) => {
-                        if (!x.ok) {
-                          throw new OptimisticLockException(type, record.id)
-                        }
-                      })
-                      .then(constVoid)
+                db
+                  .collection(type)
+                  .insertOne({ _id: record.id, version, timestamp: new Date(), data }, {
+                    checkKeys: false, // support for keys with `.` and `$`. NOTE: you can write them, read them, but NOT query for them.
+                  } as CollectionInsertOneOptions)
+                  .then(constVoid)
+              )["|>"](T.orDie),
+            (currentVersion) =>
+              pipe(
+                T.tryPromise(() =>
+                  db.collection(type).replaceOne(
+                    { _id: record.id, version: currentVersion },
+                    {
+                      version,
+                      timestamp: new Date(),
+                      data,
+                    },
+                    { upsert: false }
+                  )
+                )["|>"](T.orDie),
+                T.chain((x) => {
+                  // TODO: or the document may have been deleted.
+                  if (!x.modifiedCount) {
+                    return T.fail(new OptimisticLockException(type, record.id))
+                  }
+                  return T.unit
+                })
               )
-            )
           )
-        ),
-        T.orDie,
-        T.map(() => ({ version, data: record } as CachedRecord<A>))
-      )
+        )
+        return { version, data: record } as CachedRecord<A>
+      })
     }
   }
 }

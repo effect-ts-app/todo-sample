@@ -41,9 +41,10 @@ export function createContext<TKey extends string, EA, A extends DBRecord<TKey>>
       save: simpledb.store(find(type), store, lockRecordOnDisk(type), type),
     }
 
-    function store(record: A, currentVersion: Version) {
-      const isNew = currentVersion === ""
-      const version = isNew ? "1" : (parseInt(currentVersion) + 1).toString()
+    function store(record: A, currentVersion: O.Option<Version>) {
+      const version = currentVersion["|>"](
+        O.map((cv) => (parseInt(cv) + 1).toString())
+      )["|>"](O.getOrElse(() => "1"))
       const getData = flow(
         encode,
         T.map((data) =>
@@ -52,7 +53,7 @@ export function createContext<TKey extends string, EA, A extends DBRecord<TKey>>
       )
 
       const idx = makeIndexKey(record)
-      return isNew
+      return O.isSome(currentVersion)
         ? pipe(
             M.use_(lockIndex(record), () =>
               pipe(

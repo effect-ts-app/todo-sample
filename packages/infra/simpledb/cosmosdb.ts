@@ -80,60 +80,67 @@ export function createContext<TKey extends string, EA, A extends DBRecord<TKey>>
       )
     }
 
-    function store(record: A, currentVersion: Version) {
-      const isNew = currentVersion === ""
-      const version = "_etag" // we get this from the etag anyway.
-      return pipe(
-        Cosmos.db,
-        T.chain((db) =>
-          pipe(
-            encode(record),
-            T.chain((data) =>
+    function store(record: A, currentVersion: O.Option<Version>) {
+      return T.gen(function* ($) {
+        const version = "_etag" // we get this from the etag anyway.
+
+        const db = yield* $(Cosmos.db)
+        const data = yield* $(encode(record))
+
+        yield* $(
+          O.fold_(
+            currentVersion,
+            () =>
               T.tryPromise(() =>
-                isNew
-                  ? db
-                      .container(type)
-                      .items.create({
+                db
+                  .container(type)
+                  .items.create({
+                    id: record.id,
+                    version,
+                    timestamp: new Date(),
+                    data,
+                  })
+                  .then(constVoid)
+              )["|>"](T.orDie),
+            (currentVersion) =>
+              pipe(
+                T.tryPromise(() =>
+                  db
+                    .container(type)
+                    .item(record.id)
+                    .replace(
+                      {
                         id: record.id,
                         version,
                         timestamp: new Date(),
                         data,
-                      })
-                      .then(constVoid)
-                  : db
-                      .container(type)
-
-                      .item(record.id)
-                      .replace(
-                        {
-                          id: record.id,
-                          version,
-                          timestamp: new Date(),
-                          data,
+                      },
+                      {
+                        accessCondition: {
+                          type: "IfMatch",
+                          condition: currentVersion,
                         },
-                        {
-                          accessCondition: {
-                            type: "IfMatch",
-                            condition: currentVersion,
-                          },
-                        }
+                      }
+                    )
+                )["|>"](T.orDie),
+                T.chain((x) => {
+                  if (x.statusCode === 412) {
+                    return T.fail(new OptimisticLockException(type, record.id))
+                  }
+                  if (x.statusCode > 299 || x.statusCode < 200) {
+                    return T.die(
+                      new CosmosDbOperationError(
+                        "not able to update record: " + x.statusCode
                       )
-                      .then((x) => {
-                        if (x.statusCode === 412) {
-                          throw new OptimisticLockException(type, record.id)
-                        }
-                        if (x.statusCode > 299 || x.statusCode < 200) {
-                          throw new CosmosDbOperationError("not able to update record")
-                        }
-                      })
-                      .then(constVoid)
+                    )
+                  }
+                  return T.unit
+                })
               )
-            )
           )
-        ),
-        T.orDie,
-        T.map(() => ({ version, data: record } as CachedRecord<A>))
-      )
+        )
+        return { version, data: record } as CachedRecord<A>
+      })
     }
   }
 }

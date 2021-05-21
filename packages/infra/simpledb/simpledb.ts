@@ -15,6 +15,10 @@ import {
 } from "./shared"
 
 export type Version = string
+export class InvalidStateError {
+  readonly _tag = "InvalidStateError"
+  constructor(readonly message: string, readonly details?: unknown) {}
+}
 
 export function makeLiveRecordCache() {
   const m = new Map<string, EffectMap<string, unknown>>()
@@ -65,11 +69,7 @@ export function find<R, RDecode, EDecode, E, EA, A>(
         pipe(
           decode(data),
           T.bimap(
-            (err) => ({
-              _tag: "InvalidStateError" as const,
-              message: "DB serialisation Issue",
-              details: err,
-            }),
+            (err) => new InvalidStateError("DB serialisation Issue", err),
             (data) => ({ data, version })
           )
         )
@@ -89,7 +89,7 @@ export function find<R, RDecode, EDecode, E, EA, A>(
 }
 
 export function storeDirectly<R, E, TKey extends string, A extends DBRecord<TKey>>(
-  save: (r: A, version: Version) => T.Effect<R, E, CachedRecord<A>>,
+  save: (r: A, version: O.Option<Version>) => T.Effect<R, E, CachedRecord<A>>,
   type: string
 ) {
   const getCache = getM<A>(type)
@@ -98,12 +98,7 @@ export function storeDirectly<R, E, TKey extends string, A extends DBRecord<TKey
       pipe(
         c.find(record.id),
         EO.map((x) => x.version),
-        T.chain(
-          O.fold(
-            () => save(record, ""),
-            (cv) => save(record, cv)
-          )
-        ),
+        T.chain((cv) => save(record, cv)),
         T.tap((r) => c.set(record.id, r)),
         T.map((r) => r.data)
       )
@@ -112,7 +107,7 @@ export function storeDirectly<R, E, TKey extends string, A extends DBRecord<TKey
 
 export function store<R, E, R2, E2, TKey extends string, EA, A extends DBRecord<TKey>>(
   tryRead: (id: string) => T.Effect<R, E, O.Option<CachedRecord<EA>>>,
-  save: (r: A, version: Version) => T.Effect<R, E, CachedRecord<A>>,
+  save: (r: A, version: O.Option<Version>) => T.Effect<R, E, CachedRecord<A>>,
   lock: (id: string) => M.Managed<R2, E2, unknown>,
   type: string
 ) {
@@ -122,7 +117,7 @@ export function store<R, E, R2, E2, TKey extends string, EA, A extends DBRecord<
       pipe(
         c.find(record.id),
         EO.map((x) => x.version),
-        T.chain(O.fold(() => save(record, ""), confirmVersionAndSave(record))),
+        T.chain(O.fold(() => save(record, O.none), confirmVersionAndSave(record))),
         T.tap((r) => c.set(record.id, r)),
         T.map((r) => r.data)
       )
@@ -135,14 +130,7 @@ export function store<R, E, R2, E2, TKey extends string, EA, A extends DBRecord<
           pipe(
             tryRead(record.id),
             T.chain(
-              O.fold(
-                () =>
-                  T.fail({
-                    _tag: "InvalidStateError" as const,
-                    message: "record is gone",
-                  }),
-                T.succeed
-              )
+              O.fold(() => T.fail(new InvalidStateError("record is gone")), T.succeed)
             )
           ),
           T.tap(({ version }) =>
@@ -150,7 +138,7 @@ export function store<R, E, R2, E2, TKey extends string, EA, A extends DBRecord<
               ? T.fail(new OptimisticLockException(type, record.id))
               : T.succeed(constVoid())
           ),
-          T.zipRight(save(record, cv))
+          T.zipRight(save(record, O.some(cv)))
         )
       )
   }

@@ -2,6 +2,7 @@ import * as T from "@effect-ts/core/Effect"
 import * as M from "@effect-ts/core/Effect/Managed"
 import * as EO from "@effect-ts-app/core/ext/EffectOption"
 import { flow, pipe } from "@effect-ts-app/core/ext/Function"
+import * as O from "@effect-ts-app/core/ext/Option"
 import * as S from "@effect-ts-app/core/ext/Schema"
 
 import * as RED from "../redis-client"
@@ -46,12 +47,14 @@ export function createContext<TKey extends string, EA, A extends DBRecord<TKey>>
         T.orDie
       )
     }
-
-    function store(record: A, currentVersion: RedisSerializedDBRecord["version"]) {
-      const isNew = currentVersion === ""
-      const version = isNew ? "1" : (parseInt(currentVersion) + 1).toString()
-      return isNew
-        ? pipe(
+    function store(record: A, currentVersion: O.Option<string>) {
+      const version = currentVersion["|>"](
+        O.map((cv) => (parseInt(cv) + 1).toString())
+      )["|>"](O.getOrElse(() => "1"))
+      return O.fold_(
+        currentVersion,
+        () =>
+          pipe(
             M.use_(lockIndex(record), () =>
               pipe(
                 pipe(
@@ -74,21 +77,21 @@ export function createContext<TKey extends string, EA, A extends DBRecord<TKey>>
               )
             ),
             T.map(() => ({ version, data: record } as CachedRecord<A>))
-          )
-        : pipe(
-            pipe(
-              getData(record),
-              T.chain((data) =>
-                hmSetRec(getKey(record.id), {
-                  version,
-                  timestamp: new Date(),
-                  data,
-                })
-              ),
-              T.orDie
+          ),
+        () =>
+          pipe(
+            getData(record),
+            T.chain((data) =>
+              hmSetRec(getKey(record.id), {
+                version,
+                timestamp: new Date(),
+                data,
+              })
             ),
+            T.orDie,
             T.map(() => ({ version, data: record } as CachedRecord<A>))
           )
+      )
     }
 
     function getIndex(record: A) {
