@@ -47,6 +47,89 @@
         }
       }
     },
+    "/tasks/search": {
+      "post": {
+        "tags": [
+          "Tasks"
+        ],
+        "operationId": "SearchTasks",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "$select": {
+                    "items": {
+                      "enum": [
+                        "id",
+                        "createdBy",
+                        "listId",
+                        "createdAt",
+                        "updatedAt",
+                        "title",
+                        "assignedTo",
+                        "completed",
+                        "due",
+                        "note",
+                        "reminder",
+                        "isFavorite",
+                        "steps",
+                        "myDay"
+                      ],
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "$count": {
+                    "type": "boolean"
+                  },
+                  "$skip": {
+                    "minimum": 0,
+                    "type": "number"
+                  },
+                  "$top": {
+                    "minimum": 0,
+                    "type": "number"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "items": {
+                      "items": {
+                        "$ref": "#/components/schemas/DynamicTaskView"
+                      },
+                      "type": "array"
+                    },
+                    "count": {
+                      "minimum": 0,
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "items"
+                  ],
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "ValidationError"
+          }
+        }
+      }
+    },
     "/tasks": {
       "get": {
         "tags": [
@@ -814,6 +897,88 @@
           "title",
           "completed"
         ],
+        "type": "object"
+      },
+      "DynamicTaskView": {
+        "title": "DynamicTaskView",
+        "description": "The available properties depend on $select. if $select is omitted, all properties will be available",
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "createdBy": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "listId": {
+            "oneOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "enum": [
+                  "inbox"
+                ],
+                "type": "string"
+              }
+            ]
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "title": {
+            "minLength": 1,
+            "maxLength": 255,
+            "type": "string"
+          },
+          "assignedTo": {
+            "minLength": 1,
+            "type": "string",
+            "nullable": true
+          },
+          "completed": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "due": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "note": {
+            "minLength": 1,
+            "maxLength": 2047,
+            "type": "string",
+            "nullable": true
+          },
+          "reminder": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "isFavorite": {
+            "type": "boolean"
+          },
+          "steps": {
+            "items": {
+              "$ref": "#/components/schemas/Step"
+            },
+            "type": "array"
+          },
+          "myDay": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
         "type": "object"
       },
       "Task": {

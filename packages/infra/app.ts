@@ -12,7 +12,8 @@ export function handle<
   >,
   TRes extends { Model: S.SchemaAny } | S.SchemaAny = typeof S.Void
 >(
-  _: TModule & { Response?: TRes }
+  _: TModule & { Response?: TRes; ResponseOpenApi?: any },
+  adaptResponse?
 ): <R, E>(
   h: (
     r: InstanceType<
@@ -25,9 +26,11 @@ export function handle<
   h: typeof h
   Request: S.GetRequest<TModule>
   Response: TRes
+  ResponseOpenApi: any
 } {
   // TODO: Prevent over providing // no strict/shrink yet.
   const Request = S.extractRequest(_)
+  const Response = (_.Response ?? S.Void) as TRes
 
   return <R, E>(
     h: (
@@ -37,7 +40,14 @@ export function handle<
           : never
       >
     ) => T.Effect<R, E, S.ParsedShapeOf<Extr<TRes>>>
-  ) => ({ h, Request, Response: (_.Response ?? S.Void) as TRes } as any)
+  ) =>
+    ({
+      adaptResponse,
+      h,
+      Request,
+      Response,
+      ResponseOpenApi: _.ResponseOpenApi ?? Response,
+    } as any)
 }
 
 type Extr<T> = T extends { Model: S.SchemaAny }

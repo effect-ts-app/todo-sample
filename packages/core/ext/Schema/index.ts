@@ -329,11 +329,28 @@ export function makeOptional<NER extends Record<string, S.AnyProperty>>(
   }, {} as any)
 }
 
+export function makeRequired<NER extends Record<string, S.AnyProperty>>(
+  t: NER // TODO: enforce non empty
+): {
+  [K in keyof NER]: S.Property<
+    NER[K]["_schema"],
+    "required",
+    NER[K]["_as"],
+    NER[K]["_def"]
+  >
+} {
+  return typedKeysOf(t).reduce((prev, cur) => {
+    prev[cur] = t[cur].req()
+    return prev
+  }, {} as any)
+}
+
 export const constArray = constant(A.empty)
 
 export * from "./_api"
 // customized Model
 export { Model } from "./Model"
 export * from "./Model"
+export * from "./adapt"
 
 export * from "./vendor"

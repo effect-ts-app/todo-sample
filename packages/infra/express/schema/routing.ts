@@ -319,8 +319,9 @@ export function makeFromSchema<ResA>(
 ) {
   const jsonSchema_ = OpenApi.for
   const jsonSchema = <E, A>(r: S.ReqRes<E, A>) => jsonSchema_(r)
-  const { Request: Req, Response: Res_ } = e.handler
-  const Res = Res_ ? S.extractSchema(Res_) : S.Void
+  const { Request: Req, Response: Res_, ResponseOpenApi } = e.handler
+  const r = ResponseOpenApi ?? Res_
+  const Res = r ? S.extractSchema(r) : S.Void
   // TODO: use the path vs body etc serialisation also in the Client.
   const makeReqQuerySchema = EO.fromNullable(Req.Query)["|>"](
     EO.chainEffect(jsonSchema)

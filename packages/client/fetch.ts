@@ -40,7 +40,9 @@ export function fetchApi(method: H.Method, path: string, body?: unknown) {
   )
 }
 
-type ComputeUnlessClass<T> = T extends { new (...args: any[]): any } ? T : Compute<T>
+export type ComputeUnlessClass<T> = T extends { new (...args: any[]): any }
+  ? T
+  : Compute<T>
 
 export function fetchApi2S<RequestA, RequestE, ResponseA>(
   encodeRequest: (a: RequestA) => RequestE,

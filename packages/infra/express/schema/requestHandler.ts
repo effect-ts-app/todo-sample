@@ -138,10 +138,10 @@ function makeError(type: string) {
   return (e: unknown) => [{ type, errors: decodeErrors(e) }]
 }
 
-function respondSuccess<A, E>(encodeResponse: Encode<A, E>) {
-  return (res: express.Response) =>
+function respondSuccess<ReqA, A, E>(encodeResponse: (req: ReqA) => Encode<A, E>) {
+  return (req: ReqA, res: express.Response) =>
     flow(
-      encodeResponse,
+      encodeResponse(req),
       T.succeed,
       T.chain((r) =>
         T.succeedWith(() => {
@@ -167,7 +167,7 @@ function handleRequest<
   PR = unknown
 >(
   requestParsers: RequestParsers<PathA, CookieA, QueryA, BodyA, HeaderA>,
-  encodeResponse: Encode<ResA, ResE>,
+  encodeResponse: (r: ReqA) => Encode<ResA, ResE>,
   handle: (r: ReqA) => T.Effect<R & PR, SupportedErrors, ResA>,
   h?: (req: express.Request, res: express.Response) => L.Layer<R2, SupportedErrors, PR>
 ) {
@@ -176,16 +176,22 @@ function handleRequest<
   return (req: express.Request, res: express.Response) =>
     pipe(
       parseRequest(req),
-      T.chain(({ body, path, query }) => {
-        const hn = handle({
+      T.map(({ body, path, query }) => {
+        const hn = {
           ...O.toUndefined(body),
           ...O.toUndefined(query),
           ...O.toUndefined(path),
-        } as ReqA)
-        const r = h ? T.provideSomeLayer(h(req, res))(hn) : hn
-        return r as T.Effect<Erase<R & R2, PR>, SupportedErrors, ResA>
+        } as ReqA
+        return hn
       }),
-      T.chain(respond(res)),
+      T.chain((inp) => {
+        const hn = handle(inp)
+        const r = h ? T.provideSomeLayer(h(req, res))(hn) : hn
+        return pipe(
+          r as T.Effect<Erase<R & R2, PR>, SupportedErrors, ResA>,
+          T.chain((outp) => respond(inp, res)(outp))
+        )
+      }),
       T.catch("_tag", "ValidationError", (err) =>
         T.succeedWith(() => {
           res.status(400).send(err.errors)
@@ -229,6 +235,7 @@ export interface RequestHandlerOptRes<
   ReqA extends PathA & QueryA & BodyA,
   ResA
 > {
+  adaptResponse?
   h: (i: PathA & QueryA & BodyA & {}) => T.Effect<R, SupportedErrors, ResA>
   Request: Request<PathA, CookieA, QueryA, BodyA, HeaderA, ReqA>
   Response?: S.ReqRes<unknown, ResA> | S.ReqResSchemed<unknown, ResA>
@@ -244,9 +251,11 @@ export interface RequestHandler<
   ReqA extends PathA & QueryA & BodyA,
   ResA
 > {
+  adaptResponse?
   h: (i: PathA & QueryA & BodyA & {}) => T.Effect<R, SupportedErrors, ResA>
   Request: Request<PathA, CookieA, QueryA, BodyA, HeaderA, ReqA>
   Response: S.ReqRes<unknown, ResA> | S.ReqResSchemed<unknown, ResA>
+  ResponseOpenApi?: any
 }
 
 export interface RequestHandler2<
@@ -321,7 +330,9 @@ export function makeRequestHandler<
 ) {
   const { Request, Response } = handle
   const res = Response ? extractSchema(Response as any) : S.Void
-  const encodeResponse = Encoder.for(res)
+  const encodeResponse = handle.adaptResponse
+    ? (req: ReqA) => Encoder.for(handle.adaptResponse(req))
+    : () => Encoder.for(res)
   //const { shrink: shrinkResponse } = strict(Response)
   // flow(shrinkResponse, Sy.chain(encodeResponse))
 
@@ -334,7 +345,7 @@ export function makeRequestHandler<
     HeaderA,
     ResA,
     unknown,
-    PathA & BodyA & QueryA,
+    ReqA,
     R2,
     PR
   >(makeRequestParsers(Request), encodeResponse, handle.h, h)

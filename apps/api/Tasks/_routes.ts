@@ -8,9 +8,11 @@ import All from "./All"
 import Create from "./Create"
 import Find from "./Find"
 import Remove from "./Remove"
+import Search from "./Search"
 import Update from "./Update"
 
 export const routes = T.tuple(
+  R.match(Search, demandLoggedIn),
   R.match(All, demandLoggedIn),
   R.match(Create, demandLoggedIn),
   R.match(Find, demandLoggedIn),

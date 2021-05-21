@@ -1,24 +1,24 @@
 {
-    "name": "@effect-ts-demo/todo-client",
-    "version": "0.0.1",
-    "main": "index.ts",
-    "license": "MIT",
-    "private": true,
-    "dependencies": {
-        "@effect-ts-app/core": "*",
-        "@effect-ts-demo/todo-types": "*",
-        "@effect-ts/core": "^0.39.3",
-        "@effect-ts/monocle": "^0.32.0",
-        "cross-fetch": "^3.1.4",
-        "path-parser": "^6.1.0"
-    },
-    "scripts": {
-        "circular": "madge --circular --ts-config ./tsconfig.json --extensions ts ./",
-        "compile": "tsc --noEmit",
-        "lint": "eslint .",
-        "prettier": "prettier \"**/*.ts\"",
-        "autofix": "yarn lint --fix && yarn prettier --write",
-        "test": "echo 'no tests yet'",
-        "testsuite": "yarn compile && yarn lint && yarn test && yarn circular"
-    }
+  "name": "@effect-ts-demo/todo-client",
+  "version": "0.0.1",
+  "main": "index.ts",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "@effect-ts-app/core": "*",
+    "@effect-ts-demo/todo-types": "*",
+    "@effect-ts/core": "^0.39.3",
+    "@effect-ts/monocle": "^0.32.0",
+    "cross-fetch": "^3.1.4",
+    "path-parser": "^6.1.0"
+  },
+  "scripts": {
+    "circular": "madge --circular --ts-config ./tsconfig.json --extensions ts ./",
+    "compile": "tsc --noEmit",
+    "lint": "eslint .",
+    "prettier": "prettier \"**/*.ts\"",
+    "autofix": "yarn lint --fix && yarn prettier --write",
+    "test": "jest",
+    "testsuite": "yarn compile && yarn lint && yarn test && yarn circular"
+  }
 }
