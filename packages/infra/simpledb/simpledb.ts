@@ -4,7 +4,7 @@ import * as M from "@effect-ts/core/Effect/Managed"
 import * as Has from "@effect-ts/core/Has"
 import * as O from "@effect-ts/core/Option"
 import * as EO from "@effect-ts-app/core/ext/EffectOption"
-import { constVoid, pipe } from "@effect-ts-app/core/ext/Function"
+import { pipe } from "@effect-ts-app/core/ext/Function"
 
 import {
   CachedRecord,
@@ -96,8 +96,7 @@ export function storeDirectly<R, E, TKey extends string, A extends DBRecord<TKey
   return (record: A) =>
     getCache((c) =>
       pipe(
-        c.find(record.id),
-        EO.map((x) => x.version),
+        c.find(record.id)["|>"](EO.map((x) => x.version)),
         T.chain((cv) => save(record, cv)),
         T.tap((r) => c.set(record.id, r)),
         T.map((r) => r.data)
@@ -136,7 +135,7 @@ export function store<R, E, R2, E2, TKey extends string, EA, A extends DBRecord<
           T.tap(({ version }) =>
             version !== cv
               ? T.fail(new OptimisticLockException(type, record.id))
-              : T.succeed(constVoid())
+              : T.unit
           ),
           T.zipRight(save(record, O.some(cv)))
         )

@@ -4,7 +4,7 @@ import * as Eq from "@effect-ts/core/Equal"
 import * as O from "@effect-ts/core/Option"
 import * as Sy from "@effect-ts/core/Sync"
 import * as EO from "@effect-ts-app/core/ext/EffectOption"
-import { constVoid, flow, pipe } from "@effect-ts-app/core/ext/Function"
+import { flow, pipe } from "@effect-ts-app/core/ext/Function"
 import * as S from "@effect-ts-app/core/ext/Schema"
 
 import {
@@ -95,5 +95,5 @@ export function createContext<TKey extends string, EA, A extends DBRecord<TKey>>
 }
 
 function bogusLock() {
-  return M.make_(T.succeed(constVoid()), () => T.succeed(constVoid()))
+  return M.make_(T.unit, () => T.unit)
 }

@@ -1,7 +1,7 @@
 import * as T from "@effect-ts/core/Effect"
 import * as O from "@effect-ts/core/Option"
 import * as EO from "@effect-ts-app/core/ext/EffectOption"
-import { constVoid, pipe } from "@effect-ts-app/core/ext/Function"
+import { pipe } from "@effect-ts-app/core/ext/Function"
 import { CollectionInsertOneOptions, IndexSpecification } from "mongodb"
 
 import * as Mongo from "../mongo-client"
@@ -86,8 +86,9 @@ export function createContext<TKey extends string, EA, A extends DBRecord<TKey>>
                   .insertOne({ _id: record.id, version, timestamp: new Date(), data }, {
                     checkKeys: false, // support for keys with `.` and `$`. NOTE: you can write them, read them, but NOT query for them.
                   } as CollectionInsertOneOptions)
-                  .then(constVoid)
-              )["|>"](T.orDie),
+              )
+                ["|>"](T.asUnit)
+                ["|>"](T.orDie),
             (currentVersion) =>
               pipe(
                 T.tryPromise(() =>
@@ -102,7 +103,6 @@ export function createContext<TKey extends string, EA, A extends DBRecord<TKey>>
                   )
                 )["|>"](T.orDie),
                 T.chain((x) => {
-                  // TODO: or the document may have been deleted.
                   if (!x.modifiedCount) {
                     return T.fail(new OptimisticLockException(type, record.id))
                   }

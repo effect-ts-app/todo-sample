@@ -4,7 +4,7 @@ import * as M from "@effect-ts/core/Effect/Managed"
 import * as Has from "@effect-ts/core/Has"
 import * as O from "@effect-ts/core/Option"
 import { _A } from "@effect-ts/core/Utils"
-import { constVoid, pipe } from "@effect-ts-app/core/ext/Function"
+import { pipe } from "@effect-ts-app/core/ext/Function"
 import { createClient as createRedisClient } from "redis"
 import Redlock from "redlock"
 
@@ -24,7 +24,7 @@ const makeRedisClient = (redisUrl: string) =>
       pipe(
         T.uninterruptible(
           T.effectAsync<unknown, Error, void>((res) => {
-            cl.client.quit((err) => res(err ? T.fail(err) : T.succeed(constVoid())))
+            cl.client.quit((err) => res(err ? T.fail(err) : T.unit))
           })
         ),
         T.orDie
