@@ -2,7 +2,7 @@ import { IndexingPolicy } from "@azure/cosmos"
 import * as T from "@effect-ts/core/Effect"
 import * as O from "@effect-ts/core/Option"
 import * as EO from "@effect-ts-app/core/ext/EffectOption"
-import { constVoid, pipe } from "@effect-ts-app/core/ext/Function"
+import { pipe } from "@effect-ts-app/core/ext/Function"
 import { typedKeysOf } from "@effect-ts-app/core/ext/utils"
 
 import * as Cosmos from "../cosmos-client"
@@ -92,16 +92,14 @@ export function createContext<TKey extends string, EA, A extends DBRecord<TKey>>
             currentVersion,
             () =>
               T.tryPromise(() =>
-                db
-                  .container(type)
-                  .items.create({
-                    id: record.id,
-                    version,
-                    timestamp: new Date(),
-                    data,
-                  })
-                  .then(constVoid)
-              )["|>"](T.orDie),
+                db.container(type).items.create({
+                  id: record.id,
+                  timestamp: new Date(),
+                  data,
+                })
+              )
+                ["|>"](T.asUnit)
+                ["|>"](T.orDie),
             (currentVersion) =>
               pipe(
                 T.tryPromise(() =>
@@ -111,7 +109,6 @@ export function createContext<TKey extends string, EA, A extends DBRecord<TKey>>
                     .replace(
                       {
                         id: record.id,
-                        version,
                         timestamp: new Date(),
                         data,
                       },
