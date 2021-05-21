@@ -1,4 +1,5 @@
 import { IndexingPolicy } from "@azure/cosmos"
+import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as T from "@effect-ts/core/Effect"
 import * as O from "@effect-ts/core/Option"
 import * as EO from "@effect-ts-app/core/ext/EffectOption"
@@ -27,7 +28,6 @@ const setup = (type: string, indexingPolicy: IndexingPolicy) =>
     // TODO: Error if current indexingPolicy does not match
     //T.chain((db) => T.tryPromise(() => db.container(type).(indexes)))
   )
-
 export function createContext<TKey extends string, EA, A extends DBRecord<TKey>>() {
   return <REncode, RDecode, EDecode>(
     type: string,
@@ -64,18 +64,25 @@ export function createContext<TKey extends string, EA, A extends DBRecord<TKey>>
             db
               .container(type)
               .items.query({
-                query: `SELECT id from c as i WHERE ${typedKeysOf(parameters)
-                  .map((k) => `i.${k} = @${k}`)
-                  .join(" AND ")}`,
+                query: `
+SELECT ${type}.id
+FROM ${type} i
+WHERE (
+  ${typedKeysOf(parameters)
+    .map((k) => `i.${k} = @${k}`)
+    .join(" and ")}
+)
+LIMIT 1
+`,
                 parameters: typedKeysOf(parameters).map((p) => ({
-                  name: p,
+                  name: `@${p}`,
                   value: parameters[p],
                 })),
               })
               .fetchAll()
           )
         ),
-        T.map((x) => O.fromNullable(x.resources[0])),
+        T.map((x) => A.head(x.resources)),
         EO.map(({ id }) => id)
       )
     }

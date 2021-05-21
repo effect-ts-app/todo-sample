@@ -48,12 +48,7 @@ const getM =
   <R, E, A>(eff: (m: EffectMap<string, CachedRecord<T>>) => T.Effect<R, E, A>) =>
     T.gen(function* ($) {
       const { get } = yield* $(RecordCache)
-      return yield* $(
-        pipe(
-          get<T>(type),
-          T.chain((m) => eff(m))
-        )
-      )
+      return yield* $(pipe(get<T>(type), T.chain(eff)))
     })
 
 export function find<R, RDecode, EDecode, E, EA, A>(
