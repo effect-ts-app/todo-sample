@@ -1,16 +1,3 @@
-import * as T from "@effect-ts-app/core/ext/Effect"
-import * as EO from "@effect-ts-app/core/ext/EffectOption"
-import { makeCodec } from "@effect-ts-app/infra/context/schema"
-import {
-  Task,
-  TaskListOrGroup,
-  TaskListId,
-  TaskId,
-  UserId,
-  User,
-  TaskList,
-  TaskListGroup,
-} from "@effect-ts-demo/todo-types"
 import { Has } from "@effect-ts/core"
 import * as CNK from "@effect-ts/core/Collections/Immutable/Chunk"
 import * as Map from "@effect-ts/core/Collections/Immutable/Map"
@@ -19,10 +6,23 @@ import * as Ref from "@effect-ts/core/Effect/Ref"
 import { flow, identity, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import { _A } from "@effect-ts/core/Utils"
+import * as T from "@effect-ts-app/core/ext/Effect"
+import * as EO from "@effect-ts-app/core/ext/EffectOption"
+import { makeCodec } from "@effect-ts-app/infra/context/schema"
+import {
+  Task,
+  TaskId,
+  TaskList,
+  TaskListGroup,
+  TaskListId,
+  TaskListOrGroup,
+  User,
+  UserId,
+} from "@effect-ts-demo/todo-types"
 
+import { NotFoundError, NotLoggedInError } from "@/errors"
 import * as ListsAccess from "@/TaskLists/_access"
 import * as TasksAccess from "@/Tasks/_access"
-import { NotFoundError, NotLoggedInError } from "@/errors"
 
 import { makeTestDataUnsafe } from "./TodoContext.testdata"
 import * as UserSVC from "./User"

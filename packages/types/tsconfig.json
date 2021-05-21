@@ -1,20 +1,10 @@
 {
-    "extends": "../../tsconfig.base.json",
+    "extends": "../../tsconfig.json",
     "compilerOptions": {
-        "baseUrl": "./",
-        "paths": {
-            "@effect-ts-app/core/*": [
-                "packages/core/*"
-            ]
-        },
         "moduleResolution": "node",
         "outDir": "./"
     },
     "include": [
         "./"
-    ],
-    "exclude": [
-        "node_modules",
-        "../../node_modules"
     ]
 }

@@ -1,8 +1,4 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { Erase } from "@effect-ts-app/core/ext/Effect"
-import * as EO from "@effect-ts-app/core/ext/EffectOption"
-import * as S from "@effect-ts-app/core/ext/Schema"
-import { Encoder, extractSchema, Methods, Parser } from "@effect-ts-app/core/ext/Schema"
 import { DSL } from "@effect-ts/core"
 import { makeAssociative } from "@effect-ts/core/Associative"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
@@ -11,6 +7,10 @@ import * as L from "@effect-ts/core/Effect/Layer"
 import { flow, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import * as EU from "@effect-ts/core/Utils"
+import { Erase } from "@effect-ts-app/core/ext/Effect"
+import * as EO from "@effect-ts-app/core/ext/EffectOption"
+import * as S from "@effect-ts-app/core/ext/Schema"
+import { Encoder, extractSchema, Methods, Parser } from "@effect-ts-app/core/ext/Schema"
 import express from "express"
 
 import {
@@ -235,7 +235,7 @@ export interface RequestHandlerOptRes<
   ReqA extends PathA & QueryA & BodyA,
   ResA
 > {
-  adaptResponse?
+  adaptResponse?: any
   h: (i: PathA & QueryA & BodyA & {}) => T.Effect<R, SupportedErrors, ResA>
   Request: Request<PathA, CookieA, QueryA, BodyA, HeaderA, ReqA>
   Response?: S.ReqRes<unknown, ResA> | S.ReqResSchemed<unknown, ResA>
@@ -251,7 +251,7 @@ export interface RequestHandler<
   ReqA extends PathA & QueryA & BodyA,
   ResA
 > {
-  adaptResponse?
+  adaptResponse?: any
   h: (i: PathA & QueryA & BodyA & {}) => T.Effect<R, SupportedErrors, ResA>
   Request: Request<PathA, CookieA, QueryA, BodyA, HeaderA, ReqA>
   Response: S.ReqRes<unknown, ResA> | S.ReqResSchemed<unknown, ResA>

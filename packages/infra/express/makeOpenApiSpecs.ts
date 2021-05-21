@@ -4,7 +4,6 @@ import { makeRef } from "@effect-ts/core/Effect/Ref"
 import * as Plutus from "../Openapi/atlas-plutus"
 import { JSONSchema, SubSchema } from "../Openapi/atlas-plutus/JsonSchema"
 import { References } from "../Openapi/atlas-plutus/Schema"
-
 import { makeJsonSchema } from "./makeJsonSchema"
 import { RouteDescriptorAny } from "./schema/routing"
 

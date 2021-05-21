@@ -1,9 +1,9 @@
+import * as CNK from "@effect-ts/core/Collections/Immutable/Chunk"
+import { Chunk } from "@effect-ts/core/Collections/Immutable/Chunk"
 import * as O from "@effect-ts-app/core/ext/Option"
 import * as S from "@effect-ts-app/core/ext/Schema"
 import { makeAuthorize } from "@effect-ts-app/infra/app"
 import { Task, TaskList, UserId } from "@effect-ts-demo/todo-types"
-import * as CNK from "@effect-ts/core/Collections/Immutable/Chunk"
-import { Chunk } from "@effect-ts/core/Collections/Immutable/Chunk"
 
 import * as TaskListAccess from "@/TaskLists/_access"
 

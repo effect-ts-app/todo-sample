@@ -24,7 +24,7 @@ module.exports = {
     //"plugin:jest/recommended",
     "plugin:prettier/recommended", // Enables eslint-plugin-prettier and displays prettier errors as ESLint errors. Make sure this is always the last configuration in the extends array.
   ],
-  plugins: ["import", "sort-destructure-keys"],
+  plugins: ["import", "sort-destructure-keys", "simple-import-sort"],
   rules: {
     // too many changes
     "@typescript-eslint/ban-types": "warn",
@@ -46,16 +46,16 @@ module.exports = {
     // Place to specify ESLint rules. Can be used to overwrite rules specified from the extended configs
     // e.g. "@typescript-eslint/explicit-function-return-type": "off",
     "sort-destructure-keys/sort-destructure-keys": "error", // Mainly to sort render props
+
+    "sort-imports": "off",
+    "import/first": "error",
+    //"import/no-cycle": "error",
+    "import/newline-after-import": "error",
+    "import/no-duplicates": "error",
     "import/no-unresolved": "error",
-    "import/order": [
-      "error",
-      {
-        "newlines-between": "always",
-        pathGroups: [{ pattern: "@/**", group: "external", position: "after" }],
-        alphabetize: { order: "asc" },
-        groups: ["builtin", "external", "parent", "sibling", "index"],
-      },
-    ],
+    "import/order": "off",
+    "simple-import-sort/imports": "error",
+
     "object-shorthand": "error",
     "prefer-destructuring": "warn",
 

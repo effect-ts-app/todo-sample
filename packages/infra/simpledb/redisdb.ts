@@ -1,19 +1,18 @@
+import * as T from "@effect-ts/core/Effect"
+import * as M from "@effect-ts/core/Effect/Managed"
 import * as EO from "@effect-ts-app/core/ext/EffectOption"
 import { flow, pipe } from "@effect-ts-app/core/ext/Function"
 import * as S from "@effect-ts-app/core/ext/Schema"
-import * as T from "@effect-ts/core/Effect"
-import * as M from "@effect-ts/core/Effect/Managed"
 
 import * as RED from "../redis-client"
-
 import {
-  DBRecord,
   CachedRecord,
-  getRecordName,
-  CouldNotAquireDbLockException,
   ConnectionException,
-  Index,
+  CouldNotAquireDbLockException,
+  DBRecord,
   getIndexName,
+  getRecordName,
+  Index,
 } from "./shared"
 import * as simpledb from "./simpledb"
 

@@ -1,5 +1,6 @@
 import {
   array,
+  Get,
   include,
   literal,
   Model,
@@ -9,11 +10,10 @@ import {
   ParsedShapeOf,
   prop,
   props,
-  Get,
   reasonableString,
   union,
 } from "@effect-ts-app/core/ext/Schema"
-import { TaskListId, TaskId, User } from "@effect-ts-demo/todo-types"
+import { TaskId, TaskListId, User } from "@effect-ts-demo/todo-types"
 
 @namedC()
 export default class GetMe extends Get("/me")<GetMe>()() {}

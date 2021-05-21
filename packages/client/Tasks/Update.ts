@@ -1,9 +1,9 @@
 import {
   makeOptional,
-  prop,
-  Patch,
   metaC,
   namedC,
+  Patch,
+  prop,
 } from "@effect-ts-app/core/ext/Schema"
 import {
   EditablePersonalTaskProps,

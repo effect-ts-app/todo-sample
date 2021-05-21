@@ -1,19 +1,18 @@
 import {
   array,
+  defaultProp,
+  include,
   literal,
   Model,
   namedC,
   ParsedShapeOf,
-  union,
   prop,
-  include,
-  withDefault,
-  defaultProp,
   reasonableString,
+  union,
+  withDefault,
 } from "@effect-ts-app/core/ext/Schema"
 
 import { TaskId, TaskListId, UserId } from "./ids"
-
 import type { User } from "./User"
 
 @namedC()

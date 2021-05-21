@@ -1,5 +1,3 @@
-import path from "path"
-
 import { pipe } from "@effect-ts/core"
 import * as R from "@effect-ts/core/Collections/Immutable/Dictionary"
 import * as T from "@effect-ts/core/Effect"
@@ -7,6 +5,7 @@ import * as L from "@effect-ts/core/Effect/Layer"
 import * as F from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import * as C from "node-libcurl"
+import path from "path"
 import querystring, { ParsedQuery } from "query-string"
 
 import * as H from "./http-client"

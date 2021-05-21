@@ -1,38 +1,38 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // tracing: off
+import * as T from "@effect-ts/core/Effect"
+import * as O from "@effect-ts/core/Option"
 import {
-  EmailFromStringIdentifier,
-  EmailIdentifier,
-  PhoneNumberFromStringIdentifier,
-  PhoneNumberIdentifier,
-  boolIdentifier,
-  nullableIdentifier,
-  UUIDFromStringIdentifier,
-  hasContinuation,
-  intersectIdentifier,
-  SchemaContinuationSymbol,
-  unionIdentifier,
   arrayIdentifier,
+  boolIdentifier,
   chunkIdentifier,
   dateIdentifier,
+  EmailFromStringIdentifier,
+  EmailIdentifier,
   fromChunkIdentifier,
   fromStringIdentifier,
+  hasContinuation,
+  intersectIdentifier,
   intIdentifier,
   literalIdentifier,
+  maxLengthIdentifier,
+  metaIdentifier,
+  minLengthIdentifier,
   nonEmptyStringFromStringIdentifier,
   nonEmptyStringIdentifier,
+  nullableIdentifier,
   numberIdentifier,
+  PhoneNumberFromStringIdentifier,
+  PhoneNumberIdentifier,
   positiveIntFromNumberIdentifier,
   positiveIntIdentifier,
   propertiesIdentifier,
-  stringIdentifier,
-  metaIdentifier,
-  minLengthIdentifier,
-  maxLengthIdentifier,
   SchemaAnnotated,
+  SchemaContinuationSymbol,
+  stringIdentifier,
+  unionIdentifier,
+  UUIDFromStringIdentifier,
 } from "@effect-ts-app/core/ext/Schema"
-import * as T from "@effect-ts/core/Effect"
-import * as O from "@effect-ts/core/Option"
 
 import * as S from "../_schema"
 import {

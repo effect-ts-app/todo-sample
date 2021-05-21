@@ -2,7 +2,6 @@ import * as CNK from "@effect-ts/core/Collections/Immutable/Chunk"
 
 import { pipe } from "../../Function"
 import * as S from "../_schema"
-
 import { constrained } from "./length"
 
 // TODO: Word, for lorem ipsum generation, but as composition?

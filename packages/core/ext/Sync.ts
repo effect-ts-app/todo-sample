@@ -2,14 +2,14 @@
 import * as E from "@effect-ts/core/Either"
 import { Has, Tag } from "@effect-ts/core/Has"
 import {
-  Sync,
-  succeed,
-  fail,
   accessService,
   accessServiceM,
-  mapError,
-  succeedWith,
   chain_,
+  fail,
+  mapError,
+  succeed,
+  succeedWith,
+  Sync,
 } from "@effect-ts/core/Sync"
 
 export type ShapeFn<T> = Pick<

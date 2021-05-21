@@ -1,9 +1,9 @@
 import {
+  Get,
+  namedC,
   nullable,
   ParsedShapeOf,
   prop,
-  Get,
-  namedC,
 } from "@effect-ts-app/core/ext/Schema"
 import { TaskId } from "@effect-ts-demo/todo-types"
 

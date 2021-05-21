@@ -1,25 +1,25 @@
-import {
-  array,
-  date,
-  Model,
-  namedC,
-  ParsedShapeOf,
-  prop,
-  props,
-  defaultProp,
-  reasonableString,
-  Email,
-  PhoneNumber,
-  GetPartialConstructor,
-  partialConstructor,
-} from "@effect-ts-app/core/ext/Schema"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as O from "@effect-ts/core/Option"
 import { Option } from "@effect-ts/core/Option"
+import {
+  array,
+  date,
+  defaultProp,
+  Email,
+  GetPartialConstructor,
+  Model,
+  namedC,
+  ParsedShapeOf,
+  partialConstructor,
+  PhoneNumber,
+  prop,
+  props,
+  reasonableString,
+} from "@effect-ts-app/core/ext/Schema"
 
+import { TaskId, UserId } from "./ids"
 import { Task } from "./Task"
 import { TaskList, TaskListGroup } from "./TaskList"
-import { TaskId, UserId } from "./ids"
 
 const MyDay = props({ id: prop(TaskId), date: prop(date) /* position */ })
 type MyDay = ParsedShapeOf<typeof MyDay>

@@ -1,12 +1,11 @@
 /* eslint-disable @typescript-eslint/ban-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Erase } from "@effect-ts-app/core/ext/Effect"
 import * as Lens from "@effect-ts/monocle/Lens"
 import { unsafe } from "@effect-ts/schema/_api/condemn"
+import { Erase } from "@effect-ts-app/core/ext/Effect"
 import { Path } from "path-parser"
 
 import { Compute } from "../Compute"
-
 import * as S from "./_schema"
 import { AnyError, fromFields, schemaField, SchemaForModel } from "./_schema"
 

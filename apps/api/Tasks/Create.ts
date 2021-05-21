@@ -1,10 +1,10 @@
+import { pipe } from "@effect-ts/core"
+import * as T from "@effect-ts/core/Effect"
+import { identity } from "@effect-ts/system/Function"
 import * as EO from "@effect-ts-app/core/ext/EffectOption"
 import { handle } from "@effect-ts-app/infra/app"
 import { Tasks } from "@effect-ts-demo/todo-client"
 import { User } from "@effect-ts-demo/todo-types"
-import { pipe } from "@effect-ts/core"
-import * as T from "@effect-ts/core/Effect"
-import { identity } from "@effect-ts/system/Function"
 
 import { TodoContext } from "@/services"
 

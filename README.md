@@ -30,7 +30,20 @@ Interesting bits are in:
 - `apps/frontend/src/Tasks`
 - `packages/client` and `packages/types`
 
-You can interact via the included frontend project, the `docs/postman` collection, or go wild with `curl` if that's your thing ;-)
+You can interact via the included frontend project, the docs or swagger endpoint, Postman (by importing api/openapi.json), or go wild with `curl` if that's your thing ;-)
+
+### Postman
+
+1. import [openapi.json](apps/api/openapi.json)
+2. create an environment `localhost`, add `baseUrl` variable with value: `http://localhost:3330`, and make the environment active
+3. add a pre-request script to the collection:
+```
+pm.request.headers.add({
+        key: 'x-user',
+        value: '{ "sub": "0"}'
+    }
+);
+```
 
 ### Testing
 

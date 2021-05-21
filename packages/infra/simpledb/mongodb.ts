@@ -1,14 +1,14 @@
-import * as EO from "@effect-ts-app/core/ext/EffectOption"
-import { constVoid, pipe } from "@effect-ts-app/core/ext/Function"
 import * as T from "@effect-ts/core/Effect"
 import * as L from "@effect-ts/core/Effect/Layer"
 import * as M from "@effect-ts/core/Effect/Managed"
 import * as Has from "@effect-ts/core/Has"
 import * as O from "@effect-ts/core/Option"
 import { _A } from "@effect-ts/core/Utils"
-import { MongoClient, IndexSpecification, CollectionInsertOneOptions } from "mongodb"
+import * as EO from "@effect-ts-app/core/ext/EffectOption"
+import { constVoid, pipe } from "@effect-ts-app/core/ext/Function"
+import { CollectionInsertOneOptions, IndexSpecification, MongoClient } from "mongodb"
 
-import { DBRecord, CachedRecord, OptimisticLockException } from "./shared"
+import { CachedRecord, DBRecord, OptimisticLockException } from "./shared"
 import * as simpledb from "./simpledb"
 
 // TODO: we should probably share a single client...

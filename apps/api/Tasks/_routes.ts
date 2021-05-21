@@ -1,6 +1,6 @@
-import * as R from "@effect-ts-app/infra/express/schema/routing"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as T from "@effect-ts/core/Effect"
+import * as R from "@effect-ts-app/infra/express/schema/routing"
 
 import { demandLoggedIn } from "@/middleware"
 

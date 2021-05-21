@@ -1,5 +1,4 @@
 import * as O from "@effect-ts-app/core/ext/Option"
-
 import type { If } from "ts-toolbelt/out/Any/If"
 import type { Key } from "ts-toolbelt/out/Any/Key"
 import type { BuiltIn } from "ts-toolbelt/out/Misc/BuiltIn"

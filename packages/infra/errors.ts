@@ -1,4 +1,5 @@
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
+
 export class NotFoundError {
   public readonly _tag = "NotFoundError"
   public readonly message: string

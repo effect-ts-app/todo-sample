@@ -1,8 +1,8 @@
+import * as T from "@effect-ts/core/Effect"
+import * as Lens from "@effect-ts/monocle/Lens"
 import { handle } from "@effect-ts-app/infra/app"
 import { TaskLists } from "@effect-ts-demo/todo-client"
 import { TaskList, User } from "@effect-ts-demo/todo-types"
-import * as T from "@effect-ts/core/Effect"
-import * as Lens from "@effect-ts/monocle/Lens"
 
 import { TodoContext, UserSVC } from "@/services"
 

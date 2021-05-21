@@ -1,22 +1,21 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { DSL } from "@effect-ts/core"
+import type { Either } from "@effect-ts/core/Either"
+import type { Has, Tag } from "@effect-ts/core/Has"
+import type { Option } from "@effect-ts/core/Option"
 import * as OptionT from "@effect-ts/core/OptionT"
 import * as P from "@effect-ts/core/Prelude"
 import { intersect } from "@effect-ts/core/Utils"
 import * as Utils from "@effect-ts/core/Utils"
 import { _A, _E, _R } from "@effect-ts/system/Effect/commons"
+import type { Effect } from "@effect-ts/system/Effect/effect"
 import { fromEither } from "@effect-ts/system/Effect/fromEither"
 import { service } from "@effect-ts/system/Effect/has"
 
 import * as T from "./Effect"
 import * as F from "./Function"
-import { pipe, flow } from "./Function"
+import { flow, pipe } from "./Function"
 import * as O from "./Option"
-
-import type { Either } from "@effect-ts/core/Either"
-import type { Has, Tag } from "@effect-ts/core/Has"
-import type { Option } from "@effect-ts/core/Option"
-import type { Effect } from "@effect-ts/system/Effect/effect"
 
 export const Monad = OptionT.monad(T.Monad)
 export const Applicative = OptionT.applicative(T.Applicative)

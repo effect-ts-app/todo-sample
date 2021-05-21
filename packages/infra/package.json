@@ -14,7 +14,7 @@
         "winston": "^3.3.3"
     },
     "devDependencies": {
-        "@types/mongodb": "^3.6.13",
+        "@types/mongodb": "^3.6.15",
         "@types/proper-lockfile": "^4.1.1",
         "@types/redis": "^2.8.28",
         "@types/redlock": "^4.0.1",

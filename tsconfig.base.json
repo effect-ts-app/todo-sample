@@ -4,20 +4,6 @@
         "lib": [
             "es2020"
         ],
-        "paths": {
-            "@effect-ts-app/core/*": [
-                "packages/core/*"
-            ],
-            "@effect-ts-app/infra/*": [
-                "packages/infra/*"
-            ],
-            "@effect-ts-demo/todo-client/*": [
-                "packages/client/*"
-            ],
-            "@effect-ts-demo/todo-types/*": [
-                "packages/types/*"
-            ]
-        },
         "target": "es2020",
         "noErrorTruncation": true,
         "noEmit": true,
@@ -47,8 +33,11 @@
         // when they're updated a lot.
         "fallbackPolling": "dynamicPriority"
     },
+    "files": [],
     "include": [],
     "exclude": [
-        "node_modules/",
+        "node_modules",
+        "build",
+        "lib"
     ]
 }

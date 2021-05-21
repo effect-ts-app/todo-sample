@@ -1,7 +1,7 @@
-import { handle } from "@effect-ts-app/infra/app"
-import { TaskLists } from "@effect-ts-demo/todo-client"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as T from "@effect-ts/core/Effect"
+import { handle } from "@effect-ts-app/infra/app"
+import { TaskLists } from "@effect-ts-demo/todo-client"
 
 import { TodoContext, UserSVC } from "@/services"
 

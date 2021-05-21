@@ -1,8 +1,8 @@
+import { flow } from "@effect-ts/core/Function"
+import { Lens } from "@effect-ts/monocle"
 import * as O from "@effect-ts-app/core/ext/Option"
 import * as S from "@effect-ts-app/core/ext/Schema"
 import { Membership, Step, Task, User, UserId } from "@effect-ts-demo/todo-types"
-import { flow } from "@effect-ts/core/Function"
-import { Lens } from "@effect-ts/monocle"
 
 import { AUTH_DISABLED } from "@/config"
 

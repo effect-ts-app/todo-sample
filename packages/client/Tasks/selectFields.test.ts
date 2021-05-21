@@ -1,12 +1,11 @@
-import * as S from "@effect-ts-app/core/ext/Schema"
-import * as HF from "@effect-ts-app/core/http/http-client-fetch"
 import { pipe } from "@effect-ts/core"
 import * as T from "@effect-ts/core/Effect"
 import * as Test from "@effect-ts/jest/Test"
+import * as S from "@effect-ts-app/core/ext/Schema"
+import * as HF from "@effect-ts-app/core/http/http-client-fetch"
 import fetch from "cross-fetch"
 
 import { LiveApiConfig } from "../config"
-
 import { searchWithFields } from "./_custom"
 
 const { it } = Test.runtime()

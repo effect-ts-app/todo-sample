@@ -1,5 +1,5 @@
 {
-    "extends": "../../tsconfig.base.json",
+    "extends": "../../tsconfig.json",
     "compilerOptions": {
         "lib": [
             "dom",
@@ -10,14 +10,26 @@
             "@effect-ts-app/core/*": [
                 "../../packages/core/*"
             ],
+            "@effect-ts-app/core": [
+                "../../packages/core"
+            ],
             "@effect-ts-app/infra/*": [
                 "../../packages/infra/*"
+            ],
+            "@effect-ts-app/infra": [
+                "../../packages/infra"
+            ],
+            "@effect-ts-demo/todo-client/*": [
+                "../../packages/client/*"
+            ],
+            "@effect-ts-demo/todo-client": [
+                "../../packages/client"
             ],
             "@effect-ts-demo/todo-types/*": [
                 "../../packages/types/*"
             ],
-            "@effect-ts-demo/todo-client/*": [
-                "../../packages/client/*"
+            "@effect-ts-demo/todo-types": [
+                "../../packages/types"
             ],
             "@/*": [
                 "./*"
@@ -27,9 +39,5 @@
     },
     "include": [
         "./"
-    ],
-    "exclude": [
-        "node_modules",
-        "../../node_modules"
     ]
 }

@@ -1,7 +1,7 @@
+import * as T from "@effect-ts/core/Effect"
 import { handle } from "@effect-ts-app/infra/app"
 import { Tasks } from "@effect-ts-demo/todo-client"
 import { User } from "@effect-ts-demo/todo-types"
-import * as T from "@effect-ts/core/Effect"
 
 import { TodoContext, UserSVC } from "@/services"
 

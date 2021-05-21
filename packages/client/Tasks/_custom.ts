@@ -1,18 +1,17 @@
-import * as S from "@effect-ts-app/core/ext/Schema"
-import {
-  RequestSchemed,
-  ReqRes,
-  ReqResSchemed,
-  Parser,
-} from "@effect-ts-app/core/ext/Schema"
-import * as H from "@effect-ts-app/core/http/http-client"
 import { pipe } from "@effect-ts/core"
 import * as T from "@effect-ts/core/Effect"
 import { flow } from "@effect-ts/core/Function"
+import * as S from "@effect-ts-app/core/ext/Schema"
+import {
+  Parser,
+  ReqRes,
+  ReqResSchemed,
+  RequestSchemed,
+} from "@effect-ts-app/core/ext/Schema"
+import * as H from "@effect-ts-app/core/http/http-client"
 import { Path } from "path-parser"
 
 import { ComputeUnlessClass, fetchApi, ResponseError } from "../fetch"
-
 import * as Ts from "./_index"
 import { TaskView } from "./views"
 

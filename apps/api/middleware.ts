@@ -1,17 +1,17 @@
 /* eslint-disable @typescript-eslint/ban-types */
 
-import { RequestHandler } from "@effect-ts-app/infra/express/schema/requestHandler"
-import { readTextFile } from "@effect-ts-app/infra/simpledb/fileutil"
 import * as T from "@effect-ts/core/Effect"
 import * as L from "@effect-ts/core/Effect/Layer"
 import { pipe } from "@effect-ts/core/Function"
 import * as Ex from "@effect-ts/express"
+import { RequestHandler } from "@effect-ts-app/infra/express/schema/requestHandler"
+import { readTextFile } from "@effect-ts-app/infra/simpledb/fileutil"
 import express from "express"
 import jwt from "express-jwt"
 import jwtAuthz from "express-jwt-authz"
 import jwksRsa from "jwks-rsa"
 import redoc from "redoc-express"
-import { setup, serve } from "swagger-ui-express"
+import { serve, setup } from "swagger-ui-express"
 
 import * as cfg from "./config"
 import { NotLoggedInError } from "./errors"

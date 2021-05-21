@@ -10,14 +10,20 @@
             "@effect-ts-app/core/*": [
                 "../../packages/core/*"
             ],
+            "@effect-ts-app/core": [
+                "../../packages/core"
+            ],
             "@effect-ts-demo/todo-client/*": [
                 "../../packages/client/*"
+            ],
+            "@effect-ts-demo/todo-client": [
+                "../../packages/client"
             ],
             "@effect-ts-demo/todo-types/*": [
                 "../../packages/types/*"
             ],
-            "@/": [
-                "./"
+            "@effect-ts-demo/todo-types": [
+                "../../packages/types"
             ],
             "@/*": [
                 "./*"

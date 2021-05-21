@@ -1,8 +1,8 @@
 import {
+  fromArray,
   insert,
   insert_,
   toArray,
-  fromArray,
 } from "@effect-ts/core/Collections/Immutable/Set"
 import * as Eq from "@effect-ts/core/Equal"
 

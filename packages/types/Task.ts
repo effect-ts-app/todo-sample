@@ -1,22 +1,22 @@
+import * as O from "@effect-ts/core/Option"
+import * as Lens from "@effect-ts/monocle/Lens"
+import { constant } from "@effect-ts/system/Function"
 import {
   array,
   bool,
   date,
+  defaultProp,
+  include,
+  longString,
   Model,
   namedC,
   nullable,
   prop,
-  include,
-  withDefault,
-  defaultProp,
   reasonableString,
-  longString,
+  withDefault,
 } from "@effect-ts-app/core/ext/Schema"
-import * as O from "@effect-ts/core/Option"
-import * as Lens from "@effect-ts/monocle/Lens"
-import { constant } from "@effect-ts/system/Function"
 
-import { UserId, TaskId, TaskListIdU } from "./ids"
+import { TaskId, TaskListIdU, UserId } from "./ids"
 
 @namedC()
 export class Step extends Model<Step>()({

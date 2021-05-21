@@ -1,7 +1,6 @@
+import * as T from "@effect-ts/core/Effect"
 import fs from "fs"
 import { promisify } from "util"
-
-import * as T from "@effect-ts/core/Effect"
 
 const readFile = promisify(fs.readFile)
 const writeFile = promisify(fs.writeFile)

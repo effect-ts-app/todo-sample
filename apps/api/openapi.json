@@ -241,7 +241,7 @@
         }
       }
     },
-    "/tasks/:id": {
+    "/tasks/{id}": {
       "get": {
         "tags": [
           "Tasks"
@@ -390,12 +390,12 @@
         }
       }
     },
-    "/lists/:listId/tasks": {
+    "/lists/{listId}/tasks": {
       "post": {
         "tags": [
           "Lists"
         ],
-        "operationId": "CreateTask",
+        "operationId": "CreateTask2",
         "parameters": [
           {
             "name": "listId",
@@ -472,7 +472,7 @@
         }
       }
     },
-    "/lists/:id": {
+    "/lists/{id}": {
       "patch": {
         "tags": [
           "Lists"
@@ -546,7 +546,7 @@
         }
       }
     },
-    "/lists/:id/order": {
+    "/lists/{id}/order": {
       "post": {
         "tags": [
           "Lists"
@@ -607,7 +607,7 @@
         }
       }
     },
-    "/lists/:id/members": {
+    "/lists/{id}/members": {
       "post": {
         "tags": [
           "Lists"
@@ -655,7 +655,7 @@
         }
       }
     },
-    "/lists/:id/members/:memberId": {
+    "/lists/{id}/members/{memberId}": {
       "delete": {
         "tags": [
           "Lists"
@@ -694,7 +694,7 @@
         }
       }
     },
-    "/groups/:id": {
+    "/groups/{id}": {
       "patch": {
         "tags": [
           "Groups"

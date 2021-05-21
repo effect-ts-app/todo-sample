@@ -1,12 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import * as O from "@effect-ts-app/core/ext/Option"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
+import * as O from "@effect-ts-app/core/ext/Option"
 import { v4 } from "uuid"
 
 import { Compute } from "../Compute"
 import { constant, Lazy, pipe } from "../Function"
 import { typedKeysOf } from "../utils"
-
 import * as S from "./_schema"
 import { schemaField, UUID } from "./_schema"
 

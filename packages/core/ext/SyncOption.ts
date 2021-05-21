@@ -7,7 +7,7 @@ import * as P from "@effect-ts/core/Prelude"
 import { intersect } from "@effect-ts/core/Utils"
 import * as Utils from "@effect-ts/core/Utils"
 
-import { pipe, flow } from "./Function"
+import { flow, pipe } from "./Function"
 import * as O from "./Option"
 import * as T from "./Sync"
 import { GenSync, service, Sync } from "./Sync"

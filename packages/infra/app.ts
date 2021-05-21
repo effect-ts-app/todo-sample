@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import * as T from "@effect-ts/core/Effect"
 import { flow } from "@effect-ts-app/core/ext/Function"
 import * as S from "@effect-ts-app/core/ext/Schema"
-import * as T from "@effect-ts/core/Effect"
 
-import { UnauthorizedError, NotFoundError } from "./errors"
+import { NotFoundError, UnauthorizedError } from "./errors"
 
 export function handle<
   TModule extends Record<
@@ -13,7 +13,7 @@ export function handle<
   TRes extends { Model: S.SchemaAny } | S.SchemaAny = typeof S.Void
 >(
   _: TModule & { Response?: TRes; ResponseOpenApi?: any },
-  adaptResponse?
+  adaptResponse?: any
 ): <R, E>(
   h: (
     r: InstanceType<

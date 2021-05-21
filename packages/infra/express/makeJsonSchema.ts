@@ -9,6 +9,8 @@ import * as RS from "./schema/routing"
 
 type Methods = "GET" | "PUT" | "POST" | "PATCH" | "DELETE"
 
+const rx = /:(\w+)/g
+
 /**
  * Work in progress JSONSchema generator.
  */
@@ -36,8 +38,9 @@ export function makeJsonSchema(
         e,
         {} as Record<string, Record<Methods, ReturnType<typeof map>>>,
         (prev, e) => {
-          prev[e.path] = {
-            ...prev[e.path],
+          const path = e.path.replace(rx, (_a, b) => `{${b}}`)
+          prev[path] = {
+            ...prev[path],
             ...map(e),
           }
           return prev

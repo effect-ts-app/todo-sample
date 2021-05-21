@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import * as T from "@effect-ts/core/Effect"
+import { Has } from "@effect-ts/core/Has"
 import { flow, pipe } from "@effect-ts-app/core/ext/Function"
 import * as S from "@effect-ts-app/core/ext/Schema"
 import { ParsedShapeOf } from "@effect-ts-app/core/ext/Schema"
 import * as utils from "@effect-ts-app/core/ext/utils"
 import { typedKeysOf } from "@effect-ts-app/core/ext/utils"
 import * as H from "@effect-ts-app/core/http/http-client"
-import * as T from "@effect-ts/core/Effect"
-import { Has } from "@effect-ts/core/Has"
 import { Path } from "path-parser"
 
 import { ApiConfig } from "./config"

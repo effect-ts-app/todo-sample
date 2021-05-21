@@ -2,12 +2,12 @@ import {
   date,
   include,
   Model,
-  nullable,
-  prop,
-  Post,
   namedC,
+  nullable,
+  Post,
+  prop,
 } from "@effect-ts-app/core/ext/Schema"
-import { TaskId, Task } from "@effect-ts-demo/todo-types"
+import { Task, TaskId } from "@effect-ts-demo/todo-types"
 
 @namedC()
 export default class CreateTask extends Post("/tasks")<CreateTask>()({

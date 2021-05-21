@@ -1,9 +1,9 @@
-import { handle } from "@effect-ts-app/infra/app"
-import { Tasks } from "@effect-ts-demo/todo-client"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as CNK from "@effect-ts/core/Collections/Immutable/Chunk"
 import * as T from "@effect-ts/core/Effect"
 import * as O from "@effect-ts/core/Option"
+import { handle } from "@effect-ts-app/infra/app"
+import { Tasks } from "@effect-ts-demo/todo-client"
 
 import { TodoContext } from "@/services"
 

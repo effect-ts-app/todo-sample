@@ -1,28 +1,15 @@
 {
-    "extends": "../../tsconfig.base.json",
+    "extends": "../../tsconfig.json",
     "compilerOptions": {
         "lib": [
             "es2020",
             "DOM"
         ],
-        "baseUrl": "./",
-        "paths": {
-            "@effect-ts-app/core/*": [
-                "packages/core/*"
-            ],
-            "@effect-ts-demo/todo-types/*": [
-                "packages/types/*"
-            ]
-        },
         "moduleResolution": "node",
         "outDir": "./",
         "noEmit": true
     },
     "include": [
         "./"
-    ],
-    "exclude": [
-        "node_modules",
-        "../../node_modules"
     ]
 }

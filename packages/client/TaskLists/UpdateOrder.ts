@@ -1,4 +1,4 @@
-import { array, prop, Post, namedC } from "@effect-ts-app/core/ext/Schema"
+import { array, namedC, Post, prop } from "@effect-ts-app/core/ext/Schema"
 import { TaskId, TaskListIdU } from "@effect-ts-demo/todo-types"
 
 @namedC()

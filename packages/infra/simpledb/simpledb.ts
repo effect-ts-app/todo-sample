@@ -1,17 +1,17 @@
-import * as EO from "@effect-ts-app/core/ext/EffectOption"
-import { constVoid, pipe } from "@effect-ts-app/core/ext/Function"
 import * as T from "@effect-ts/core/Effect"
 import * as L from "@effect-ts/core/Effect/Layer"
 import * as M from "@effect-ts/core/Effect/Managed"
 import * as Has from "@effect-ts/core/Has"
 import * as O from "@effect-ts/core/Option"
+import * as EO from "@effect-ts-app/core/ext/EffectOption"
+import { constVoid, pipe } from "@effect-ts-app/core/ext/Function"
 
 import {
   CachedRecord,
   DBRecord,
-  OptimisticLockException,
   EffectMap,
   makeMap,
+  OptimisticLockException,
 } from "./shared"
 
 export function makeLiveRecordCache() {
