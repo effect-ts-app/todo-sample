@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as D from "@effect-ts/core/Collections/Immutable/Dictionary"
 import { None, Some } from "@effect-ts/core/Option"
 import { ComputeFlat, UnionToIntersection } from "@effect-ts/core/Utils"
@@ -112,6 +113,7 @@ export type Adapted<Props extends S.PropertyRecord, Key extends keyof Props> =
             }[Key]
           >
         >[],
+        // eslint-disable-next-line @typescript-eslint/ban-types
         {}
       >,
       "required",

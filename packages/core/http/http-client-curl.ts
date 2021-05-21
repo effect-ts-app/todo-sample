@@ -24,6 +24,7 @@ export const Client = (
       responseType: H.ResponseType,
       headers: Record<string, string>,
       body?: unknown
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ): T.IO<H.HttpError<string>, H.Response<any>> =>
       requestType === "FORM" || requestType === "BINARY"
         ? /* istanbul ignore next */ requestType === "FORM"

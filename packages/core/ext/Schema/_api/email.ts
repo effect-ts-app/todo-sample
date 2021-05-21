@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import * as CNK from "@effect-ts/core/Collections/Immutable/Chunk"
 
 import { pipe, Refinement } from "../../Function"
