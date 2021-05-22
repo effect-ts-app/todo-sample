@@ -1,5 +1,7 @@
 {
     "ignore": [
-        "openapi.json"
+        "openapi.json",
+        "*.test.ts",
+        "*.test.tsx"
     ]
 }
