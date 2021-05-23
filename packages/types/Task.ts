@@ -16,6 +16,8 @@ import {
   prop,
   props,
   reasonableString,
+  union,
+  UUID,
   withDefault,
 } from "@effect-ts-app/core/ext/Schema"
 
@@ -80,3 +82,18 @@ export class Task extends Model<Task>()({
     ["|>"](Lens.prop("completed"))
     .set(O.some(new Date()))
 }
+
+const EventProps = {
+  id: defaultProp(UUID),
+  createdAt: defaultProp(date),
+}
+
+export class TaskCreated extends Model<TaskCreated>()({
+  ...EventProps,
+  taskId: prop(TaskId),
+  userId: prop(UserId),
+  myDay: prop(MyDay),
+}) {}
+
+export const TaskEvents = union({ TaskCreated: TaskCreated.Model })
+export type TaskEvents = ParsedShapeOf<typeof TaskEvents>

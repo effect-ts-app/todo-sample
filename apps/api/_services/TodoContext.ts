@@ -11,6 +11,7 @@ import * as EO from "@effect-ts-app/core/ext/EffectOption"
 import { makeCodec } from "@effect-ts-app/infra/context/schema"
 import {
   Task,
+  TaskEvents,
   TaskId,
   TaskList,
   TaskListGroup,
@@ -23,6 +24,7 @@ import {
 import { NotFoundError, NotLoggedInError } from "@/errors"
 import * as ListsAccess from "@/TaskLists/_access"
 import * as TasksAccess from "@/Tasks/_access"
+import { handleEvents } from "@/Tasks/_events"
 
 import { makeTestDataUnsafe } from "./TodoContext.testdata"
 import * as UserSVC from "./User"
@@ -203,10 +205,12 @@ function makeTaskContext(tasks: Task[]) {
         T.chain(O.fold(() => T.fail(new NotFoundError("Task", id)), T.succeed))
       )
 
-    const add = (t: Task) =>
+    const save = (t: Task, events: readonly TaskEvents[] = []) =>
       pipe(
         T.structPar({ encT: encodeTask(t), tasks: tasksRef.get }),
-        T.chain(({ encT, tasks }) => tasksRef.set(tasks["|>"](Map.insert(t.id, encT))))
+        T.chain(({ encT, tasks }) => tasksRef.set(tasks["|>"](Map.insert(t.id, encT)))),
+        // TODO: this should span a transaction - actually all writes in a usecase should be within a transaction boundary.
+        T.tap(() => handleEvents(events))
       )
 
     const remove = (id: TaskId) =>
@@ -216,7 +220,7 @@ function makeTaskContext(tasks: Task[]) {
       )
 
     const updateM = <R, E>(id: TaskId, mod: (a: Task) => T.Effect<R, E, Task>) =>
-      pipe(get(id), T.chain(mod), T.tap(add))
+      pipe(get(id), T.chain(mod), T.tap(save))
 
     const all = (userId: UserId, lists: CNK.Chunk<TaskList>) =>
       pipe(
@@ -236,7 +240,7 @@ function makeTaskContext(tasks: Task[]) {
       get,
       update: (id: TaskId, mod: (a: Task) => Task) => updateM(id, T.liftM(mod)),
       updateM,
-      add,
+      save,
       remove,
     }
   })
