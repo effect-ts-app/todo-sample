@@ -23,9 +23,13 @@ export default handle(Tasks.Update)(({ id, myDay, ..._ }) =>
 )
 
 export function updateTask(_: OptionalEditableTaskProps) {
-  return (t: Task) => ({
+  return (t: Task) => updateTask_(t, _)
+}
+
+export function updateTask_(t: Task, _: OptionalEditableTaskProps) {
+  return {
     ...t,
     ..._,
     updatedAt: new Date(),
-  })
+  }
 }
