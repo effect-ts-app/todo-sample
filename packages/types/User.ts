@@ -37,39 +37,37 @@ export class User extends Model<User>()({
   myDay: defaultProp(array(MyDay)),
   phoneNumber: prop(PhoneNumber),
 }) {
-  static readonly createTask__ =
+  static createTask__ =
     (a: GetPartialConstructor<typeof User["createTask_"]>) => (u: User) =>
       User.createTask_(u, a)
 
-  static readonly createTask_ = (
-    u: User,
-    a: GetPartialConstructor<typeof User["createTask"]>
-  ) => User.createTask(u)(a)
-  static readonly createTask = (u: User) => createPartialTask({ createdBy: u.id })
+  static createTask_ = (u: User, a: GetPartialConstructor<typeof User["createTask"]>) =>
+    User.createTask(u)(a)
+  static createTask = (u: User) => createPartialTask({ createdBy: u.id })
 
-  static readonly createTaskList__ =
+  static createTaskList__ =
     (a: GetPartialConstructor<typeof User["createTaskList_"]>) => (u: User) =>
       User.createTaskList_(u, a)
 
-  static readonly createTaskList_ = (
+  static createTaskList_ = (
     u: User,
     a: GetPartialConstructor<typeof User["createTaskList"]>
   ) => User.createTaskList(u)(a)
-  static readonly createTaskList = (u: User) => createPartialTaskList({ ownerId: u.id })
+  static createTaskList = (u: User) => createPartialTaskList({ ownerId: u.id })
 
-  static readonly createTaskListGroup__ =
+  static createTaskListGroup__ =
     (a: GetPartialConstructor<typeof User["createTaskListGroup_"]>) => (u: User) =>
       User.createTaskListGroup_(u, a)
-  static readonly createTaskListGroup_ = (
+  static createTaskListGroup_ = (
     u: User,
     a: GetPartialConstructor<typeof User["createTaskListGroup"]>
   ) => User.createTaskListGroup(u)(a)
-  static readonly createTaskListGroup = (u: User) =>
+  static createTaskListGroup = (u: User) =>
     createPartialTaskListGroup({ ownerId: u.id })
 
-  static readonly getMyDay = (t: Task) => (u: User) =>
+  static getMyDay = (t: Task) => (u: User) =>
     A.findFirst_(u.myDay, (x) => x.id === t.id)["|>"](O.map((m) => m.date))
-  static readonly addToMyDay =
+  static addToMyDay =
     (t: Task, date: Date) =>
     (u: User): User => ({
       ...u,
@@ -77,13 +75,13 @@ export class User extends Model<User>()({
         ["|>"](O.chain((idx) => A.modifyAt_(u.myDay, idx, (m) => ({ ...m, date }))))
         ["|>"](O.getOrElse(() => A.snoc_(u.myDay, { id: t.id, date }))),
     })
-  static readonly removeFromMyDay =
+  static removeFromMyDay =
     (t: Task) =>
     (u: User): User => ({
       ...u,
       myDay: u.myDay["|>"](A.filter((m) => m.id !== t.id)),
     })
-  static readonly toggleMyDay = (t: Task, myDay: Option<Date>) =>
+  static toggleMyDay = (t: Task, myDay: Option<Date>) =>
     O.fold_(
       myDay,
       () => User.removeFromMyDay(t),
