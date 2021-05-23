@@ -49,19 +49,19 @@ function makeUserContext(users: User[]) {
         )
       )
 
-    const add = (t: User) =>
+    const save = (t: User) =>
       pipe(
         T.structPar({ encT: encodeUser(t), users: usersRef.get }),
         T.chain(({ encT, users }) => usersRef.set(users["|>"](Map.insert(t.id, encT))))
       )
 
     const updateM = <R, E>(id: UserId, mod: (a: User) => T.Effect<R, E, User>) =>
-      pipe(get(id), T.chain(mod), T.tap(add))
+      pipe(get(id), T.chain(mod), T.tap(save))
 
     return {
       find,
       get,
-      add,
+      save,
       updateM,
       update: (id: UserId, mod: (a: User) => User) => updateM(id, T.liftM(mod)),
     }
@@ -116,7 +116,7 @@ function makeListContext(lists: TaskListOrGroup[]) {
         )
       )
 
-    const add = (t: TaskListOrGroup) =>
+    const save = (t: TaskListOrGroup) =>
       pipe(
         T.structPar({ encT: encodeList(t), lists: listsRef.get }),
         T.chain(({ encT, lists }) => listsRef.set(lists["|>"](Map.insert(t.id, encT))))
@@ -149,17 +149,17 @@ function makeListContext(lists: TaskListOrGroup[]) {
     const updateM = <R, E>(
       id: TaskListId,
       mod: (a: TaskListOrGroup) => T.Effect<R, E, TaskListOrGroup>
-    ) => pipe(get(id), T.chain(mod), T.tap(add))
+    ) => pipe(get(id), T.chain(mod), T.tap(save))
 
     const updateListM = <R, E>(
       id: TaskListId,
       mod: (a: TaskList) => T.Effect<R, E, TaskList>
-    ) => pipe(getList(id), T.chain(mod), T.tap(add))
+    ) => pipe(getList(id), T.chain(mod), T.tap(save))
 
     const updateGroupM = <R, E>(
       id: TaskListId,
       mod: (a: TaskListGroup) => T.Effect<R, E, TaskListGroup>
-    ) => pipe(getGroup(id), T.chain(mod), T.tap(add))
+    ) => pipe(getGroup(id), T.chain(mod), T.tap(save))
 
     return {
       all,
