@@ -5,7 +5,13 @@ import * as T from "@effect-ts/core/Effect"
 import { _E, _R, ForcedTuple } from "@effect-ts/core/Utils"
 import * as EO from "@effect-ts-app/core/ext/EffectOption"
 import * as S from "@effect-ts-app/core/ext/Schema"
-import { TaskCreated, TaskEvents, User } from "@effect-ts-demo/todo-types"
+import {
+  TaskCreated,
+  TaskEvents,
+  TaskId,
+  User,
+  UserId,
+} from "@effect-ts-demo/todo-types"
 
 import { getLoggedInUser } from "@/_services/TodoContext"
 import { TodoContext } from "@/services"
@@ -24,7 +30,6 @@ export function handleEvents<T extends TaskEvents>(events: readonly T[]) {
 }
 
 const EventHandlers = {
-  // TODO: a sample for dispatching an Integration Event.
   TaskCreated: [
     // Sample: Update the "User" aggregate to store the myDay state for this Task.
     ({ myDay, taskId, userId }: TaskCreated) =>
@@ -32,9 +37,50 @@ const EventHandlers = {
         const { Users } = yield* $(TodoContext.TodoContext)
         yield* $(Users.update(userId, User.addToMyDay({ id: taskId }, yield* $(myDay))))
       }),
+
     // This is here just to test multiple handlers, and the merging of R and E accordingly.
     () => getLoggedInUser["|>"](T.asUnit),
+
+    // Sample for dispatching an Integration Event.
+    // On_TaskCreated_SendTaskCreatedEmail
+    ({ taskId, userId }: TaskCreated) =>
+      publishIntegrationEvent(new SendTaskCreatedEmail({ taskId, userId })),
   ] as const,
+}
+
+//////
+// Play with Integration events
+function publishIntegrationEvent(evt: IntegrationEvents) {
+  // TODO:
+  // 1. store to database within same transaction to ensure capturing the event
+  // 2. background worker picks up the event from database
+  // 3. background worker executes the required steps for this integration event, e.g;
+  //   - publish the event on a message bus, to be picked up by other micro services
+  //   - send email via e.g SendGrid
+  return unimplemented("publishIntegrationEvent: " + JSON.stringify(evt, undefined, 2))
+}
+
+export function IntegrationEventProps<T extends string>(tag: T) {
+  return {
+    _tag: S.prop(S.literal(tag)),
+    id: S.defaultProp(S.UUID),
+    createdAt: S.defaultProp(S.date),
+  }
+}
+
+export class SendTaskCreatedEmail extends S.Model<SendTaskCreatedEmail>()({
+  ...IntegrationEventProps("SendTaskCreatedEmail"),
+  taskId: S.prop(TaskId),
+  userId: S.prop(UserId),
+}) {}
+
+export const IntegrationEvents = S.union({
+  SendTaskCreatedEmail: SendTaskCreatedEmail.Model,
+})
+export type IntegrationEvents = S.ParsedShapeOf<typeof IntegrationEvents>
+
+function unimplemented(message: string) {
+  return T.succeedWith(() => console.warn("Called unimplemented: " + message))
 }
 
 ////
@@ -47,10 +93,4 @@ export function myTup<T extends readonly T.Effect<any, any, any>[]>(
 
 export type TupleA<T extends readonly T.Effect<any, any, any>[]> = {
   [K in keyof T]: [T[K]] extends [T.Effect<any, any, infer A>] ? A : never
-}
-
-// TODO
-export const IntegrationEventProps = {
-  id: S.defaultProp(S.UUID),
-  createdAt: S.defaultProp(S.date),
 }
