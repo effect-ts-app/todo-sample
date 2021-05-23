@@ -1,26 +1,26 @@
 import { flow } from "@effect-ts/core/Function"
 import { Lens } from "@effect-ts/monocle"
 import * as O from "@effect-ts-app/core/ext/Option"
-import * as S from "@effect-ts-app/core/ext/Schema"
-import { Membership, Step, Task, User, UserId } from "@effect-ts-demo/todo-types"
+import { Membership, Step, Task, User } from "@effect-ts-demo/todo-types"
 
 import { AUTH_DISABLED } from "@/config"
+import {
+  emailUnsafe,
+  phoneNumberUnsafe,
+  reasonableStringUnsafe,
+  userIdUnsafe,
+} from "@/test.helpers"
 
 // Model problems:
 // - isFavorite/reminder are per Task, not per User. Probably should store per user (like myDay now is), and then merge in?
 // - As ordering is currently saved per list, the ordering is shared with other users in the list. Feature?
 // - Instead of an Object model, a Data model was defined..
 
-const createUserId = S.Constructor.for(UserId)["|>"](S.unsafe)
-const createRS = S.Constructor.for(S.reasonableString)["|>"](S.unsafe)
-const createEmail = S.Constructor.for(S.Email)["|>"](S.unsafe)
-const createPhoneNumber = S.Constructor.for(S.PhoneNumber)["|>"](S.unsafe)
-
 function makeUserTaskCreator(u: User) {
   return flow(
     User.createTask(u),
     Task.lens["|>"](Lens.prop("title"))["|>"](
-      Lens.modify((t) => createRS(`${u.name} - ${t}`))
+      Lens.modify((t) => reasonableStringUnsafe(`${u.name} - ${t}`))
     )
   )
 }
@@ -28,55 +28,55 @@ function makeUserTaskCreator(u: User) {
 export function makeTestDataUnsafe() {
   // TODO: users from Auth0 / create local shadow.
   const patrick = new User({
-    id: createUserId(AUTH_DISABLED ? "0" : "google-oauth2|118082603933712729435"),
-    name: createRS("Patrick Roza"),
-    email: createEmail("somewhere@someplace.com"),
-    phoneNumber: createPhoneNumber("+49 1234567"),
+    id: userIdUnsafe(AUTH_DISABLED ? "0" : "google-oauth2|118082603933712729435"),
+    name: reasonableStringUnsafe("Patrick Roza"),
+    email: emailUnsafe("somewhere@someplace.com"),
+    phoneNumber: phoneNumberUnsafe("+49 1234567"),
   })
   const mike = new User({
-    id: createUserId("1"),
-    name: createRS("Mike Arnaldi"),
-    email: createEmail("somewhere@someplace.com"),
-    phoneNumber: createPhoneNumber("+49 1234567"),
+    id: userIdUnsafe("1"),
+    name: reasonableStringUnsafe("Mike Arnaldi"),
+    email: emailUnsafe("somewhere@someplace.com"),
+    phoneNumber: phoneNumberUnsafe("+49 1234567"),
   })
   const markus = new User({
-    id: createUserId("2"),
-    name: createRS("Markus Nomizz"),
-    email: createEmail("somewhere@someplace.com"),
-    phoneNumber: createPhoneNumber("+49 1234567"),
+    id: userIdUnsafe("2"),
+    name: reasonableStringUnsafe("Markus Nomizz"),
+    email: emailUnsafe("somewhere@someplace.com"),
+    phoneNumber: phoneNumberUnsafe("+49 1234567"),
   })
 
   const users = [patrick, mike, markus]
 
   const createPatrickList = User.createTaskList(patrick)
   const patrickList = createPatrickList({
-    title: createRS("Some Patrick List"),
+    title: reasonableStringUnsafe("Some Patrick List"),
   })
   const patrickSharedList = createPatrickList({
-    title: createRS("Patrick's shared List"),
+    title: reasonableStringUnsafe("Patrick's shared List"),
     members: [Membership.fromUser(mike), Membership.fromUser(markus)],
   })
 
   const mikeSharedList = User.createTaskList_(mike, {
-    title: createRS("Mike's shared List"),
+    title: reasonableStringUnsafe("Mike's shared List"),
     members: [Membership.fromUser(patrick)],
   })
 
   const markusSharedList = User.createTaskList_(markus, {
-    title: createRS("Markus's shared List"),
+    title: reasonableStringUnsafe("Markus's shared List"),
     members: [Membership.fromUser(patrick)],
   })
 
   const lists = [
     patrickList,
     User.createTaskListGroup_(patrick, {
-      title: createRS("Patrick - Some group"),
+      title: reasonableStringUnsafe("Patrick - Some group"),
       lists: [patrickSharedList.id, patrickList.id],
     }),
     patrickSharedList,
     ///////
     User.createTaskListGroup_(mike, {
-      title: createRS("Mike - Some group"),
+      title: reasonableStringUnsafe("Mike - Some group"),
       lists: [mikeSharedList.id],
     }),
     mikeSharedList,
@@ -90,86 +90,86 @@ export function makeTestDataUnsafe() {
 
   const tasks = [
     createPatrickTask({
-      title: createRS("My first Task"),
-      steps: [new Step({ title: createRS("first step") })],
+      title: reasonableStringUnsafe("My first Task"),
+      steps: [new Step({ title: reasonableStringUnsafe("first step") })],
     }),
     createPatrickTask({
-      title: createRS("My second Task"),
+      title: reasonableStringUnsafe("My second Task"),
     }),
     createPatrickTask({
-      title: createRS("My third Task"),
+      title: reasonableStringUnsafe("My third Task"),
       steps: [
         new Step({
-          title: createRS("first step"),
+          title: reasonableStringUnsafe("first step"),
           completed: true,
         }),
-        new Step({ title: createRS("second step") }),
+        new Step({ title: reasonableStringUnsafe("second step") }),
       ],
     })["|>"](Task.complete),
     createPatrickTask({
-      title: createRS("My third Task"),
+      title: reasonableStringUnsafe("My third Task"),
       steps: [
         new Step({
-          title: createRS("first step"),
+          title: reasonableStringUnsafe("first step"),
           completed: true,
         }),
         new Step({
-          title: createRS("second step"),
+          title: reasonableStringUnsafe("second step"),
         }),
       ],
       due: O.some(new Date(2021, 1, 1)),
     }),
     createPatrickTask({
-      title: createRS("My third Task"),
+      title: reasonableStringUnsafe("My third Task"),
       steps: [
         new Step({
-          title: createRS("first step"),
+          title: reasonableStringUnsafe("first step"),
           completed: true,
         }),
         new Step({
-          title: createRS("second step"),
+          title: reasonableStringUnsafe("second step"),
         }),
       ],
       due: O.some(new Date(2021, 2, 1)),
     }),
 
     createPatrickTask({
-      title: createRS("My fourth Task"),
+      title: reasonableStringUnsafe("My fourth Task"),
       steps: [
         new Step({
-          title: createRS("first step"),
+          title: reasonableStringUnsafe("first step"),
           completed: true,
         }),
         new Step({
-          title: createRS("second step"),
+          title: reasonableStringUnsafe("second step"),
         }),
       ],
       reminder: O.some(new Date(2021, 1, 1)),
     }),
 
     createPatrickTask({
-      title: createRS("My fifth Task"),
+      title: reasonableStringUnsafe("My fifth Task"),
       steps: [
         new Step({
-          title: createRS("first step"),
+          title: reasonableStringUnsafe("first step"),
           completed: true,
         }),
         new Step({
-          title: createRS("second step"),
+          title: reasonableStringUnsafe("second step"),
         }),
       ],
       listId: patrickSharedList.id,
       due: O.some(new Date(2021, 2, 1)),
     }),
     createPatrickTask({
-      title: createRS("My sixth Task"),
+      title: reasonableStringUnsafe("My sixth Task"),
       steps: [
         new Step({
-          title: createRS("first step"),
+          title: reasonableStringUnsafe("first step"),
           completed: true,
         }),
         new Step({
-          title: createRS("second step"),
+          title: reasonableStringUnsafe("second step"),
         }),
       ],
       listId: patrickSharedList.id,
@@ -177,14 +177,14 @@ export function makeTestDataUnsafe() {
     }),
 
     createPatrickTask({
-      title: createRS("My seventh Task"),
+      title: reasonableStringUnsafe("My seventh Task"),
       steps: [
         new Step({
-          title: createRS("first step"),
+          title: reasonableStringUnsafe("first step"),
           completed: true,
         }),
         new Step({
-          title: createRS("second step"),
+          title: reasonableStringUnsafe("second step"),
         }),
       ],
       listId: patrickSharedList.id,
@@ -192,36 +192,36 @@ export function makeTestDataUnsafe() {
     }),
 
     createPatrickTask({
-      title: createRS("My eight Task"),
+      title: reasonableStringUnsafe("My eight Task"),
       steps: [
         new Step({
-          title: createRS("first step"),
+          title: reasonableStringUnsafe("first step"),
           completed: true,
         }),
         new Step({
-          title: createRS("second step"),
+          title: reasonableStringUnsafe("second step"),
         }),
       ],
       listId: patrickSharedList.id,
     }),
     ///////
     createMikeTask({
-      title: createRS("My first Task"),
-      steps: [new Step({ title: createRS("first step") })],
+      title: reasonableStringUnsafe("My first Task"),
+      steps: [new Step({ title: reasonableStringUnsafe("first step") })],
     }),
     createMikeTask({
-      title: createRS("My second Task"),
-      steps: [new Step({ title: createRS("first step") })],
+      title: reasonableStringUnsafe("My second Task"),
+      steps: [new Step({ title: reasonableStringUnsafe("first step") })],
       listId: mikeSharedList.id,
     }),
     ///////
     createMarkusTask({
-      title: createRS("My first Task"),
-      steps: [new Step({ title: createRS("first step") })],
+      title: reasonableStringUnsafe("My first Task"),
+      steps: [new Step({ title: reasonableStringUnsafe("first step") })],
     }),
     createMarkusTask({
-      title: createRS("My second Task"),
-      steps: [new Step({ title: createRS("first step") })],
+      title: reasonableStringUnsafe("My second Task"),
+      steps: [new Step({ title: reasonableStringUnsafe("first step") })],
       listId: markusSharedList.id,
     }),
   ]

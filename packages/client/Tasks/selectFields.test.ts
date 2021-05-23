@@ -1,38 +1,42 @@
-import { pipe } from "@effect-ts/core"
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as T from "@effect-ts/core/Effect"
 import * as Test from "@effect-ts/jest/Test"
-import * as S from "@effect-ts-app/core/ext/Schema"
 import * as HF from "@effect-ts-app/core/http/http-client-fetch"
 import fetch from "cross-fetch"
 
 import { LiveApiConfig } from "../config"
+import * as h from "../test.helpers"
 import { searchWithFields } from "./_custom"
-
-const { it } = Test.runtime()
 
 const Env = LiveApiConfig({
   apiUrl: "http://localhost:3330",
   userProfileHeader: JSON.stringify({
     sub: "0",
   }),
-})[">+>"](HF.Client(fetch))
-const createPInt = S.Constructor.for(S.positiveInt)["|>"](S.unsafe)
+})["+++"](HF.Client(fetch))
 
-it("works", () =>
-  pipe(
-    T.gen(function* ($) {
-      const req = {
-        $select: ["id", "title"] as const,
-        $skip: createPInt(10),
-        $count: true,
-      }
-      const search = searchWithFields({})
-      const searchWithSomeFields = searchWithFields(req)
+const { it } = Test.runtime((l) => l["+++"](Env))
 
-      const allFields = yield* $(search)
-      const someFields = yield* $(searchWithSomeFields)
+it("works with full call", () =>
+  T.gen(function* ($) {
+    const search = searchWithFields({})
 
-      console.log(allFields, someFields)
-    }),
-    T.provideSomeLayer(Env)
-  ))
+    const allFields = yield* $(search)
+    expect(allFields.items[0].createdAt).toBeInstanceOf(Date)
+    console.log(allFields)
+  }))
+
+it("works with partial call", () =>
+  T.gen(function* ($) {
+    const req = {
+      $select: ["id", "title"] as const,
+      $skip: h.positiveIntUnsafe(10),
+      $count: true,
+    }
+    const searchWithSomeFields = searchWithFields(req)
+
+    const someFields = yield* $(searchWithSomeFields)
+
+    expect((someFields.items[0] as any).createdAt).toBeUndefined()
+    console.log(someFields)
+  }))
