@@ -26,6 +26,12 @@
       ],
       "@effect-ts-demo/todo-types": [
         "packages/types"
+      ],
+      "@/*": [
+        "apps/api/*"
+      ],
+      "@": [
+        "apps/api"
       ]
     },
     "target": "ES2018",
