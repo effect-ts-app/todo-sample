@@ -65,14 +65,13 @@ export function createContext<TKey extends string, EA, A extends DBRecord<TKey>>
               .container(type)
               .items.query({
                 query: `
-SELECT ${type}.id
+SELECT TOP 1 ${type}.id
 FROM ${type} i
 WHERE (
   ${typedKeysOf(parameters)
     .map((k) => `i.${k} = @${k}`)
     .join(" and ")}
 )
-LIMIT 1
 `,
                 parameters: typedKeysOf(parameters).map((p) => ({
                   name: `@${p}`,
