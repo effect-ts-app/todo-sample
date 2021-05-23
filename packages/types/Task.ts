@@ -17,7 +17,6 @@ import {
   props,
   reasonableString,
   union,
-  UUID,
   withDefault,
 } from "@effect-ts-app/core/ext/Schema"
 
@@ -83,13 +82,7 @@ export class Task extends Model<Task>()({
     .set(O.some(new Date()))
 }
 
-const EventProps = {
-  id: defaultProp(UUID),
-  createdAt: defaultProp(date),
-}
-
 export class TaskCreated extends Model<TaskCreated>()({
-  ...EventProps,
   taskId: prop(TaskId),
   userId: prop(UserId),
   myDay: prop(MyDay),

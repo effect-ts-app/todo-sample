@@ -4,6 +4,7 @@ import * as TUP from "@effect-ts/core/Collections/Immutable/Tuple"
 import * as T from "@effect-ts/core/Effect"
 import { _E, _R, ForcedTuple } from "@effect-ts/core/Utils"
 import * as EO from "@effect-ts-app/core/ext/EffectOption"
+import * as S from "@effect-ts-app/core/ext/Schema"
 import { TaskCreated, TaskEvents, User } from "@effect-ts-demo/todo-types"
 
 import { getLoggedInUser } from "@/_services/TodoContext"
@@ -46,4 +47,10 @@ export function myTup<T extends readonly T.Effect<any, any, any>[]>(
 
 export type TupleA<T extends readonly T.Effect<any, any, any>[]> = {
   [K in keyof T]: [T[K]] extends [T.Effect<any, any, infer A>] ? A : never
+}
+
+// TODO
+export const IntegrationEventProps = {
+  id: S.defaultProp(S.UUID),
+  createdAt: S.defaultProp(S.date),
 }
