@@ -20,29 +20,15 @@
     ],
     "description": "Operators Import"
   },
-  "Gen Function": {
-    "prefix": "gen",
-    "body": [
-      "function* (_) {}"
-    ],
-    "description": "Generator FUnction with _ input"
-  },
   "Gen Function $": {
-    "prefix": "gen$",
+    "prefix": "$gen",
     "body": [
       "function* ($) {}"
     ],
-    "description": "Generator FUnction with _ input"
-  },
-  "Gen Yield *": {
-    "prefix": "!",
-    "body": [
-      "yield* _()"
-    ],
-    "description": "Yield generator calling _()"
+    "description": "Generator Function with _ input"
   },
   "Gen Yield $": {
-    "prefix": "$",
+    "prefix": "$!",
     "body": [
       "yield* $()"
     ],
