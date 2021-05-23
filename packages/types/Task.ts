@@ -8,10 +8,13 @@ import {
   defaultProp,
   include,
   longString,
+  makeOptional,
   Model,
   namedC,
   nullable,
+  ParsedShapeOf,
   prop,
+  props,
   reasonableString,
   withDefault,
 } from "@effect-ts-app/core/ext/Schema"
@@ -38,9 +41,19 @@ export const EditableTaskProps = {
   assignedTo: prop(nullable(UserId)),
 }
 
+export const OptionalEditableTaskProps = props(makeOptional(EditableTaskProps))
+export type OptionalEditableTaskProps = ParsedShapeOf<typeof OptionalEditableTaskProps>
+
 export const EditablePersonalTaskProps = {
   myDay: prop(nullable(date)),
 }
+
+export const OptionalEditablePersonalTaskProps = props(
+  makeOptional(EditablePersonalTaskProps)
+)
+export type OptionalEditablePersonalTaskProps = ParsedShapeOf<
+  typeof OptionalEditablePersonalTaskProps
+>
 
 export class Task extends Model<Task>()({
   id: defaultProp(TaskId),

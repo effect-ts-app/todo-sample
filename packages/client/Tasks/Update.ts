@@ -1,13 +1,7 @@
+import { metaC, namedC, Patch, prop } from "@effect-ts-app/core/ext/Schema"
 import {
-  makeOptional,
-  metaC,
-  namedC,
-  Patch,
-  prop,
-} from "@effect-ts-app/core/ext/Schema"
-import {
-  EditablePersonalTaskProps,
-  EditableTaskProps,
+  OptionalEditablePersonalTaskProps,
+  OptionalEditableTaskProps,
   TaskId,
 } from "@effect-ts-demo/todo-types"
 
@@ -18,6 +12,6 @@ import {
 @namedC()
 export default class UpdateTask extends Patch("/tasks/:id")<UpdateTask>()({
   id: prop(TaskId),
-  ...makeOptional(EditableTaskProps),
-  ...makeOptional(EditablePersonalTaskProps),
+  ...OptionalEditableTaskProps.Api.props,
+  ...OptionalEditablePersonalTaskProps.Api.props,
 }) {}
