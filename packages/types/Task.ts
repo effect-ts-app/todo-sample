@@ -44,8 +44,10 @@ export const EditableTaskProps = {
 export const OptionalEditableTaskProps = props(makeOptional(EditableTaskProps))
 export type OptionalEditableTaskProps = ParsedShapeOf<typeof OptionalEditableTaskProps>
 
+export const MyDay = nullable(date)
+export type MyDay = ParsedShapeOf<typeof MyDay>
 export const EditablePersonalTaskProps = {
-  myDay: prop(nullable(date)),
+  myDay: prop(MyDay),
 }
 
 export const OptionalEditablePersonalTaskProps = props(

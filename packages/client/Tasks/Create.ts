@@ -1,13 +1,5 @@
-import {
-  date,
-  include,
-  Model,
-  namedC,
-  nullable,
-  Post,
-  prop,
-} from "@effect-ts-app/core/ext/Schema"
-import { Task, TaskId } from "@effect-ts-demo/todo-types"
+import { include, Model, namedC, Post, prop } from "@effect-ts-app/core/ext/Schema"
+import { MyDay, Task, TaskId } from "@effect-ts-demo/todo-types"
 
 @namedC()
 export default class CreateTask extends Post("/tasks")<CreateTask>()({
@@ -16,7 +8,7 @@ export default class CreateTask extends Post("/tasks")<CreateTask>()({
     title,
     isFavorite,
   })),
-  myDay: prop(nullable(date)),
+  myDay: prop(MyDay),
 }) {}
 
 export class Response extends Model<Response>()({ id: prop(TaskId) }) {}
