@@ -4,7 +4,10 @@
             "@babel/preset-env",
             {
                 "useBuiltIns": "usage",
-                "corejs": 3
+                "corejs": 3,
+                "targets": {
+                    "node": "current"
+                }
             }
         ],
         "@babel/preset-typescript"
@@ -17,14 +20,6 @@
             }
         ],
         "@babel/proposal-class-properties",
-        "@babel/proposal-object-rest-spread",
-        [
-            "module-resolver",
-            {
-                "alias": {
-                    "@": "./src"
-                }
-            }
-        ]
+        "@babel/proposal-object-rest-spread"
     ]
 }

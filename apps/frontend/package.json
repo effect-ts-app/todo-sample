@@ -85,7 +85,7 @@
         "prettier": "prettier \"**/*.ts\" \"**/*.tsx\"",
         "autofix": "yarn lint --fix && yarn prettier --write",
         "testsuite": "yarn compile && yarn lint && yarn circular",
-        "dev": "next dev -p 3133",
+        "dev": "AUTH_DISABLED=true next dev -p 3133",
         "build": "next build",
         "start": "next start"
     },
