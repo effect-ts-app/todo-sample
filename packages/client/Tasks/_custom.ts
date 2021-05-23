@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { pipe } from "@effect-ts/core"
 import * as T from "@effect-ts/core/Effect"
 import { flow } from "@effect-ts/core/Function"
@@ -11,6 +12,7 @@ import {
 import * as H from "@effect-ts-app/core/http/http-client"
 import { Path } from "path-parser"
 
+import { ExtractResponse } from "../clientFor"
 import { ComputeUnlessClass, fetchApi, ResponseError } from "../fetch"
 import * as Ts from "./_index"
 import { TaskView } from "./views"
@@ -41,7 +43,9 @@ const mksearchWithFields = () => {
       $select: readonly Key[] // TODO:
     }
   ): T.Effect<unknown, never, S.ParsedShapeOf<S.Adapted<Props, Key>>>
-  function a(req: Ts.Search.default): T.Effect<unknown, never, typeof res> // todo
+  function a(
+    req: Ts.Search.default
+  ): T.Effect<unknown, never, ExtractResponse<typeof res>> // todo
   function a(req: any): any {
     return pipe(
       fetchApi3S(b, Ts.Search.adapt)(req)

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { pipe } from "@effect-ts/core"
 import { flow } from "@effect-ts/core/Function"
 import { Compute } from "@effect-ts-app/core/ext/Compute"

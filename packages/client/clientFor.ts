@@ -72,7 +72,7 @@ export function clientFor<M extends Requests>(models: M) {
   }, {} as RequestHandlers<Has<ApiConfig> & Has<H.Http>, FetchError | ResponseError, M>)
 }
 
-type Extr<T> = T extends { Model: S.SchemaAny }
+export type ExtractResponse<T> = T extends { Model: S.SchemaAny }
   ? ParsedShapeOf<T["Model"]>
   : T extends S.SchemaAny
   ? ParsedShapeOf<T>
@@ -85,6 +85,8 @@ type RequestHandlers<R, E, M extends Requests> = {
   [K in keyof M & string as Uncapitalize<K>]: keyof S.GetRequest<
     M[K]
   >[S.schemaField]["Api"]["props"] extends never
-    ? T.Effect<R, E, Extr<M[K]["Response"]>>
-    : (req: InstanceType<S.GetRequest<M[K]>>) => T.Effect<R, E, Extr<M[K]["Response"]>>
+    ? T.Effect<R, E, ExtractResponse<M[K]["Response"]>>
+    : (
+        req: InstanceType<S.GetRequest<M[K]>>
+      ) => T.Effect<R, E, ExtractResponse<M[K]["Response"]>>
 }
