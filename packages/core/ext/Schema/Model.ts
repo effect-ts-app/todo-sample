@@ -7,7 +7,7 @@ import { Path } from "path-parser"
 
 import { Compute } from "../Compute"
 import * as S from "./_schema"
-import { AnyError, fromFields, schemaField, SchemaForModel } from "./_schema"
+import { AnyError, schemaField, SchemaForModel } from "./_schema"
 
 export const GET = "GET"
 export type GET = typeof GET
@@ -947,6 +947,12 @@ export function adaptRequest<
 export function Model_<M>() {
   return <Self extends S.SchemaAny>(self: Self): Model<M, Self> => {
     const of_ = S.Constructor.for(self)["|>"](unsafe)
+    const fromFields = (fields: any, target: any) => {
+      for (const k of Object.keys(fields)) {
+        target[k] = fields[k]
+      }
+    }
+
     // @ts-expect-error the following is correct
     return class {
       static [schemaField] = self
@@ -965,15 +971,12 @@ export function Model_<M>() {
 
       constructor(inp?: S.ConstructorInputOf<Self>) {
         if (inp) {
-          this[fromFields](of_(inp))
+          fromFields(of_(inp), this)
         }
       }
-      [fromFields](fields: any) {
-        for (const k of Object.keys(fields)) {
-          // @ts-expect-error The following is allowed
-          this[k] = fields[k]
-        }
-      }
+      // static copy(this, that) {
+      //   return fromFields(that, this)
+      // }
     }
   }
 }
