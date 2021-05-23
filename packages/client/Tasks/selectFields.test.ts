@@ -31,6 +31,7 @@ it("works", () =>
 
       const allFields = yield* $(search)
       const someFields = yield* $(searchWithSomeFields)
+
       console.log(allFields, someFields)
     }),
     T.provideSomeLayer(Env)
