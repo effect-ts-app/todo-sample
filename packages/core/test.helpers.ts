@@ -4,6 +4,8 @@ export const positiveInt = S.Constructor.for(S.positiveInt)
 export const positiveIntUnsafe = positiveInt["|>"](S.unsafe)
 export const reasonableString = S.Constructor.for(S.reasonableString)
 export const reasonableStringUnsafe = reasonableString["|>"](S.unsafe)
+export const longString = S.Constructor.for(S.longString)
+export const longStringUnsafe = longString["|>"](S.unsafe)
 
 export const nonEmptyString = S.Constructor.for(S.nonEmptyString)
 export const nonEmptyStringUnsafe = nonEmptyString["|>"](S.unsafe)

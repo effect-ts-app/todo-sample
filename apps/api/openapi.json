@@ -67,8 +67,10 @@
                         "listId",
                         "createdAt",
                         "updatedAt",
+                        "auditLog",
                         "title",
                         "assignedTo",
+                        "attachment",
                         "completed",
                         "due",
                         "note",
@@ -336,6 +338,32 @@
                   "assignedTo": {
                     "minLength": 1,
                     "type": "string",
+                    "nullable": true
+                  },
+                  "attachment": {
+                    "properties": {
+                      "fileName": {
+                        "minLength": 1,
+                        "maxLength": 255,
+                        "type": "string"
+                      },
+                      "mimetype": {
+                        "minLength": 1,
+                        "maxLength": 255,
+                        "type": "string"
+                      },
+                      "url": {
+                        "minLength": 1,
+                        "maxLength": 2047,
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "fileName",
+                      "mimetype",
+                      "url"
+                    ],
+                    "type": "object",
                     "nullable": true
                   },
                   "myDay": {
@@ -881,6 +909,72 @@
         ],
         "type": "object"
       },
+      "TaskCreated": {
+        "title": "TaskCreated",
+        "properties": {
+          "_tag": {
+            "enum": [
+              "TaskCreated"
+            ],
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "userId": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "_tag",
+          "id",
+          "createdAt",
+          "userId"
+        ],
+        "type": "object"
+      },
+      "TaskFileAdded": {
+        "title": "TaskFileAdded",
+        "properties": {
+          "_tag": {
+            "enum": [
+              "TaskFileAdded"
+            ],
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "userId": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "fileName": {
+            "minLength": 1,
+            "maxLength": 255,
+            "type": "string"
+          }
+        },
+        "required": [
+          "_tag",
+          "id",
+          "createdAt",
+          "userId",
+          "fileName"
+        ],
+        "type": "object"
+      },
       "Step": {
         "title": "Step",
         "properties": {
@@ -933,6 +1027,22 @@
             "format": "date-time",
             "type": "string"
           },
+          "auditLog": {
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/TaskCreated"
+                },
+                {
+                  "$ref": "#/components/schemas/TaskFileAdded"
+                }
+              ],
+              "discriminator": {
+                "propertyName": "_tag"
+              }
+            },
+            "type": "array"
+          },
           "title": {
             "minLength": 1,
             "maxLength": 255,
@@ -941,6 +1051,32 @@
           "assignedTo": {
             "minLength": 1,
             "type": "string",
+            "nullable": true
+          },
+          "attachment": {
+            "properties": {
+              "fileName": {
+                "minLength": 1,
+                "maxLength": 255,
+                "type": "string"
+              },
+              "mimetype": {
+                "minLength": 1,
+                "maxLength": 255,
+                "type": "string"
+              },
+              "url": {
+                "minLength": 1,
+                "maxLength": 2047,
+                "type": "string"
+              }
+            },
+            "required": [
+              "fileName",
+              "mimetype",
+              "url"
+            ],
+            "type": "object",
             "nullable": true
           },
           "completed": {
@@ -1014,6 +1150,22 @@
             "format": "date-time",
             "type": "string"
           },
+          "auditLog": {
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/TaskCreated"
+                },
+                {
+                  "$ref": "#/components/schemas/TaskFileAdded"
+                }
+              ],
+              "discriminator": {
+                "propertyName": "_tag"
+              }
+            },
+            "type": "array"
+          },
           "title": {
             "minLength": 1,
             "maxLength": 255,
@@ -1022,6 +1174,32 @@
           "assignedTo": {
             "minLength": 1,
             "type": "string",
+            "nullable": true
+          },
+          "attachment": {
+            "properties": {
+              "fileName": {
+                "minLength": 1,
+                "maxLength": 255,
+                "type": "string"
+              },
+              "mimetype": {
+                "minLength": 1,
+                "maxLength": 255,
+                "type": "string"
+              },
+              "url": {
+                "minLength": 1,
+                "maxLength": 2047,
+                "type": "string"
+              }
+            },
+            "required": [
+              "fileName",
+              "mimetype",
+              "url"
+            ],
+            "type": "object",
             "nullable": true
           },
           "completed": {
@@ -1066,8 +1244,10 @@
           "listId",
           "createdAt",
           "updatedAt",
+          "auditLog",
           "title",
           "assignedTo",
+          "attachment",
           "completed",
           "due",
           "note",

@@ -1,9 +1,17 @@
 import * as T from "@effect-ts/core/Effect"
+import { identity } from "@effect-ts/core/Function"
+import * as O from "@effect-ts-app/core/ext/Option"
 import { handle } from "@effect-ts-app/infra/app"
 import { Tasks } from "@effect-ts-demo/todo-client"
-import { OptionalEditableTaskProps, Task, User } from "@effect-ts-demo/todo-types"
+import {
+  MyDay,
+  OptionalEditableTaskProps,
+  Task,
+  TaskAudits,
+  User,
+} from "@effect-ts-demo/todo-types"
 
-import { TodoContext, UserSVC } from "@/services"
+import { TodoContext } from "@/services"
 
 import { TaskAuth } from "./_access"
 
@@ -11,25 +19,52 @@ export default handle(Tasks.Update)(({ id, myDay, ..._ }) =>
   T.gen(function* ($) {
     const { Lists, Tasks, Users } = yield* $(TodoContext.TodoContext)
 
-    const user = yield* $(UserSVC.UserProfile)
+    const user = yield* $(TodoContext.getLoggedInUser)
     const taskLists = yield* $(Lists.allLists(user.id))
-    const task = yield* $(
-      Tasks.updateM(id, TaskAuth(taskLists).access(user.id, updateTask(_)))
-    )
-    if (myDay) {
-      yield* $(Users.update(user.id, User.toggleMyDay(task, myDay)))
+    const task = yield* $(Tasks.get(id))
+    yield* $(TaskAuth(taskLists).access_(task, user.id, identity))
+    const [nt, nu] = updateTask_(task, user, _, myDay)
+
+    // TODO: Context should perhaps know if changed.
+    if (nt !== task) {
+      yield* $(Tasks.save(nt))
+    }
+    if (nu !== user) {
+      yield* $(Users.save(nu))
     }
   })
 )
 
-export function updateTask(_: OptionalEditableTaskProps) {
-  return (t: Task) => updateTask_(t, _)
+export function updateTask(user: User, _: OptionalEditableTaskProps, myDay?: MyDay) {
+  return (t: Task) => updateTask_(t, user, _, myDay)
 }
 
-export function updateTask_(t: Task, _: OptionalEditableTaskProps) {
-  return {
-    ...t,
-    ..._,
-    updatedAt: new Date(),
+export function updateTask_(
+  t: Task,
+  user: User,
+  _: OptionalEditableTaskProps,
+  myDay?: MyDay
+) {
+  t = Task.update_(t, _)
+  if (myDay) {
+    user = user["|>"](User.toggleMyDay(t, myDay))
   }
+  // Derive audits.
+  // NOTE: Obviously it would be easier if this was a Task Based approach, where each change would be specialised, instead of allowing to change all the editable props
+  // TODO: As adding an attachment is actually a special purpose use case, we should extract it to it's own use case + route.
+  if (_.attachment) {
+    t = _.attachment["|>"](
+      O.fold(
+        // TODO: Attachment removed?
+        () => t,
+        (a) =>
+          t["|>"](
+            Task.addAudit(
+              new TaskAudits.TaskFileAdded({ userId: user.id, fileName: a.fileName })
+            )
+          )
+      )
+    )
+  }
+  return [t, user] as const
 }

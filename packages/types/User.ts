@@ -68,7 +68,7 @@ export class User extends Model<User>()({
   static getMyDay = (t: Task) => (u: User) =>
     A.findFirst_(u.myDay, (x) => x.id === t.id)["|>"](O.map((m) => m.date))
   static addToMyDay =
-    (t: Task, date: Date) =>
+    (t: Pick<Task, "id">, date: Date) =>
     (u: User): User => ({
       ...u,
       myDay: A.findIndex_(u.myDay, (m) => m.id === t.id)
@@ -76,12 +76,12 @@ export class User extends Model<User>()({
         ["|>"](O.getOrElse(() => A.snoc_(u.myDay, { id: t.id, date }))),
     })
   static removeFromMyDay =
-    (t: Task) =>
+    (t: Pick<Task, "id">) =>
     (u: User): User => ({
       ...u,
       myDay: u.myDay["|>"](A.filter((m) => m.id !== t.id)),
     })
-  static toggleMyDay = (t: Task, myDay: Option<Date>) =>
+  static toggleMyDay = (t: Pick<Task, "id">, myDay: Option<Date>) =>
     O.fold_(
       myDay,
       () => User.removeFromMyDay(t),
