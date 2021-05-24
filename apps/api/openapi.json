@@ -902,18 +902,13 @@
           "userId": {
             "minLength": 1,
             "type": "string"
-          },
-          "taskId": {
-            "format": "uuid",
-            "type": "string"
           }
         },
         "required": [
           "_tag",
           "id",
           "createdAt",
-          "userId",
-          "taskId"
+          "userId"
         ],
         "type": "object"
       },
