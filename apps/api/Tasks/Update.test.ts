@@ -2,22 +2,18 @@
 import * as T from "@effect-ts/core/Effect"
 import * as Test from "@effect-ts/jest/Test"
 import * as O from "@effect-ts-app/core/ext/Option"
-import { Attachment, Task, TaskAudits } from "@effect-ts-demo/todo-types/Task"
+import { User } from "@effect-ts-demo/todo-types/"
+import { Attachment, TaskAudits } from "@effect-ts-demo/todo-types/Task"
 
 import * as h from "../test.helpers"
 import { updateTask_ } from "./Update"
 
 const { it } = Test.runtime()
-const user = h.testUser()
 
-let t: Task
-beforeEach(
-  () =>
-    (t = new Task({
-      title: h.reasonableStringUnsafe("hi"),
-      createdBy: h.nonEmptyStringUnsafe("1"),
-    }))
-)
+const user = h.testUser()
+const t = User.createTask_(user, {
+  title: h.reasonableStringUnsafe("hi"),
+})
 
 it("changes the provided props", () =>
   T.succeedWith(() => {
@@ -64,6 +60,8 @@ it("adds an Audit on file attachment added", () =>
 
     const [nt, nu] = updateTask_(t, user, { attachment: O.some(a) })
 
+    expect(t.auditLog.length).toBe(1)
+    expect(nt.auditLog.length).toBe(2)
     expect(nt.auditLog[1]).toEqual(
       new TaskAudits.TaskFileAdded({
         createdAt: expect.any(Date),
