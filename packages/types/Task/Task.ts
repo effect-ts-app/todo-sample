@@ -20,19 +20,11 @@ import {
   reasonableString,
   withDefault,
 } from "@effect-ts-app/core/ext/Schema"
+import { isTruthy } from "@effect-ts-app/core/ext/utils"
 
 import { TaskId, TaskListIdU, UserId } from "../ids"
-import { TaskAudit, TaskCreated } from "./audit"
-import { FileName, Url } from "./shared"
-
-export const MimeType = reasonableString
-export type MimeType = ParsedShapeOf<typeof MimeType>
-
-export class Attachment extends Model<Attachment>()({
-  fileName: prop(FileName),
-  mimetype: prop(MimeType),
-  url: prop(Url),
-}) {}
+import { TaskAudit, TaskCreated, TaskFileAdded } from "./audit"
+import { Attachment } from "./shared"
 
 @namedC()
 export class Step extends Model<Step>()({
@@ -104,7 +96,17 @@ export class Task extends Model<Task>()({
   ),
 }) {
   constructor(args: ConstructorInputOf<typeof Task.Model>) {
-    super({ ...args, auditLog: [new TaskCreated({ userId: args.createdBy })] })
+    super({
+      ...args,
+      auditLog: [
+        new TaskCreated({ userId: args.createdBy }),
+        args.attachment && O.isSome(args.attachment)
+          ? TaskFileAdded.fromAttachment(args.attachment.value)({
+              userId: args.createdBy,
+            })
+          : null,
+      ].filter(isTruthy),
+    })
   }
 
   static complete = Lens.id<Task>()

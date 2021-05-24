@@ -60,7 +60,7 @@ export function updateTask_(
         (a) =>
           t["|>"](
             Task.addAudit(
-              new TaskAudits.TaskFileAdded({ userId: user.id, fileName: a.fileName })
+              TaskAudits.TaskFileAdded.fromAttachment(a)({ userId: user.id })
             )
           )
       )

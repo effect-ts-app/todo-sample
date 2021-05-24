@@ -5,6 +5,7 @@ import {
   Model,
   namedC,
   ParsedShapeOf,
+  partialConstructor_,
   positiveInt,
   prop,
   union,
@@ -12,7 +13,7 @@ import {
 } from "@effect-ts-app/core/ext/Schema"
 
 import { UserId } from "../ids"
-import { FileName } from "./shared"
+import { Attachment, FileName } from "./shared"
 
 export function AuditProps<T extends string>(tag: T) {
   return {
@@ -32,7 +33,11 @@ export class TaskCreated extends Model<TaskCreated>()({
 export class TaskFileAdded extends Model<TaskFileAdded>()({
   ...AuditProps("TaskFileAdded"),
   fileName: prop(FileName),
-}) {}
+}) {
+  static fromAttachment(a: Attachment) {
+    return partialConstructor_(TaskFileAdded, { fileName: a.fileName })
+  }
+}
 
 @namedC()
 export class TaskStepsAdded extends Model<TaskStepsAdded>()({
