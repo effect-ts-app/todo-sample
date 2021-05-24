@@ -1,5 +1,5 @@
-import * as T from "@effect-ts/core/Effect"
-import { constant, identity } from "@effect-ts/core/Function"
+import { flow, identity } from "@effect-ts/core/Function"
+import * as T from "@effect-ts-app/core/ext/Effect"
 import * as O from "@effect-ts-app/core/ext/Option"
 import { handle } from "@effect-ts-app/infra/app"
 import { Tasks } from "@effect-ts-demo/todo-client"
@@ -27,7 +27,10 @@ export default handle(Tasks.Update)(({ id, myDay, ..._ }) =>
 
     // TODO: Context should perhaps know if changed, and should use a transaction
     yield* $(
-      T.tuple(whenChanged(Tasks.save_)(nt, task), whenChanged(Users.save)(nu, user))
+      T.tuple(
+        Tasks.save_["|>"](T.ifDiff(nt, task)),
+        Users.save["|>"](T.ifDiff(nu, user))
+      )
     )
   })
 )
@@ -54,20 +57,12 @@ export function updateTask_(
       O.fold(
         // TODO: Attachment removed?
         () => t,
-        (a) =>
-          t["|>"](
-            Task.addAudit(
-              TaskAudits.TaskFileAdded.fromAttachment(a)({ userId: user.id })
-            )
-          )
+        flow(
+          TaskAudits.TaskFileAdded.fromAttachment({ userId: user.id }),
+          Task.addAuditR(t)
+        )
       )
     )
   }
   return [t, user] as const
 }
-
-function whenChanged<I, R, E, A>(f: (i: I) => T.Effect<R, E, A>) {
-  return (n: I, orig: I) => T.if(() => f(n), constUnit)(n !== orig)
-}
-
-const constUnit = constant(T.unit)

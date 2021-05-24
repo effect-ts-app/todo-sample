@@ -1,12 +1,12 @@
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as O from "@effect-ts/core/Option"
 import { Option } from "@effect-ts/core/Option"
+import { LazyGetter } from "@effect-ts/core/Utils"
 import {
   array,
   date,
   defaultProp,
   Email,
-  GetPartialConstructor,
   Model,
   namedC,
   ParsedShapeOf,
@@ -16,6 +16,7 @@ import {
   props,
   reasonableString,
 } from "@effect-ts-app/core/ext/Schema"
+import { reverseCurry, uncurry } from "@effect-ts-app/core/ext/utils"
 
 import { TaskId, UserId } from "./ids"
 import { Task } from "./Task"
@@ -37,32 +38,38 @@ export class User extends Model<User>()({
   myDay: defaultProp(array(MyDay)),
   phoneNumber: prop(PhoneNumber),
 }) {
-  static createTask__ =
-    (a: GetPartialConstructor<typeof User["createTask_"]>) => (u: User) =>
-      User.createTask_(u, a)
+  @LazyGetter()
+  static get createTask() {
+    return reverseCurry(User.createTaskR)
+  }
 
-  static createTask_ = (u: User, a: GetPartialConstructor<typeof User["createTask"]>) =>
-    User.createTask(u)(a)
-  static createTask = (u: User) => createPartialTask({ createdBy: u.id })
+  @LazyGetter()
+  static get createTask_() {
+    return uncurry(User.createTask)
+  }
+  static createTaskR = (u: User) => createPartialTask({ createdBy: u.id })
 
-  static createTaskList__ =
-    (a: GetPartialConstructor<typeof User["createTaskList_"]>) => (u: User) =>
-      User.createTaskList_(u, a)
+  @LazyGetter()
+  static get createTaskList() {
+    return reverseCurry(User.createTaskListR)
+  }
 
-  static createTaskList_ = (
-    u: User,
-    a: GetPartialConstructor<typeof User["createTaskList"]>
-  ) => User.createTaskList(u)(a)
-  static createTaskList = (u: User) => createPartialTaskList({ ownerId: u.id })
+  @LazyGetter()
+  static get createTaskList_() {
+    return uncurry(User.createTaskList)
+  }
+  static createTaskListR = (u: User) => createPartialTaskList({ ownerId: u.id })
 
-  static createTaskListGroup__ =
-    (a: GetPartialConstructor<typeof User["createTaskListGroup_"]>) => (u: User) =>
-      User.createTaskListGroup_(u, a)
-  static createTaskListGroup_ = (
-    u: User,
-    a: GetPartialConstructor<typeof User["createTaskListGroup"]>
-  ) => User.createTaskListGroup(u)(a)
-  static createTaskListGroup = (u: User) =>
+  @LazyGetter()
+  static get createTaskListGroup() {
+    return reverseCurry(User.createTaskListGroupR)
+  }
+
+  @LazyGetter()
+  static get createTaskListGroup_() {
+    return uncurry(User.createTaskListGroup)
+  }
+  static createTaskListGroupR = (u: User) =>
     createPartialTaskListGroup({ ownerId: u.id })
 
   static getMyDay = (t: Task) => (u: User) =>

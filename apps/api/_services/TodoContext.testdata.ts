@@ -18,7 +18,7 @@ import {
 
 function makeUserTaskCreator(u: User) {
   return flow(
-    User.createTask(u),
+    User.createTaskR(u),
     Task.lens["|>"](Lens.prop("title"))["|>"](
       Lens.modify((t) => reasonableStringUnsafe(`${u.name} - ${t}`))
     )
@@ -48,7 +48,7 @@ export function makeTestDataUnsafe() {
 
   const users = [patrick, mike, markus]
 
-  const createPatrickList = User.createTaskList(patrick)
+  const createPatrickList = User.createTaskListR(patrick)
   const patrickList = createPatrickList({
     title: reasonableStringUnsafe("Some Patrick List"),
   })

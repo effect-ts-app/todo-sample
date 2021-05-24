@@ -70,3 +70,19 @@ export function capitalize<T extends string>(string: T): Capitalize<T> {
 export function uncapitalize<T extends string>(string: T): Uncapitalize<T> {
   return (string.charAt(0).toLowerCase() + string.slice(1)) as Uncapitalize<T>
 }
+
+export function tupledCurry<A, B, C>(f: (b: B) => (a: A) => C) {
+  return (t: [A, B]) => f(t[1])(t[0])
+}
+
+export function reverseCurry<A, B, C>(f: (b: B) => (a: A) => C) {
+  return (a: A) => (b: B) => f(b)(a)
+}
+
+export function curry<A, B, C>(f: (a: A, b: B) => C) {
+  return (b: B) => (a: A) => f(a, b)
+}
+
+export function uncurry<A, B, C>(f: (b: B) => (a: A) => C) {
+  return (a: A, b: B) => f(b)(a)
+}

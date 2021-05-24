@@ -5,15 +5,17 @@ import {
   effectAsyncInterrupt,
   fail,
   fromEither,
+  if_,
   IO,
   succeed,
   succeedWith,
   tap,
+  unit,
 } from "@effect-ts/core/Effect"
 import type * as Ei from "@effect-ts/core/Either"
 import * as O from "@effect-ts/core/Option"
 
-import { flow, Lazy, pipe } from "./Function"
+import { constant, flow, Lazy, pipe } from "./Function"
 
 export const encaseEither = <E, A>(ei: Ei.Either<E, A>) => fromEither(() => ei)
 export const chainEither = <E, A, A2>(ei: (a: A2) => Ei.Either<E, A>) =>
@@ -50,5 +52,19 @@ export function liftM<A, B>(a: (a: A) => B) {
 export function tupleCurriedTap<A, B, R, E, C>(f: (b: B) => (a: A) => Effect<R, E, C>) {
   return (t: readonly [A, B]) => succeed(t[0])["|>"](tap(f(t[1])))
 }
+
+export function ifDiffR<I, R, E, A>(f: (i: I) => Effect<R, E, A>) {
+  return (n: I, orig: I) => ifDiff_(n, orig, f)
+}
+
+export function ifDiff<I, R, E, A>(n: I, orig: I) {
+  return (f: (i: I) => Effect<R, E, A>) => ifDiff_(n, orig, f)
+}
+
+export function ifDiff_<I, R, E, A>(n: I, orig: I, f: (i: I) => Effect<R, E, A>) {
+  return if_(n !== orig, () => f(n), constUnit)
+}
+
+const constUnit = constant(unit)
 
 export * from "@effect-ts/core/Effect"

@@ -1,3 +1,4 @@
+import { LazyGetter } from "@effect-ts/core/Utils"
 import {
   date,
   defaultProp,
@@ -11,6 +12,7 @@ import {
   union,
   UUID,
 } from "@effect-ts-app/core/ext/Schema"
+import { reverseCurry } from "@effect-ts-app/core/ext/utils"
 
 import { UserId } from "../ids"
 import { Attachment, FileName } from "./shared"
@@ -34,8 +36,12 @@ export class TaskFileAdded extends Model<TaskFileAdded>()({
   ...AuditProps("TaskFileAdded"),
   fileName: prop(FileName),
 }) {
-  static fromAttachment(a: Attachment) {
-    return partialConstructor_(TaskFileAdded, { fileName: a.fileName })
+  static fromAttachmentR = (a: Attachment) =>
+    partialConstructor_(TaskFileAdded, { fileName: a.fileName })
+
+  @LazyGetter()
+  static get fromAttachment() {
+    return reverseCurry(TaskFileAdded.fromAttachmentR)
   }
 }
 
