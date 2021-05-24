@@ -20,10 +20,9 @@ import {
   reasonableString,
   withDefault,
 } from "@effect-ts-app/core/ext/Schema"
-import { isTruthy } from "@effect-ts-app/core/ext/utils"
 
 import { TaskId, TaskListIdU, UserId } from "../ids"
-import { TaskAudit, TaskCreated, TaskFileAdded } from "./audit"
+import { TaskAudit, TaskCreated } from "./audit"
 import { Attachment } from "./shared"
 
 @namedC()
@@ -98,14 +97,7 @@ export class Task extends Model<Task>()({
   constructor(args: ConstructorInputOf<typeof Task.Model>) {
     super({
       ...args,
-      auditLog: [
-        new TaskCreated({ userId: args.createdBy }),
-        args.attachment && O.isSome(args.attachment)
-          ? TaskFileAdded.fromAttachment(args.attachment.value)({
-              userId: args.createdBy,
-            })
-          : null,
-      ].filter(isTruthy),
+      auditLog: [new TaskCreated({ userId: args.createdBy })],
     })
   }
 
