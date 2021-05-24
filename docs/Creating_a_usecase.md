@@ -38,7 +38,7 @@ export default handle({ Request, Response })(
       yield* $(TaskListAuth.access_(list, user.id, identity))
     }
 
-    const task = User.createTask_(user, _)
+    const task = User.createTask._(user, _)
     yield* $(Tasks.add(task))
     yield* $(
       pipe(

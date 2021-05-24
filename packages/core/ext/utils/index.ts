@@ -86,3 +86,44 @@ export function curry<A, B, C>(f: (a: A, b: B) => C) {
 export function uncurry<A, B, C>(f: (b: B) => (a: A) => C) {
   return (a: A, b: B) => f(b)(a)
 }
+
+export function curriedMagix<A, B, C>(f: (b: B) => (a: A) => C) {
+  return Object.assign(f, {
+    /**
+     * Uncurried version of the parent function
+     */
+    _: uncurry(f),
+    /**
+     * Reverse curried version of the parent function
+     */
+    r: reverseCurry(f),
+  })
+}
+
+export function uncurriedMagix<A, B, C>(f: (a: A, b: B) => C) {
+  const curried = curry(f)
+  return Object.assign(curried, {
+    /**
+     * Uncurried version of the parent function
+     */
+    _: f,
+    /**
+     * Reverse curried version of the parent function
+     */
+    r: reverseCurry(curried),
+  })
+}
+
+export function reverseCurriedMagix<A, B, C>(f: (a: A) => (b: B) => C) {
+  const curried = reverseCurry(f)
+  return Object.assign(curried, {
+    /**
+     * Uncurried version of the parent function
+     */
+    _: uncurry(curried),
+    /**
+     * Reverse curried version of the parent function
+     */
+    r: f,
+  })
+}

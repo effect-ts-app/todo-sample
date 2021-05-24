@@ -1,7 +1,6 @@
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as O from "@effect-ts/core/Option"
 import { Option } from "@effect-ts/core/Option"
-import { LazyGetter } from "@effect-ts/core/Utils"
 import {
   array,
   date,
@@ -16,7 +15,7 @@ import {
   props,
   reasonableString,
 } from "@effect-ts-app/core/ext/Schema"
-import { reverseCurry, uncurry } from "@effect-ts-app/core/ext/utils"
+import { reverseCurriedMagix } from "@effect-ts-app/core/ext/utils"
 
 import { TaskId, UserId } from "./ids"
 import { Task } from "./Task"
@@ -38,39 +37,15 @@ export class User extends Model<User>()({
   myDay: defaultProp(array(MyDay)),
   phoneNumber: prop(PhoneNumber),
 }) {
-  @LazyGetter()
-  static get createTask() {
-    return reverseCurry(User.createTaskR)
-  }
-
-  @LazyGetter()
-  static get createTask_() {
-    return uncurry(User.createTask)
-  }
-  static createTaskR = (u: User) => createPartialTask({ createdBy: u.id })
-
-  @LazyGetter()
-  static get createTaskList() {
-    return reverseCurry(User.createTaskListR)
-  }
-
-  @LazyGetter()
-  static get createTaskList_() {
-    return uncurry(User.createTaskList)
-  }
-  static createTaskListR = (u: User) => createPartialTaskList({ ownerId: u.id })
-
-  @LazyGetter()
-  static get createTaskListGroup() {
-    return reverseCurry(User.createTaskListGroupR)
-  }
-
-  @LazyGetter()
-  static get createTaskListGroup_() {
-    return uncurry(User.createTaskListGroup)
-  }
-  static createTaskListGroupR = (u: User) =>
+  static createTask = reverseCurriedMagix((u: User) =>
+    createPartialTask({ createdBy: u.id })
+  )
+  static createTaskList = reverseCurriedMagix((u: User) =>
+    createPartialTaskList({ ownerId: u.id })
+  )
+  static createTaskListGroup = reverseCurriedMagix((u: User) =>
     createPartialTaskListGroup({ ownerId: u.id })
+  )
 
   static getMyDay = (t: Task) => (u: User) =>
     A.findFirst_(u.myDay, (x) => x.id === t.id)["|>"](O.map((m) => m.date))

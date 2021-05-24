@@ -18,7 +18,7 @@ import {
 
 function makeUserTaskCreator(u: User) {
   return flow(
-    User.createTaskR(u),
+    User.createTask.r(u),
     Task.lens["|>"](Lens.prop("title"))["|>"](
       Lens.modify((t) => reasonableStringUnsafe(`${u.name} - ${t}`))
     )
@@ -48,7 +48,7 @@ export function makeTestDataUnsafe() {
 
   const users = [patrick, mike, markus]
 
-  const createPatrickList = User.createTaskListR(patrick)
+  const createPatrickList = User.createTaskList.r(patrick)
   const patrickList = createPatrickList({
     title: reasonableStringUnsafe("Some Patrick List"),
   })
@@ -57,25 +57,25 @@ export function makeTestDataUnsafe() {
     members: [Membership.fromUser(mike), Membership.fromUser(markus)],
   })
 
-  const mikeSharedList = User.createTaskList_(mike, {
+  const mikeSharedList = User.createTaskList._(mike, {
     title: reasonableStringUnsafe("Mike's shared List"),
     members: [Membership.fromUser(patrick)],
   })
 
-  const markusSharedList = User.createTaskList_(markus, {
+  const markusSharedList = User.createTaskList._(markus, {
     title: reasonableStringUnsafe("Markus's shared List"),
     members: [Membership.fromUser(patrick)],
   })
 
   const lists = [
     patrickList,
-    User.createTaskListGroup_(patrick, {
+    User.createTaskListGroup._(patrick, {
       title: reasonableStringUnsafe("Patrick - Some group"),
       lists: [patrickSharedList.id, patrickList.id],
     }),
     patrickSharedList,
     ///////
-    User.createTaskListGroup_(mike, {
+    User.createTaskListGroup._(mike, {
       title: reasonableStringUnsafe("Mike - Some group"),
       lists: [mikeSharedList.id],
     }),

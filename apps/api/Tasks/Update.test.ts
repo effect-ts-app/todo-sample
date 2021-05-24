@@ -12,7 +12,7 @@ import { updateTask } from "./Update"
 const { it } = Test.runtime()
 
 const user = h.testUser()
-const task = User.createTask_(user, {
+const task = User.createTask._(user, {
   title: h.reasonableStringUnsafe("hi"),
 })
 

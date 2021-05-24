@@ -25,7 +25,7 @@ export default handle(Tasks.Create)((_) =>
 )
 
 export function createTask_(user: User, _: Tasks.Create.default) {
-  const task = User.createTask_(user, _)
+  const task = User.createTask._(user, _)
 
   return tuple(
     task,

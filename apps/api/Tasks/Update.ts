@@ -59,7 +59,7 @@ export function updateTask_(
         () => t,
         flow(
           TaskAudits.TaskFileAdded.fromAttachment({ userId: user.id }),
-          Task.addAuditR(t)
+          Task.addAudit.r(t)
         )
       )
     )
