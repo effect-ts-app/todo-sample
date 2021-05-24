@@ -12,6 +12,7 @@ import { Erase } from "@effect-ts-app/core/ext/Effect"
 import * as EO from "@effect-ts-app/core/ext/EffectOption"
 import * as S from "@effect-ts-app/core/ext/Schema"
 import { Encoder, extractSchema, Methods, Parser } from "@effect-ts-app/core/ext/Schema"
+import { typedKeysOf } from "@effect-ts-app/core/ext/utils"
 import express from "express"
 
 import {
@@ -132,8 +133,6 @@ function mapErrors_<E, NE, NER extends Record<string, T.Effect<any, E, any>>>(
     }
   )
 }
-
-export const typedKeysOf = <T>(obj: T) => Object.keys(obj) as (keyof T)[]
 
 function makeError(type: string) {
   return (e: unknown) => [{ type, errors: decodeErrors(e) }]

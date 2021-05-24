@@ -1,6 +1,7 @@
 import { flow, identity } from "@effect-ts/core/Function"
 import * as T from "@effect-ts-app/core/ext/Effect"
 import * as O from "@effect-ts-app/core/ext/Option"
+import { typedKeysOf } from "@effect-ts-app/core/ext/utils"
 import { handle } from "@effect-ts-app/infra/app"
 import { Tasks } from "@effect-ts-demo/todo-client"
 import {
@@ -45,7 +46,9 @@ export function updateTask_(
   _: OptionalEditableTaskProps,
   myDay?: MyDay
 ) {
-  t = t["|>"](Task.update(_))
+  if (typedKeysOf(_).some((x) => typeof _[x] !== "undefined")) {
+    t = t["|>"](Task.update(_))
+  }
   if (myDay) {
     user = user["|>"](User.toggleMyDay(t, myDay))
   }
