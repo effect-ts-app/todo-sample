@@ -1,3 +1,4 @@
+import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as O from "@effect-ts/core/Option"
 import * as Lens from "@effect-ts/monocle/Lens"
 import { constant } from "@effect-ts/system/Function"
@@ -20,6 +21,7 @@ import {
 } from "@effect-ts-app/core/ext/Schema"
 
 import { TaskId, TaskListIdU, UserId } from "../ids"
+import { TaskAudit } from "./audit"
 
 @namedC()
 export class Step extends Model<Step>()({
@@ -63,6 +65,7 @@ export class Task extends Model<Task>()({
   listId: defaultProp(TaskListIdU, constant("inbox" as const)),
   createdAt: defaultProp(date),
   updatedAt: defaultProp(date),
+  auditLog: defaultProp(array(TaskAudit)),
   ...include(EditableTaskProps)(
     ({ assignedTo, completed, due, isFavorite, note, reminder, steps, ...rest }) => ({
       ...rest,
@@ -79,4 +82,7 @@ export class Task extends Model<Task>()({
   static complete = Lens.id<Task>()
     ["|>"](Lens.prop("completed"))
     .set(O.some(new Date()))
+
+  static addAudit = (audit: TaskAudit) =>
+    Task.lens["|>"](Lens.prop("auditLog"))["|>"](Lens.modify(A.snoc(audit)))
 }

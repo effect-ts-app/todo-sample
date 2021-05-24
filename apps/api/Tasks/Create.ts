@@ -3,7 +3,7 @@ import { identity } from "@effect-ts/system/Function"
 import { tuple } from "@effect-ts-app/core/ext/Function"
 import { handle } from "@effect-ts-app/infra/app"
 import { Tasks } from "@effect-ts-demo/todo-client"
-import { TaskEvents, User } from "@effect-ts-demo/todo-types"
+import { Task, TaskAudits, TaskEvents, User } from "@effect-ts-demo/todo-types"
 
 import { TodoContext } from "@/services"
 
@@ -28,7 +28,9 @@ export default handle(Tasks.Create)((_) =>
 )
 
 function createTask_(user: User, _: Tasks.Create.default) {
-  const task = User.createTask_(user, _)
+  const task = User.createTask_(user, _)["|>"]((t) =>
+    Task.addAudit(new TaskAudits.TaskCreated({ taskId: t.id, userId: user.id }))(t)
+  )
   return tuple(
     task,
     tuple(

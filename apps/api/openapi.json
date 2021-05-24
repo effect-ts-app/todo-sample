@@ -67,6 +67,7 @@
                         "listId",
                         "createdAt",
                         "updatedAt",
+                        "auditLog",
                         "title",
                         "assignedTo",
                         "completed",
@@ -881,6 +882,41 @@
         ],
         "type": "object"
       },
+      "TaskCreated": {
+        "title": "TaskCreated",
+        "properties": {
+          "_tag": {
+            "enum": [
+              "TaskCreated"
+            ],
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "userId": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "taskId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "_tag",
+          "id",
+          "createdAt",
+          "userId",
+          "taskId"
+        ],
+        "type": "object"
+      },
       "Step": {
         "title": "Step",
         "properties": {
@@ -932,6 +968,19 @@
           "updatedAt": {
             "format": "date-time",
             "type": "string"
+          },
+          "auditLog": {
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/TaskCreated"
+                }
+              ],
+              "discriminator": {
+                "propertyName": "_tag"
+              }
+            },
+            "type": "array"
           },
           "title": {
             "minLength": 1,
@@ -1014,6 +1063,19 @@
             "format": "date-time",
             "type": "string"
           },
+          "auditLog": {
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/TaskCreated"
+                }
+              ],
+              "discriminator": {
+                "propertyName": "_tag"
+              }
+            },
+            "type": "array"
+          },
           "title": {
             "minLength": 1,
             "maxLength": 255,
@@ -1066,6 +1128,7 @@
           "listId",
           "createdAt",
           "updatedAt",
+          "auditLog",
           "title",
           "assignedTo",
           "completed",
