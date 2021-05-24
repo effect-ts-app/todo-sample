@@ -5,21 +5,15 @@ import * as T from "@effect-ts/core/Effect"
 import { _E, _R, ForcedTuple } from "@effect-ts/core/Utils"
 import * as EO from "@effect-ts-app/core/ext/EffectOption"
 import * as S from "@effect-ts-app/core/ext/Schema"
-import {
-  TaskCreated,
-  TaskEvents,
-  TaskId,
-  User,
-  UserId,
-} from "@effect-ts-demo/todo-types"
+import { TaskEvents, TaskId, User, UserId } from "@effect-ts-demo/todo-types"
 
 import { getLoggedInUser } from "@/_services/TodoContext"
 import { TodoContext } from "@/services"
 
-export function handleEvents<T extends TaskEvents>(events: readonly T[]) {
+export function handleEvents<T extends TaskEvents.Events>(events: readonly T[]) {
   return T.forEach_(
     events,
-    TaskEvents.Api.matchW(
+    TaskEvents.Events.Api.matchW(
       {
         TaskCreated: (evt) => myTup(...EventHandlers.TaskCreated.map((h) => h(evt))),
       }
@@ -32,7 +26,7 @@ export function handleEvents<T extends TaskEvents>(events: readonly T[]) {
 const EventHandlers = {
   TaskCreated: [
     // Sample: Update the "User" aggregate to store the myDay state for this Task.
-    ({ myDay, taskId, userId }: TaskCreated) =>
+    ({ myDay, taskId, userId }: TaskEvents.TaskCreated) =>
       EO.genUnit(function* ($) {
         const { Users } = yield* $(TodoContext.TodoContext)
         yield* $(Users.update(userId, User.addToMyDay({ id: taskId }, yield* $(myDay))))
@@ -43,7 +37,7 @@ const EventHandlers = {
 
     // Sample for dispatching an Integration Event.
     // On_TaskCreated_SendTaskCreatedEmail
-    ({ taskId, userId }: TaskCreated) =>
+    ({ taskId, userId }: TaskEvents.TaskCreated) =>
       publishIntegrationEvent(new SendTaskCreatedEmail({ taskId, userId })),
   ] as const,
 }

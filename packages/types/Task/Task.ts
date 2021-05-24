@@ -16,11 +16,10 @@ import {
   prop,
   props,
   reasonableString,
-  union,
   withDefault,
 } from "@effect-ts-app/core/ext/Schema"
 
-import { TaskId, TaskListIdU, UserId } from "./ids"
+import { TaskId, TaskListIdU, UserId } from "../ids"
 
 @namedC()
 export class Step extends Model<Step>()({
@@ -81,12 +80,3 @@ export class Task extends Model<Task>()({
     ["|>"](Lens.prop("completed"))
     .set(O.some(new Date()))
 }
-
-export class TaskCreated extends Model<TaskCreated>()({
-  taskId: prop(TaskId),
-  userId: prop(UserId),
-  myDay: prop(MyDay),
-}) {}
-
-export const TaskEvents = union({ TaskCreated: TaskCreated.Model })
-export type TaskEvents = ParsedShapeOf<typeof TaskEvents>

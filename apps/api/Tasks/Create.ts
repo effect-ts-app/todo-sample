@@ -3,7 +3,7 @@ import { identity } from "@effect-ts/system/Function"
 import { tuple } from "@effect-ts-app/core/ext/Function"
 import { handle } from "@effect-ts-app/infra/app"
 import { Tasks } from "@effect-ts-demo/todo-client"
-import { TaskCreated, User } from "@effect-ts-demo/todo-types"
+import { TaskEvents, User } from "@effect-ts-demo/todo-types"
 
 import { TodoContext } from "@/services"
 
@@ -31,6 +31,8 @@ function createTask_(user: User, _: Tasks.Create.default) {
   const task = User.createTask_(user, _)
   return tuple(
     task,
-    tuple(new TaskCreated({ taskId: task.id, myDay: _.myDay, userId: user.id }))
+    tuple(
+      new TaskEvents.TaskCreated({ taskId: task.id, myDay: _.myDay, userId: user.id })
+    )
   )
 }

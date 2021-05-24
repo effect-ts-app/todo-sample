@@ -205,7 +205,7 @@ function makeTaskContext(tasks: Task[]) {
         T.chain(O.fold(() => T.fail(new NotFoundError("Task", id)), T.succeed))
       )
 
-    const save = (t: Task, events: readonly TaskEvents[] = []) =>
+    const save = (t: Task, events: readonly TaskEvents.Events[] = []) =>
       pipe(
         T.structPar({ encT: encodeTask(t), tasks: tasksRef.get }),
         T.chain(({ encT, tasks }) => tasksRef.set(tasks["|>"](Map.insert(t.id, encT)))),
