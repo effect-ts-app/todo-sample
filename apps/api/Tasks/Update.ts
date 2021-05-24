@@ -35,9 +35,9 @@ export function updateTask(userId: UserId, _: OptionalEditableTaskProps) {
 
 export function updateTask_(t: Task, userId: UserId, _: OptionalEditableTaskProps) {
   const nt = Task.update_(t, _)
-  // TODO: derive audits.
+  // Derive audits.
   // NOTE: Obviously it would be easier if this was a Task Based approach, where each change would be specialised, instead of allowing to change all the editable props
-
+  // TODO: As adding an attachment is actually a special purpose use case, we should extract it to it's own use case + route.
   if (_.attachment) {
     return _.attachment["|>"](
       O.fold(
