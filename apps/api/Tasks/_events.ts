@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // https://docs.microsoft.com/en-us/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/domain-events-design-implementation
 
 import * as TUP from "@effect-ts/core/Collections/Immutable/Tuple"
@@ -7,7 +8,6 @@ import * as EO from "@effect-ts-app/core/ext/EffectOption"
 import * as S from "@effect-ts-app/core/ext/Schema"
 import { TaskEvents, TaskId, User, UserId } from "@effect-ts-demo/todo-types"
 
-import { getLoggedInUser } from "@/_services/TodoContext"
 import { TodoContext } from "@/services"
 
 export function handleEvents<T extends TaskEvents.Events>(events: readonly T[]) {
@@ -33,7 +33,7 @@ const EventHandlers = {
       }),
 
     // This is here just to test multiple handlers, and the merging of R and E accordingly.
-    () => getLoggedInUser["|>"](T.asUnit),
+    () => TodoContext.getLoggedInUser["|>"](T.asUnit),
 
     // Sample for dispatching an Integration Event.
     // On_TaskCreated_SendTaskCreatedEmail
