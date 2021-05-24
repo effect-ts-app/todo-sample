@@ -7,47 +7,47 @@ import { TaskAudits } from "@effect-ts-demo/todo-types/Task"
 import { Attachment } from "@effect-ts-demo/todo-types/Task/shared"
 
 import * as h from "../test.helpers"
-import { updateTask_ } from "./Update"
+import { updateTask } from "./Update"
 
 const { it } = Test.runtime()
 
 const user = h.testUser()
-const t = User.createTask_(user, {
+const task = User.createTask_(user, {
   title: h.reasonableStringUnsafe("hi"),
 })
 
 it("changes the provided props", () =>
   T.succeedWith(() => {
-    const [nt, nu] = updateTask_(t, user, { title: h.reasonableStringUnsafe("ho") })
+    const [nt, nu] = updateTask({ title: h.reasonableStringUnsafe("ho") })(task, user)
 
-    expect(nt.title).not.toBe(t.title)
+    expect(nt.title).not.toBe(task.title)
     expect(nt.title).toBe("ho")
     expect(nu).toBe(user)
   }))
 
 it("leaves unchanged", () =>
   T.succeedWith(() => {
-    const [nt, nu] = updateTask_(t, user, {})
+    const [nt, nu] = updateTask({})(task, user)
 
-    expect(nt.title).toBe(t.title)
+    expect(nt.title).toBe(task.title)
     expect(nu).toBe(user)
   }))
 
 it("adds myday to user", () =>
   T.succeedWith(() => {
     const myDay = new Date()
-    const [nt, nu] = updateTask_(t, user, {}, O.some(myDay))
+    const [nt, nu] = updateTask({}, O.some(myDay))(task, user)
 
-    expect(nt.title).toBe(t.title)
+    expect(nt.title).toBe(task.title)
     expect(nu).not.toBe(user)
-    expect(nu.myDay).toEqual(expect.arrayContaining([{ id: t.id, date: myDay }]))
+    expect(nu.myDay).toEqual(expect.arrayContaining([{ id: task.id, date: myDay }]))
   }))
 
 it("sets a new updatedAt", () =>
   T.succeedWith(() => {
-    const [nt, nu] = updateTask_(t, user, {})
+    const [nt, nu] = updateTask({})(task, user)
 
-    expect(nt.updatedAt).not.toBe(t.updatedAt)
+    expect(nt.updatedAt).not.toBe(task.updatedAt)
     expect(nu).toBe(user)
   }))
 
@@ -59,9 +59,9 @@ it("adds an Audit on file attachment added", () =>
       mimetype: h.reasonableStringUnsafe("application/gif"),
     })
 
-    const [nt, nu] = updateTask_(t, user, { attachment: O.some(a) })
+    const [nt, nu] = updateTask({ attachment: O.some(a) })(task, user)
 
-    expect(t.auditLog.length).toBe(1)
+    expect(task.auditLog.length).toBe(1)
     expect(nt.auditLog.length).toBe(2)
     expect(nt.auditLog[1]).toEqual(
       new TaskAudits.TaskFileAdded({

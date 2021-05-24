@@ -23,7 +23,7 @@ export default handle(Tasks.Update)(({ id, myDay, ..._ }) =>
     const taskLists = yield* $(Lists.allLists(user.id))
     const task = yield* $(Tasks.get(id))
     yield* $(TaskAuth(taskLists).access_(task, user.id, identity))
-    const [nt, nu] = updateTask_(task, user, _, myDay)
+    const [nt, nu] = updateTask(_, myDay)(task, user)
 
     // TODO: Context should perhaps know if changed.
     if (nt !== task) {
@@ -35,8 +35,8 @@ export default handle(Tasks.Update)(({ id, myDay, ..._ }) =>
   })
 )
 
-export function updateTask(user: User, _: OptionalEditableTaskProps, myDay?: MyDay) {
-  return (t: Task) => updateTask_(t, user, _, myDay)
+export function updateTask(_: OptionalEditableTaskProps, myDay?: MyDay) {
+  return (t: Task, user: User) => updateTask_(t, user, _, myDay)
 }
 
 export function updateTask_(
