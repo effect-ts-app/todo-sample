@@ -68,7 +68,7 @@
         "lint": "eslint .",
         "prettier": "prettier \"**/*.ts\"",
         "autofix": "yarn lint --fix && yarn prettier --write",
-        "test": "jest --config ../../jest.config.ci.js",
+        "test": "jest",
         "testsuite": "yarn compile && yarn lint && yarn test && yarn circular",
         "dev": "AUTH_DISABLED=true TSC_WATCHFILE=UseFsEventsWithFallbackDynamicPolling NODE_ENV=development nodemon --watch . --watch ../../packages --exec ts-node -r tsconfig-paths/register --transpile-only ./start-server.ts",
         "start": "ts-node --compiler ttypescript -r tsconfig-paths/register --transpile-only ./start-server.ts"

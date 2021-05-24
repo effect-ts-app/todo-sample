@@ -5,7 +5,7 @@
             {
                 "useBuiltIns": "usage",
                 "corejs": 3,
-                "target": {
+                "targets": {
                     "node": "current"
                 }
             }
