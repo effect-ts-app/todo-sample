@@ -9286,6 +9286,11 @@ latest-version@^5.0.0, latest-version@^5.1.0:
   dependencies:
     package-json "^6.3.0"
 
+lazy-get-decorator@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/lazy-get-decorator/-/lazy-get-decorator-2.2.0.tgz#dd3b1d2a432800d435c2491038324f202f2a620d"
+  integrity sha512-UhU+k+Wpkutdeg0y4TBbyCB3snHYfywe++FYDIYBJbO4rZUXevnAcgucq8MaervoXESYJt/lN9JASND5YhcFTg==
+
 lerna@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/lerna/-/lerna-4.0.0.tgz#b139d685d50ea0ca1be87713a7c2f44a5b678e9e"
