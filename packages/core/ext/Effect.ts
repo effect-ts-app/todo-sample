@@ -1,12 +1,14 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import {
   chain,
+  Effect,
   effectAsyncInterrupt,
   fail,
   fromEither,
   IO,
   succeed,
   succeedWith,
+  tap,
 } from "@effect-ts/core/Effect"
 import type * as Ei from "@effect-ts/core/Either"
 import * as O from "@effect-ts/core/Option"
@@ -43,6 +45,10 @@ export function encaseOption<E>(onError: Lazy<E>) {
 
 export function liftM<A, B>(a: (a: A) => B) {
   return flow(a, succeed)
+}
+
+export function tupleCurriedTap<A, B, R, E, C>(f: (b: B) => (a: A) => Effect<R, E, C>) {
+  return (t: readonly [A, B]) => succeed(t[0])["|>"](tap(f(t[1])))
 }
 
 export * from "@effect-ts/core/Effect"

@@ -1,6 +1,6 @@
-import * as T from "@effect-ts/core/Effect"
 import { identity } from "@effect-ts/system/Function"
-import { tuple } from "@effect-ts-app/core/ext/Function"
+import * as T from "@effect-ts-app/core/ext/Effect"
+import { pipe, tuple } from "@effect-ts-app/core/ext/Function"
 import { handle } from "@effect-ts-app/infra/app"
 import { Tasks } from "@effect-ts-demo/todo-client"
 import { TaskEvents, User } from "@effect-ts-demo/todo-types"
@@ -20,10 +20,7 @@ export default handle(Tasks.Create)((_) =>
       yield* $(TaskListAuth.access_(list, user.id, identity))
     }
 
-    const [task, events] = createTask_(user, _)
-    yield* $(Tasks.save(task, events))
-
-    return { id: task.id }
+    return yield* $(pipe(createTask_(user, _), Tasks.save["|>"](T.tupleCurriedTap)))
   })
 )
 

@@ -205,7 +205,7 @@ function makeTaskContext(tasks: Task[]) {
         T.chain(O.fold(() => T.fail(new NotFoundError("Task", id)), T.succeed))
       )
 
-    const save = (t: Task, events: readonly TaskEvents.Events[] = []) =>
+    const save_ = (t: Task, events: readonly TaskEvents.Events[] = []) =>
       pipe(
         T.structPar({ encT: encodeTask(t), tasks: tasksRef.get }),
         T.chain(({ encT, tasks }) => tasksRef.set(tasks["|>"](Map.insert(t.id, encT)))),
@@ -220,7 +220,7 @@ function makeTaskContext(tasks: Task[]) {
       )
 
     const updateM = <R, E>(id: TaskId, mod: (a: Task) => T.Effect<R, E, Task>) =>
-      pipe(get(id), T.chain(mod), T.tap(save))
+      pipe(get(id), T.chain(mod), T.tap(save_))
 
     const all = (userId: UserId, lists: CNK.Chunk<TaskList>) =>
       pipe(
@@ -240,7 +240,8 @@ function makeTaskContext(tasks: Task[]) {
       get,
       update: (id: TaskId, mod: (a: Task) => Task) => updateM(id, T.liftM(mod)),
       updateM,
-      save,
+      save_,
+      save: (events: readonly TaskEvents.Events[]) => (t: Task) => save_(t, events),
       remove,
     }
   })
