@@ -29,16 +29,19 @@ export class TaskCreated extends Model<TaskCreated>()({
 }) {}
 
 @namedC()
-export class TaskFileAdded extends Model<TaskCreated>()({
+export class TaskFileAdded extends Model<TaskFileAdded>()({
   ...AuditProps("TaskFileAdded"),
   fileName: prop(FileName),
 }) {}
 
 @namedC()
-export class TaskStepsAdded extends Model<TaskCreated>()({
+export class TaskStepsAdded extends Model<TaskStepsAdded>()({
   ...AuditProps("TaskStepsAdded"),
   stepCount: prop(positiveInt),
 }) {}
 
-export const TaskAudit = union({ TaskCreated: TaskCreated.Model })
+export const TaskAudit = union({
+  TaskCreated: TaskCreated.Model,
+  TaskFileAdded: TaskFileAdded.Model,
+})
 export type TaskAudit = ParsedShapeOf<typeof TaskAudit>
