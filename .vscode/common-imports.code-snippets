@@ -44,7 +44,7 @@
     "Effect": {
         "prefix": "+T",
         "body": [
-            "import * as T from \"@effect-ts/core/Effect\""
+            "import * as T from \"@effect-ts-app/core/ext/Effect\""
         ],
         "description": "Effect as T"
     },
