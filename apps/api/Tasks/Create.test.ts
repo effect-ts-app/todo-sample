@@ -2,7 +2,6 @@
 import * as T from "@effect-ts/core/Effect"
 import * as Test from "@effect-ts/jest/Test"
 import * as O from "@effect-ts-app/core/ext/Option"
-import { User } from "@effect-ts-demo/todo-types/"
 import { TaskAudits, TaskEvents } from "@effect-ts-demo/todo-types/Task"
 
 import * as h from "../test.helpers"
@@ -10,12 +9,7 @@ import { createTask_ } from "./Create"
 
 const { it } = Test.runtime()
 
-const user = new User({
-  id: h.userIdUnsafe("2"),
-  name: h.reasonableStringUnsafe("Patroklos"),
-  email: h.emailUnsafe("some@test.com"),
-  phoneNumber: h.phoneNumberUnsafe("555-444-123"),
-})
+const user = h.testUser()
 
 it("returns domain events", () =>
   T.succeedWith(() => {
