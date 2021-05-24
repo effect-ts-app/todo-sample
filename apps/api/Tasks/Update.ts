@@ -1,5 +1,5 @@
 import * as T from "@effect-ts/core/Effect"
-import { identity } from "@effect-ts/core/Function"
+import { constant, identity } from "@effect-ts/core/Function"
 import * as O from "@effect-ts-app/core/ext/Option"
 import { handle } from "@effect-ts-app/infra/app"
 import { Tasks } from "@effect-ts-demo/todo-client"
@@ -25,13 +25,10 @@ export default handle(Tasks.Update)(({ id, myDay, ..._ }) =>
     yield* $(TaskAuth(taskLists).access_(task, user.id, identity))
     const [nt, nu] = updateTask(_, myDay)(task, user)
 
-    // TODO: Context should perhaps know if changed.
-    if (nt !== task) {
-      yield* $(Tasks.save(nt))
-    }
-    if (nu !== user) {
-      yield* $(Users.save(nu))
-    }
+    // TODO: Context should perhaps know if changed, and should use a transaction
+    yield* $(
+      T.tuple(whenChanged(Tasks.save_)(nt, task), whenChanged(Users.save)(nu, user))
+    )
   })
 )
 
@@ -45,7 +42,7 @@ export function updateTask_(
   _: OptionalEditableTaskProps,
   myDay?: MyDay
 ) {
-  t = Task.update_(t, _)
+  t = t["|>"](Task.update(_))
   if (myDay) {
     user = user["|>"](User.toggleMyDay(t, myDay))
   }
@@ -68,3 +65,9 @@ export function updateTask_(
   }
   return [t, user] as const
 }
+
+function whenChanged<I, R, E, A>(f: (i: I) => T.Effect<R, E, A>) {
+  return (n: I, orig: I) => T.if(() => f(n), constUnit)(n !== orig)
+}
+
+const constUnit = constant(T.unit)
