@@ -14,6 +14,7 @@ import {
   namedC,
   nullable,
   ParsedShapeOf,
+  partialConstructor_,
   prop,
   props,
   reasonableString,
@@ -21,6 +22,7 @@ import {
 } from "@effect-ts-app/core/ext/Schema"
 
 import { TaskId, TaskListIdU, UserId } from "../ids"
+import { TaskAudits } from "."
 import { TaskAudit } from "./audit"
 
 @namedC()
@@ -59,6 +61,10 @@ export type OptionalEditablePersonalTaskProps = ParsedShapeOf<
   typeof OptionalEditablePersonalTaskProps
 >
 
+const CreateTaskAudit = (t: Task) => ({
+  TaskCreated: partialConstructor_(TaskAudits.TaskCreated, { taskId: t.id }),
+})
+
 export class Task extends Model<Task>()({
   id: defaultProp(TaskId),
   createdBy: prop(UserId),
@@ -85,4 +91,21 @@ export class Task extends Model<Task>()({
 
   static addAudit = (audit: TaskAudit) =>
     Task.lens["|>"](Lens.prop("auditLog"))["|>"](Lens.modify(A.snoc(audit)))
+  static addAudit_ = (t: Task, audit: TaskAudit) => Task.addAudit(audit)(t)
+
+  // TODO: Auto generate
+  static createAudit_ = {
+    TaskCreated: (
+      t: Task,
+      args: Parameters<ReturnType<typeof CreateTaskAudit>["TaskCreated"]>[0]
+    ) => CreateTaskAudit(t).TaskCreated(args),
+  }
+
+  // TODO: Auto generate
+  static audit = {
+    TaskCreated:
+      (args: Parameters<ReturnType<typeof CreateTaskAudit>["TaskCreated"]>[0]) =>
+      (t: Task) =>
+        Task.addAudit_(t, Task.createAudit_.TaskCreated(t, args)),
+  }
 }
