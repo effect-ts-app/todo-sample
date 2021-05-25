@@ -110,13 +110,13 @@ export class Task extends Model<Task>()({
     Task.lens["|>"](Lens.prop("auditLog"))["|>"](Lens.modify(A.snoc(audit)))
   )
 
-  static update_ = (t: Task, _: OptionalEditableTaskProps) => {
-    const nt = {
-      ...t,
+  static update_ = (initialTask: Task, _: OptionalEditableTaskProps) => {
+    const task = {
+      ...initialTask,
       ..._,
       updatedAt: new Date(),
     }
-    return nt
+    return task
   }
   static update = curry(Task.update_)
 }

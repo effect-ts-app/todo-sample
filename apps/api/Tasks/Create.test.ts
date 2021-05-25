@@ -14,7 +14,7 @@ const user = testUser()
 
 it("returns domain events", () =>
   T.succeedWith(() => {
-    const [t, events] = createTask_(user, {
+    const [task, events] = createTask_(user, {
       listId: "inbox",
       myDay: O.none,
       isFavorite: false,
@@ -22,20 +22,20 @@ it("returns domain events", () =>
     })
 
     expect(events).toEqual([
-      new TaskEvents.TaskCreated({ myDay: O.none, userId: user.id, taskId: t.id }),
+      new TaskEvents.TaskCreated({ myDay: O.none, userId: user.id, taskId: task.id }),
     ])
   }))
 
 it("adds an Audit on creation", () =>
   T.succeedWith(() => {
-    const [t] = createTask_(user, {
+    const [task] = createTask_(user, {
       listId: "inbox",
       myDay: O.none,
       isFavorite: false,
       title: reasonableStringUnsafe("Test task"),
     })
 
-    expect(t.auditLog[0]).toEqual(
+    expect(task.auditLog[0]).toEqual(
       new TaskAudits.TaskCreated({
         createdAt: expect.any(Date),
         id: expect.any(String),

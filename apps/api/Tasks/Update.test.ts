@@ -12,44 +12,49 @@ import { updateTask } from "./Update"
 
 const { it } = Test.runtime()
 
-const user = testUser()
-const task = User.createTask._(user, {
+const initialUser = testUser()
+const initialTask = User.createTask._(initialUser, {
   title: reasonableStringUnsafe("hi"),
 })
 
 it("changes the provided props", () =>
   T.succeedWith(() => {
-    const [nt, nu] = updateTask({ title: reasonableStringUnsafe("ho") })(task, user)
+    const [task, user] = updateTask({ title: reasonableStringUnsafe("ho") })(
+      initialTask,
+      initialUser
+    )
 
-    expect(nt.title).not.toBe(task.title)
-    expect(nt.title).toBe("ho")
-    expect(nu).toBe(user)
+    expect(task.title).not.toBe(initialTask.title)
+    expect(task.title).toBe("ho")
+    expect(user).toBe(initialUser)
   }))
 
 it("leaves unchanged", () =>
   T.succeedWith(() => {
-    const [nt, nu] = updateTask({})(task, user)
+    const [task, user] = updateTask({})(initialTask, initialUser)
 
-    expect(nt.title).toBe(task.title)
-    expect(nu).toBe(user)
+    expect(task.title).toBe(initialTask.title)
+    expect(user).toBe(initialUser)
   }))
 
-it("adds myday to user", () =>
+it("adds myday to initialUser", () =>
   T.succeedWith(() => {
     const myDay = new Date()
-    const [nt, nu] = updateTask({}, O.some(myDay))(task, user)
+    const [task, user] = updateTask({}, O.some(myDay))(initialTask, initialUser)
 
-    expect(nt.title).toBe(task.title)
-    expect(nu).not.toBe(user)
-    expect(nu.myDay).toEqual(expect.arrayContaining([{ id: task.id, date: myDay }]))
+    expect(task.title).toBe(initialTask.title)
+    expect(user).not.toBe(initialUser)
+    expect(user.myDay).toEqual(
+      expect.arrayContaining([{ id: initialTask.id, date: myDay }])
+    )
   }))
 
 it("sets a new updatedAt", () =>
   T.succeedWith(() => {
-    const [nt, nu] = updateTask({})(task, user)
+    const [task, user] = updateTask({})(initialTask, initialUser)
 
-    expect(nt.updatedAt).not.toBe(task.updatedAt)
-    expect(nu).toBe(user)
+    expect(task.updatedAt).not.toBe(initialTask.updatedAt)
+    expect(user).toBe(initialUser)
   }))
 
 it("adds an Audit on file attachment added", () =>
@@ -60,17 +65,17 @@ it("adds an Audit on file attachment added", () =>
       mimetype: reasonableStringUnsafe("application/gif"),
     })
 
-    const [nt, nu] = updateTask({ attachment: O.some(a) })(task, user)
+    const [task, user] = updateTask({ attachment: O.some(a) })(initialTask, initialUser)
 
-    expect(task.auditLog.length).toBe(1)
-    expect(nt.auditLog.length).toBe(2)
-    expect(nt.auditLog[1]).toEqual(
+    expect(initialTask.auditLog.length).toBe(1)
+    expect(task.auditLog.length).toBe(2)
+    expect(task.auditLog[1]).toEqual(
       new TaskAudits.TaskFileAdded({
         createdAt: expect.any(Date),
         id: expect.any(String),
-        userId: user.id,
+        userId: initialUser.id,
         fileName: a.fileName,
       })
     )
-    expect(nu).toBe(user)
+    expect(user).toBe(initialUser)
   }))

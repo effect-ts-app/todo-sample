@@ -20,52 +20,52 @@ export default handle(Tasks.Update)(({ id, myDay, ..._ }) =>
   T.gen(function* ($) {
     const { Lists, Tasks, Users } = yield* $(TodoContext.TodoContext)
 
-    const user = yield* $(TodoContext.getLoggedInUser)
-    const taskLists = yield* $(Lists.allLists(user.id))
-    const task = yield* $(Tasks.get(id))
-    yield* $(TaskAuth(taskLists).access_(task, user.id, identity))
-    const [nt, nu] = updateTask(_, myDay)(task, user)
+    const initialUser = yield* $(TodoContext.getLoggedInUser)
+    const taskLists = yield* $(Lists.allLists(initialUser.id))
+    const initialTask = yield* $(Tasks.get(id))
+    yield* $(TaskAuth(taskLists).access_(initialTask, initialUser.id, identity))
+    const [task, user] = updateTask(_, myDay)(initialTask, initialUser)
 
     // TODO: Context should perhaps know if changed, and should use a transaction
     yield* $(
       T.tuple(
-        Tasks.save_["|>"](T.ifDiff(nt, task)),
-        Users.save["|>"](T.ifDiff(nu, user))
+        Tasks.save_["|>"](T.ifDiff(task, initialTask)),
+        Users.save["|>"](T.ifDiff(user, initialUser))
       )
     )
   })
 )
 
 export function updateTask(_: OptionalEditableTaskProps, myDay?: MyDay) {
-  return (t: Task, user: User) => updateTask_(t, user, _, myDay)
+  return (task: Task, user: User) => updateTask_(task, user, _, myDay)
 }
 
 export function updateTask_(
-  t: Task,
+  task: Task,
   user: User,
   _: OptionalEditableTaskProps,
   myDay?: MyDay
 ) {
   if (typedKeysOf(_).some((x) => typeof _[x] !== "undefined")) {
-    t = t["|>"](Task.update(_))
+    task = task["|>"](Task.update(_))
   }
   if (myDay) {
-    user = user["|>"](User.toggleMyDay(t, myDay))
+    user = user["|>"](User.toggleMyDay(task, myDay))
   }
   // Derive audits.
   // NOTE: Obviously it would be easier if this was a Task Based approach, where each change would be specialised, instead of allowing to change all the editable props
   // TODO: As adding an attachment is actually a special purpose use case, we should extract it to it's own use case + route.
   if (_.attachment) {
-    t = _.attachment["|>"](
+    task = _.attachment["|>"](
       O.fold(
         // TODO: Attachment removed?
-        () => t,
+        () => task,
         flow(
           TaskAudits.TaskFileAdded.fromAttachment({ userId: user.id }),
-          Task.addAudit.r(t)
+          Task.addAudit.r(task)
         )
       )
     )
   }
-  return [t, user] as const
+  return [task, user] as const
 }

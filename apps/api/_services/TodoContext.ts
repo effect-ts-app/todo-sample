@@ -51,10 +51,10 @@ function makeUserContext(users: User[]) {
         )
       )
 
-    const save = (t: User) =>
+    const save = (u: User) =>
       pipe(
-        T.structPar({ encT: encodeUser(t), users: usersRef.get }),
-        T.chain(({ encT, users }) => usersRef.set(users["|>"](Map.insert(t.id, encT))))
+        T.structPar({ encT: encodeUser(u), users: usersRef.get }),
+        T.chain(({ encT, users }) => usersRef.set(users["|>"](Map.insert(u.id, encT))))
       )
 
     const updateM = <R, E>(id: UserId, mod: (a: User) => T.Effect<R, E, User>) =>
