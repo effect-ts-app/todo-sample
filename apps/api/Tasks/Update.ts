@@ -1,4 +1,4 @@
-import { flow, identity } from "@effect-ts/core/Function"
+import { flow } from "@effect-ts/core/Function"
 import * as T from "@effect-ts-app/core/ext/Effect"
 import * as O from "@effect-ts-app/core/ext/Option"
 import { typedKeysOf } from "@effect-ts-app/core/ext/utils"
@@ -24,8 +24,10 @@ export default handle(Tasks.Update)(({ id, ..._ }) =>
     const user = yield* $(UserSVC.UserProfile)
     const taskLists = yield* $(Lists.allLists(user.id))
     const initialTask = yield* $(Tasks.get(id))
-    yield* $(TaskAuth(taskLists).access_(initialTask, user.id, identity))
-    const [task, events] = updateTask(_, user.id)(initialTask)
+
+    const [task, events] = yield* $(
+      TaskAuth(taskLists).access_(initialTask, user.id, updateTask(_, user.id))
+    )
 
     // TODO: Context should perhaps know if changed, and should use a transaction
     yield* $(
@@ -81,7 +83,7 @@ export function updateTask_(
         taskId: task.id,
         userId,
         changes: _,
-        userChanges: userChanges ?? {},
+        userChanges,
       })
     )
   }
