@@ -5,7 +5,7 @@ import * as HF from "@effect-ts-app/core/http/http-client-fetch"
 import fetch from "cross-fetch"
 
 import { LiveApiConfig } from "../config"
-import * as h from "../test.helpers"
+import { positiveIntUnsafe } from "../test.helpers"
 import { searchWithFields } from "./_custom"
 
 const Env = LiveApiConfig({
@@ -30,7 +30,7 @@ it("works with partial call", () =>
   T.gen(function* ($) {
     const req = {
       $select: ["id", "title"] as const,
-      $skip: h.positiveIntUnsafe(10),
+      $skip: positiveIntUnsafe(10),
       $count: true,
     }
     const searchWithSomeFields = searchWithFields(req)

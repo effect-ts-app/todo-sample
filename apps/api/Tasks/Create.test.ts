@@ -4,12 +4,13 @@ import * as Test from "@effect-ts/jest/Test"
 import * as O from "@effect-ts-app/core/ext/Option"
 import { TaskAudits, TaskEvents } from "@effect-ts-demo/todo-types/Task"
 
-import * as h from "../test.helpers"
+import { reasonableStringUnsafe, testUser } from "@/test.helpers"
+
 import { createTask_ } from "./Create"
 
 const { it } = Test.runtime()
 
-const user = h.testUser()
+const user = testUser()
 
 it("returns domain events", () =>
   T.succeedWith(() => {
@@ -17,7 +18,7 @@ it("returns domain events", () =>
       listId: "inbox",
       myDay: O.none,
       isFavorite: false,
-      title: h.reasonableStringUnsafe("Test task"),
+      title: reasonableStringUnsafe("Test task"),
     })
 
     expect(events).toEqual([
@@ -31,7 +32,7 @@ it("adds an Audit on creation", () =>
       listId: "inbox",
       myDay: O.none,
       isFavorite: false,
-      title: h.reasonableStringUnsafe("Test task"),
+      title: reasonableStringUnsafe("Test task"),
     })
 
     expect(t.auditLog[0]).toEqual(
