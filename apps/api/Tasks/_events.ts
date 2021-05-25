@@ -5,7 +5,7 @@ import * as TUP from "@effect-ts/core/Collections/Immutable/Tuple"
 import * as T from "@effect-ts/core/Effect"
 import { _E, _R, ForcedTuple } from "@effect-ts/core/Utils"
 import * as EO from "@effect-ts-app/core/ext/EffectOption"
-import { tuple } from "@effect-ts-app/core/ext/Function"
+import { flow, identity, tuple } from "@effect-ts-app/core/ext/Function"
 import * as S from "@effect-ts-app/core/ext/Schema"
 import { TaskEvents, TaskId, User, UserId } from "@effect-ts-demo/todo-types"
 
@@ -18,6 +18,23 @@ const eventHandlers = tuple(
     EO.genUnit(function* ($) {
       const { Users } = yield* $(TodoContext.TodoContext)
       yield* $(Users.update(userId, User.addToMyDay({ id: taskId }, yield* $(myDay))))
+    })
+  ),
+  matchTaskEvent("TaskUpdated", ({ taskId, userChanges, userId }) =>
+    EO.genUnit(function* ($) {
+      const { Users } = yield* $(TodoContext.TodoContext)
+      const { myDay, reminder } = userChanges
+      if (myDay || reminder) {
+        yield* $(
+          Users.update(
+            userId,
+            flow(
+              myDay ? User.toggleMyDay({ id: taskId }, myDay) : identity,
+              reminder ? User.toggleReminder({ id: taskId }, reminder) : identity
+            )
+          )
+        )
+      }
     })
   ),
 

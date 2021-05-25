@@ -40,7 +40,6 @@ export const EditableTaskProps = {
   isFavorite: prop(bool),
 
   due: prop(nullable(date)),
-  reminder: prop(nullable(date)),
   note: prop(nullable(longString)),
   steps: prop(array(Step.Model)),
   assignedTo: prop(nullable(UserId)),
@@ -55,6 +54,7 @@ export const MyDay = nullable(date)
 export type MyDay = ParsedShapeOf<typeof MyDay>
 export const EditablePersonalTaskProps = {
   myDay: prop(MyDay),
+  reminder: prop(nullable(date)),
 }
 
 export const OptionalEditablePersonalTaskProps = props(
@@ -72,24 +72,13 @@ export class Task extends Model<Task>()({
   updatedAt: defaultProp(date),
   auditLog: defaultProp(array(TaskAudit)),
   ...include(EditableTaskProps)(
-    ({
-      assignedTo,
-      attachment,
-      completed,
-      due,
-      isFavorite,
-      note,
-      reminder,
-      steps,
-      ...rest
-    }) => ({
+    ({ assignedTo, attachment, completed, due, isFavorite, note, steps, ...rest }) => ({
       ...rest,
       assignedTo: assignedTo["|>"](withDefault),
       attachment: attachment["|>"](withDefault),
       completed: completed["|>"](withDefault),
       due: due["|>"](withDefault),
       note: note["|>"](withDefault),
-      reminder: reminder["|>"](withDefault),
       isFavorite: isFavorite["|>"](withDefault),
       steps: steps["|>"](withDefault),
     })

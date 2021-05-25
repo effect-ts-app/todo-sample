@@ -12,42 +12,61 @@ import { updateTask } from "./Update"
 
 const { it } = Test.runtime()
 
-const initialUser = testUser()
-const initialTask = User.createTask._(initialUser, {
-  title: reasonableStringUnsafe("hi"),
-})
+const user = testUser()
+const initialTask = user["|>"](
+  User.createTask({
+    title: reasonableStringUnsafe("hi"),
+  })
+)
 
 it("changes the provided props", () =>
   T.succeedWith(() => {
-    const [task, user] = updateTask({ title: reasonableStringUnsafe("ho") })(
-      initialTask,
-      initialUser
+    const [task, events] = initialTask["|>"](
+      updateTask({ title: reasonableStringUnsafe("ho") }, user.id)
     )
 
     expect(task.title).not.toBe(initialTask.title)
     expect(task.updatedAt).not.toBe(initialTask.updatedAt)
     expect(task.title).toBe("ho")
-    expect(user).toBe(initialUser)
+    expect(events[0]._tag).toBe("TaskUpdated")
   }))
 
 it("leaves unchanged", () =>
   T.succeedWith(() => {
-    const [task, user] = updateTask({})(initialTask, initialUser)
+    const [task, events] = initialTask["|>"](updateTask({}, user.id))
 
     expect(task).toBe(initialTask)
-    expect(user).toBe(initialUser)
+    expect(events.length).toBe(0)
   }))
 
-it("adds myday to initialUser", () =>
+it("adds myday to user", () =>
   T.succeedWith(() => {
     const myDay = new Date()
-    const [task, user] = updateTask({}, O.some(myDay))(initialTask, initialUser)
+    const [task, events] = initialTask["|>"](
+      updateTask({ myDay: O.some(myDay) }, user.id)
+    )
 
     expect(task.title).toBe(initialTask.title)
-    expect(user).not.toBe(initialUser)
-    expect(user.myDay).toEqual(
-      expect.arrayContaining([{ id: initialTask.id, date: myDay }])
+    expect(events).not.toBe(user)
+    expect(events[0]._tag).toBe("TaskUpdated")
+    expect(
+      events[0]._tag === "TaskUpdated" && events[0].userChanges.myDay
+    ).not.toBeUndefined()
+  }))
+
+it("adds reminder to user", () =>
+  T.succeedWith(() => {
+    const myDay = new Date()
+    const [task, events] = initialTask["|>"](
+      updateTask({ reminder: O.some(myDay) }, user.id)
     )
+
+    expect(task.title).toBe(initialTask.title)
+    expect(events).not.toBe(user)
+    expect(events[0]._tag).toBe("TaskUpdated")
+    expect(
+      events[0]._tag === "TaskUpdated" && events[0].userChanges.reminder
+    ).not.toBeUndefined()
   }))
 
 it("adds an Audit on file attachment added", () =>
@@ -58,7 +77,9 @@ it("adds an Audit on file attachment added", () =>
       mimetype: reasonableStringUnsafe("application/gif"),
     })
 
-    const [task, user] = updateTask({ attachment: O.some(a) })(initialTask, initialUser)
+    const [task, events] = initialTask["|>"](
+      updateTask({ attachment: O.some(a) }, user.id)
+    )
 
     expect(initialTask.auditLog.length).toBe(1)
     expect(task.auditLog.length).toBe(2)
@@ -66,9 +87,9 @@ it("adds an Audit on file attachment added", () =>
       new TaskAudits.TaskFileAdded({
         createdAt: expect.any(Date),
         id: expect.any(String),
-        userId: initialUser.id,
+        userId: user.id,
         fileName: a.fileName,
       })
     )
-    expect(user).toBe(initialUser)
+    expect(events.length).toBe(1)
   }))

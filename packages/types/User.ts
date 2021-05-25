@@ -33,9 +33,13 @@ export class User extends Model<User>()({
   id: prop(UserId),
   email: prop(Email),
   name: prop(reasonableString),
-  inboxOrder: defaultProp(array(TaskId)),
-  myDay: defaultProp(array(MyDay)),
   phoneNumber: prop(PhoneNumber),
+
+  inboxOrder: defaultProp(array(TaskId)),
+  // Task customisation per user.
+  // alternatives: customisations: array(TaskCustomisation)
+  myDay: defaultProp(array(MyDay)),
+  reminder: defaultProp(array(MyDay)),
 }) {
   static createTask = reverseCurriedMagix((u: User) =>
     createPartialTask({ createdBy: u.id })
@@ -46,6 +50,30 @@ export class User extends Model<User>()({
   static createTaskListGroup = reverseCurriedMagix((u: User) =>
     createPartialTaskListGroup({ ownerId: u.id })
   )
+
+  // TODO: This doesn't scale well.
+  static getReminder = (t: Task) => (u: User) =>
+    A.findFirst_(u.reminder, (x) => x.id === t.id)["|>"](O.map((m) => m.date))
+  static addToReminder =
+    (t: Pick<Task, "id">, date: Date) =>
+    (u: User): User => ({
+      ...u,
+      reminder: A.findIndex_(u.reminder, (m) => m.id === t.id)
+        ["|>"](O.chain((idx) => A.modifyAt_(u.reminder, idx, (m) => ({ ...m, date }))))
+        ["|>"](O.getOrElse(() => A.snoc_(u.reminder, { id: t.id, date }))),
+    })
+  static removeFromReminder =
+    (t: Pick<Task, "id">) =>
+    (u: User): User => ({
+      ...u,
+      reminder: u.reminder["|>"](A.filter((m) => m.id !== t.id)),
+    })
+  static toggleReminder = (t: Pick<Task, "id">, reminder: Option<Date>) =>
+    O.fold_(
+      reminder,
+      () => User.removeFromReminder(t),
+      (date) => User.addToReminder(t, date)
+    )
 
   static getMyDay = (t: Task) => (u: User) =>
     A.findFirst_(u.myDay, (x) => x.id === t.id)["|>"](O.map((m) => m.date))

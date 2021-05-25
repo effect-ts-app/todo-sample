@@ -12,7 +12,7 @@ import {
 } from "@/test.helpers"
 
 // Model problems:
-// - isFavorite/reminder are per Task, not per User. Probably should store per user (like myDay now is), and then merge in?
+// - isFavorite is per Task, not per User. Probably should store per user (like myDay/reminder now is), and then merge in?
 // - As ordering is currently saved per list, the ordering is shared with other users in the list. Feature?
 // - Instead of an Object model, a Data model was defined..
 
@@ -144,7 +144,6 @@ export function makeTestDataUnsafe() {
           title: reasonableStringUnsafe("second step"),
         }),
       ],
-      reminder: O.some(new Date(2021, 1, 1)),
     }),
 
     createPatrickTask({

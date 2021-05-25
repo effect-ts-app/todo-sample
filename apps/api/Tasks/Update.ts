@@ -5,48 +5,54 @@ import { typedKeysOf } from "@effect-ts-app/core/ext/utils"
 import { handle } from "@effect-ts-app/infra/app"
 import { Tasks } from "@effect-ts-demo/todo-client"
 import {
-  MyDay,
+  OptionalEditablePersonalTaskProps,
   OptionalEditableTaskProps,
   Task,
   TaskAudits,
-  User,
+  TaskEvents,
+  UserId,
 } from "@effect-ts-demo/todo-types"
 
-import { TodoContext } from "@/services"
+import { TodoContext, UserSVC } from "@/services"
 
 import { TaskAuth } from "./_access"
 
-export default handle(Tasks.Update)(({ id, myDay, ..._ }) =>
+export default handle(Tasks.Update)(({ id, ..._ }) =>
   T.gen(function* ($) {
-    const { Lists, Tasks, Users } = yield* $(TodoContext.TodoContext)
+    const { Lists, Tasks } = yield* $(TodoContext.TodoContext)
 
-    const initialUser = yield* $(TodoContext.getLoggedInUser)
-    const taskLists = yield* $(Lists.allLists(initialUser.id))
+    const user = yield* $(UserSVC.UserProfile)
+    const taskLists = yield* $(Lists.allLists(user.id))
     const initialTask = yield* $(Tasks.get(id))
-    yield* $(TaskAuth(taskLists).access_(initialTask, initialUser.id, identity))
-    const [task, user] = updateTask(_, myDay)(initialTask, initialUser)
+    yield* $(TaskAuth(taskLists).access_(initialTask, user.id, identity))
+    const [task, events] = updateTask(_, user.id)(initialTask)
 
     // TODO: Context should perhaps know if changed, and should use a transaction
     yield* $(
-      T.tuple(
-        Tasks.save["|>"](T.ifDiff(task, initialTask)),
-        Users.save["|>"](T.ifDiff(user, initialUser))
-      )
+      TodoContext.saveTaskAndPublishEvents(events)["|>"](T.ifDiff(task, initialTask))
     )
   })
 )
 
-export function updateTask(_: OptionalEditableTaskProps, myDay?: MyDay) {
-  return (task: Task, user: User) => updateTask_(task, user, _, myDay)
+export function updateTask(
+  _: OptionalEditableTaskProps & OptionalEditablePersonalTaskProps,
+  userId: UserId
+) {
+  return (task: Task) => updateTask_(task, userId, _)
 }
 
 export function updateTask_(
   task: Task,
-  user: User,
-  _: OptionalEditableTaskProps,
-  myDay?: MyDay
+  userId: UserId,
+  {
+    myDay,
+    reminder,
+    ..._
+  }: OptionalEditableTaskProps & OptionalEditablePersonalTaskProps
 ) {
-  if (typedKeysOf(_).some((x) => typeof _[x] !== "undefined")) {
+  const events: TaskEvents.Events[] = []
+  const hasTaskChanges = typedKeysOf(_).some((x) => typeof _[x] !== "undefined")
+  if (hasTaskChanges) {
     task = task["|>"](Task.update(_))
     // Derive audits.
     // NOTE: Obviously it would be easier if this was a Task Based approach, where each change would be specialised, instead of allowing to change all the editable props
@@ -57,16 +63,28 @@ export function updateTask_(
           // TODO: Attachment removed?
           () => task,
           flow(
-            TaskAudits.TaskFileAdded.fromAttachment({ userId: user.id }),
+            TaskAudits.TaskFileAdded.fromAttachment({ userId }),
             Task.addAudit.r(task)
           )
         )
       )
     }
   }
-  if (myDay) {
-    user = user["|>"](User.toggleMyDay(task, myDay))
+
+  const userChanges = { myDay, reminder }
+  const hasUserChanges = typedKeysOf(userChanges).some(
+    (x) => typeof userChanges[x] !== "undefined"
+  )
+  if (hasTaskChanges || hasUserChanges) {
+    events.push(
+      new TaskEvents.TaskUpdated({
+        taskId: task.id,
+        userId,
+        changes: _,
+        userChanges: userChanges ?? {},
+      })
+    )
   }
 
-  return [task, user] as const
+  return [task, events] as const
 }

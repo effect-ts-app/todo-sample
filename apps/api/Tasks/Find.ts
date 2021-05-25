@@ -1,8 +1,10 @@
+import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as EO from "@effect-ts-app/core/ext/EffectOption"
 import { identity } from "@effect-ts-app/core/ext/Function"
+import * as O from "@effect-ts-app/core/ext/Option"
 import { handle } from "@effect-ts-app/infra/app"
 import { Tasks } from "@effect-ts-demo/todo-client"
-import { User } from "@effect-ts-demo/todo-types"
+import { Task, User } from "@effect-ts-demo/todo-types"
 
 import { TodoContext } from "@/services"
 
@@ -16,9 +18,16 @@ export default handle(Tasks.Find)((_) =>
     const user = yield* $(TodoContext.getLoggedInUser)
     const taskLists = yield* $(Lists.allLists(user.id))
     yield* $(TaskAuth(taskLists).access_(task, user.id, identity))
-    return {
-      ...task,
-      myDay: user["|>"](User.getMyDay(task)),
-    }
+    return task["|>"](personaliseTask(user))
   })
 )
+
+export function personaliseTask(u: User) {
+  return (t: Task) => ({
+    ...t,
+    myDay: A.findFirst_(u.myDay, (x) => x.id === t.id)["|>"](O.map((m) => m.date)),
+    reminder: A.findFirst_(u.reminder, (x) => x.id === t.id)["|>"](
+      O.map((m) => m.date)
+    ),
+  })
+}

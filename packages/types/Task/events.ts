@@ -8,7 +8,11 @@ import {
 } from "@effect-ts-app/core/ext/Schema"
 
 import { TaskId, UserId } from "../ids"
-import { MyDay, OptionalEditableTaskProps } from "./Task"
+import {
+  MyDay,
+  OptionalEditablePersonalTaskProps,
+  OptionalEditableTaskProps,
+} from "./Task"
 
 export function DomainEventProps<T extends string>(tag: T) {
   return {
@@ -21,6 +25,7 @@ export class TaskCreated extends Model<TaskCreated>()({
   taskId: prop(TaskId),
   userId: prop(UserId),
   myDay: prop(MyDay),
+  //reminder: prop(MyDay),
 }) {}
 
 export class TaskUpdated extends Model<TaskUpdated>()({
@@ -28,7 +33,7 @@ export class TaskUpdated extends Model<TaskUpdated>()({
   taskId: prop(TaskId),
   userId: prop(UserId),
   changes: prop(OptionalEditableTaskProps),
-  myDay: prop(MyDay).opt(),
+  userChanges: prop(OptionalEditablePersonalTaskProps),
 }) {}
 
 const Events_ = union({

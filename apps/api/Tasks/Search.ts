@@ -1,12 +1,13 @@
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as CNK from "@effect-ts/core/Collections/Immutable/Chunk"
 import * as T from "@effect-ts/core/Effect"
-import * as O from "@effect-ts/core/Option"
 import * as S from "@effect-ts-app/core/ext/Schema"
 import { handle } from "@effect-ts-app/infra/app"
 import { Tasks } from "@effect-ts-demo/todo-client"
 
 import { TodoContext } from "@/services"
+
+import { personaliseTask } from "./Find"
 
 export default handle(
   Tasks.Search,
@@ -16,15 +17,12 @@ export default handle(
     const user = yield* $(TodoContext.getLoggedInUser)
     const tasks = yield* $(TodoContext.allTasks(user.id))
 
-    const items = CNK.map_(tasks, (t) => ({
-      ...t,
-      myDay: A.findFirst_(user.myDay, (x) => x.id === t.id)["|>"](O.map((m) => m.date)),
-    }))["|>"](CNK.toArray)
-
-    const skipped = _.$skip ? items.slice(_.$skip) : items
+    const skipped = _.$skip ? CNK.toArray(tasks).slice(_.$skip) : CNK.toArray(tasks)
     const paginated = _.$top ? skipped.slice(0, _.$top) : skipped
+    const items = A.map_(paginated, personaliseTask(user))
+
     return {
-      items: paginated,
+      items,
       count: _.$count ? (items.length as S.Int & S.Positive) : undefined,
     }
   })

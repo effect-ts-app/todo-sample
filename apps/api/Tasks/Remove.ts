@@ -14,6 +14,8 @@ export default handle(Tasks.Remove)((_) =>
     const task = yield* $(Tasks.get(_.id))
     const taskLists = yield* $(Lists.allLists(user.id))
 
+    // TODO: Remove customisations from every User..
+    // probably should introduce a UserTask obj?
     return yield* $(
       TaskAuth(taskLists).accessM_(task, user.id, (t) => Tasks.remove(t.id))
     )

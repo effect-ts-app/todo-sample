@@ -74,10 +74,10 @@
                         "completed",
                         "due",
                         "note",
-                        "reminder",
                         "isFavorite",
                         "steps",
-                        "myDay"
+                        "myDay",
+                        "reminder"
                       ],
                       "type": "string"
                     },
@@ -318,11 +318,6 @@
                     "type": "string",
                     "nullable": true
                   },
-                  "reminder": {
-                    "format": "date-time",
-                    "type": "string",
-                    "nullable": true
-                  },
                   "note": {
                     "minLength": 1,
                     "maxLength": 2047,
@@ -367,6 +362,11 @@
                     "nullable": true
                   },
                   "myDay": {
+                    "format": "date-time",
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "reminder": {
                     "format": "date-time",
                     "type": "string",
                     "nullable": true
@@ -1095,11 +1095,6 @@
             "type": "string",
             "nullable": true
           },
-          "reminder": {
-            "format": "date-time",
-            "type": "string",
-            "nullable": true
-          },
           "isFavorite": {
             "type": "boolean"
           },
@@ -1110,6 +1105,11 @@
             "type": "array"
           },
           "myDay": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "reminder": {
             "format": "date-time",
             "type": "string",
             "nullable": true
@@ -1218,11 +1218,6 @@
             "type": "string",
             "nullable": true
           },
-          "reminder": {
-            "format": "date-time",
-            "type": "string",
-            "nullable": true
-          },
           "isFavorite": {
             "type": "boolean"
           },
@@ -1233,6 +1228,11 @@
             "type": "array"
           },
           "myDay": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "reminder": {
             "format": "date-time",
             "type": "string",
             "nullable": true
@@ -1251,10 +1251,10 @@
           "completed",
           "due",
           "note",
-          "reminder",
           "isFavorite",
           "steps",
-          "myDay"
+          "myDay",
+          "reminder"
         ],
         "type": "object"
       }
