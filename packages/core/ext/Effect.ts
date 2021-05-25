@@ -16,6 +16,7 @@ import type * as Ei from "@effect-ts/core/Either"
 import * as O from "@effect-ts/core/Option"
 
 import { constant, flow, Lazy, pipe } from "./Function"
+import { curry } from "./utils"
 
 export const encaseEither = <E, A>(ei: Ei.Either<E, A>) => fromEither(() => ei)
 export const chainEither = <E, A, A2>(ei: (a: A2) => Ei.Either<E, A>) =>
@@ -49,8 +50,20 @@ export function liftM<A, B>(a: (a: A) => B) {
   return flow(a, succeed)
 }
 
-export function tupleCurriedTap<A, B, R, E, C>(f: (b: B) => (a: A) => Effect<R, E, C>) {
+/**
+ * Takes [A, B], applies it to a curried Effect function,
+ * taps the Effect, returning A.
+ */
+export function tupleTap<A, B, R, E, C>(f: (b: B) => (a: A) => Effect<R, E, C>) {
   return (t: readonly [A, B]) => succeed(t[0])["|>"](tap(f(t[1])))
+}
+
+/**
+ * Takes [A, B], applies it to an Effect function,
+ * taps the Effect, returning A.
+ */
+export function tupleTap_<A, B, R, E, C>(f: (a: A, b: B) => Effect<R, E, C>) {
+  return tupleTap(curry(f))
 }
 
 export function ifDiffR<I, R, E, A>(f: (i: I) => Effect<R, E, A>) {

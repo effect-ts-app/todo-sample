@@ -29,7 +29,7 @@ export default handle(Tasks.Update)(({ id, myDay, ..._ }) =>
     // TODO: Context should perhaps know if changed, and should use a transaction
     yield* $(
       T.tuple(
-        Tasks.save_["|>"](T.ifDiff(task, initialTask)),
+        Tasks.save["|>"](T.ifDiff(task, initialTask)),
         Users.save["|>"](T.ifDiff(user, initialUser))
       )
     )
@@ -48,24 +48,25 @@ export function updateTask_(
 ) {
   if (typedKeysOf(_).some((x) => typeof _[x] !== "undefined")) {
     task = task["|>"](Task.update(_))
+    // Derive audits.
+    // NOTE: Obviously it would be easier if this was a Task Based approach, where each change would be specialised, instead of allowing to change all the editable props
+    // TODO: As adding an attachment is actually a special purpose use case, we should extract it to it's own use case + route.
+    if (_.attachment) {
+      task = _.attachment["|>"](
+        O.fold(
+          // TODO: Attachment removed?
+          () => task,
+          flow(
+            TaskAudits.TaskFileAdded.fromAttachment({ userId: user.id }),
+            Task.addAudit.r(task)
+          )
+        )
+      )
+    }
   }
   if (myDay) {
     user = user["|>"](User.toggleMyDay(task, myDay))
   }
-  // Derive audits.
-  // NOTE: Obviously it would be easier if this was a Task Based approach, where each change would be specialised, instead of allowing to change all the editable props
-  // TODO: As adding an attachment is actually a special purpose use case, we should extract it to it's own use case + route.
-  if (_.attachment) {
-    task = _.attachment["|>"](
-      O.fold(
-        // TODO: Attachment removed?
-        () => task,
-        flow(
-          TaskAudits.TaskFileAdded.fromAttachment({ userId: user.id }),
-          Task.addAudit.r(task)
-        )
-      )
-    )
-  }
+
   return [task, user] as const
 }

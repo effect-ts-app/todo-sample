@@ -25,6 +25,7 @@ it("changes the provided props", () =>
     )
 
     expect(task.title).not.toBe(initialTask.title)
+    expect(task.updatedAt).not.toBe(initialTask.updatedAt)
     expect(task.title).toBe("ho")
     expect(user).toBe(initialUser)
   }))
@@ -33,7 +34,7 @@ it("leaves unchanged", () =>
   T.succeedWith(() => {
     const [task, user] = updateTask({})(initialTask, initialUser)
 
-    expect(task.title).toBe(initialTask.title)
+    expect(task).toBe(initialTask)
     expect(user).toBe(initialUser)
   }))
 
@@ -47,14 +48,6 @@ it("adds myday to initialUser", () =>
     expect(user.myDay).toEqual(
       expect.arrayContaining([{ id: initialTask.id, date: myDay }])
     )
-  }))
-
-it("sets a new updatedAt", () =>
-  T.succeedWith(() => {
-    const [task, user] = updateTask({})(initialTask, initialUser)
-
-    expect(task.updatedAt).not.toBe(initialTask.updatedAt)
-    expect(user).toBe(initialUser)
   }))
 
 it("adds an Audit on file attachment added", () =>

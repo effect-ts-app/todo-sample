@@ -20,7 +20,7 @@ import {
   reasonableString,
   withDefault,
 } from "@effect-ts-app/core/ext/Schema"
-import { curriedMagix, curry } from "@effect-ts-app/core/ext/utils"
+import { curriedMagix, uncurriedMagix } from "@effect-ts-app/core/ext/utils"
 
 import { TaskId, TaskListIdU, UserId } from "../ids"
 import { TaskAudit, TaskCreated } from "./audit"
@@ -110,13 +110,12 @@ export class Task extends Model<Task>()({
     Task.lens["|>"](Lens.prop("auditLog"))["|>"](Lens.modify(A.snoc(audit)))
   )
 
-  static update_ = (initialTask: Task, _: OptionalEditableTaskProps) => {
+  static update = uncurriedMagix((initialTask: Task, _: OptionalEditableTaskProps) => {
     const task = {
       ...initialTask,
       ..._,
       updatedAt: new Date(),
     }
     return task
-  }
-  static update = curry(Task.update_)
+  })
 }

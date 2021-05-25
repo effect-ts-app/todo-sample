@@ -8,6 +8,7 @@ import * as O from "@effect-ts/core/Option"
 import { _A } from "@effect-ts/core/Utils"
 import * as T from "@effect-ts-app/core/ext/Effect"
 import * as EO from "@effect-ts-app/core/ext/EffectOption"
+import { uncurriedMagix } from "@effect-ts-app/core/ext/utils"
 import { makeCodec } from "@effect-ts-app/infra/context/schema"
 import {
   Task,
@@ -205,14 +206,11 @@ function makeTaskContext(tasks: Task[]) {
         T.chain(O.fold(() => T.fail(new NotFoundError("Task", id)), T.succeed))
       )
 
-    const save_ = (t: Task, events: readonly TaskEvents.Events[] = []) =>
+    const save = (t: Task) =>
       pipe(
         T.structPar({ encT: encodeTask(t), tasks: tasksRef.get }),
-        T.chain(({ encT, tasks }) => tasksRef.set(tasks["|>"](Map.insert(t.id, encT)))),
-        // TODO: this should span a transaction - actually all writes in a usecase should be within a transaction boundary.
-        T.tap(() => handleEvents(events))
+        T.chain(({ encT, tasks }) => tasksRef.set(tasks["|>"](Map.insert(t.id, encT))))
       )
-
     const remove = (id: TaskId) =>
       pipe(
         T.tuple(tasksRef.get, get(id)),
@@ -220,7 +218,7 @@ function makeTaskContext(tasks: Task[]) {
       )
 
     const updateM = <R, E>(id: TaskId, mod: (a: Task) => T.Effect<R, E, Task>) =>
-      pipe(get(id), T.chain(mod), T.tap(save_))
+      pipe(get(id), T.chain(mod), T.tap(save))
 
     const all = (userId: UserId, lists: CNK.Chunk<TaskList>) =>
       pipe(
@@ -240,8 +238,7 @@ function makeTaskContext(tasks: Task[]) {
       get,
       update: (id: TaskId, mod: (a: Task) => Task) => updateM(id, T.liftM(mod)),
       updateM,
-      save_,
-      save: (events: readonly TaskEvents.Events[]) => (t: Task) => save_(t, events),
+      save,
       remove,
     }
   })
@@ -276,18 +273,21 @@ export const MockTodoContext = L.fromEffect(TodoContext)(
   makeMockTodoContext["|>"](T.orDie)
 )
 
-export const { Lists, Tasks, Users } = T.deriveLifted(TodoContext)(
-  [],
+export const { Lists, Tasks, Users, allTasks } = T.deriveLifted(TodoContext)(
+  ["allTasks"],
   [],
   ["Lists", "Tasks", "Users"]
 )
 
-export const allTasks = (userId: UserId) =>
-  T.gen(function* ($) {
-    const { Lists, Tasks } = yield* $(TodoContext)
-    const lists = yield* $(Lists.allLists(userId))
-    return yield* $(Tasks.all(userId, lists))
-  })
+// Have to define here, because handleEvents uses TodoContext, which is a problem when using the curry helpers :S
+export const saveTaskAndPublishEvents = uncurriedMagix(
+  (t: Task, events: readonly TaskEvents.Events[]) =>
+    pipe(
+      // TODO: this should span a transaction - actually all writes in a usecase should be within a transaction boundary.
+      T.chain_(Tasks, (_) => _.save(t)),
+      T.tap(() => handleEvents(events))
+    )
+)
 
 export const getLoggedInUser = T.gen(function* ($) {
   const user = yield* $(UserSVC.UserProfile)

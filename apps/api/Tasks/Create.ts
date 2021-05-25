@@ -11,7 +11,7 @@ import { TaskListAuth } from "../TaskLists/_access"
 
 export default handle(Tasks.Create)((_) =>
   T.gen(function* ($) {
-    const { Lists, Tasks } = yield* $(TodoContext.TodoContext)
+    const { Lists } = yield* $(TodoContext.TodoContext)
 
     const user = yield* $(TodoContext.getLoggedInUser)
 
@@ -20,7 +20,9 @@ export default handle(Tasks.Create)((_) =>
       yield* $(TaskListAuth.access_(list, user.id, identity))
     }
 
-    return yield* $(pipe(createTask_(user, _), T.tupleCurriedTap(Tasks.save)))
+    return yield* $(
+      pipe(createTask_(user, _), T.tupleTap_(TodoContext.saveTaskAndPublishEvents._))
+    )
   })
 )
 

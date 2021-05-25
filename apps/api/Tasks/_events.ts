@@ -5,41 +5,34 @@ import * as TUP from "@effect-ts/core/Collections/Immutable/Tuple"
 import * as T from "@effect-ts/core/Effect"
 import { _E, _R, ForcedTuple } from "@effect-ts/core/Utils"
 import * as EO from "@effect-ts-app/core/ext/EffectOption"
+import { tuple } from "@effect-ts-app/core/ext/Function"
 import * as S from "@effect-ts-app/core/ext/Schema"
 import { TaskEvents, TaskId, User, UserId } from "@effect-ts-demo/todo-types"
 
 import { TodoContext } from "@/services"
 
-export function handleEvents<T extends TaskEvents.Events>(events: readonly T[]) {
-  return T.forEach_(
-    events,
-    TaskEvents.Events.Api.matchW(
-      {
-        TaskCreated: (evt) => myTup(...EventHandlers.TaskCreated.map((h) => h(evt))),
-      }
-      // // Default
-      // () => T.unit
-    )
+const matchTaskEvent = TaskEvents.Events.matchOne
+const eventHandlers = tuple(
+  // Sample: Update the "User" aggregate to store the myDay state for this Task.
+  matchTaskEvent("TaskCreated", ({ myDay, taskId, userId }) =>
+    EO.genUnit(function* ($) {
+      const { Users } = yield* $(TodoContext.TodoContext)
+      yield* $(Users.update(userId, User.addToMyDay({ id: taskId }, yield* $(myDay))))
+    })
+  ),
+
+  // This is here just to test multiple handlers, and the merging of R and E accordingly.
+  matchTaskEvent("TaskCreated", () => TodoContext.getLoggedInUser["|>"](T.asUnit)),
+
+  // Sample for dispatching an Integration Event.
+  // On_TaskCreated_SendTaskCreatedEmail
+  matchTaskEvent("TaskCreated", ({ taskId, userId }) =>
+    publishIntegrationEvent(new SendTaskCreatedEmail({ taskId, userId }))
   )
-}
+)
 
-const EventHandlers = {
-  TaskCreated: [
-    // Sample: Update the "User" aggregate to store the myDay state for this Task.
-    ({ myDay, taskId, userId }: TaskEvents.TaskCreated) =>
-      EO.genUnit(function* ($) {
-        const { Users } = yield* $(TodoContext.TodoContext)
-        yield* $(Users.update(userId, User.addToMyDay({ id: taskId }, yield* $(myDay))))
-      }),
-
-    // This is here just to test multiple handlers, and the merging of R and E accordingly.
-    () => TodoContext.getLoggedInUser["|>"](T.asUnit),
-
-    // Sample for dispatching an Integration Event.
-    // On_TaskCreated_SendTaskCreatedEmail
-    ({ taskId, userId }: TaskEvents.TaskCreated) =>
-      publishIntegrationEvent(new SendTaskCreatedEmail({ taskId, userId })),
-  ] as const,
+export function handleEvents<T extends TaskEvents.Events>(events: readonly T[]) {
+  return T.forEach_(events, (evt) => T.forEach_(eventHandlers, (x) => T.union(x(evt))))
 }
 
 //////

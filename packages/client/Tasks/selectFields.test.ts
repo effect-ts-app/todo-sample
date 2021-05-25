@@ -8,6 +8,7 @@ import { LiveApiConfig } from "../config"
 import { positiveIntUnsafe } from "../test.helpers"
 import { searchWithFields } from "./_custom"
 
+// TODO: run in-process to fix errors on restart.
 const Env = LiveApiConfig({
   apiUrl: "http://localhost:3330",
   userProfileHeader: JSON.stringify({
