@@ -20,7 +20,7 @@ export default handle(Tasks.Create)((_) =>
       yield* $(TaskListAuth.access_(list, user.id, identity))
     }
 
-    return yield* $(pipe(createTask_(user, _), Tasks.save["|>"](T.tupleCurriedTap)))
+    return yield* $(pipe(createTask_(user, _), T.tupleCurriedTap(Tasks.save)))
   })
 )
 
