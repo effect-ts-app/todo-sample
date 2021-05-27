@@ -76,6 +76,7 @@
                         "note",
                         "isFavorite",
                         "steps",
+                        "categories",
                         "myDay",
                         "reminder"
                       ],
@@ -1253,6 +1254,7 @@
           "note",
           "isFavorite",
           "steps",
+          "categories",
           "myDay",
           "reminder"
         ],

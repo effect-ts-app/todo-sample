@@ -1,28 +1,33 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as T from "@effect-ts/core/Effect"
+import * as L from "@effect-ts/core/Effect/Layer"
 import * as Test from "@effect-ts/jest/Test"
 import * as HF from "@effect-ts-app/core/http/http-client-fetch"
+import { LiveApiConfig } from "@effect-ts-demo/todo-client/config"
+import { searchWithFields } from "@effect-ts-demo/todo-client/Tasks/_custom"
+import { positiveIntUnsafe } from "@effect-ts-demo/todo-client/test.helpers"
 import fetch from "cross-fetch"
 
-import { LiveApiConfig } from "../config"
-import { positiveIntUnsafe } from "../test.helpers"
-import { searchWithFields } from "./_custom"
+import { managedServer } from "@/test.setup"
 
-// TODO: run in-process to fix errors on restart.
-const Env = LiveApiConfig({
-  apiUrl: "http://localhost:3330",
-  userProfileHeader: JSON.stringify({
-    sub: "0",
+const { URL, server } = managedServer()
+
+const Env = L.all(
+  LiveApiConfig({
+    apiUrl: URL,
+    userProfileHeader: JSON.stringify({
+      sub: "0",
+    }),
   }),
-})["+++"](HF.Client(fetch))
+  HF.Client(fetch),
+  server
+)
 
-const { it } = Test.runtime((l) => l["+++"](Env))
+const { it } = Test.runtime((l) => l[">+>"](Env))
 
 it("works with full call", () =>
   T.gen(function* ($) {
-    const search = searchWithFields({})
-
-    const allFields = yield* $(search)
+    const allFields = yield* $(searchWithFields({}))
     expect(allFields.items[0].createdAt).toBeInstanceOf(Date)
     console.log(allFields)
   }))
@@ -34,9 +39,8 @@ it("works with partial call", () =>
       $skip: positiveIntUnsafe(10),
       $count: true,
     }
-    const searchWithSomeFields = searchWithFields(req)
 
-    const someFields = yield* $(searchWithSomeFields)
+    const someFields = yield* $(searchWithFields(req))
 
     expect((someFields.items[0] as any).createdAt).toBeUndefined()
     console.log(someFields)

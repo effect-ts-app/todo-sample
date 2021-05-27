@@ -18,6 +18,7 @@ import {
   parseStringE,
   leafE,
   ReasonableString,
+  lensFromProps,
 } from "@effect-ts-app/core/ext/Schema"
 import * as Todo from "@effect-ts-demo/todo-client/types"
 import { TaskId, TaskListId } from "@effect-ts-demo/todo-client/types"
@@ -28,16 +29,16 @@ import { Lens } from "@effect-ts/monocle"
 
 import { typedKeysOf } from "./utils"
 
-const stepCompleted = Todo.Step.lens["|>"](Lens.prop("completed"))
-
 export const toggleBoolean = Lens.modify<boolean>((x) => !x)
+
 export class Step extends Todo.Step {
   static create = (title: Todo.Step["title"]) =>
     new Todo.Step({ title, completed: false })
-  static toggleCompleted = stepCompleted["|>"](toggleBoolean)
+
+  static lenses = lensFromProps<Step>()(Step.Model.Api.props)
+  static toggleCompleted = Step.lenses.completed["|>"](toggleBoolean)
 }
 
-const taskSteps = Todo.Task.lens["|>"](Lens.prop("steps"))
 const createAndAddStep = flow(Step.create, A.snoc)
 const toggleStepCompleted = (s: Step) => A.modifyOrOriginal(s, Step.toggleCompleted)
 const updateStepTitle = (s: Step) => (stepTitle: Todo.Step["title"]) =>
@@ -65,31 +66,27 @@ export function updateStepIndex(s: Step, newIndex: number) {
 
 export class Task extends Todo.Task {
   static addStep = (stepTitle: Todo.Step["title"]) =>
-    taskSteps["|>"](Lens.modify(createAndAddStep(stepTitle)))
-  static removeStep = (s: Step) => taskSteps["|>"](Lens.modify(A.deleteOrOriginal(s)))
-  static toggleCompleted = Todo.Task.lens["|>"](Lens.prop("completed"))["|>"](
+    Todo.Task.lenses.steps["|>"](Lens.modify(createAndAddStep(stepTitle)))
+  static removeStep = (s: Step) =>
+    Todo.Task.lenses.steps["|>"](Lens.modify(A.deleteOrOriginal(s)))
+  static toggleCompleted = Todo.Task.lenses.completed["|>"](
     Lens.modify((x) => (O.isSome(x) ? O.none : O.some(new Date())))
   )
-  static toggleMyDay = Todo.Task.lens["|>"](Lens.prop("myDay"))["|>"](
+  static toggleMyDay = Todo.Task.lenses.myDay["|>"](
     Lens.modify((x) => (O.isSome(x) ? O.none : O.some(new Date())))
   )
-  static toggleFavorite = Todo.Task.lens["|>"](Lens.prop("isFavorite"))["|>"](
-    toggleBoolean
-  )
+  static toggleFavorite = Todo.Task.lenses.isFavorite["|>"](toggleBoolean)
   static toggleStepCompleted = (s: Todo.Step) =>
-    taskSteps["|>"](Lens.modify(toggleStepCompleted(s)))
+    Todo.Task.lenses.steps["|>"](Lens.modify(toggleStepCompleted(s)))
 
   static updateStep = (s: Todo.Step, stepTitle: Todo.Step["title"]) =>
-    taskSteps["|>"](Lens.modify(updateStepTitle(s)(stepTitle)))
+    Todo.Task.lenses.steps["|>"](Lens.modify(updateStepTitle(s)(stepTitle)))
 
   static updateStepIndex = (s: Todo.Step, newIndex: number) =>
-    taskSteps["|>"](Lens.modify(updateStepIndex(s, newIndex)))
+    Todo.Task.lenses.steps["|>"](Lens.modify(updateStepIndex(s, newIndex)))
 
-  static dueInPast = flow(Todo.Task.lens["|>"](Lens.prop("due")).get, O.chain(pastDate))
-  static reminderInPast = flow(
-    Todo.Task.lens["|>"](Lens.prop("reminder")).get,
-    O.chain(pastDate)
-  )
+  static dueInPast = flow(Todo.Task.lenses.due.get, O.chain(pastDate))
+  static reminderInPast = flow(Todo.Task.lenses.reminder.get, O.chain(pastDate))
 }
 
 export class TaskList extends Model<TaskList>()({

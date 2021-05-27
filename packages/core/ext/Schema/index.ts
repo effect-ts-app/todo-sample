@@ -1,11 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
+import * as Eq from "@effect-ts/core/Equal"
+import * as Ord from "@effect-ts/core/Ord"
 import * as O from "@effect-ts-app/core/ext/Option"
+import * as SET from "@effect-ts-app/core/ext/Set"
 import { v4 } from "uuid"
 
 import { Compute } from "../Compute"
 import { constant, Lazy, pipe } from "../Function"
 import { typedKeysOf } from "../utils"
+import { set, setIdentifier } from "./_api"
 import * as S from "./_schema"
 import { schemaField, UUID } from "./_schema"
 
@@ -163,7 +167,14 @@ export function defaultConstructor<
   return (makeDefault: () => S.ParsedShapeOf<Self>) => p.def(makeDefault, "constructor")
 }
 
-type SupportedDefaults = A.Array<any> | O.Some<any> | O.None | Date | boolean | UUID
+type SupportedDefaults =
+  | SET.Set<any>
+  | A.Array<any>
+  | O.Some<any>
+  | O.None
+  | Date
+  | boolean
+  | UUID
 
 export function findAnnotation<A>(
   schema: S.SchemaAny,
@@ -180,29 +191,115 @@ export function findAnnotation<A>(
   return undefined
 }
 
-export function withDefault<
+export type SupportedDefaultsSchema = S.Schema<
+  unknown,
+  S.AnyError,
+  SupportedDefaults,
+  any,
+  S.AnyError,
+  any,
+  any
+>
+export type DefaultProperty = S.Property<any, any, any, any>
+
+export type DefaultPropertyRecord = Record<PropertyKey, DefaultProperty>
+
+type ParsedShapeOfBla<X extends S.Schema<any, any, any, any, any, any, any>> =
+  X extends S.Schema<any, any, infer Y, any, any, any, any> ? Y : never
+
+// TODO does not properly filter on SupportedDefaults :S
+type AllWithDefault<Props extends DefaultPropertyRecord> = {
+  [K in keyof Props]: WithDefault<
+    S.ParserErrorOf<Props[K]["_schema"]>,
+    // TODO
+    ParsedShapeOfBla<Props[K]["_schema"]>,
+    S.ConstructorInputOf<Props[K]["_schema"]>,
+    S.ConstructorErrorOf<Props[K]["_schema"]>,
+    S.EncodedOf<Props[K]["_schema"]>,
+    S.ApiOf<Props[K]["_schema"]>,
+    Props[K]["_as"]
+  >
+}
+
+export function allWithDefault<Props extends DefaultPropertyRecord>(
+  props: Props
+): AllWithDefault<Props> {
+  return typedKeysOf(props).reduce((prev, cur) => {
+    prev[cur] = props[cur]["|>"](withDefault)
+    return prev
+  }, {} as any)
+}
+
+export type WithDefault<
+  ParserError extends S.AnyError,
   ParsedShape extends SupportedDefaults,
+  ConstructorInput,
+  ConstructorError extends S.AnyError,
+  Encoded,
+  Api,
+  As extends O.Option<PropertyKey>
+> = S.Property<
+  S.Schema<
+    unknown,
+    ParserError,
+    ParsedShape,
+    ConstructorInput,
+    ConstructorError,
+    Encoded,
+    Api
+  >,
+  "required",
+  As,
+  O.Some<["constructor", () => ParsedShape]>
+>
+
+export function withDefault<
+  ParserError extends S.AnyError,
+  ParsedShape extends SupportedDefaults,
+  ConstructorInput,
+  ConstructorError extends S.AnyError,
+  Encoded,
+  Api,
   As extends O.Option<PropertyKey>,
   Def extends O.Option<
     [
       "parser" | "constructor" | "both",
       () => S.ParsedShapeOf<
-        S.Schema<unknown, S.AnyError, ParsedShape, any, S.AnyError, any, any>
+        S.Schema<
+          unknown,
+          ParserError,
+          ParsedShape,
+          ConstructorInput,
+          ConstructorError,
+          Encoded,
+          Api
+        >
       >
     ]
   >
 >(
   p: S.Property<
-    S.Schema<unknown, S.AnyError, ParsedShape, any, S.AnyError, any, any>,
+    S.Schema<
+      unknown,
+      ParserError,
+      ParsedShape,
+      ConstructorInput,
+      ConstructorError,
+      Encoded,
+      Api
+    >,
     "required",
     As,
     Def
   >
-): S.Property<
-  S.Schema<unknown, S.AnyError, ParsedShape, any, S.AnyError, any, any>,
-  "required",
-  As,
-  O.Some<["constructor", () => ParsedShape]>
+): WithDefault<
+  ParserError,
+  ParsedShape,
+  ConstructorInput,
+  ConstructorError,
+  Encoded,
+  Api,
+  As
 > {
   if (findAnnotation(p._schema, S.dateIdentifier)) {
     return p.def(makeCurrentDate as any, "constructor")
@@ -212,6 +309,9 @@ export function withDefault<
   }
   if (findAnnotation(p._schema, S.arrayIdentifier)) {
     return p.def(() => [] as any, "constructor")
+  }
+  if (findAnnotation(p._schema, setIdentifier)) {
+    return p.def(() => new Set() as any, "constructor")
   }
   if (findAnnotation(p._schema, S.boolIdentifier)) {
     return p.def(() => false as any, "constructor")
@@ -342,6 +442,125 @@ export function makeRequired<NER extends Record<string, S.AnyProperty>>(
     prev[cur] = t[cur].req()
     return prev
   }, {} as any)
+}
+
+export function createUnorder<T>(): Ord.Ord<T> {
+  return {
+    compare: (_a: T, _b: T) => 0,
+  }
+}
+export function makeSet<
+  ParserError extends S.AnyError,
+  ParsedShape,
+  ConstructorInput,
+  ConstructorError extends S.AnyError,
+  Encoded,
+  Api
+>(
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  type: S.Schema<
+    unknown,
+    ParserError,
+    ParsedShape,
+    ConstructorInput,
+    ConstructorError,
+    Encoded,
+    Api
+  >,
+  ord: Ord.Ord<ParsedShape>,
+  eq_?: Eq.Equal<ParsedShape>
+) {
+  const eq = eq_ ?? Ord.getEqual(ord)
+  const s = set(type, ord, eq)
+  return Object.assign(s, SET.make(ord, eq))
+}
+
+export function makeUnorderedContramappedStringSet<
+  ParserError extends S.AnyError,
+  ParsedShape,
+  ConstructorInput,
+  ConstructorError extends S.AnyError,
+  Encoded,
+  Api,
+  MA extends string
+>(
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  type: S.Schema<
+    unknown,
+    ParserError,
+    ParsedShape,
+    ConstructorInput,
+    ConstructorError,
+    Encoded,
+    Api
+  >,
+  contramap: (a: ParsedShape) => MA
+) {
+  return makeUnorderedSet(type, Eq.contramap(contramap)(Eq.string))
+}
+
+export function makeUnorderedStringSet<A extends string>(
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  type: S.Schema<
+    unknown, //ParserInput,
+    any, // S.AnyError //ParserError,
+    A,
+    any, //ConstructorInput,
+    any, //ConstructorError,
+    any, //Encoded
+    any //Api
+  >
+) {
+  return makeUnorderedSet(type, Eq.string)
+}
+
+export function makeUnorderedSet<
+  ParserError extends S.AnyError,
+  ParsedShape,
+  ConstructorInput,
+  ConstructorError extends S.AnyError,
+  Encoded,
+  Api
+>(
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  type: S.Schema<
+    unknown,
+    ParserError,
+    ParsedShape,
+    ConstructorInput,
+    ConstructorError,
+    Encoded,
+    Api
+  >,
+  eq: Eq.Equal<ParsedShape>
+) {
+  return makeSet(type, createUnorder<ParsedShape>(), eq)
+}
+
+export function makeContramappedSet<
+  ParserError extends S.AnyError,
+  ParsedShape,
+  ConstructorInput,
+  ConstructorError extends S.AnyError,
+  Encoded,
+  Api,
+  MA
+>(
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  type: S.Schema<
+    unknown,
+    ParserError,
+    ParsedShape,
+    ConstructorInput,
+    ConstructorError,
+    Encoded,
+    Api
+  >,
+  contramap: (a: ParsedShape) => MA,
+  ord: Ord.Ord<MA>,
+  eq: Eq.Equal<MA>
+) {
+  return makeSet(type, Ord.contramap_(ord, contramap), Eq.contramap(contramap)(eq))
 }
 
 export const constArray = constant(A.empty)

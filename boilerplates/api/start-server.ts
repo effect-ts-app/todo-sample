@@ -1,8 +1,10 @@
 import * as T from "@effect-ts/core/Effect"
+import * as L from "@effect-ts/core/Effect/Layer"
 import { pipe } from "@effect-ts/core/Function"
 import * as Ex from "@effect-ts/express"
 import * as N from "@effect-ts/node/Runtime"
 
+import { LiveConfig } from "./_services/Config"
 import { app } from "./app"
 import * as cfg from "./config"
 import { writeOpenapiDocs } from "./writeDocs"
@@ -20,6 +22,6 @@ const program = pipe(
 
 pipe(
   program,
-  T.provideSomeLayer(Ex.LiveExpress(cfg.HOST, parseInt(cfg.PORT))),
+  T.provideSomeLayer(L.all(Ex.LiveExpress(cfg.HOST, cfg.PORT), LiveConfig(cfg))),
   N.runMain
 )

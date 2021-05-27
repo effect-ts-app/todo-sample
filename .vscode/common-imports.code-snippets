@@ -1,4 +1,11 @@
 {
+    "Set": {
+        "prefix": "+SET",
+        "body": [
+            "import * as SET from \"@effect-ts-app/core/ext/Set\""
+        ],
+        "description": "Set as S"
+    },
     "Schema": {
         "prefix": "+SC",
         "body": [

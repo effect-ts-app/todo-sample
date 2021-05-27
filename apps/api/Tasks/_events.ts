@@ -1,40 +1,49 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // https://docs.microsoft.com/en-us/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/domain-events-design-implementation
 
-import * as TUP from "@effect-ts/core/Collections/Immutable/Tuple"
 import * as T from "@effect-ts/core/Effect"
-import { _E, _R, ForcedTuple } from "@effect-ts/core/Utils"
 import * as EO from "@effect-ts-app/core/ext/EffectOption"
 import { flow, identity, tuple } from "@effect-ts-app/core/ext/Function"
+import * as O from "@effect-ts-app/core/ext/Option"
 import * as S from "@effect-ts-app/core/ext/Schema"
-import { TaskEvents, TaskId, User, UserId } from "@effect-ts-demo/todo-types"
+import { TaskEvents, TaskId, User, UserId, UserTask } from "@effect-ts-demo/todo-types"
 
 import { TodoContext } from "@/services"
 
 const matchTaskEvent = TaskEvents.Events.matchOne
 const eventHandlers = tuple(
-  // Sample: Update the "User" aggregate to store the myDay state for this Task.
+  // Sample: Update the "User" aggregate to store the user state for this Task.
   matchTaskEvent("TaskCreated", ({ myDay, taskId, userId }) =>
     EO.genUnit(function* ($) {
       const { Users } = yield* $(TodoContext.TodoContext)
-      yield* $(Users.update(userId, User.addToMyDay({ id: taskId }, yield* $(myDay))))
+      const md = yield* $(myDay)
+      yield* $(
+        Users.update(
+          userId,
+          User.modifyUserTask(taskId, UserTask.lenses.myDay.set(O.some(md)))
+        )
+      )
     })
   ),
   matchTaskEvent("TaskUpdated", ({ taskId, userChanges, userId }) =>
     EO.genUnit(function* ($) {
       const { Users } = yield* $(TodoContext.TodoContext)
       const { myDay, reminder } = userChanges
-      if (myDay || reminder) {
-        yield* $(
-          Users.update(
-            userId,
+      if (!myDay && !reminder) {
+        return
+      }
+      yield* $(
+        Users.update(
+          userId,
+          User.modifyUserTask(
+            taskId,
             flow(
-              myDay ? User.toggleMyDay({ id: taskId }, myDay) : identity,
-              reminder ? User.toggleReminder({ id: taskId }, reminder) : identity
+              myDay ? UserTask.lenses.myDay.set(myDay) : identity,
+              reminder ? UserTask.lenses.reminder.set(reminder) : identity
             )
           )
         )
-      }
+      )
     })
   ),
 
@@ -85,16 +94,4 @@ export type IntegrationEvents = S.ParsedShapeOf<typeof IntegrationEvents>
 
 function unimplemented(message: string) {
   return T.succeedWith(() => console.warn("Called unimplemented: " + message))
-}
-
-////
-// Tuple tools, to merge the types better
-export function myTup<T extends readonly T.Effect<any, any, any>[]>(
-  ...t: T
-): T.Effect<_R<T[number]>, _E<T[number]>, ForcedTuple<TupleA<T>>> {
-  return T.map_(T.collectAll(t /*T.accessCallTrace() */), (x) => TUP.tuple(...x)) as any
-}
-
-export type TupleA<T extends readonly T.Effect<any, any, any>[]> = {
-  [K in keyof T]: [T[K]] extends [T.Effect<any, any, infer A>] ? A : never
 }

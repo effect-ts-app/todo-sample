@@ -1,9 +1,10 @@
+// NOTE: Instead of an Object model, a Data model was defined..
+
 import { flow } from "@effect-ts/core/Function"
 import { Lens } from "@effect-ts/monocle"
 import * as O from "@effect-ts-app/core/ext/Option"
 import { Membership, Step, Task, User } from "@effect-ts-demo/todo-types"
 
-import { AUTH_DISABLED } from "@/config"
 import {
   emailUnsafe,
   phoneNumberUnsafe,
@@ -11,24 +12,21 @@ import {
   userIdUnsafe,
 } from "@/test.helpers"
 
-// Model problems:
-// - isFavorite is per Task, not per User. Probably should store per user (like myDay/reminder now is), and then merge in?
-// - As ordering is currently saved per list, the ordering is shared with other users in the list. Feature?
-// - Instead of an Object model, a Data model was defined..
+import { Config } from "./Config"
 
 function makeUserTaskCreator(u: User) {
   return flow(
     User.createTask.r(u),
-    Task.lens["|>"](Lens.prop("title"))["|>"](
+    Task.lenses.title["|>"](
       Lens.modify((t) => reasonableStringUnsafe(`${u.name} - ${t}`))
     )
   )
 }
 
-export function makeTestDataUnsafe() {
+export function makeTestDataUnsafe(cfg: Config) {
   // TODO: users from Auth0 / create local shadow.
   const patrick = new User({
-    id: userIdUnsafe(AUTH_DISABLED ? "0" : "google-oauth2|118082603933712729435"),
+    id: userIdUnsafe(cfg.AUTH_DISABLED ? "0" : "google-oauth2|118082603933712729435"),
     name: reasonableStringUnsafe("Patrick Roza"),
     email: emailUnsafe("somewhere@someplace.com"),
     phoneNumber: phoneNumberUnsafe("+49 1234567"),

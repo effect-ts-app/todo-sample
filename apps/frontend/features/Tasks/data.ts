@@ -5,7 +5,6 @@ import { Parser } from "@effect-ts-app/core/ext/Schema"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import { constant, flow, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
-import { Lens } from "@effect-ts/monocle"
 import { useCallback, useEffect, useMemo } from "react"
 
 import { useServiceContext } from "@/context"
@@ -303,7 +302,7 @@ export function useTaskCommands(id: Todo.TaskId) {
     function setTitle(t: Todo.Task) {
       return flow(
         parseRS,
-        T.map((v) => t["|>"](Todo.Task.lens["|>"](Lens.prop("title")).set(v))),
+        T.map((v) => t["|>"](Todo.Task.lenses.title.set(v))),
         T.chain(updateAndRefreshTask)
       )
     }

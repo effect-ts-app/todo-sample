@@ -1,32 +1,32 @@
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as O from "@effect-ts/core/Option"
-import { Option } from "@effect-ts/core/Option"
+import * as Lens from "@effect-ts/monocle/Lens"
 import {
+  allWithDefault,
   array,
-  date,
   defaultProp,
   Email,
   Model,
   namedC,
-  ParsedShapeOf,
   partialConstructor,
   PhoneNumber,
   prop,
-  props,
   reasonableString,
 } from "@effect-ts-app/core/ext/Schema"
-import { reverseCurriedMagix } from "@effect-ts-app/core/ext/utils"
+import { reverseCurriedMagix, uncurriedMagix } from "@effect-ts-app/core/ext/utils"
 
 import { TaskId, UserId } from "./ids"
-import { Task } from "./Task"
+import { EditablePersonalTaskProps, Task, UserTaskView } from "./Task"
 import { TaskList, TaskListGroup } from "./TaskList"
-
-const MyDay = props({ id: prop(TaskId), date: prop(date) /* position */ })
-type MyDay = ParsedShapeOf<typeof MyDay>
 
 const createPartialTask = partialConstructor(Task)
 const createPartialTaskList = partialConstructor(TaskList)
 const createPartialTaskListGroup = partialConstructor(TaskListGroup)
+
+export class UserTask extends Model<UserTask>()({
+  taskId: prop(TaskId),
+  ...allWithDefault(EditablePersonalTaskProps),
+}) {}
 
 @namedC()
 export class User extends Model<User>()({
@@ -36,10 +36,7 @@ export class User extends Model<User>()({
   phoneNumber: prop(PhoneNumber),
 
   inboxOrder: defaultProp(array(TaskId)),
-  // Task customisation per user.
-  // alternatives: customisations: array(TaskCustomisation)
-  myDay: defaultProp(array(MyDay)),
-  reminder: defaultProp(array(MyDay)),
+  userTasks: defaultProp(array(UserTask.Model)),
 }) {
   static createTask = reverseCurriedMagix((u: User) =>
     createPartialTask({ createdBy: u.id })
@@ -51,50 +48,28 @@ export class User extends Model<User>()({
     createPartialTaskListGroup({ ownerId: u.id })
   )
 
-  // TODO: This doesn't scale well.
-  static getReminder = (t: Task) => (u: User) =>
-    A.findFirst_(u.reminder, (x) => x.id === t.id)["|>"](O.map((m) => m.date))
-  static addToReminder =
-    (t: Pick<Task, "id">, date: Date) =>
-    (u: User): User => ({
-      ...u,
-      reminder: A.findIndex_(u.reminder, (m) => m.id === t.id)
-        ["|>"](O.chain((idx) => A.modifyAt_(u.reminder, idx, (m) => ({ ...m, date }))))
-        ["|>"](O.getOrElse(() => A.snoc_(u.reminder, { id: t.id, date }))),
-    })
-  static removeFromReminder =
-    (t: Pick<Task, "id">) =>
-    (u: User): User => ({
-      ...u,
-      reminder: u.reminder["|>"](A.filter((m) => m.id !== t.id)),
-    })
-  static toggleReminder = (t: Pick<Task, "id">, reminder: Option<Date>) =>
-    O.fold_(
-      reminder,
-      () => User.removeFromReminder(t),
-      (date) => User.addToReminder(t, date)
+  static getOrCreateUserTask = uncurriedMagix((u: User, taskId: TaskId) => {
+    return u.userTasks["|>"](A.findFirst((x) => x.taskId === taskId))["|>"](
+      O.getOrElse(() => new UserTask({ taskId }))
     )
+  })
 
-  static getMyDay = (t: Task) => (u: User) =>
-    A.findFirst_(u.myDay, (x) => x.id === t.id)["|>"](O.map((m) => m.date))
-  static addToMyDay =
-    (t: Pick<Task, "id">, date: Date) =>
-    (u: User): User => ({
-      ...u,
-      myDay: A.findIndex_(u.myDay, (m) => m.id === t.id)
-        ["|>"](O.chain((idx) => A.modifyAt_(u.myDay, idx, (m) => ({ ...m, date }))))
-        ["|>"](O.getOrElse(() => A.snoc_(u.myDay, { id: t.id, date }))),
-    })
-  static removeFromMyDay =
-    (t: Pick<Task, "id">) =>
-    (u: User): User => ({
-      ...u,
-      myDay: u.myDay["|>"](A.filter((m) => m.id !== t.id)),
-    })
-  static toggleMyDay = (t: Pick<Task, "id">, myDay: Option<Date>) =>
-    O.fold_(
-      myDay,
-      () => User.removeFromMyDay(t),
-      (date) => User.addToMyDay(t, date)
+  static modifyUserTask = (taskId: TaskId, mod: (tu: UserTask) => UserTask) => {
+    return User.lenses.userTasks["|>"](
+      Lens.modify((uts) =>
+        A.findIndex_(uts, (m) => m.taskId === taskId)
+          ["|>"](O.chain((idx) => A.modifyAt_(uts, idx, mod)))
+          ["|>"](O.getOrElse(() => A.snoc_(uts, mod(new UserTask({ taskId })))))
+      )
     )
+  }
+
+  static personaliseTask = uncurriedMagix((u: User, t: Task) => {
+    const { myDay, reminder } = User.getOrCreateUserTask._(u, t.id)
+    return new UserTaskView({
+      ...t,
+      myDay,
+      reminder,
+    })
+  })
 }

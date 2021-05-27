@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as Lens from "@effect-ts/monocle/Lens"
+import { ParsedShapeOf } from "@effect-ts/schema"
 import { unsafe } from "@effect-ts/schema/_api/condemn"
 import { Erase } from "@effect-ts-app/core/ext/Effect"
 import { Path } from "path-parser"
@@ -90,7 +91,7 @@ export interface BodyRequest<
   Body extends AnyRecordSchema | undefined,
   Query extends StringRecordSchema | undefined,
   Headers extends StringRecordSchema | undefined,
-  Self extends S.SchemaAny
+  Self extends AnyRecordSchema
 > extends Model<M, Self> {
   Path: Path
   Body: Body
@@ -119,6 +120,7 @@ export interface Model2<M, Self extends S.SchemaAny, SelfM extends S.SchemaAny>
   [S.schemaField]: Self
   readonly Model: SelfM // added
   readonly lens: Lens.Lens<M, M> // added
+  readonly lenses: RecordSchemaToLenses<M, Self>
 
   readonly Parser: S.ParserFor<SelfM>
   readonly Constructor: S.ConstructorFor<SelfM>
@@ -906,11 +908,11 @@ export function makeRequest<
   // TODO: path props must be parsed "from string"
   const remainProps = { ...self.Api.props }
   const pathProps = params.length
-    ? params.reduce((prev, cur) => {
+    ? params.reduce<Record<PathParams<Path>, any>>((prev, cur) => {
         prev[cur] = self.Api.props[cur]
         delete remainProps[cur]
         return prev
-      }, {} as Record<typeof params[number], any>)
+      }, {} as Record<PathParams<Path>, any>)
     : null
 
   const dest = method === "GET" || method === "DELETE" ? "query" : "body"
@@ -943,6 +945,23 @@ export function adaptRequest<
   return makeRequest<Props, Path, Method, M>(req.method, req.path, req[S.schemaField])
 }
 
+export type RecordSchemaToLenses<T, Self extends AnyRecordSchema> = {
+  [K in keyof ParsedShapeOf<Self>]: Lens.Lens<T, ParsedShapeOf<Self>[K]>
+}
+
+export type PropsToLenses<T, Props extends S.PropertyRecord> = {
+  [K in keyof Props]: Lens.Lens<T, S.ParsedShapeOf<Props[K]["_schema"]>>
+}
+export function lensFromProps<T>() {
+  return <Props extends S.PropertyRecord>(props: Props): PropsToLenses<T, Props> => {
+    const id = Lens.id<T>()
+    return Object.keys(props).reduce((prev, cur) => {
+      prev[cur] = id["|>"](Lens.prop(cur as any))
+      return prev
+    }, {} as any)
+  }
+}
+
 // We don't want Copy interface from the official implementation
 export function Model_<M>() {
   return <Self extends S.SchemaAny>(self: Self): Model<M, Self> => {
@@ -968,6 +987,7 @@ export function Model_<M>() {
       static Arbitrary = S.Arbitrary.for(self)
 
       static lens = Lens.id<any>()
+      static lenses = lensFromProps()(self.Api.props)
 
       constructor(inp?: S.ConstructorInputOf<Self>) {
         if (inp) {

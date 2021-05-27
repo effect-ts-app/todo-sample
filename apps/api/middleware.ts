@@ -13,7 +13,7 @@ import jwksRsa from "jwks-rsa"
 import redoc from "redoc-express"
 import { serve, setup } from "swagger-ui-express"
 
-import * as cfg from "./config"
+import { configM } from "./_services/Config"
 import { NotLoggedInError } from "./errors"
 import { UserSVC } from "./services"
 
@@ -67,16 +67,14 @@ const checkJwt = jwt({
 })
 //const checkScopes = jwtAuthz(["read:tasks"])
 
-export const auth = cfg.AUTH_DISABLED
-  ? T.unit
-  : T.tuple(
-      Ex.use(Ex.classic(checkJwt)),
-      Ex.use(Ex.classic(jwtAuthz(["read:tasks"]))) // TODO
-    )
-
-// TODO
-const { AUTH_DISABLED: PROVIDED_AUTH_DISABLED = "false" } = process.env
-const AUTH_DISABLED = PROVIDED_AUTH_DISABLED === "true"
+export const auth = configM((cfg) =>
+  cfg.AUTH_DISABLED
+    ? T.unit
+    : T.tuple(
+        Ex.use(Ex.classic(checkJwt)),
+        Ex.use(Ex.classic(jwtAuthz(["read:tasks"]))) // TODO
+      )
+)
 
 export function demandLoggedIn<
   R,
@@ -103,11 +101,15 @@ export function demandLoggedIn<
     // },
     handle: (req: express.Request) =>
       pipe(
-        AUTH_DISABLED
-          ? UserSVC.LiveUserProfileFromUserHeader(req.headers["x-user"])
-          : UserSVC.LiveUserProfileFromAuthorizationHeader(
-              req.headers["authorization"]
-            ),
+        L.fromEffect(UserSVC.UserProfile)(
+          configM((cfg) =>
+            cfg.AUTH_DISABLED
+              ? UserSVC.makeUserProfileFromUserHeader(req.headers["x-user"])
+              : UserSVC.makeUserProfileFromAuthorizationHeader(
+                  req.headers["authorization"]
+                )
+          )
+        ),
         L.mapError(() => new NotLoggedInError())
       ),
   }

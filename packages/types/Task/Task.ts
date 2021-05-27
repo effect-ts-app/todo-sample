@@ -2,7 +2,9 @@ import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as O from "@effect-ts/core/Option"
 import * as Lens from "@effect-ts/monocle/Lens"
 import { constant } from "@effect-ts/system/Function"
+import { LazyGetter } from "@effect-ts/system/Utils"
 import {
+  allWithDefault,
   array,
   bool,
   ConstructorInputOf,
@@ -11,14 +13,15 @@ import {
   include,
   longString,
   makeOptional,
+  makeUnorderedStringSet,
   Model,
   namedC,
+  nonEmptyString,
   nullable,
   ParsedShapeOf,
   prop,
   props,
   reasonableString,
-  withDefault,
 } from "@effect-ts-app/core/ext/Schema"
 import { curriedMagix, uncurriedMagix } from "@effect-ts-app/core/ext/utils"
 
@@ -31,8 +34,14 @@ export class Step extends Model<Step>()({
   title: prop(reasonableString),
   completed: defaultProp(bool),
 }) {
-  static complete = Lens.id<Step>()["|>"](Lens.prop("completed")).set(true)
+  @LazyGetter()
+  static get complete() {
+    return Step.lenses.completed.set(true)
+  }
 }
+
+export const CategoriesSet = makeUnorderedStringSet(nonEmptyString)
+export type CategoriesSet = ParsedShapeOf<typeof CategoriesSet>
 
 export const EditableTaskProps = {
   title: prop(reasonableString),
@@ -45,15 +54,15 @@ export const EditableTaskProps = {
   assignedTo: prop(nullable(UserId)),
 
   attachment: prop(nullable(Attachment.Model)),
+
+  categories: prop(CategoriesSet),
 }
 
 export const OptionalEditableTaskProps = props(makeOptional(EditableTaskProps))
 export type OptionalEditableTaskProps = ParsedShapeOf<typeof OptionalEditableTaskProps>
 
-export const MyDay = nullable(date)
-export type MyDay = ParsedShapeOf<typeof MyDay>
 export const EditablePersonalTaskProps = {
-  myDay: prop(MyDay),
+  myDay: prop(nullable(date)),
   reminder: prop(nullable(date)),
 }
 
@@ -71,16 +80,30 @@ export class Task extends Model<Task>()({
   createdAt: defaultProp(date),
   updatedAt: defaultProp(date),
   auditLog: defaultProp(array(TaskAudit)),
+
   ...include(EditableTaskProps)(
-    ({ assignedTo, attachment, completed, due, isFavorite, note, steps, ...rest }) => ({
+    ({
+      assignedTo,
+      attachment,
+      categories,
+      completed,
+      due,
+      isFavorite,
+      note,
+      steps,
+      ...rest
+    }) => ({
       ...rest,
-      assignedTo: assignedTo["|>"](withDefault),
-      attachment: attachment["|>"](withDefault),
-      completed: completed["|>"](withDefault),
-      due: due["|>"](withDefault),
-      note: note["|>"](withDefault),
-      isFavorite: isFavorite["|>"](withDefault),
-      steps: steps["|>"](withDefault),
+      ...allWithDefault({
+        assignedTo,
+        attachment,
+        completed,
+        due,
+        note,
+        isFavorite,
+        steps,
+        categories,
+      }),
     })
   ),
 }) {
@@ -91,12 +114,10 @@ export class Task extends Model<Task>()({
     })
   }
 
-  static complete = Lens.id<Task>()
-    ["|>"](Lens.prop("completed"))
-    .set(O.some(new Date()))
+  static complete = Task.lenses.completed.set(O.some(new Date()))
 
   static addAudit = curriedMagix((audit: TaskAudit) =>
-    Task.lens["|>"](Lens.prop("auditLog"))["|>"](Lens.modify(A.snoc(audit)))
+    Task.lenses.auditLog["|>"](Lens.modify(A.snoc(audit)))
   )
 
   static update = uncurriedMagix((initialTask: Task, _: OptionalEditableTaskProps) => {
@@ -108,3 +129,8 @@ export class Task extends Model<Task>()({
     return task
   })
 }
+
+export class UserTaskView extends Model<UserTaskView>()({
+  ...Task.Model.Api.props,
+  ...EditablePersonalTaskProps,
+}) {}

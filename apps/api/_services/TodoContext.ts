@@ -27,6 +27,7 @@ import * as ListsAccess from "@/TaskLists/_access"
 import * as TasksAccess from "@/Tasks/_access"
 import { handleEvents } from "@/Tasks/_events"
 
+import { Config } from "./Config"
 import { makeTestDataUnsafe } from "./TodoContext.testdata"
 import * as UserSVC from "./User"
 
@@ -247,7 +248,8 @@ function makeTaskContext(tasks: Task[]) {
 // TODO: Consider ListsOrGroups + Lists, Groups
 
 const makeMockTodoContext = T.gen(function* ($) {
-  const testData = yield* $(T.tryCatch(makeTestDataUnsafe, identity))
+  const cfg = yield* $(Config)
+  const testData = yield* $(T.tryCatch(() => makeTestDataUnsafe(cfg), identity))
 
   const Users = yield* $(makeUserContext(testData.users))
   const Lists = yield* $(makeListContext(testData.lists))

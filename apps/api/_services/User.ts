@@ -21,12 +21,10 @@ const parseUserProfileFromJson = S.Parser.for(userProfileFromJson)
 const userProfileFromJWT = jwt[">>>"](UserProfileScheme.Model)
 const parseUserProfileFromJWT = S.Parser.for(userProfileFromJWT)
 
-export const LiveUserProfileFromAuthorizationHeader = (authorization: unknown) =>
-  L.fromEffect(UserProfile)(
-    pipe(parseUserProfileFromJWT["|>"](S.condemnFail)(authorization))
-  )
-export const LiveUserProfileFromUserHeader = (user: unknown) =>
-  L.fromEffect(UserProfile)(pipe(parseUserProfileFromJson["|>"](S.condemnFail)(user)))
+export const makeUserProfileFromAuthorizationHeader = (authorization: unknown) =>
+  pipe(parseUserProfileFromJWT["|>"](S.condemnFail)(authorization))
+export const makeUserProfileFromUserHeader = (user: unknown) =>
+  pipe(parseUserProfileFromJson["|>"](S.condemnFail)(user))
 
 // const parseUnsafe = S.Parser.for(UserProfile.Model)["|>"](S.unsafe)
 // const p1 = parseUnsafe({ sub: "bla" })

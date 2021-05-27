@@ -4,10 +4,9 @@ import * as T from "@effect-ts/core/Effect"
 import * as S from "@effect-ts-app/core/ext/Schema"
 import { handle } from "@effect-ts-app/infra/app"
 import { Tasks } from "@effect-ts-demo/todo-client"
+import { User } from "@effect-ts-demo/todo-types/"
 
 import { TodoContext } from "@/services"
-
-import { personaliseTask } from "./Find"
 
 export default handle(
   Tasks.Search,
@@ -19,7 +18,7 @@ export default handle(
 
     const skipped = _.$skip ? CNK.toArray(tasks).slice(_.$skip) : CNK.toArray(tasks)
     const paginated = _.$top ? skipped.slice(0, _.$top) : skipped
-    const items = A.map_(paginated, personaliseTask(user))
+    const items = A.map_(paginated, User.personaliseTask.r(user))
 
     return {
       items,

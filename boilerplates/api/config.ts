@@ -7,7 +7,7 @@ const {
 } = process.env
 const AUTH_DISABLED = PROVIDED_AUTH_DISABLED === "true"
 
-const PORT = API_PORT || PROVIDED_PORT
+const PORT = parseInt(API_PORT || PROVIDED_PORT)
 const HOST = API_HOST || PROVIDED_HOST
 
 export { AUTH_DISABLED, PORT, HOST }

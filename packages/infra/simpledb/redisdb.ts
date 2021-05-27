@@ -4,6 +4,7 @@ import * as EO from "@effect-ts-app/core/ext/EffectOption"
 import { flow, pipe } from "@effect-ts-app/core/ext/Function"
 import * as O from "@effect-ts-app/core/ext/Option"
 import * as S from "@effect-ts-app/core/ext/Schema"
+import { Lock } from "redlock"
 
 import * as RED from "../redis-client"
 import {
@@ -125,10 +126,16 @@ export function createContext<TKey extends string, EA, A extends DBRecord<TKey>>
       return M.make_(
         T.bimap_(
           // acquire
-          T.chain_(RED.lock, (lock) => T.tryPromise(() => lock.lock(lockKey, ttl))),
+          T.chain_(RED.lock, (lock) =>
+            T.tryPromise(() => lock.lock(lockKey, ttl) as any as Promise<Lock>)
+          ),
           (err) => new CouldNotAquireDbLockException(type, lockKey, err as Error),
           // release
-          (lock) => ({ release: T.tryPromise(() => lock.unlock())["|>"](T.orDie) })
+          (lock) => ({
+            release: T.tryPromise(() => lock.unlock() as any as Promise<void>)["|>"](
+              T.orDie
+            ),
+          })
         ),
         (l) => l.release
       )
@@ -139,11 +146,16 @@ export function createContext<TKey extends string, EA, A extends DBRecord<TKey>>
         T.bimap_(
           // acquire
           T.chain_(RED.lock, (lock) =>
-            T.tryPromise(() => lock.lock(getLockKey(id), ttl))
+            T.tryPromise(() => lock.lock(getLockKey(id), ttl) as any as Promise<Lock>)
           ),
           (err) => new CouldNotAquireDbLockException(type, id, err as Error),
           // release
-          (lock) => ({ release: T.tryPromise(() => lock.unlock())["|>"](T.orDie) })
+          (lock) => ({
+            // TODO
+            release: T.tryPromise(() => lock.unlock() as any as Promise<void>)["|>"](
+              T.orDie
+            ),
+          })
         ),
         (l) => l.release
       )
