@@ -975,6 +975,9 @@ export function Model_<M>() {
     // @ts-expect-error the following is correct
     return class {
       static [schemaField] = self
+      static [S.SchemaContinuationSymbol] = self
+      static Api = self.Api
+      static [">>>"] = self[">>>"]
       static get Model() {
         return this[schemaField]
       }

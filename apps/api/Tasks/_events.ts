@@ -88,7 +88,7 @@ export class SendTaskCreatedEmail extends S.Model<SendTaskCreatedEmail>()({
 }) {}
 
 export const IntegrationEvents = S.union({
-  SendTaskCreatedEmail: SendTaskCreatedEmail.Model,
+  SendTaskCreatedEmail,
 })
 export type IntegrationEvents = S.ParsedShapeOf<typeof IntegrationEvents>
 

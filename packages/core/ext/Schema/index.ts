@@ -11,7 +11,7 @@ import { constant, Lazy, pipe } from "../Function"
 import { typedKeysOf } from "../utils"
 import { set, setIdentifier } from "./_api"
 import * as S from "./_schema"
-import { schemaField, UUID } from "./_schema"
+import { SchemaContinuationSymbol, schemaField, UUID } from "./_schema"
 
 export function partialConstructor<ConstructorInput, ParsedShape>(model: {
   new (inp: ConstructorInput): ParsedShape
@@ -94,9 +94,13 @@ export const metaC = (meta: Meta) => {
 /**
  * Automatically assign the name of the Class to the Schema.
  */
+// TODO: Adapting the schema this way, means that all built-in stuff is using old schema
+// (like Parser, Encoder, etc.)
 export const namedC = (customName?: string) => {
   return function (cls: any) {
-    cls[schemaField] = cls[schemaField]["|>"](S.named(customName ?? cls.name))
+    cls[SchemaContinuationSymbol] = cls[schemaField] = cls[schemaField]["|>"](
+      S.named(customName ?? cls.name)
+    )
     return cls
   }
 }

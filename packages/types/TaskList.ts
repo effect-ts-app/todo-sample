@@ -58,7 +58,7 @@ export class TaskListGroup extends Model<TaskListGroup>()({
 }) {}
 
 export const TaskListOrGroup = union({
-  TaskList: TaskList.Model,
-  TaskListGroup: TaskListGroup.Model,
+  TaskList,
+  TaskListGroup,
 })
 export type TaskListOrGroup = ParsedShapeOf<typeof TaskListOrGroup>

@@ -112,9 +112,9 @@ export class TaskListView extends Model<TaskListView>()({
 }) {}
 
 export const FolderListADT = union({
-  TaskList: TaskList.Model,
-  TaskListGroup: TaskListGroup.Model,
-  TaskListView: TaskListView.Model,
+  TaskList,
+  TaskListGroup,
+  TaskListView,
 })
 export type FolderListADT = ParsedShapeOf<typeof FolderListADT>
 

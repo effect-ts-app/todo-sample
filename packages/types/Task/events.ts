@@ -34,8 +34,8 @@ export class TaskUpdated extends Model<TaskUpdated>()({
 }) {}
 
 const Events_ = union({
-  TaskCreated: TaskCreated.Model,
-  TaskUpdated: TaskUpdated.Model,
+  TaskCreated,
+  TaskUpdated,
 })
 
 export const Events = Object.assign(Events_, {

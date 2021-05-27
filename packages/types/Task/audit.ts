@@ -47,7 +47,7 @@ export class TaskStepsAdded extends Model<TaskStepsAdded>()({
 }) {}
 
 export const TaskAudit = union({
-  TaskCreated: TaskCreated.Model,
-  TaskFileAdded: TaskFileAdded.Model,
+  TaskCreated,
+  TaskFileAdded,
 })
 export type TaskAudit = ParsedShapeOf<typeof TaskAudit>
