@@ -39,5 +39,15 @@
     },
     "include": [
         "./"
-    ]
+    ],
+    "ts-node": {
+        "transpileOnly": true,
+        "compiler": "ttypescript",
+        "require": [
+            "tsconfig-paths/register"
+        ],
+        "compilerOptions": {
+            "module": "CommonJS"
+        }
+    }
 }
