@@ -4,10 +4,7 @@
 import * as Chunk from "@effect-ts/core/Collections/Immutable/Chunk"
 import type { Dictionary } from "@effect-ts/core/Collections/Immutable/Dictionary"
 import { pipe } from "@effect-ts/core/Function"
-import { refinement } from "@effect-ts/schema/_api/refinement"
-import type { DefaultSchema } from "@effect-ts/schema/_api/withDefaults"
-import { withDefaults } from "@effect-ts/schema/_api/withDefaults"
-import * as S from "@effect-ts/schema/_schema"
+import * as S from "@effect-ts/schema"
 import { augmentRecord } from "@effect-ts/schema/_utils"
 import * as Arbitrary from "@effect-ts/schema/Arbitrary"
 import * as Encoder from "@effect-ts/schema/Encoder"
@@ -39,7 +36,7 @@ export function dictionary<
     Encoded,
     Api
   >
-): DefaultSchema<
+): S.DefaultSchema<
   unknown,
   ParserErrorFromDictionary,
   Dictionary<ParsedShape>,
@@ -115,7 +112,7 @@ export function dictionary<
     !Object.keys(u).every((x) => typeof x === "string" && Object.values(u).every(guard))
 
   return pipe(
-    refinement(refine, (v) => S.leafE(S.parseObjectE(v))),
+    S.refinement(refine, (v) => S.leafE(S.parseObjectE(v))),
     S.constructor((s: Dictionary<ParsedShape>) => Th.succeed(s)),
     S.arbitrary((_) => _.dictionary<ParsedShape>(_.string(), arb(_))),
     S.parser(parser),
@@ -126,7 +123,7 @@ export function dictionary<
       }, {} as Record<string, Encoded>)
     ),
     S.mapApi(() => ({})),
-    withDefaults,
+    S.withDefaults,
     S.annotate(dictionaryIdentifier, {})
   )
 }

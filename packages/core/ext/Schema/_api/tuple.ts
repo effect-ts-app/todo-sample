@@ -4,18 +4,14 @@
 
 import * as Chunk from "@effect-ts/core/Collections/Immutable/Chunk"
 import { pipe } from "@effect-ts/core/Function"
-import { unknownArray } from "@effect-ts/schema/_api/unknownArray"
-import type { DefaultSchema } from "@effect-ts/schema/_api/withDefaults"
-import { withDefaults } from "@effect-ts/schema/_api/withDefaults"
-import * as S from "@effect-ts/schema/_schema"
-import { makeAnnotation } from "@effect-ts/schema/_schema"
+import * as S from "@effect-ts/schema"
 import * as Arbitrary from "@effect-ts/schema/Arbitrary"
 import * as Encoder from "@effect-ts/schema/Encoder"
 import * as Guard from "@effect-ts/schema/Guard"
 import * as Parser from "@effect-ts/schema/Parser"
 import * as Th from "@effect-ts/schema/These"
 
-export const fromTupleIdentifier = makeAnnotation<{ self: S.SchemaAny }>()
+export const fromTupleIdentifier = S.makeAnnotation<{ self: S.SchemaAny }>()
 
 // TODO: any sized tuple
 export function fromTuple<
@@ -52,7 +48,7 @@ export function fromTuple<
     Encoded,
     Api
   >
-): DefaultSchema<
+): S.DefaultSchema<
   readonly (KeyParserInput | ParserInput)[],
   S.CollectionE<S.OptionalIndexE<number, KeyParserError | ParserError>>,
   readonly [KeyParsedShape, ParsedShape],
@@ -128,12 +124,12 @@ export function fromTuple<
     }),
     S.encoder((_) => [keyEncode(_[0]), encode(_[1])] as const),
     S.mapApi(() => ({ self: self.Api })),
-    withDefaults,
+    S.withDefaults,
     S.annotate(fromTupleIdentifier, { self })
   )
 }
 
-export const tupleIdentifier = makeAnnotation<{ self: S.SchemaAny }>()
+export const tupleIdentifier = S.makeAnnotation<{ self: S.SchemaAny }>()
 
 export function tuple<
   KeyParserError extends S.AnyError,
@@ -167,7 +163,7 @@ export function tuple<
     Encoded,
     Api
   >
-): DefaultSchema<
+): S.DefaultSchema<
   unknown,
   S.CompositionE<
     | S.PrevE<S.RefinementE<S.LeafE<S.UnknownArrayE>>>
@@ -182,9 +178,9 @@ export function tuple<
   const encodeKey = Encoder.for(key)
   const encodeSelf = Encoder.for(self)
   return pipe(
-    unknownArray[">>>"](fromTuple(key, self)),
+    S.unknownArray[">>>"](fromTuple(key, self)),
     S.encoder((_) => [encodeKey(_[0]), encodeSelf(_[1])] as const),
-    withDefaults,
+    S.withDefaults,
     S.annotate(tupleIdentifier, { self })
   )
 }

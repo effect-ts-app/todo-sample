@@ -3,10 +3,7 @@
 
 import { Map } from "@effect-ts/core/Collections/Immutable/Map"
 import { pipe } from "@effect-ts/core/Function"
-import { array } from "@effect-ts/schema/_api/array"
-import type { DefaultSchema } from "@effect-ts/schema/_api/withDefaults"
-import { withDefaults } from "@effect-ts/schema/_api/withDefaults"
-import * as S from "@effect-ts/schema/_schema"
+import * as S from "@effect-ts/schema"
 import * as Arbitrary from "@effect-ts/schema/Arbitrary"
 import * as Encoder from "@effect-ts/schema/Encoder"
 import * as Guard from "@effect-ts/schema/Guard"
@@ -49,7 +46,7 @@ export function map<
     Encoded,
     Api
   >
-): DefaultSchema<
+): S.DefaultSchema<
   unknown,
   S.AnyError,
   Map<KeyParsedShape, ParsedShape>,
@@ -62,7 +59,7 @@ export function map<
 
   const guard = Guard.for(self)
 
-  const maparr = array(tuple(key, self))
+  const maparr = S.array(tuple(key, self))
   const mapParse = Parser.for(maparr)
   const mapEncode = Encoder.for(maparr)
   const mapArb = Arbitrary.for(maparr)
@@ -80,7 +77,7 @@ export function map<
     ),
     S.encoder((_) => Array.from(_.entries())["|>"](mapEncode)),
     S.mapApi(() => ({})),
-    withDefaults,
+    S.withDefaults,
     S.annotate(mapIdentifier, {})
   )
 }

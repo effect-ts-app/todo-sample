@@ -10,10 +10,7 @@ import {
 import type * as Eq from "@effect-ts/core/Equal"
 import { pipe } from "@effect-ts/core/Function"
 import * as Ord from "@effect-ts/core/Ord"
-import { chunk } from "@effect-ts/schema/_api/chunk"
-import type { DefaultSchema } from "@effect-ts/schema/_api/withDefaults"
-import { withDefaults } from "@effect-ts/schema/_api/withDefaults"
-import * as S from "@effect-ts/schema/_schema"
+import * as S from "@effect-ts/schema"
 import * as Arbitrary from "@effect-ts/schema/Arbitrary"
 import * as Encoder from "@effect-ts/schema/Encoder"
 import * as Guard from "@effect-ts/schema/Guard"
@@ -40,7 +37,7 @@ export function set<
   >,
   ord: Ord.Ord<ParsedShape>,
   eq?: Eq.Equal<ParsedShape>
-): DefaultSchema<
+): S.DefaultSchema<
   unknown,
   S.CompositionE<
     | S.PrevE<S.RefinementE<S.LeafE<S.UnknownArrayE>>>
@@ -72,12 +69,12 @@ export function set<
   )
 
   return pipe(
-    chunk(self)[">>>"](fromChunk),
+    S.chunk(self)[">>>"](fromChunk),
     S.mapParserError((_) => Chunk.unsafeHead(_.errors).error),
     S.constructor((_: Set<ParsedShape>) => Th.succeed(_)),
     S.encoder((u) => toArray_(u).map(encodeSelf)),
     S.mapApi(() => ({ self: self.Api, eq: eq_, ord })),
-    withDefaults,
+    S.withDefaults,
     S.annotate(setIdentifier, { self })
   )
 }
