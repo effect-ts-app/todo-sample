@@ -25,12 +25,12 @@ export function AuditProps<T extends string>(tag: T) {
   }
 }
 
-@namedC()
+@namedC
 export class TaskCreated extends Model<TaskCreated>()({
   ...AuditProps("TaskCreated"),
 }) {}
 
-@namedC()
+@namedC
 export class TaskFileAdded extends Model<TaskFileAdded>()({
   ...AuditProps("TaskFileAdded"),
   fileName: prop(FileName),
@@ -40,7 +40,7 @@ export class TaskFileAdded extends Model<TaskFileAdded>()({
   )
 }
 
-@namedC()
+@namedC
 export class TaskStepsAdded extends Model<TaskStepsAdded>()({
   ...AuditProps("TaskStepsAdded"),
   stepCount: prop(positiveInt),

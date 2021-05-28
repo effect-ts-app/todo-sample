@@ -29,7 +29,7 @@ import { TaskId, TaskListIdU, UserId } from "../ids"
 import { TaskAudit, TaskCreated } from "./audit"
 import { Attachment } from "./shared"
 
-@namedC()
+@namedC
 export class Step extends Model<Step>()({
   title: prop(reasonableString),
   completed: defaultProp(bool),

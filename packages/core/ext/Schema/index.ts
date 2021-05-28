@@ -11,7 +11,7 @@ import { constant, Lazy, pipe } from "../Function"
 import { typedKeysOf } from "../utils"
 import { set, setIdentifier } from "./_api"
 import * as S from "./_schema"
-import { SchemaContinuationSymbol, schemaField, UUID } from "./_schema"
+import { UUID } from "./_schema"
 
 export function partialConstructor<ConstructorInput, ParsedShape>(model: {
   new (inp: ConstructorInput): ParsedShape
@@ -82,28 +82,6 @@ export function makeUuid() {
   return v4() as S.UUID
 }
 
-export type Meta = { description?: string; summary?: string }
-export const metaIdentifier = S.makeAnnotation<Meta>()
-export const metaC = (meta: Meta) => {
-  return function (cls: any) {
-    cls[schemaField] = cls[schemaField].annotate(metaIdentifier, meta)
-    return cls
-  }
-}
-
-/**
- * Automatically assign the name of the Class to the Schema.
- */
-// TODO: Adapting the schema this way, means that all built-in stuff is using old schema
-// (like Parser, Encoder, etc.)
-export const namedC = (customName?: string) => {
-  return function (cls: any) {
-    cls[SchemaContinuationSymbol] = cls[schemaField] = cls[schemaField]["|>"](
-      S.named(customName ?? cls.name)
-    )
-    return cls
-  }
-}
 type LazyPartial<T> = {
   [P in keyof T]?: Lazy<T[P]>
 }

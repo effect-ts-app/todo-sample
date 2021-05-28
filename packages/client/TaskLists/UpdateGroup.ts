@@ -1,7 +1,7 @@
 import { makeOptional, namedC, Patch, prop } from "@effect-ts-app/core/ext/Schema"
 import { EditableTaskListGroupProps, TaskListId } from "@effect-ts-demo/todo-types"
 
-@namedC()
+@namedC
 export default class UpdateTaskListGroup extends Patch(
   "/groups/:id"
 )<UpdateTaskListGroup>()({

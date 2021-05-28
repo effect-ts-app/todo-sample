@@ -1,7 +1,7 @@
 import { Delete, namedC, prop } from "@effect-ts-app/core/ext/Schema"
 import { TaskListId, UserId } from "@effect-ts-demo/todo-types"
 
-@namedC()
+@namedC
 export default class RemoveTaskListMember extends Delete(
   "/lists/:id/members/:memberId"
 )<RemoveTaskListMember>()({

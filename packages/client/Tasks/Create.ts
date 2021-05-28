@@ -9,7 +9,7 @@ import {
 } from "@effect-ts-app/core/ext/Schema"
 import { Task, TaskId } from "@effect-ts-demo/todo-types"
 
-@namedC()
+@namedC
 export default class CreateTask extends Post("/tasks")<CreateTask>()({
   ...include(Task.Model.Api.props)(({ isFavorite, listId, title }) => ({
     listId,

@@ -9,8 +9,8 @@ import {
 import { handle } from "@effect-ts-app/infra/app"
 import * as T from "@effect-ts/core/Effect"
 
-@namedC("FindLoggedInSample")
-export class Request extends Get("/logged-in/:id")<Request>()({
+@namedC
+export class FindLoggedInSample extends Get("/logged-in/:id")<FindLoggedInSample>()({
   id: prop(nonEmptyString),
 }) {}
 
@@ -19,7 +19,7 @@ export class Response extends Model<Response>()({
   userId: prop(nonEmptyString),
 }) {}
 
-export default handle({ Request, Response })((_) =>
+export default handle({ Request: FindLoggedInSample, Response })((_) =>
   T.gen(function* ($) {
     const user = yield* $(UserSVC.UserProfile)
 

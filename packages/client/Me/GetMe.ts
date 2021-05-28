@@ -15,7 +15,7 @@ import {
 } from "@effect-ts-app/core/ext/Schema"
 import { TaskId, TaskListId, User } from "@effect-ts-demo/todo-types"
 
-@namedC()
+@namedC
 export default class GetMe extends Get("/me")<GetMe>()() {}
 
 const TaskListEntryProps = props({
@@ -23,7 +23,7 @@ const TaskListEntryProps = props({
   order: prop(array(TaskId)),
 })
 
-@namedC()
+@namedC
 export class TaskListEntry extends Model<TaskListEntry>()({
   _tag: prop(literal("TaskList")),
   title: prop(reasonableString),
@@ -32,7 +32,7 @@ export class TaskListEntry extends Model<TaskListEntry>()({
 }) {}
 
 // TaskListEntryGroups contains tasklists
-@namedC()
+@namedC
 export class TaskListEntryGroup extends Model<TaskListEntryGroup>()({
   _tag: prop(literal("TaskListGroup")),
   id: prop(TaskListId),
@@ -46,8 +46,7 @@ export const TaskListEntryOrGroup = union({
 })["|>"](named("TaskListEntryOrGroup"))
 export type TaskListEntryOrGroup = ParsedShapeOf<typeof TaskListEntryOrGroup>
 
-@namedC("Me")
-export class Response extends Model<Response>()({
+export class Response extends Model<Response>("Me")({
   ...include(User.Model.Api.props)(({ email, inboxOrder, name, phoneNumber }) => ({
     name,
     email,

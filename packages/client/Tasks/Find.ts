@@ -9,7 +9,7 @@ import { TaskId } from "@effect-ts-demo/todo-types"
 
 import { TaskView } from "./views"
 
-@namedC()
+@namedC
 export default class FindTask extends Get("/tasks/:id")<FindTask>()({
   id: prop(TaskId),
 }) {}

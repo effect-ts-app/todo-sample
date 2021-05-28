@@ -1,7 +1,7 @@
 import { array, namedC, Post, prop } from "@effect-ts-app/core/ext/Schema"
 import { TaskId, TaskListIdU } from "@effect-ts-demo/todo-types"
 
-@namedC()
+@namedC
 export default class UpdateTaskListOrder extends Post(
   "/lists/:id/order"
 )<UpdateTaskListOrder>()({

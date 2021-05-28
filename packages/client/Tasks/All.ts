@@ -2,7 +2,7 @@ import { array, Get, metaC, Model, namedC, prop } from "@effect-ts-app/core/ext/
 
 import { TaskView } from "./views"
 
-@namedC()
+@namedC
 export default class GetTasks extends Get("/tasks")<GetTasks>()() {}
 
 @metaC({ description: "A list of Tasks" })

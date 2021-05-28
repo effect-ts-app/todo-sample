@@ -28,7 +28,7 @@ export class UserTask extends Model<UserTask>()({
   ...allWithDefault(EditablePersonalTaskProps),
 }) {}
 
-@namedC()
+@namedC
 export class User extends Model<User>()({
   id: prop(UserId),
   email: prop(Email),

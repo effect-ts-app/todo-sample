@@ -1,5 +1,7 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/ban-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import * as St from "@effect-ts/core/Structural"
 import * as Lens from "@effect-ts/monocle/Lens"
 import { ParsedShapeOf } from "@effect-ts/schema"
 import { unsafe } from "@effect-ts/schema/_api/condemn"
@@ -161,7 +163,7 @@ type OrAny<T> = T extends S.SchemaAny ? T : S.SchemaAny
 
 // TODO: Somehow ensure that Self and M are related..
 //type Ensure<M, Self extends S.SchemaAny> = M extends S.ParsedShapeOf<Self> ? M : never
-export function QueryRequest<M>() {
+export function QueryRequest<M>(__name?: string) {
   function a<Headers extends StringRecordSchema>(
     method: ReadMethods,
     path: string,
@@ -283,7 +285,7 @@ export function QueryRequest<M>() {
       ..._.path?.Api.props,
     })
     // @ts-expect-error the following is correct
-    return class extends Model_<M>()(self["|>"](S.annotate(reqId, {}))) {
+    return class extends Model_<M>(__name)(self["|>"](S.annotate(reqId, {}))) {
       static Path = _.path
       static Query = _.query
       static Headers = _.headers
@@ -295,7 +297,7 @@ export function QueryRequest<M>() {
   return a
 }
 
-export function BodyRequest<M>() {
+export function BodyRequest<M>(__name?: string) {
   function a<Headers extends StringRecordSchema>(
     method: WriteMethods,
     path: string,
@@ -664,7 +666,7 @@ export function BodyRequest<M>() {
       ..._.path?.Api.props,
     })
     // @ts-expect-error the following is correct
-    return class extends Model_<M>()(self["|>"](S.annotate(reqId, {}))) {
+    return class extends Model_<M>(__name)(self["|>"](S.annotate(reqId, {}))) {
       static Path = _.path
       static Body = _.body
       static Query = _.query
@@ -705,10 +707,10 @@ export type IfPathPropsProvided<Path extends string, B extends S.PropertyRecord,
     ? C
     : ["You must specify the properties that you expect in the path", never]
 
-export function Model<M>() {
+export function Model<M>(__name?: string) {
   return <Props extends S.PropertyRecord = {}>(
     props: Props
-  ): Model<M, S.SchemaProperties<Props>> => Model_<M>()(S.props(props))
+  ): Model<M, S.SchemaProperties<Props>> => Model_<M>(__name)(S.props(props))
 }
 
 /**
@@ -787,7 +789,7 @@ export function MethodReqProps2_<Method extends Methods, Path extends string>(
   method: Method,
   path: Path
 ) {
-  return <M>() => {
+  return <M>(__name?: string) => {
     function a<Props extends S.PropertyRecord = {}>(): BuildRequest<
       Props,
       Path,
@@ -798,7 +800,7 @@ export function MethodReqProps2_<Method extends Methods, Path extends string>(
       props: Props
     ): BuildRequest<Props, Path, Method, M>
     function a<Props extends S.PropertyRecord>(props?: Props) {
-      const req = Req<M>()
+      const req = Req<M>(__name)
       const r = props ? req(method, path, S.props(props)) : req(method, path)
       return r
     }
@@ -832,7 +834,7 @@ export function MethodReqProps<Method extends Methods>(method: Method) {
 /**
  * Automatically picks path, query and body, based on Path params and Request Method.
  */
-export function Req<M>() {
+export function Req<M>(__name?: string) {
   function a<
     Path extends string,
     Method extends Methods,
@@ -902,7 +904,8 @@ export function makeRequest<
 >(
   method: Method,
   path: Path,
-  self: S.SchemaProperties<Props>
+  self: S.SchemaProperties<Props>,
+  __name?: string
 ): BuildRequest<Props, Path, Method, M> {
   const params = parsePathParams(path)
   // TODO: path props must be parsed "from string"
@@ -923,13 +926,13 @@ export function makeRequest<
     [dest]: S.props(remainProps),
   }
   if (method === "GET" || method === "DELETE") {
-    return class extends QueryRequest<M>()(
+    return class extends QueryRequest<M>(__name)(
       method as ReadMethods,
       path,
       newSchema as any
     ) {} as any
   }
-  return class extends BodyRequest<M>()(
+  return class extends BodyRequest<M>(__name)(
     method as WriteMethods,
     path,
     newSchema as any
@@ -962,10 +965,81 @@ export function lensFromProps<T>() {
   }
 }
 
+function setSchema<Self extends S.SchemaProperties<any>>(schemed: any, self: Self) {
+  schemed[S.SchemaContinuationSymbol] = schemed[schemaField] = schemed.Model = self
+
+  // Object.defineProperty(schemed, S.SchemaContinuationSymbol, {
+  //   value: self,
+  // })
+
+  Object.defineProperty(schemed, "lenses", {
+    value: lensFromProps()(self.Api.props),
+    configurable: true,
+  })
+  Object.defineProperty(schemed, "Api", {
+    value: self.Api,
+    configurable: true,
+  })
+
+  Object.defineProperty(schemed, ">>>", {
+    value: self[">>>"],
+    configurable: true,
+  })
+
+  Object.defineProperty(schemed, "Parser", {
+    value: S.Parser.for(self),
+    configurable: true,
+  })
+
+  Object.defineProperty(schemed, "Constructor", {
+    value: S.Constructor.for(self),
+    configurable: true,
+  })
+
+  Object.defineProperty(schemed, "Encoder", {
+    value: S.Encoder.for(self),
+    configurable: true,
+  })
+
+  Object.defineProperty(schemed, "Guard", {
+    value: S.Guard.for(self),
+    configurable: true,
+  })
+
+  Object.defineProperty(schemed, "Arbitrary", {
+    value: S.Arbitrary.for(self),
+    configurable: true,
+  })
+
+  Object.defineProperty(schemed, "annotate", {
+    value: <Meta>(identifier: S.Annotation<Meta>, meta: Meta) =>
+      new S.SchemaAnnotated(self, identifier, meta),
+    configurable: true,
+  })
+}
+
+export type Meta = { description?: string; summary?: string }
+export const metaIdentifier = S.makeAnnotation<Meta>()
+export const metaC = (meta: Meta) => {
+  return function (cls: any) {
+    setSchema(cls, cls[schemaField].annotate(metaIdentifier, meta))
+    return cls
+  }
+}
+
+/**
+ * Automatically assign the name of the Class to the Schema.
+ */
+export function namedC(cls: any) {
+  setSchema(cls, cls[schemaField]["|>"](S.named(cls.name)))
+  return cls
+}
+
 // We don't want Copy interface from the official implementation
-export function Model_<M>() {
+export function Model_<M>(__name?: string) {
   return <Self extends S.SchemaAny>(self: Self): Model<M, Self> => {
-    const of_ = S.Constructor.for(self)["|>"](unsafe)
+    const schema = __name ? self["|>"](S.named(__name)) : self // TODO  ?? "Model(Anonymous)", but atm auto deriving openapiRef from this.
+    const of_ = S.Constructor.for(schema)["|>"](unsafe)
     const fromFields = (fields: any, target: any) => {
       for (const k of Object.keys(fields)) {
         target[k] = fields[k]
@@ -974,28 +1048,69 @@ export function Model_<M>() {
 
     // @ts-expect-error the following is correct
     return class {
-      static [schemaField] = self
-      static [S.SchemaContinuationSymbol] = self
-      static Api = self.Api
-      static [">>>"] = self[">>>"]
-      static get Model() {
-        return this[schemaField]
-      }
       static [nModelBrand] = nModelBrand
 
-      static Parser = S.Parser.for(self)
-      static Encoder = S.Encoder.for(self)
-      static Constructor = S.Constructor.for(self)
-      static Guard = S.Guard.for(self)
-      static Arbitrary = S.Arbitrary.for(self)
+      static [schemaField] = schema
+      static [S.SchemaContinuationSymbol] = schema
+      static Model = schema
+      static Api = schema.Api
+      static [">>>"] = schema[">>>"]
+
+      static Parser = S.Parser.for(schema)
+      static Encoder = S.Encoder.for(schema)
+      static Constructor = S.Constructor.for(schema)
+      static Guard = S.Guard.for(schema)
+      static Arbitrary = S.Arbitrary.for(schema)
 
       static lens = Lens.id<any>()
-      static lenses = lensFromProps()(self.Api.props)
+      static lenses = lensFromProps()(schema.Api.props)
+
+      static annotate = <Meta>(identifier: S.Annotation<Meta>, meta: Meta) =>
+        new S.SchemaAnnotated(self, identifier, meta)
 
       constructor(inp?: S.ConstructorInputOf<Self>) {
         if (inp) {
           fromFields(of_(inp), this)
         }
+      }
+      get [St.hashSym](): number {
+        const ka = Object.keys(this).sort()
+        if (ka.length === 0) {
+          return 0
+        }
+        // @ts-expect-error doc
+        let hash = St.combineHash(St.hashString(ka[0]!), St.hash(this[ka[0]!]))
+        let i = 1
+        while (hash && i < ka.length) {
+          hash = St.combineHash(
+            hash,
+            // @ts-expect-error doc
+            St.combineHash(St.hashString(ka[i]!), St.hash(this[ka[i]!]))
+          )
+          i++
+        }
+        return hash
+      }
+
+      [St.equalsSym](that: unknown): boolean {
+        if (!(that instanceof this.constructor)) {
+          return false
+        }
+        const ka = Object.keys(this)
+        const kb = Object.keys(that)
+        if (ka.length !== kb.length) {
+          return false
+        }
+        let eq = true
+        let i = 0
+        const ka_ = ka.sort()
+        const kb_ = kb.sort()
+        while (eq && i < ka.length) {
+          // @ts-expect-error doc
+          eq = ka_[i] === kb_[i] && St.equals(this[ka_[i]!], this[kb_[i]!])
+          i++
+        }
+        return eq
       }
       // static copy(this, that) {
       //   return fromFields(that, this)

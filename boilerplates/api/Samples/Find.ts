@@ -8,8 +8,8 @@ import {
 import { handle } from "@effect-ts-app/infra/app"
 import * as T from "@effect-ts/core/Effect"
 
-@namedC("FindSample")
-export class Request extends Get("/:id")<Request>()({
+@namedC
+export class FindSample extends Get("/:id")<FindSample>()({
   id: prop(nonEmptyString),
 }) {}
 
@@ -17,7 +17,7 @@ export class Response extends Model<Response>()({
   id: prop(nonEmptyString),
 }) {}
 
-export default handle({ Request, Response })((_) =>
+export default handle({ Request: FindSample, Response })((_) =>
   T.gen(function* ($) {
     return yield* $(
       T.succeed({

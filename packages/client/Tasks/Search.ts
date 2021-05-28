@@ -50,7 +50,7 @@ function odataProps<Keys extends string[]>(fieldNames: Keys) {
   }
 }
 
-@namedC()
+@namedC
 export default class SearchTasks extends Post("/tasks/search")<SearchTasks>()({
   ...odataProps(selectableKeys),
 }) {}

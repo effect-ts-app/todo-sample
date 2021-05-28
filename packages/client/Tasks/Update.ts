@@ -9,7 +9,7 @@ import {
   description: "You can optionally update selected fields of the Task",
   summary: "Update a Task", // no shit.
 })
-@namedC()
+@namedC
 export default class UpdateTask extends Patch("/tasks/:id")<UpdateTask>()({
   id: prop(TaskId),
   ...OptionalEditableTaskProps.Api.props,
