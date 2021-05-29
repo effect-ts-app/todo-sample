@@ -5,8 +5,8 @@
     "license": "MIT",
     "private": true,
     "dependencies": {
-        "@effect-ts-app/core": "^0.10.0",
-        "@effect-ts-app/infra": "^0.10.0",
+        "@effect-ts-app/core": "^0.12.0",
+        "@effect-ts-app/infra": "^0.12.0",
         "@effect-ts/core": "^0.39.5",
         "@effect-ts/express": "^0.19.0",
         "@effect-ts/monocle": "^0.32.0",
@@ -70,7 +70,7 @@
         "autofix": "yarn lint --fix && yarn prettier --write",
         "test": "jest",
         "testsuite": "yarn compile && yarn lint && yarn test && yarn circular",
-        "dev": "AUTH_DISABLED=true TSC_WATCHFILE=UseFsEventsWithFallbackDynamicPolling NODE_ENV=development nodemon --watch . --watch ../../packages --exec ts-node -r tsconfig-paths/register --transpile-only ./start-server.ts",
-        "start": "ts-node --compiler ttypescript -r tsconfig-paths/register --transpile-only ./start-server.ts"
+        "dev": "AUTH_DISABLED=true TSC_WATCHFILE=UseFsEventsWithFallbackDynamicPolling NODE_ENV=development nodemon --watch . --watch ../../packages --exec ts-node ./start-server.ts",
+        "start": "ts-node ./start-server.ts"
     }
 }
