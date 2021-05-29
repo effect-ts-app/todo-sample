@@ -285,7 +285,7 @@ export function QueryRequest<M>(__name?: string) {
       ..._.path?.Api.props,
     })
     // @ts-expect-error the following is correct
-    return class extends Model_<M>(__name)(self["|>"](S.annotate(reqId, {}))) {
+    return class extends ModelSpecial<M>(__name)(self["|>"](S.annotate(reqId, {}))) {
       static Path = _.path
       static Query = _.query
       static Headers = _.headers
@@ -666,7 +666,7 @@ export function BodyRequest<M>(__name?: string) {
       ..._.path?.Api.props,
     })
     // @ts-expect-error the following is correct
-    return class extends Model_<M>(__name)(self["|>"](S.annotate(reqId, {}))) {
+    return class extends ModelSpecial<M>(__name)(self["|>"](S.annotate(reqId, {}))) {
       static Path = _.path
       static Body = _.body
       static Query = _.query
@@ -710,7 +710,7 @@ export type IfPathPropsProvided<Path extends string, B extends S.PropertyRecord,
 export function Model<M>(__name?: string) {
   return <Props extends S.PropertyRecord = {}>(
     props: Props
-  ): Model<M, S.SchemaProperties<Props>> => Model_<M>(__name)(S.props(props))
+  ): Model<M, S.SchemaProperties<Props>> => ModelSpecial<M>(__name)(S.props(props))
 }
 
 /**
@@ -748,6 +748,9 @@ export function ReqProps<M>() {
 export function Delete<Path extends string>(path: Path) {
   return MethodReqProps2_("DELETE", path)
 }
+export function DeleteSpecial<Path extends string>(path: Path) {
+  return MethodReqProps2_("POST", path)
+}
 /**
  * PUT http method.
  * Input parameters other than Path, will be sent as Body.
@@ -756,6 +759,10 @@ export function Delete<Path extends string>(path: Path) {
 export function Put<Path extends string>(path: Path) {
   return MethodReqProps2_("PUT", path)
 }
+export function PutSpecial<Path extends string>(path: Path) {
+  return MethodReq_("PUT", path)
+}
+
 /**
  * GET http method.
  * Input parameters other than Path, will be sent as QueryString.
@@ -763,6 +770,9 @@ export function Put<Path extends string>(path: Path) {
  */
 export function Get<Path extends string>(path: Path) {
   return MethodReqProps2_("GET", path)
+}
+export function GetSpecial<Path extends string>(path: Path) {
+  return MethodReq_("GET", path)
 }
 /**
  * PATCH http method.
@@ -772,6 +782,9 @@ export function Get<Path extends string>(path: Path) {
 export function Patch<Path extends string>(path: Path) {
   return MethodReqProps2_("PATCH", path)
 }
+export function PatchSpecial<Path extends string>(path: Path) {
+  return MethodReq_("PATCH", path)
+}
 /**
  * POST http method.
  * Input parameters other than Path, will be sent as Body.
@@ -779,6 +792,9 @@ export function Patch<Path extends string>(path: Path) {
  */
 export function Post<Path extends string>(path: Path) {
   return MethodReqProps2_("POST", path)
+}
+export function PostSpecial<Path extends string>(path: Path) {
+  return MethodReq_("POST", path)
 }
 
 export function MethodReqProps2<Method extends Methods>(method: Method) {
@@ -829,6 +845,17 @@ export function MethodReqProps<Method extends Methods>(method: Method) {
 
     return a
   }
+}
+
+export function MethodReq_<Method extends Methods, Path extends string>(
+  method: Method,
+  path: Path
+) {
+  return <M>(__name?: string) =>
+    <Props extends S.PropertyRecord>(self: S.SchemaProperties<Props>) => {
+      const req = Req<M>(__name)
+      return req(method, path, self)
+    }
 }
 
 /**
@@ -1036,7 +1063,7 @@ export function namedC(cls: any) {
 }
 
 // We don't want Copy interface from the official implementation
-export function Model_<M>(__name?: string) {
+export function ModelSpecial<M>(__name?: string) {
   return <Self extends S.SchemaAny>(self: Self): Model<M, Self> => {
     const schema = __name ? self["|>"](S.named(__name)) : self // TODO  ?? "Model(Anonymous)", but atm auto deriving openapiRef from this.
     const of_ = S.Constructor.for(schema)["|>"](unsafe)

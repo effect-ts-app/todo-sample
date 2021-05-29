@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
+import * as CNK from "@effect-ts/core/Collections/Immutable/Chunk"
 import * as Eq from "@effect-ts/core/Equal"
 import * as Ord from "@effect-ts/core/Ord"
 import * as O from "@effect-ts-app/core/ext/Option"
@@ -7,11 +8,11 @@ import * as SET from "@effect-ts-app/core/ext/Set"
 import { v4 } from "uuid"
 
 import { Compute } from "../Compute"
-import { constant, Lazy, pipe } from "../Function"
+import { constant, flow, Lazy, pipe } from "../Function"
 import { typedKeysOf } from "../utils"
 import { set, setIdentifier } from "./_api"
 import * as S from "./_schema"
-import { UUID } from "./_schema"
+import { Constructor, These as Th, UUID } from "./_schema"
 
 export function partialConstructor<ConstructorInput, ParsedShape>(model: {
   new (inp: ConstructorInput): ParsedShape
@@ -545,7 +546,40 @@ export function makeContramappedSet<
   return makeSet(type, Ord.contramap_(ord, contramap), Eq.contramap(contramap)(eq))
 }
 
+export function onConstruct<Props extends S.PropertyRecord, Errors extends S.AnyError>(
+  mod: (
+    i: S.ParsedShapeOf<S.SchemaProperties<Props>>
+  ) => Th.These<Errors, S.ParsedShapeOf<S.SchemaProperties<Props>>>
+) {
+  return (self: S.SchemaProperties<Props>) => onConstruct_(self, mod)
+}
+
+export function onConstruct_<Props extends S.PropertyRecord, Errors extends S.AnyError>(
+  self: S.SchemaProperties<Props>,
+  mod: (
+    i: S.ParsedShapeOf<S.SchemaProperties<Props>>
+  ) => Th.These<Errors, S.ParsedShapeOf<S.SchemaProperties<Props>>>
+) {
+  return pipe(self, S.constructor(flow(Constructor.for(self), Th.chain(mod))))
+}
+export type DomainError = S.RequiredKeyE<any, any>
+export function domainResponse<A>(errors: DomainError[], success: () => A) {
+  if (errors.length) {
+    return Th.fail(domainError(errors))
+  }
+  return Th.succeed(success())
+}
+
+export function domainError(errors: DomainError[]) {
+  return S.compositionE(CNK.from([S.nextE(S.structE(CNK.from(errors)))]))
+}
+
 export const constArray = constant(A.empty)
+
+export function domainE(key: string, message: string) {
+  // TODO
+  return S.requiredKeyE<string, S.AnyError>(key, S.leafE(S.parseStringE(message)))
+}
 
 export * from "./_api"
 // customized Model

@@ -7,17 +7,21 @@ import {
   allWithDefault,
   array,
   bool,
-  ConstructorInputOf,
   date,
   defaultProp,
+  domainE,
+  DomainError,
+  domainResponse,
   include,
   longString,
   makeOptional,
   makeUnorderedStringSet,
   Model,
+  ModelSpecial,
   namedC,
   nonEmptyString,
   nullable,
+  onConstruct,
   ParsedShapeOf,
   prop,
   props,
@@ -73,47 +77,53 @@ export type OptionalEditablePersonalTaskProps = ParsedShapeOf<
   typeof OptionalEditablePersonalTaskProps
 >
 
-export class Task extends Model<Task>()({
-  id: defaultProp(TaskId),
-  createdBy: prop(UserId),
-  listId: defaultProp(TaskListIdU, constant("inbox" as const)),
-  createdAt: defaultProp(date),
-  updatedAt: defaultProp(date),
-  auditLog: defaultProp(array(TaskAudit)),
+export class Task extends ModelSpecial<Task>()(
+  props({
+    id: defaultProp(TaskId),
+    createdBy: prop(UserId),
+    listId: defaultProp(TaskListIdU, constant("inbox" as const)),
+    createdAt: defaultProp(date),
+    updatedAt: defaultProp(date),
+    auditLog: defaultProp(array(TaskAudit)),
 
-  ...include(EditableTaskProps)(
-    ({
-      assignedTo,
-      attachment,
-      categories,
-      completed,
-      due,
-      isFavorite,
-      note,
-      steps,
-      ...rest
-    }) => ({
-      ...rest,
-      ...allWithDefault({
+    ...include(EditableTaskProps)(
+      ({
         assignedTo,
         attachment,
+        categories,
         completed,
         due,
-        note,
         isFavorite,
+        note,
         steps,
-        categories,
-      }),
+        ...rest
+      }) => ({
+        ...rest,
+        ...allWithDefault({
+          assignedTo,
+          attachment,
+          completed,
+          due,
+          note,
+          isFavorite,
+          steps,
+          categories,
+        }),
+      })
+    ),
+  })["|>"](
+    onConstruct((i) => {
+      const errors: DomainError[] = []
+      if (O.isSome(i.completed) && i.completed.value < i.createdAt) {
+        errors.push(domainE("completed", "cannot be before createdAt"))
+      }
+      return domainResponse(errors, () => ({
+        ...i,
+        auditLog: [...i.auditLog, new TaskCreated({ userId: i.createdBy })],
+      }))
     })
-  ),
-}) {
-  constructor(args: ConstructorInputOf<typeof Task.Model>) {
-    super({
-      ...args,
-      auditLog: [new TaskCreated({ userId: args.createdBy })],
-    })
-  }
-
+  )
+) {
   static complete = Task.lenses.completed.set(O.some(new Date()))
 
   static addAudit = curriedMagix((audit: TaskAudit) =>
