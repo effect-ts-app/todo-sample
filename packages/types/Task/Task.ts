@@ -5,13 +5,16 @@ import { constant } from "@effect-ts/system/Function"
 import { LazyGetter } from "@effect-ts/system/Utils"
 import {
   allWithDefault,
+  AnyError,
   array,
   bool,
   date,
   defaultProp,
   domainE,
+  domainEE,
   DomainError,
   domainResponse,
+  domainResponse2,
   include,
   longString,
   makeOptional,
@@ -22,6 +25,7 @@ import {
   nonEmptyString,
   nullable,
   onConstruct,
+  onParseOrConstruct,
   ParsedShapeOf,
   prop,
   props,
@@ -76,6 +80,17 @@ export const OptionalEditablePersonalTaskProps = props(
 export type OptionalEditablePersonalTaskProps = ParsedShapeOf<
   typeof OptionalEditablePersonalTaskProps
 >
+
+export const FutureDate = date["|>"](
+  onParseOrConstruct((i) => {
+    const errors: AnyError[] = []
+    if (i < new Date()) {
+      errors.push(domainEE("Date is not in the future"))
+    }
+    return domainResponse2(errors, () => i)
+  })
+)
+export type FutureDate = ParsedShapeOf<typeof FutureDate>
 
 export class Task extends ModelSpecial<Task>()(
   props({
