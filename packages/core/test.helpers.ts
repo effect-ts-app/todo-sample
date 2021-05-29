@@ -14,3 +14,6 @@ export const email = S.Constructor.for(S.Email)
 export const emailUnsafe = email["|>"](S.unsafe)
 export const phoneNumber = S.Constructor.for(S.PhoneNumber)
 export const phoneNumberUnsafe = phoneNumber["|>"](S.unsafe)
+
+export const uuid = S.Constructor.for(S.UUID)
+export const uuidUnsafe = uuid["|>"](S.unsafe)

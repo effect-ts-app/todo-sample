@@ -22,7 +22,8 @@
         "test": "ultra -r yarn test",
         "testsuite": "ultra -r yarn testsuite",
         "up": "ultra -r --root ncu -u --packageFile package.json -x @types/node",
-        "pub": "yarn lerna publish --no-private"
+        "pub": "yarn lerna publish --no-private",
+        "client": "cd packages/client && yarn client"
     },
     "resolutions": {
         "typescript": "^4.3.2"

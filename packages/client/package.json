@@ -19,6 +19,7 @@
     "prettier": "prettier \"**/*.ts\"",
     "autofix": "yarn lint --fix && yarn prettier --write",
     "test": "echo 'no tests yet'",
-    "testsuite": "yarn compile && yarn lint && yarn test && yarn circular"
+    "testsuite": "yarn compile && yarn lint && yarn test && yarn circular",
+    "client": "ts-node ./bin/client.ts"
   }
 }
