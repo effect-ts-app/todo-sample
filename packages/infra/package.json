@@ -13,7 +13,7 @@
     "devDependencies": {
         "@azure/cosmos": "^3.11.3",
         "@types/dynamodb": "^1.2.2",
-        "@types/mongodb": "^3.6.16",
+        "@types/mongodb": "^3.6.17",
         "@types/proper-lockfile": "^4.1.1",
         "@types/redis": "^2.8.28",
         "@types/redlock": "^4.0.1",
