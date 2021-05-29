@@ -714,7 +714,7 @@ export function Model<M>(__name?: string) {
 }
 
 /**
- * Automatically picks path, query and body, based on Path params and Request Method.
+ * See {@link Req} but with Props
  */
 export function ReqProps<M>() {
   function a<

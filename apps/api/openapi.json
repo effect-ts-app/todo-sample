@@ -424,7 +424,7 @@
         "tags": [
           "Lists"
         ],
-        "operationId": "CreateTask",
+        "operationId": "CreateTask2",
         "parameters": [
           {
             "name": "listId",
