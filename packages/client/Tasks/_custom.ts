@@ -2,6 +2,7 @@
 import { pipe } from "@effect-ts/core"
 import * as T from "@effect-ts/core/Effect"
 import { flow } from "@effect-ts/core/Function"
+import { Has } from "@effect-ts/core/Has"
 import * as S from "@effect-ts-app/core/ext/Schema"
 import {
   Parser,
@@ -12,7 +13,7 @@ import {
 import * as H from "@effect-ts-app/core/http/http-client"
 import { Path } from "path-parser"
 
-import { ExtractResponse } from "../clientFor"
+import { ApiConfig, ExtractResponse } from "../clientFor"
 import { ComputeUnlessClass, fetchApi, ResponseError } from "../fetch"
 import * as Ts from "./_index"
 import { TaskView } from "./views"
@@ -42,10 +43,18 @@ const mksearchWithFields = () => {
     req: Ts.Search.default & {
       $select: readonly Key[] // TODO:
     }
-  ): T.Effect<unknown, never, S.ParsedShapeOf<S.Adapted<Props, Key>>>
+  ): T.Effect<
+    H.RequestEnv & Has<ApiConfig>,
+    ResponseError | H.HttpError<string>,
+    S.ParsedShapeOf<S.Adapted<Props, Key>>
+  >
   function a(
     req: Ts.Search.default
-  ): T.Effect<unknown, never, ExtractResponse<typeof res>> // todo
+  ): T.Effect<
+    H.RequestEnv & Has<ApiConfig>,
+    ResponseError | H.HttpError<string>,
+    ExtractResponse<typeof res>
+  > // todo
   function a(req: any): any {
     return pipe(
       fetchApi3S(b, Ts.Search.adapt)(req)
