@@ -1,10 +1,15 @@
+const fs = require('fs')
+
 const withTM = require('next-transpile-modules')([
-    'fp-ts',
-    '@nll/datum',
-    '@effect-ts-app/core',
-    '@effect-ts-demo/todo-client',
-    '@effect-ts-demo/todo-types'
-]);
+  'fp-ts',
+  '@nll/datum',
+  '@effect-ts-demo/todo-client',
+  '@effect-ts-demo/todo-types'
+].concat(
+  fs.existsSync("../../libs")
+  ? ['../../../libs/packages/core', '../../../libs/packages/infra']
+  : [])
+);
 
 
 const {
