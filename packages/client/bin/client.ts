@@ -10,16 +10,6 @@ import fetch from "cross-fetch"
 
 import { Tasks } from ".."
 
-const Env = L.all(
-  LiveApiConfig({
-    apiUrl: "http://localhost:3330",
-    userProfileHeader: JSON.stringify({
-      sub: "0",
-    }),
-  }),
-  HF.Client(fetch)
-)
-
 function run(cmd: string, args: string[]) {
   switch (cmd) {
     case "all": {
@@ -36,6 +26,16 @@ function run(cmd: string, args: string[]) {
 
 const printJson = (i: unknown) => console.log(JSON.stringify(i, undefined, 2))
 const printJsonM = (i: unknown) => T.succeedWith(() => printJson(i))
+
+const Env = L.all(
+  LiveApiConfig({
+    apiUrl: "http://localhost:3330",
+    userProfileHeader: JSON.stringify({
+      sub: "0",
+    }),
+  }),
+  HF.Client(fetch)
+)
 
 pipe(
   run(process.argv[2], process.argv.slice(3))["|>"](T.chain(printJsonM)),

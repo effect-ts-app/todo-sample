@@ -7,6 +7,8 @@ import * as Ex from "@effect-ts/express"
 import * as EO from "@effect-ts-app/core/ext/EffectOption"
 import * as S from "@effect-ts-app/core/ext/Schema"
 import { Methods } from "@effect-ts-app/core/ext/Schema"
+import * as TUP from "@effect-ts-app/core/ext/Tuple"
+import { Tuple } from "@effect-ts-app/core/ext/Tuple"
 
 import * as OpenApi from "../../Openapi"
 import {
@@ -21,6 +23,16 @@ import {
   RequestHandler,
   RequestHandlerOptRes,
 } from "./requestHandler"
+
+export function asRouteDescriptionAny<R extends RouteDescriptorAny>(i: R) {
+  return i as RouteDescriptorAny
+}
+
+export function tupAsRouteDescriptionAny<R extends RouteDescriptorAny>(
+  tup: Tuple<A.Array<R>>
+) {
+  return TUP.map_(tup, asRouteDescriptionAny)
+}
 
 export interface RouteDescriptor<
   R,

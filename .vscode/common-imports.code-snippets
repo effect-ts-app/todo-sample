@@ -86,7 +86,7 @@
     "Tuple": {
         "prefix": "+TUP",
         "body": [
-            "import * as TUP from \"@effect-ts/core/Collections/Immutable/Tuple\""
+            "import * as TUP from \"@effect-ts-app/core/ext/Tuple\""
         ],
         "description": "Tuple as TUP"
     },
