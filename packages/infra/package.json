@@ -1,8 +1,7 @@
 {
     "name": "@effect-ts-app/infra",
     "version": "0.13.0",
-    "module": "./index.js",
-    "type": "module",
+    "main": "./index.js",
     "license": "MIT",
     "dependencies": {
         "@effect-ts-app/core": "^0.13.0",
