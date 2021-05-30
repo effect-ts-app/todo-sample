@@ -20,7 +20,7 @@
     },
     "scripts": {
         "build": "yarn clean && tsc",
-        "clean": "find . | egrep '\\.js(\\.map)?$|\\.d.ts$|\\.tsbuildinfo$' | grep -v .eslint | grep -v jest.config | xargs rm -f",
+        "clean": "find . | egrep '\\.js(\\.map)?$|\\.d.ts$' | grep -v .eslint | grep -v jest.config | xargs rm -f",
         "postpublish": "yarn clean",
         "prepare": "yarn build",
         "circular": "madge --circular --ts-config ./tsconfig.json --extensions ts ./",
