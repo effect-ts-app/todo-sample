@@ -1,13 +1,24 @@
 {
+    "ignore": [
+        "/node_modules\/(?!effect-ts-)"
+    ],
     "presets": [
         [
             "@babel/preset-env",
             {
                 "useBuiltIns": "usage",
-                "corejs": 3
+                "corejs": 3,
+                "targets": {
+                    "node": "current"
+                }
             }
         ],
-        "@babel/preset-typescript"
+        [
+            "@babel/preset-typescript",
+            {
+                "allExtensions": true
+            }
+        ]
     ],
     "plugins": [
         [
