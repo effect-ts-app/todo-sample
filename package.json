@@ -18,7 +18,7 @@
         "dev": "concurrently -k -p \"[{name}]\" -n \"API,Frontend\" -c \"cyan.bold,green.bold,blue.bold\" \"yarn dev:api\" \"yarn dev:frontend\"",
         "dev:api": "cd apps/api && yarn dev",
         "dev:frontend": "cd apps/frontend && yarn dev",
-        "build": "cd apps/frontend && yarn build",
+        "build": "./setup.sh && cd apps/frontend && yarn build",
         "postinstall": "patch-package",
         "test": "ultra -r yarn test",
         "testsuite": "ultra -r yarn testsuite",
