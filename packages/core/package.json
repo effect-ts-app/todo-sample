@@ -8,7 +8,7 @@
         "@effect-ts/monocle": "^0.32.0",
         "@effect-ts/schema": "^0.7.4",
         "abort-controller": "^3.0.0",
-        "lazy-get-decorator": "^2.2.0",
+        "path-parser": "^6.1.0",
         "short-uuid": "^4.2.0",
         "uuid": "^8.3.2",
         "validator": "^13.6.0"
