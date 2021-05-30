@@ -5,6 +5,7 @@
     "license": "MIT",
     "private": true,
     "dependencies": {
+        "@babel/node": "^7.14.2",
         "@effect-ts-app/core": "*",
         "@effect-ts-app/infra": "*",
         "@effect-ts-demo/todo-client": "*",
@@ -33,7 +34,7 @@
         "autofix": "yarn lint --fix && yarn prettier --write",
         "test": "jest",
         "testsuite": "yarn compile && yarn lint && yarn test && yarn circular",
-        "dev": "AUTH_DISABLED=true TSC_WATCHFILE=UseFsEventsWithFallbackDynamicPolling NODE_ENV=development nodemon --watch . --watch ../../packages --exec yarn esr ./start-server.ts",
+        "dev": "AUTH_DISABLED=true NODE_ENV=development nodemon --watch . --watch ../../packages --exec yarn esr ./start-server.ts",
         "start": "ts-node ./start-server.ts"
     },
     "devDependencies": {

@@ -396,25 +396,26 @@
     enabled "2.0.x"
     kuler "^2.0.0"
 
-"@effect-ts-app/core@^0.10.0":
-  version "0.10.0"
-  resolved "https://registry.yarnpkg.com/@effect-ts-app/core/-/core-0.10.0.tgz#a28802f3948e71b27024143dd19f3bbc8dd4665b"
-  integrity sha512-s1GR18En6P+H42jsxiNMTkOBZ31kp+aORlpPnixOCsX6hfTSmR0Rp1R/2goXOKPWuZyB04OivTWzWsvcEz68jg==
+"@effect-ts-app/core@^0.12.0":
+  version "0.12.0"
+  resolved "https://registry.yarnpkg.com/@effect-ts-app/core/-/core-0.12.0.tgz#63fe909fc09d15fcb86a07152b806d84da8c1885"
+  integrity sha512-pE8Zp47wJP9GH9QivXSrfD8tOAyIEyY2Pe4gjcsuKtuoF3XGUIbEiw9m3PIoROvtn9tO86B8gkxQ2OveXaOwmA==
   dependencies:
-    "@effect-ts/core" "^0.39.3"
+    "@effect-ts/core" "^0.39.5"
     "@effect-ts/monocle" "^0.32.0"
     "@effect-ts/schema" "^0.7.4"
     abort-controller "^3.0.0"
+    lazy-get-decorator "^2.2.0"
     short-uuid "^4.2.0"
     uuid "^8.3.2"
     validator "^13.6.0"
 
-"@effect-ts-app/infra@^0.10.0":
-  version "0.10.0"
-  resolved "https://registry.yarnpkg.com/@effect-ts-app/infra/-/infra-0.10.0.tgz#7212cc0e68a3c7a31349e7562fbad367a5e0e93a"
-  integrity sha512-bIvJDZgZym3je/7B2a0zkFijJfgFSp6iIqXhFKu9/fKI8THIwNDS2hNvuXFrVXMRU8Xdlb7ysUxLCYx8/24Ifw==
+"@effect-ts-app/infra@^0.12.0":
+  version "0.12.0"
+  resolved "https://registry.yarnpkg.com/@effect-ts-app/infra/-/infra-0.12.0.tgz#284c4d699398d44f1dabfa073d0e86fbdddc5101"
+  integrity sha512-7mm1157mnlpWLtLCpyk4GqN7A9kCbFIoRYETS2Y3qVdCBeWY3Hv7l1JSOBurkPTHel1qpcpqMjBfZp3kO3qdjg==
   dependencies:
-    "@effect-ts-app/core" "^0.10.0"
+    "@effect-ts-app/core" "^0.12.0"
     "@effect-ts/morphic" "^0.35.0"
     proper-lockfile "^4.1.2"
     query-string "^7.0.0"
@@ -3641,6 +3642,24 @@ es6-promise@^3.2.1:
   resolved "https://registry.yarnpkg.com/es6-promise/-/es6-promise-3.3.1.tgz#a08cdde84ccdbf34d027a1451bc91d4bcd28a613"
   integrity sha1-oIzd6EzNvzTQJ6FFG8kdS80ophM=
 
+esbuild-node@^0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/esbuild-node/-/esbuild-node-0.4.0.tgz#2c2428252c85ed804f63dbc5eb586c2b53e681c3"
+  integrity sha512-bDTfCm0t/RlPal1cQkvg3AuFRSb6WyPr19bi/1QypipwuvcYfEP9yBB7/btmar4AcUQxAaOmfwQMKDlDV3cBAA==
+
+esbuild-runner@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/esbuild-runner/-/esbuild-runner-2.0.0.tgz#d0784d025b8495c35a01de461b4ba56ffbd39a19"
+  integrity sha512-c2qTk59cDcrm6wQgxk2W3Cipso9VRRHGyiTVWwTIGvJWK6sinf3+2l9+PavA+LEGO4Credx5or0DwW/aXwVLgA==
+  dependencies:
+    source-map-support "0.5.19"
+    tslib "2.2.0"
+
+esbuild@^0.12.5:
+  version "0.12.5"
+  resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.12.5.tgz#36076a6bc1966ba2741981d30512e95e8aaff495"
+  integrity sha512-vcuP53pA5XiwUU4FnlXM+2PnVjTfHGthM7uP1gtp+9yfheGvFFbq/KyuESThmtoHPUrfZH5JpxGVJIFDVD1Egw==
+
 escalade@^3.1.1:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/escalade/-/escalade-3.1.1.tgz#d8cfdc7000965c5a0174b4a82eaa5c0552742e40"
@@ -5951,6 +5970,11 @@ latest-version@^5.0.0, latest-version@^5.1.0:
   integrity sha512-weT+r0kTkRQdCdYCNtkMwWXQTMEswKrFBkm4ckQOMVhhqhIMI1UT2hMj+1iigIhgSZm5gTmrRXBNoGUgaTY1xA==
   dependencies:
     package-json "^6.3.0"
+
+lazy-get-decorator@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/lazy-get-decorator/-/lazy-get-decorator-2.2.0.tgz#dd3b1d2a432800d435c2491038324f202f2a620d"
+  integrity sha512-UhU+k+Wpkutdeg0y4TBbyCB3snHYfywe++FYDIYBJbO4rZUXevnAcgucq8MaervoXESYJt/lN9JASND5YhcFTg==
 
 lerna@^4.0.0:
   version "4.0.0"
@@ -8619,7 +8643,7 @@ source-map-js@^0.6.2:
   resolved "https://registry.yarnpkg.com/source-map-js/-/source-map-js-0.6.2.tgz#0bb5de631b41cfbda6cfba8bd05a80efdfd2385e"
   integrity sha512-/3GptzWzu0+0MBQFrDKzw/DvvMTUORvgY6k6jd/VS6iCR4RDTKWH6v6WPwQoUO8667uQEf9Oe38DxAYWY5F/Ug==
 
-source-map-support@^0.5.17, source-map-support@^0.5.6:
+source-map-support@0.5.19, source-map-support@^0.5.17, source-map-support@^0.5.6:
   version "0.5.19"
   resolved "https://registry.yarnpkg.com/source-map-support/-/source-map-support-0.5.19.tgz#a98b62f86dcaf4f67399648c085291ab9e8fed61"
   integrity sha512-Wonm7zOCIJzBGQdB+thsPar0kYuCIzYvxZwlBa87yi/Mdjv7Tip2cyVbLj5o0cFPN4EVkuTwb3GDDyUx2DGnGw==
@@ -9243,15 +9267,15 @@ tslib@2.1.0:
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.1.0.tgz#da60860f1c2ecaa5703ab7d39bc05b6bf988b97a"
   integrity sha512-hcVC3wYEziELGGmEEXue7D75zbwIIVUMWAVbHItGPx0ziyXxrOMQx4rQEVEV45Ut/1IotuEvwqPopzIOkDMf0A==
 
+tslib@2.2.0, tslib@^2.0.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.2.0.tgz#fb2c475977e35e241311ede2693cee1ec6698f5c"
+  integrity sha512-gS9GVHRU+RGn5KQM2rllAlR3dU6m7AcpJKdtH8gFvQiC4Otgk98XnmMU+nZenHt/+VhnBPWwgrJsyrdcw6i23w==
+
 tslib@^1.8.1, tslib@^1.9.0:
   version "1.14.1"
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-1.14.1.tgz#cf2d38bdc34a134bcaf1091c41f6619e2f672d00"
   integrity sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==
-
-tslib@^2.0.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.2.0.tgz#fb2c475977e35e241311ede2693cee1ec6698f5c"
-  integrity sha512-gS9GVHRU+RGn5KQM2rllAlR3dU6m7AcpJKdtH8gFvQiC4Otgk98XnmMU+nZenHt/+VhnBPWwgrJsyrdcw6i23w==
 
 tsutils@^3.17.1:
   version "3.21.0"

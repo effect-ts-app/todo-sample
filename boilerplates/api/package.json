@@ -40,6 +40,9 @@
         "babel-plugin-module-resolver": "^4.1.0",
         "concurrently": "^6.2.0",
         "core-js": "^3.13.0",
+        "esbuild": "^0.12.5",
+        "esbuild-node": "^0.4.0",
+        "esbuild-runner": "^2.0.0",
         "eslint": "^7.27.0",
         "eslint-config-prettier": "^8.3.0",
         "eslint-import-resolver-typescript": "^2.4.0",
@@ -70,7 +73,7 @@
         "autofix": "yarn lint --fix && yarn prettier --write",
         "test": "jest",
         "testsuite": "yarn compile && yarn lint && yarn test && yarn circular",
-        "dev": "AUTH_DISABLED=true TSC_WATCHFILE=UseFsEventsWithFallbackDynamicPolling NODE_ENV=development nodemon --watch . --watch ../../packages --exec ts-node ./start-server.ts",
+        "dev": "AUTH_DISABLED=true NODE_ENV=development nodemon --watch . --watch ../../packages --exec yarn esr ./start-server.ts",
         "start": "ts-node ./start-server.ts"
     }
 }

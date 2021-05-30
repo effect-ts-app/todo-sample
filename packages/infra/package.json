@@ -2,6 +2,7 @@
     "name": "@effect-ts-app/infra",
     "version": "0.12.0",
     "module": "./index.js",
+    "type": "module",
     "license": "MIT",
     "dependencies": {
         "@effect-ts-app/core": "^0.12.0",
