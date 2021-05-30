@@ -7,8 +7,8 @@ COPY package.json yarn.lock ./
 COPY apps/api/package.json ./apps/api/
 COPY packages/client/package.json ./packages/client/
 COPY packages/types/package.json ./packages/types/
-COPY packages/core/package.json ./packages/core/
-COPY packages/infra/package.json ./packages/infra/
+COPY libs/core/package.json ./libs/core/
+COPY libs/infra/package.json ./libs/infra/
 RUN yarn install --frozen-lockfile
 
 COPY . .

@@ -8,10 +8,10 @@
         ],
         "paths": {
             "@effect-ts-app/core/*": [
-                "../../packages/core/*"
+                "../../libs/core/*"
             ],
             "@effect-ts-app/core": [
-                "../../packages/core"
+                "../../libs/core"
             ],
             "@effect-ts-demo/todo-client/*": [
                 "../../packages/client/*"
