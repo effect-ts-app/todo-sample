@@ -34,6 +34,12 @@ export function tupAsRouteDescriptionAny<R extends RouteDescriptorAny>(
   return TUP.map_(tup, asRouteDescriptionAny)
 }
 
+export function arrAsRouteDescriptionAny<R extends RouteDescriptorAny>(
+  arr: A.Array<R>
+) {
+  return A.map_(arr, asRouteDescriptionAny)
+}
+
 export interface RouteDescriptor<
   R,
   PathA,
