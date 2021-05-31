@@ -24,7 +24,8 @@
         "testsuite": "ultra -r yarn testsuite",
         "up": "ultra -r --root ncu -u --packageFile package.json -x @types/node",
         "pub": "yarn lerna publish --no-private",
-        "client": "cd packages/client && yarn client"
+        "client": "cd packages/client && yarn client",
+        "libs-fix": "mkdir -p libs/node_modules/.bin && cd libs/node_modules/.bin && ln -s ../../../node_modules/.bin/* ."
     },
     "resolutions": {
         "typescript": "^4.3.2"
@@ -40,6 +41,7 @@
         "@types/node": "^15.6.1",
         "@typescript-eslint/eslint-plugin": "^4.25.0",
         "@typescript-eslint/parser": "^4.25.0",
+        "@types/jest": "^26.0.23",
         "babel-jest": "^27.0.2",
         "babel-plugin-module-resolver": "^4.1.0",
         "concurrently": "^6.2.0",

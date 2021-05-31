@@ -20,17 +20,29 @@ TODO: Implement a Layer to demo replacing for example the persistence mechanism.
 ## Getting Started
 
 From repo root:
+- `git submodule init`
 - `yarn`
+- `yarn libs-fix` - this installs some npm bins to libs, do **not** run `yarn` inside the libs folder!
 - `yarn dev`
 - visit `http://localhost:3133`
 - for api docs, visit: `http://localhost:3330/docs` or `http://localhost:3330/swagger`
 
 Interesting bits are in:
 - `apps/api`
-- `apps/frontend/src/Tasks`
+- `apps/frontend/features/Tasks`
 - `packages/client` and `packages/types`
 
 You can interact via the included frontend project, the docs or swagger endpoint, Postman (by importing api/openapi.json), or go wild with `curl` if that's your thing ;-)
+
+### A word on the libs submodule
+
+While not ideal, I like developing the sample app and the libraries in tandem,
+as such the easiest way to do this is not to have to deploy to NPM and update the packages every time the libs change.
+I've tried many different setups, but the current one seems to tick most of the boxes (always a compromise).
+The trick now is to have the libs node_modules/.bin installed (linked to root node_modules), but not the actual packages.
+You have been warned :) Duplicate effect-ts packages etc will ruin your day!
+
+Once the libs stabilise, we can switch to published npm packages.
 
 ### Postman
 

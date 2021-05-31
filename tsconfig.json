@@ -35,10 +35,6 @@
       ]
     },
     "target": "ES2018",
-    "module": "ESNext",
-    "typeRoots": [
-      "./node_modules/@types",
-      "./typings"
-    ]
+    "module": "ESNext"
   }
 }
