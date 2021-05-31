@@ -1,6 +1,6 @@
 import { Has } from "@effect-ts/core"
 import * as L from "@effect-ts/core/Effect/Layer"
-import * as T from "@effect-ts-app/core/ext/Effect"
+import * as T from "@effect-ts-app/core/Effect"
 
 import * as cfg from "@/config"
 

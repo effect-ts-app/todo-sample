@@ -1,4 +1,4 @@
-import * as A from "@effect-ts-app/core/ext/Array"
+import * as A from "@effect-ts-app/core/Array"
 import * as O from "@effect-ts/core/Option"
 import { Box, Card, Checkbox } from "@material-ui/core"
 import Alarm from "@material-ui/icons/Alarm"

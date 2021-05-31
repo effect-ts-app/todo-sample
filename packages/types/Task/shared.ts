@@ -4,7 +4,7 @@ import {
   ParsedShapeOf,
   prop,
   reasonableString,
-} from "@effect-ts-app/core/ext/Schema"
+} from "@effect-ts-app/core/Schema"
 
 export const FileName = reasonableString
 export type FileName = ParsedShapeOf<typeof FileName>

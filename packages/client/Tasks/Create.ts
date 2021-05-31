@@ -6,7 +6,7 @@ import {
   nullable,
   Post,
   prop,
-} from "@effect-ts-app/core/ext/Schema"
+} from "@effect-ts-app/core/Schema"
 import { Task, TaskId } from "@effect-ts-demo/todo-types"
 
 @namedC

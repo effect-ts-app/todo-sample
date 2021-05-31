@@ -12,8 +12,8 @@ import {
   PhoneNumber,
   prop,
   reasonableString,
-} from "@effect-ts-app/core/ext/Schema"
-import { reverseCurriedMagix, uncurriedMagix } from "@effect-ts-app/core/ext/utils"
+} from "@effect-ts-app/core/Schema"
+import { reverseCurriedMagix, uncurriedMagix } from "@effect-ts-app/core/utils"
 
 import { TaskId, UserId } from "./ids"
 import { EditablePersonalTaskProps, Task, UserTaskView } from "./Task"

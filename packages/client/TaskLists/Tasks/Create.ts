@@ -1,4 +1,4 @@
-import { namedC, Post } from "@effect-ts-app/core/ext/Schema"
+import { namedC, Post } from "@effect-ts-app/core/Schema"
 
 import CreateTaskOriginal, { Response } from "../../Tasks/Create"
 

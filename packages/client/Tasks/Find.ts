@@ -1,10 +1,4 @@
-import {
-  Get,
-  namedC,
-  nullable,
-  ParsedShapeOf,
-  prop,
-} from "@effect-ts-app/core/ext/Schema"
+import { Get, namedC, nullable, ParsedShapeOf, prop } from "@effect-ts-app/core/Schema"
 import { TaskId } from "@effect-ts-demo/todo-types"
 
 import { TaskView } from "./views"

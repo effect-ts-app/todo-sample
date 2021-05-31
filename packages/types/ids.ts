@@ -4,7 +4,7 @@ import {
   ParsedShapeOf,
   union,
   UUID,
-} from "@effect-ts-app/core/ext/Schema"
+} from "@effect-ts-app/core/Schema"
 
 export const UserId = nonEmptyString
 export type UserId = ParsedShapeOf<typeof UserId>

@@ -1,4 +1,4 @@
-import * as S from "@effect-ts-app/core/ext/Schema"
+import * as S from "@effect-ts-app/core/Schema"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as O from "@effect-ts/core/Option"
 import { datumEither } from "@nll/datum"

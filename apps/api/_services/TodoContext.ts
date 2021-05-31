@@ -6,9 +6,9 @@ import * as Ref from "@effect-ts/core/Effect/Ref"
 import { flow, identity, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import { _A } from "@effect-ts/core/Utils"
-import * as T from "@effect-ts-app/core/ext/Effect"
-import * as EO from "@effect-ts-app/core/ext/EffectOption"
-import { uncurriedMagix } from "@effect-ts-app/core/ext/utils"
+import * as T from "@effect-ts-app/core/Effect"
+import * as EO from "@effect-ts-app/core/EffectOption"
+import { uncurriedMagix } from "@effect-ts-app/core/utils"
 import { makeCodec } from "@effect-ts-app/infra/context/schema"
 import {
   Task,

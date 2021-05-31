@@ -1,4 +1,4 @@
-import { makeOptional, namedC, Patch, prop } from "@effect-ts-app/core/ext/Schema"
+import { makeOptional, namedC, Patch, prop } from "@effect-ts-app/core/Schema"
 import { EditableTaskListGroupProps, TaskListId } from "@effect-ts-demo/todo-types"
 
 @namedC

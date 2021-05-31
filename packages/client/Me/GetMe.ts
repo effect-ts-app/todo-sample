@@ -12,7 +12,7 @@ import {
   props,
   reasonableString,
   union,
-} from "@effect-ts-app/core/ext/Schema"
+} from "@effect-ts-app/core/Schema"
 import { TaskId, TaskListId, User } from "@effect-ts-demo/todo-types"
 
 @namedC

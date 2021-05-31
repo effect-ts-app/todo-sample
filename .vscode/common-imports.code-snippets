@@ -2,28 +2,28 @@
     "Set": {
         "prefix": "+SET",
         "body": [
-            "import * as SET from \"@effect-ts-app/core/ext/Set\""
+            "import * as SET from \"@effect-ts-app/core/Set\""
         ],
         "description": "Set as S"
     },
     "Schema": {
         "prefix": "+SC",
         "body": [
-            "import * as S from \"@effect-ts-app/core/ext/Schema\""
+            "import * as S from \"@effect-ts-app/core/Schema\""
         ],
         "description": "Schema as S"
     },
     "EffectOption": {
         "prefix": "+EO",
         "body": [
-            "import * as EO from \"@effect-ts-app/core/ext/EffectOption\""
+            "import * as EO from \"@effect-ts-app/core/EffectOption\""
         ],
         "description": "EffectOption as EO"
     },
     "SyncOption": {
         "prefix": "+SO",
         "body": [
-            "import * as SO from \"@effect-ts-app/core/ext/SyncOption\""
+            "import * as SO from \"@effect-ts-app/core/SyncOption\""
         ],
         "description": "SyncOption as SO"
     },
@@ -44,14 +44,14 @@
     "Model": {
         "prefix": "+MO",
         "body": [
-            "import * as MO from \"@effect-ts-app/core/ext/Schema\""
+            "import * as MO from \"@effect-ts-app/core/Schema\""
         ],
         "description": "Schema as MO"
     },
     "Effect": {
         "prefix": "+T",
         "body": [
-            "import * as T from \"@effect-ts-app/core/ext/Effect\""
+            "import * as T from \"@effect-ts-app/core/Effect\""
         ],
         "description": "Effect as T"
     },
@@ -86,7 +86,7 @@
     "Tuple": {
         "prefix": "+TUP",
         "body": [
-            "import * as TUP from \"@effect-ts-app/core/ext/Tuple\""
+            "import * as TUP from \"@effect-ts-app/core/Tuple\""
         ],
         "description": "Tuple as TUP"
     },
@@ -198,7 +198,7 @@
     "Option": {
         "prefix": "+O",
         "body": [
-            "import * as O from \"@effect-ts-app/core/ext/Option\""
+            "import * as O from \"@effect-ts-app/core/Option\""
         ],
         "description": "Option as O"
     },

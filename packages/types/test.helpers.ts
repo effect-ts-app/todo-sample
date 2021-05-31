@@ -1,4 +1,4 @@
-import * as S from "@effect-ts-app/core/ext/Schema"
+import * as S from "@effect-ts-app/core/Schema"
 
 import { UserId } from "./ids"
 

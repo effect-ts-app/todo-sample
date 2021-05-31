@@ -1,17 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { pipe } from "@effect-ts/core"
 import { flow } from "@effect-ts/core/Function"
-import { Compute } from "@effect-ts-app/core/ext/Compute"
-import * as T from "@effect-ts-app/core/ext/Effect"
-import * as O from "@effect-ts-app/core/ext/Option"
+import { Compute } from "@effect-ts-app/core/Compute"
+import * as T from "@effect-ts-app/core/Effect"
+import * as H from "@effect-ts-app/core/http/http-client"
+import * as O from "@effect-ts-app/core/Option"
 import {
   Parser,
   ReqRes,
   ReqResSchemed,
   RequestSchemed,
-} from "@effect-ts-app/core/ext/Schema"
-import * as S from "@effect-ts-app/core/ext/Schema"
-import * as H from "@effect-ts-app/core/http/http-client"
+} from "@effect-ts-app/core/Schema"
+import * as S from "@effect-ts-app/core/Schema"
 import { Path } from "path-parser"
 
 import { getConfig } from "./config"

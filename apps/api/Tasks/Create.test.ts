@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as T from "@effect-ts/core/Effect"
 import * as Test from "@effect-ts/jest/Test"
-import * as O from "@effect-ts-app/core/ext/Option"
+import * as O from "@effect-ts-app/core/Option"
 import { TaskAudits, TaskEvents } from "@effect-ts-demo/todo-types/Task"
 
 import { reasonableStringUnsafe, testUser } from "@/test.helpers"

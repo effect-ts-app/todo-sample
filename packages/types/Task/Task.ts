@@ -30,8 +30,8 @@ import {
   prop,
   props,
   reasonableString,
-} from "@effect-ts-app/core/ext/Schema"
-import { curriedMagix, uncurriedMagix } from "@effect-ts-app/core/ext/utils"
+} from "@effect-ts-app/core/Schema"
+import { curriedMagix, uncurriedMagix } from "@effect-ts-app/core/utils"
 
 import { TaskId, TaskListIdU, UserId } from "../ids"
 import { TaskAudit, TaskCreated } from "./audit"

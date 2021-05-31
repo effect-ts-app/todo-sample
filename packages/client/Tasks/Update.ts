@@ -1,4 +1,4 @@
-import { metaC, namedC, Patch, prop } from "@effect-ts-app/core/ext/Schema"
+import { metaC, namedC, Patch, prop } from "@effect-ts-app/core/Schema"
 import {
   OptionalEditablePersonalTaskProps,
   OptionalEditableTaskProps,

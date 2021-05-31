@@ -2,10 +2,10 @@
 // https://docs.microsoft.com/en-us/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/domain-events-design-implementation
 
 import * as T from "@effect-ts/core/Effect"
-import * as EO from "@effect-ts-app/core/ext/EffectOption"
-import { flow, identity, tuple } from "@effect-ts-app/core/ext/Function"
-import * as O from "@effect-ts-app/core/ext/Option"
-import * as S from "@effect-ts-app/core/ext/Schema"
+import * as EO from "@effect-ts-app/core/EffectOption"
+import { flow, identity, tuple } from "@effect-ts-app/core/Function"
+import * as O from "@effect-ts-app/core/Option"
+import * as S from "@effect-ts-app/core/Schema"
 import { TaskEvents, TaskId, User, UserId, UserTask } from "@effect-ts-demo/todo-types"
 
 import { TodoContext } from "@/services"

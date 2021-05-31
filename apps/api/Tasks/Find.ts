@@ -1,4 +1,4 @@
-import * as EO from "@effect-ts-app/core/ext/EffectOption"
+import * as EO from "@effect-ts-app/core/EffectOption"
 import { handle } from "@effect-ts-app/infra/app"
 import { Tasks } from "@effect-ts-demo/todo-client"
 import { User } from "@effect-ts-demo/todo-types"

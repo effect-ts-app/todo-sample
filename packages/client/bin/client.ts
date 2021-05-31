@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as L from "@effect-ts/core/Effect/Layer"
 import * as N from "@effect-ts/node/Runtime"
-import * as T from "@effect-ts-app/core/ext/Effect"
-import { pipe } from "@effect-ts-app/core/ext/Function"
+import * as T from "@effect-ts-app/core/Effect"
+import { pipe } from "@effect-ts-app/core/Function"
 import * as HF from "@effect-ts-app/core/http/http-client-fetch"
 import { uuidUnsafe } from "@effect-ts-app/core/test.helpers"
 import { LiveApiConfig } from "@effect-ts-demo/todo-client/config"

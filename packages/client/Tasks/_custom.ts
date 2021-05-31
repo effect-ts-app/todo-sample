@@ -3,14 +3,14 @@ import { pipe } from "@effect-ts/core"
 import * as T from "@effect-ts/core/Effect"
 import { flow } from "@effect-ts/core/Function"
 import { Has } from "@effect-ts/core/Has"
-import * as S from "@effect-ts-app/core/ext/Schema"
+import * as H from "@effect-ts-app/core/http/http-client"
+import * as S from "@effect-ts-app/core/Schema"
 import {
   Parser,
   ReqRes,
   ReqResSchemed,
   RequestSchemed,
-} from "@effect-ts-app/core/ext/Schema"
-import * as H from "@effect-ts-app/core/http/http-client"
+} from "@effect-ts-app/core/Schema"
 import { Path } from "path-parser"
 
 import { ApiConfig, ExtractResponse } from "../clientFor"

@@ -10,8 +10,8 @@ import {
   prop,
   union,
   UUID,
-} from "@effect-ts-app/core/ext/Schema"
-import { reverseCurriedMagix } from "@effect-ts-app/core/ext/utils"
+} from "@effect-ts-app/core/Schema"
+import { reverseCurriedMagix } from "@effect-ts-app/core/utils"
 
 import { UserId } from "../ids"
 import { Attachment, FileName } from "./shared"

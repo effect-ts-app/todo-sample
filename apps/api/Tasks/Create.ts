@@ -1,6 +1,6 @@
 import { identity } from "@effect-ts/system/Function"
-import * as T from "@effect-ts-app/core/ext/Effect"
-import { pipe, tuple } from "@effect-ts-app/core/ext/Function"
+import * as T from "@effect-ts-app/core/Effect"
+import { pipe, tuple } from "@effect-ts-app/core/Function"
 import { handle } from "@effect-ts-app/infra/app"
 import { Tasks } from "@effect-ts-demo/todo-client"
 import { TaskEvents, User } from "@effect-ts-demo/todo-types"

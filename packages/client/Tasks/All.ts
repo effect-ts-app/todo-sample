@@ -1,4 +1,4 @@
-import { array, Get, metaC, Model, namedC, prop } from "@effect-ts-app/core/ext/Schema"
+import { array, Get, metaC, Model, namedC, prop } from "@effect-ts-app/core/Schema"
 
 import { TaskView } from "./views"
 

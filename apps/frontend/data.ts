@@ -1,4 +1,4 @@
-import * as A from "@effect-ts-app/core/ext/Array"
+import * as A from "@effect-ts-app/core/Array"
 import { Fiber, Semaphore } from "@effect-ts/core"
 import * as T from "@effect-ts/core/Effect"
 import { Cause } from "@effect-ts/core/Effect/Cause"

@@ -1,7 +1,7 @@
 import { flow } from "@effect-ts/core/Function"
-import * as T from "@effect-ts-app/core/ext/Effect"
-import * as O from "@effect-ts-app/core/ext/Option"
-import { typedKeysOf } from "@effect-ts-app/core/ext/utils"
+import * as T from "@effect-ts-app/core/Effect"
+import * as O from "@effect-ts-app/core/Option"
+import { typedKeysOf } from "@effect-ts-app/core/utils"
 import { handle } from "@effect-ts-app/infra/app"
 import { Tasks } from "@effect-ts-demo/todo-client"
 import {

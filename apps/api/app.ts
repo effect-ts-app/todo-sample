@@ -1,7 +1,7 @@
 import * as T from "@effect-ts/core/Effect"
 import { pipe } from "@effect-ts/core/Function"
 import * as Ex from "@effect-ts/express"
-import * as TUP from "@effect-ts-app/core/ext/Tuple"
+import * as TUP from "@effect-ts-app/core/Tuple"
 import * as R from "@effect-ts-app/infra/express/schema/routing"
 import { json, urlencoded } from "body-parser"
 import cors from "cors"

@@ -3,7 +3,7 @@ import { stringify, ParsedUrlQueryInput } from "querystring"
 import { constant } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 
-export * from "@effect-ts-app/core/ext/utils"
+export * from "@effect-ts-app/core/utils"
 
 export const typedKeysOf = <T>(obj: T) => Object.keys(obj) as (keyof T)[]
 

@@ -1,7 +1,7 @@
 import { Has } from "@effect-ts/core"
 import * as L from "@effect-ts/core/Effect/Layer"
-import { pipe } from "@effect-ts-app/core/ext/Function"
-import * as S from "@effect-ts-app/core/ext/Schema"
+import { pipe } from "@effect-ts-app/core/Function"
+import * as S from "@effect-ts-app/core/Schema"
 import { jwt } from "@effect-ts-app/infra/express/schema/jwt"
 
 export class UserProfileScheme extends S.Model<UserProfileScheme>()({

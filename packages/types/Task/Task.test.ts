@@ -1,4 +1,4 @@
-import * as O from "@effect-ts-app/core/ext/Option"
+import * as O from "@effect-ts-app/core/Option"
 import { reasonableStringUnsafe } from "@effect-ts-app/core/test.helpers"
 
 import { userIdUnsafe } from "../test.helpers"

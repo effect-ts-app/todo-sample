@@ -1,4 +1,4 @@
-import * as T from "@effect-ts-app/core/ext/Effect"
+import * as T from "@effect-ts-app/core/Effect"
 import {
   date,
   literal,
@@ -7,7 +7,7 @@ import {
   ParsedShapeOf,
   prop,
   union,
-} from "@effect-ts-app/core/ext/Schema"
+} from "@effect-ts-app/core/Schema"
 
 import { TaskId, UserId } from "../ids"
 import { OptionalEditablePersonalTaskProps, OptionalEditableTaskProps } from "./Task"

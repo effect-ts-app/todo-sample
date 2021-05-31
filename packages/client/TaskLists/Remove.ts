@@ -1,4 +1,4 @@
-import { Delete, namedC, prop } from "@effect-ts-app/core/ext/Schema"
+import { Delete, namedC, prop } from "@effect-ts-app/core/Schema"
 import { TaskListId } from "@effect-ts-demo/todo-types"
 
 @namedC

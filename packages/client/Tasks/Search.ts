@@ -16,9 +16,9 @@ import {
   Post,
   prop,
   props,
-} from "@effect-ts-app/core/ext/Schema"
-import * as S from "@effect-ts-app/core/ext/Schema"
-import { typedKeysOf } from "@effect-ts-app/core/ext/utils"
+} from "@effect-ts-app/core/Schema"
+import * as S from "@effect-ts-app/core/Schema"
+import { typedKeysOf } from "@effect-ts-app/core/utils"
 
 import { TaskView } from "./views"
 

@@ -1,4 +1,4 @@
-import * as A from "@effect-ts-app/core/ext/Array"
+import * as A from "@effect-ts-app/core/Array"
 import {
   array,
   constructor,
@@ -19,7 +19,7 @@ import {
   leafE,
   ReasonableString,
   lensFromProps,
-} from "@effect-ts-app/core/ext/Schema"
+} from "@effect-ts-app/core/Schema"
 import * as Todo from "@effect-ts-demo/todo-client/types"
 import { TaskId, TaskListId } from "@effect-ts-demo/todo-client/types"
 import { constant, flow, pipe, identity as ident } from "@effect-ts/core/Function"
