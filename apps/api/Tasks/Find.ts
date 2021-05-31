@@ -7,11 +7,11 @@ import { TodoContext } from "@/services"
 
 import { TaskAuth } from "./_access"
 
-export default handle(Tasks.Find)((_) =>
+export default handle(Tasks.Find)(({ id }) =>
   EO.gen(function* ($) {
     const { Lists, Tasks } = yield* $(TodoContext.TodoContext)
 
-    const task = yield* $(Tasks.find(_.id))
+    const task = yield* $(Tasks.find(id))
     const user = yield* $(TodoContext.getLoggedInUser)
     const taskLists = yield* $(Lists.allLists(user.id))
 

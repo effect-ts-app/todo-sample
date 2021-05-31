@@ -7,7 +7,7 @@ import { TodoContext, UserSVC } from "@/services"
 
 import { TaskListAuth } from "../_access"
 
-export default handle(TaskLists.RemoveMember)(({ id, ..._ }) =>
+export default handle(TaskLists.RemoveMember)(({ id, ...input }) =>
   T.gen(function* ($) {
     const { Lists } = yield* $(TodoContext.TodoContext)
 
@@ -17,7 +17,7 @@ export default handle(TaskLists.RemoveMember)(({ id, ..._ }) =>
         id,
         TaskListAuth.access(user.id, (tl) => ({
           ...tl,
-          members: A.filter_(tl.members, (m) => m.id !== _.memberId),
+          members: A.filter_(tl.members, (m) => m.id !== input.memberId),
         }))
       )
     )

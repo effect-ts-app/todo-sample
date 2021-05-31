@@ -6,12 +6,12 @@ import { TodoContext, UserSVC } from "@/services"
 
 import { TaskAuth } from "./_access"
 
-export default handle(Tasks.Remove)((_) =>
+export default handle(Tasks.Remove)(({ id }) =>
   T.gen(function* ($) {
     const { Lists, Tasks } = yield* $(TodoContext.TodoContext)
 
     const user = yield* $(UserSVC.UserProfile)
-    const task = yield* $(Tasks.get(_.id))
+    const task = yield* $(Tasks.get(id))
     const taskLists = yield* $(Lists.allLists(user.id))
 
     // TODO: Remove customisations from every User..

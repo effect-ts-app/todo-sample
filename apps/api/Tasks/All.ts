@@ -6,7 +6,7 @@ import { User } from "@effect-ts-demo/todo-types/"
 
 import { TodoContext } from "@/services"
 
-export default handle(Tasks.All)((_) =>
+export default handle(Tasks.All)(() =>
   T.gen(function* ($) {
     const user = yield* $(TodoContext.getLoggedInUser)
     const tasks = yield* $(TodoContext.allTasks(user.id))

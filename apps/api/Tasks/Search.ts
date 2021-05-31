@@ -11,18 +11,18 @@ import { TodoContext } from "@/services"
 export default handle(
   Tasks.Search,
   Tasks.Search.adapt
-)((_) =>
+)(({ $count, $skip, $top }) =>
   T.gen(function* ($) {
     const user = yield* $(TodoContext.getLoggedInUser)
     const tasks = yield* $(TodoContext.allTasks(user.id))
 
-    const skipped = _.$skip ? CNK.toArray(tasks).slice(_.$skip) : CNK.toArray(tasks)
-    const paginated = _.$top ? skipped.slice(0, _.$top) : skipped
+    const skipped = $skip ? CNK.toArray(tasks).slice($skip) : CNK.toArray(tasks)
+    const paginated = $top ? skipped.slice(0, $top) : skipped
     const items = A.map_(paginated, User.personaliseTask.r(user))
 
     return {
       items,
-      count: _.$count ? (items.length as MO.Int & MO.Positive) : undefined,
+      count: $count ? (items.length as MO.Int & MO.Positive) : undefined,
     }
   })
 )

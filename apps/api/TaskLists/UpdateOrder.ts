@@ -7,19 +7,19 @@ import { TodoContext, UserSVC } from "@/services"
 
 import { TaskListAuth } from "./_access"
 
-export default handle(TaskLists.UpdateOrder)((_) =>
+export default handle(TaskLists.UpdateOrder)((input) =>
   T.gen(function* ($) {
     const { Lists, Users } = yield* $(TodoContext.TodoContext)
     const user = yield* $(UserSVC.UserProfile)
 
-    if (_.id === "inbox") {
-      yield* $(Users.update(user.id, User.lenses.inboxOrder.set(_.order)))
+    if (input.id === "inbox") {
+      yield* $(Users.update(user.id, User.lenses.inboxOrder.set(input.order)))
       return
     }
     yield* $(
       Lists.updateListM(
-        _.id,
-        TaskListAuth.access(user.id, TaskList.lenses.order.set(_.order))
+        input.id,
+        TaskListAuth.access(user.id, TaskList.lenses.order.set(input.order))
       )
     )
   })

@@ -6,12 +6,12 @@ import { TodoContext, UserSVC } from "@/services"
 
 import { ListAuth } from "./_access"
 
-export default handle(TaskLists.Remove)((_) =>
+export default handle(TaskLists.Remove)((input) =>
   T.gen(function* ($) {
     const { Lists } = yield* $(TodoContext.TodoContext)
 
     const user = yield* $(UserSVC.UserProfile)
-    const list = yield* $(Lists.get(_.id))
+    const list = yield* $(Lists.get(input.id))
 
     return yield* $(ListAuth.accessM_(list, user.id, (tl) => Lists.remove(tl.id)))
   })

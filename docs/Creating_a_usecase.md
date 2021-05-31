@@ -27,18 +27,18 @@ export class Response extends Model<Response>()({ id: prop(TaskId) }) {}
 ```ts
 export default handle({ Request, Response })(
 // (Request) => T.Effect<Has<UserProfile> & Has<TodoContext.TodoContext>, NotFoundError | UnauthorizedError | NotLoggedInError, Response>
-({ myDay, ..._ }) =>
+({ myDay, ...input }) =>
   T.gen(function* ($) {
     const { Lists, Tasks, Users } = yield* $(TodoContext.TodoContext)
 
     const user = yield* $(TodoContext.getLoggedInUser)
 
-    if (_.listId !== "inbox") {
-      const list = yield* $(Lists.getList(_.listId))
+    if (input.listId !== "inbox") {
+      const list = yield* $(Lists.getList(input.listId))
       yield* $(TaskListAuth.access_(list, user.id, identity))
     }
 
-    const task = User.createTask._(user, _)
+    const task = User.createTask._(user, input)
     yield* $(Tasks.add(task))
     yield* $(
       pipe(

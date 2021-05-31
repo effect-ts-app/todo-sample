@@ -7,7 +7,7 @@ import { TaskListGroup, TaskListOrGroup } from "@effect-ts-demo/todo-types"
 
 import { TodoContext } from "@/services"
 
-export default handle(Me.Index)((_) =>
+export default handle(Me.Index)(() =>
   T.gen(function* ($) {
     const { Lists } = yield* $(TodoContext.TodoContext)
 

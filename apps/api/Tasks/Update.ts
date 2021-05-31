@@ -17,7 +17,7 @@ import { TodoContext, UserSVC } from "@/services"
 
 import { TaskAuth } from "./_access"
 
-export default handle(Tasks.Update)(({ id, ..._ }) =>
+export default handle(Tasks.Update)(({ id, ...input }) =>
   T.gen(function* ($) {
     const { Lists, Tasks } = yield* $(TodoContext.TodoContext)
 
@@ -26,7 +26,7 @@ export default handle(Tasks.Update)(({ id, ..._ }) =>
     const initialTask = yield* $(Tasks.get(id))
 
     const [task, events] = yield* $(
-      TaskAuth(taskLists).access_(initialTask, user.id, updateTask(_, user.id))
+      TaskAuth(taskLists).access_(initialTask, user.id, updateTask(input, user.id))
     )
 
     // TODO: Context should perhaps know if changed, and should use a transaction
@@ -37,10 +37,10 @@ export default handle(Tasks.Update)(({ id, ..._ }) =>
 )
 
 export function updateTask(
-  _: OptionalEditableTaskProps & OptionalEditablePersonalTaskProps,
+  input: OptionalEditableTaskProps & OptionalEditablePersonalTaskProps,
   userId: UserId
 ) {
-  return (task: Task) => updateTask_(task, userId, _)
+  return (task: Task) => updateTask_(task, userId, input)
 }
 
 export function updateTask_(
@@ -49,18 +49,18 @@ export function updateTask_(
   {
     myDay,
     reminder,
-    ..._
+    ...input
   }: OptionalEditableTaskProps & OptionalEditablePersonalTaskProps
 ) {
   const events: TaskEvents.Events[] = []
-  const hasTaskChanges = typedKeysOf(_).some((x) => typeof _[x] !== "undefined")
+  const hasTaskChanges = typedKeysOf(input).some((x) => typeof input[x] !== "undefined")
   if (hasTaskChanges) {
-    task = task["|>"](Task.update(_))
+    task = task["|>"](Task.update(input))
     // Derive audits.
     // NOTE: Obviously it would be easier if this was a Task Based approach, where each change would be specialised, instead of allowing to change all the editable props
     // TODO: As adding an attachment is actually a special purpose use case, we should extract it to it's own use case + route.
-    if (_.attachment) {
-      task = _.attachment["|>"](
+    if (input.attachment) {
+      task = input.attachment["|>"](
         O.fold(
           // TODO: Attachment removed?
           () => task,
@@ -82,7 +82,7 @@ export function updateTask_(
       new TaskEvents.TaskUpdated({
         taskId: task.id,
         userId,
-        changes: _,
+        changes: input,
         userChanges,
       })
     )

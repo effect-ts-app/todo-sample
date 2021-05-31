@@ -7,15 +7,15 @@ import { TodoContext, UserSVC } from "@/services"
 
 import { TaskListAuth } from "../_access"
 
-export default handle(TaskLists.AddMember)((_) =>
+export default handle(TaskLists.AddMember)((input) =>
   T.gen(function* ($) {
     const { Lists, Users } = yield* $(TodoContext.TodoContext)
 
     const user = yield* $(UserSVC.UserProfile)
-    const member = yield* $(Users.get(_.memberId))
+    const member = yield* $(Users.get(input.memberId))
     yield* $(
       Lists.updateListM(
-        _.id,
+        input.id,
         TaskListAuth.access(user.id, (tl) => ({
           ...tl,
           members: A.snoc_(tl.members, { id: member.id, name: member.name }),

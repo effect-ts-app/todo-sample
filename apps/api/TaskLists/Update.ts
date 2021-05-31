@@ -6,7 +6,7 @@ import { TodoContext, UserSVC } from "@/services"
 
 import { TaskListAuth } from "./_access"
 
-export default handle(TaskLists.Update)(({ id, ..._ }) =>
+export default handle(TaskLists.Update)(({ id, ...input }) =>
   T.gen(function* ($) {
     const { Lists } = yield* $(TodoContext.TodoContext)
 
@@ -16,7 +16,7 @@ export default handle(TaskLists.Update)(({ id, ..._ }) =>
         id,
         TaskListAuth.access(user.id, (g) => ({
           ...g,
-          ..._,
+          ...input,
         }))
       )
     )
