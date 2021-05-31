@@ -8,16 +8,16 @@
         "baseUrl": "./",
         "paths": {
             "@effect-ts-app/core/*": [
-                "../../libs/core/*"
+                "../../libs/packages/core/*"
             ],
             "@effect-ts-app/core": [
-                "../../libs/core"
+                "../../libs/packages/core"
             ],
             "@effect-ts-app/infra/*": [
-                "../../libs/infra/*"
+                "../../libs/packages/infra/*"
             ],
             "@effect-ts-app/infra": [
-                "../../libs/infra"
+                "../../libs/packages/infra"
             ],
             "@effect-ts-demo/todo-client/*": [
                 "../../packages/client/*"
