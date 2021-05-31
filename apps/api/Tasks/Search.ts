@@ -1,7 +1,7 @@
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as CNK from "@effect-ts/core/Collections/Immutable/Chunk"
 import * as T from "@effect-ts/core/Effect"
-import * as S from "@effect-ts-app/core/Schema"
+import * as MO from "@effect-ts-app/core/Schema"
 import { handle } from "@effect-ts-app/infra/app"
 import { Tasks } from "@effect-ts-demo/todo-client"
 import { User } from "@effect-ts-demo/todo-types/"
@@ -22,7 +22,7 @@ export default handle(
 
     return {
       items,
-      count: _.$count ? (items.length as S.Int & S.Positive) : undefined,
+      count: _.$count ? (items.length as MO.Int & MO.Positive) : undefined,
     }
   })
 )

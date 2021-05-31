@@ -11,7 +11,7 @@ import {
   ReqResSchemed,
   RequestSchemed,
 } from "@effect-ts-app/core/Schema"
-import * as S from "@effect-ts-app/core/Schema"
+import * as MO from "@effect-ts-app/core/Schema"
 import { Path } from "path-parser"
 
 import { getConfig } from "./config"
@@ -73,11 +73,11 @@ export function fetchApi3S<RequestA, RequestE, ResponseE = unknown, ResponseA = 
   // eslint-disable-next-line @typescript-eslint/ban-types
   Response?: ReqRes<ResponseE, ResponseA> | ReqResSchemed<ResponseE, ResponseA>
 }) {
-  const Res = (Response ? S.extractSchema(Response) : S.Void) as ReqRes<
+  const Res = (Response ? MO.extractSchema(Response) : MO.Void) as ReqRes<
     ResponseE,
     ResponseA
   >
   const encodeRequest = Request.Encoder
-  const decodeResponse = Parser.for(Res)["|>"](S.condemn)
+  const decodeResponse = Parser.for(Res)["|>"](MO.condemn)
   return fetchApi2S(encodeRequest, decodeResponse)(Request.method, Request.path)
 }

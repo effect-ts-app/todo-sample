@@ -1,6 +1,6 @@
 import { ParsedUrlQuery } from "querystring"
 
-import * as S from "@effect-ts-app/core/Schema"
+import * as MO from "@effect-ts-app/core/Schema"
 import { flow } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
 import { useRouter } from "next/router"
@@ -19,9 +19,9 @@ export function getQueryParam(search: ParsedUrlQuery, param: string) {
 // taskId per route
 // order and order direction
 
-export const parseOption = <E, A>(t: S.ReqRes<E, A>) => {
+export const parseOption = <E, A>(t: MO.ReqRes<E, A>) => {
   // TODO: Clenup
-  const dec = flow(S.Parser.for(t), (x) => {
+  const dec = flow(MO.Parser.for(t), (x) => {
     return x.effect._tag === "Right"
       ? x.effect.right.tuple[1]._tag === "None"
         ? O.some(x.effect.right.tuple[0])
@@ -36,10 +36,10 @@ export const getQueryParamO = flow(getQueryParam, O.fromNullable)
 //   const r = useRouter()
 //   return getQueryParamO(r.query, key)["|>"](O.chain(parseOption(t)))
 // }
-export const useRouteParams = <NER extends Record<string, S.SchemaAny>>(
+export const useRouteParams = <NER extends Record<string, MO.SchemaAny>>(
   t: NER // enforce non empty
 ): {
-  [K in keyof NER]: O.Option<S.ParsedShapeOf<NER[K]>>
+  [K in keyof NER]: O.Option<MO.ParsedShapeOf<NER[K]>>
 } => {
   const r = useRouter()
   return typedKeysOf(t).reduce(
@@ -50,7 +50,7 @@ export const useRouteParams = <NER extends Record<string, S.SchemaAny>>(
       return prev
     },
     {} as {
-      [K in keyof NER]: O.Option<S.ParsedShapeOf<NER[K]>>
+      [K in keyof NER]: O.Option<MO.ParsedShapeOf<NER[K]>>
     }
   )
 }

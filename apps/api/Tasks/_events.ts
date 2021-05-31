@@ -5,7 +5,7 @@ import * as T from "@effect-ts/core/Effect"
 import * as EO from "@effect-ts-app/core/EffectOption"
 import { flow, identity, tuple } from "@effect-ts-app/core/Function"
 import * as O from "@effect-ts-app/core/Option"
-import * as S from "@effect-ts-app/core/Schema"
+import * as MO from "@effect-ts-app/core/Schema"
 import { TaskEvents, TaskId, User, UserId, UserTask } from "@effect-ts-demo/todo-types"
 
 import { TodoContext } from "@/services"
@@ -75,22 +75,22 @@ function publishIntegrationEvent(evt: IntegrationEvents) {
 
 export function IntegrationEventProps<T extends string>(tag: T) {
   return {
-    _tag: S.prop(S.literal(tag)),
-    id: S.defaultProp(S.UUID),
-    createdAt: S.defaultProp(S.date),
+    _tag: MO.prop(MO.literal(tag)),
+    id: MO.defaultProp(MO.UUID),
+    createdAt: MO.defaultProp(MO.date),
   }
 }
 
-export class SendTaskCreatedEmail extends S.Model<SendTaskCreatedEmail>()({
+export class SendTaskCreatedEmail extends MO.Model<SendTaskCreatedEmail>()({
   ...IntegrationEventProps("SendTaskCreatedEmail"),
-  taskId: S.prop(TaskId),
-  userId: S.prop(UserId),
+  taskId: MO.prop(TaskId),
+  userId: MO.prop(UserId),
 }) {}
 
-export const IntegrationEvents = S.union({
+export const IntegrationEvents = MO.union({
   SendTaskCreatedEmail,
 })
-export type IntegrationEvents = S.ParsedShapeOf<typeof IntegrationEvents>
+export type IntegrationEvents = MO.ParsedShapeOf<typeof IntegrationEvents>
 
 function unimplemented(message: string) {
   return T.succeedWith(() => console.warn("Called unimplemented: " + message))

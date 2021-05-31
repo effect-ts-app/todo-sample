@@ -14,7 +14,7 @@ It keeps the type signatures leaner.
 
 ## When to use Fully Qualified Module names when accessing functions
 
-e.g `S.props` over `props`:
+e.g `MO.props` over `props`:
 
 Whenever the majority purpose of the module, is not to work with the imported module `S`.
 Aka. if a module is all about defining Schema types, you would not `import * as S` but `import { props }`

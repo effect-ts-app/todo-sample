@@ -1,4 +1,4 @@
-import * as S from "@effect-ts-app/core/Schema"
+import * as MO from "@effect-ts-app/core/Schema"
 import { constant } from "@effect-ts/core/Function"
 import { Box, IconButton, TextField, TextFieldProps } from "@material-ui/core"
 import Star from "@material-ui/icons/Star"
@@ -73,7 +73,7 @@ export const Field = memo(function ({
   state,
   ...rest
 }: {
-  onChange: (t: S.NonEmptyString) => PromiseExit
+  onChange: (t: MO.NonEmptyString) => PromiseExit
   state?: unknown
 } & Omit<TextFieldProps, "onChange">) {
   const [text, setText] = useState(constEmptyString)
@@ -89,7 +89,7 @@ export const Field = memo(function ({
       onKeyDown={(evt) => {
         evt.key === "Enter" &&
           text.length &&
-          onChange(text as S.NonEmptyString).then(onSuccess(clearText))
+          onChange(text as MO.NonEmptyString).then(onSuccess(clearText))
       }}
       {...rest}
     />

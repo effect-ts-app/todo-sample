@@ -4,7 +4,7 @@ import * as T from "@effect-ts/core/Effect"
 import { Has } from "@effect-ts/core/Has"
 import { flow, pipe } from "@effect-ts-app/core/Function"
 import * as H from "@effect-ts-app/core/http/http-client"
-import * as S from "@effect-ts-app/core/Schema"
+import * as MO from "@effect-ts-app/core/Schema"
 import { ParsedShapeOf } from "@effect-ts-app/core/Schema"
 import * as utils from "@effect-ts-app/core/utils"
 import { typedKeysOf } from "@effect-ts-app/core/utils"
@@ -26,9 +26,9 @@ type Requests = Record<string, Record<string, any>>
 export function clientFor<M extends Requests>(models: M) {
   return typedKeysOf(models).reduce((prev, cur) => {
     const h = models[cur]
-    const res = h.Response ?? S.Void
+    const res = h.Response ?? MO.Void
 
-    const Request = S.extractRequest(h)
+    const Request = MO.extractRequest(h)
 
     const b = Object.assign({}, h, { Request })
 
@@ -46,7 +46,7 @@ export function clientFor<M extends Requests>(models: M) {
               T.chain(
                 // @ts-expect-error doc
                 flow(
-                  (res.Parser ?? S.Parser.for(res))["|>"](S.condemnFail),
+                  (res.Parser ?? MO.Parser.for(res))["|>"](MO.condemnFail),
                   // @ts-expect-error doc
                   mapResponseErrorS
                 )
@@ -58,7 +58,7 @@ export function clientFor<M extends Requests>(models: M) {
                 T.chain(
                   // @ts-expect-error doc
                   flow(
-                    (res.Parser ?? S.Parser.for(res))["|>"](S.condemnFail),
+                    (res.Parser ?? MO.Parser.for(res))["|>"](MO.condemnFail),
                     // @ts-expect-error doc
                     mapResponseErrorS
                   )
@@ -72,21 +72,21 @@ export function clientFor<M extends Requests>(models: M) {
   }, {} as RequestHandlers<Has<ApiConfig> & Has<H.Http>, FetchError | ResponseError, M>)
 }
 
-export type ExtractResponse<T> = T extends { Model: S.SchemaAny }
+export type ExtractResponse<T> = T extends { Model: MO.SchemaAny }
   ? ParsedShapeOf<T["Model"]>
-  : T extends S.SchemaAny
+  : T extends MO.SchemaAny
   ? ParsedShapeOf<T>
   : T extends unknown
-  ? S.Void
+  ? MO.Void
   : never
 
 type RequestHandlers<R, E, M extends Requests> = {
   // TOdo; expose a ClientShape joining Path etc?
-  [K in keyof M & string as Uncapitalize<K>]: keyof S.GetRequest<
+  [K in keyof M & string as Uncapitalize<K>]: keyof MO.GetRequest<
     M[K]
-  >[S.schemaField]["Api"]["props"] extends never
+  >[MO.schemaField]["Api"]["props"] extends never
     ? T.Effect<R, E, ExtractResponse<M[K]["Response"]>>
     : (
-        req: InstanceType<S.GetRequest<M[K]>>
+        req: InstanceType<MO.GetRequest<M[K]>>
       ) => T.Effect<R, E, ExtractResponse<M[K]["Response"]>>
 }

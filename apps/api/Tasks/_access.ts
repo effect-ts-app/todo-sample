@@ -1,7 +1,7 @@
 import * as CNK from "@effect-ts/core/Collections/Immutable/Chunk"
 import { Chunk } from "@effect-ts/core/Collections/Immutable/Chunk"
 import * as O from "@effect-ts-app/core/Option"
-import * as S from "@effect-ts-app/core/Schema"
+import * as MO from "@effect-ts-app/core/Schema"
 import { makeAuthorize } from "@effect-ts-app/infra/app"
 import { Task, TaskList, UserId } from "@effect-ts-demo/todo-types"
 
@@ -14,12 +14,12 @@ export function canAccess_(lists: Chunk<TaskList>) {
 
 export function canAccessE_(lists: Chunk<TaskList>) {
   const can = canAccessInternal_(lists)
-  return (t: S.EncodedOf<typeof Task.Model>, userId: UserId) => can(t, userId)
+  return (t: MO.EncodedOf<typeof Task.Model>, userId: UserId) => can(t, userId)
 }
 
 function canAccessInternal_(lists: Chunk<TaskList>) {
   return (
-    t: Pick<S.EncodedOf<typeof Task.Model>, "createdBy" | "listId">,
+    t: Pick<MO.EncodedOf<typeof Task.Model>, "createdBy" | "listId">,
     userId: UserId
   ) =>
     // TODO: probably should loose access regardless if the user created it?
@@ -37,7 +37,7 @@ export function canAccess(lists: Chunk<TaskList>) {
 
 export function canAccessE(lists: Chunk<TaskList>) {
   const xs = canAccessE_(lists)
-  return (userId: UserId) => (t: S.EncodedOf<typeof Task.Model>) => xs(t, userId)
+  return (userId: UserId) => (t: MO.EncodedOf<typeof Task.Model>) => xs(t, userId)
 }
 
 export const TaskAuth = (lists: Chunk<TaskList>) =>

@@ -17,7 +17,7 @@ import {
   prop,
   props,
 } from "@effect-ts-app/core/Schema"
-import * as S from "@effect-ts-app/core/Schema"
+import * as MO from "@effect-ts-app/core/Schema"
 import { typedKeysOf } from "@effect-ts-app/core/utils"
 
 import { TaskView } from "./views"
@@ -73,7 +73,7 @@ export class ResponseOpenApi extends Model<ResponseOpenApi>()({
   count: prop(positiveInt).opt(),
 }) {}
 
-export function makeAdapter<Props extends S.PropertyRecord>(props: Props) {
+export function makeAdapter<Props extends MO.PropertyRecord>(props: Props) {
   function a<Key extends keyof Props>(
     req: SearchTasks & {
       fields: readonly Key[]

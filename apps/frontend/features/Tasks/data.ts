@@ -1,6 +1,6 @@
 import * as T from "@effect-ts-app/core/Effect"
 import * as EO from "@effect-ts-app/core/EffectOption"
-import * as S from "@effect-ts-app/core/Schema"
+import * as MO from "@effect-ts-app/core/Schema"
 import { Parser } from "@effect-ts-app/core/Schema"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import { constant, flow, pipe } from "@effect-ts/core/Function"
@@ -74,8 +74,8 @@ export function useTasks() {
 }
 
 const newTask =
-  (v: Todo.TaskView | S.ReasonableString, listId: Todo.TaskListIdU = "inbox") =>
-  (newTitle: S.ReasonableString) =>
+  (v: Todo.TaskView | MO.ReasonableString, listId: Todo.TaskListIdU = "inbox") =>
+  (newTitle: MO.ReasonableString) =>
     TodoClient.TaskLists.createTask({
       title: newTitle,
       isFavorite: v === "important",
@@ -83,7 +83,7 @@ const newTask =
       listId,
     })
 export function useNewTask(
-  v: Todo.TaskView | S.ReasonableString,
+  v: Todo.TaskView | MO.ReasonableString,
   listId?: Todo.TaskListId
 ) {
   return useFetch(newTask(v, listId))
@@ -221,8 +221,8 @@ export function useTaskCommandsResolved(t: Todo.Task) {
   }
 }
 
-export const parseRS = Parser.for(S.reasonableString)["|>"](S.condemnFail)
-export const parseRSunsafe = Parser.for(S.reasonableString)["|>"](S.unsafe)
+export const parseRS = Parser.for(MO.reasonableString)["|>"](MO.condemnFail)
+export const parseRSunsafe = Parser.for(MO.reasonableString)["|>"](MO.unsafe)
 
 export function useTaskCommands(id: Todo.TaskId) {
   const modifyTasks = useModifyTasks()

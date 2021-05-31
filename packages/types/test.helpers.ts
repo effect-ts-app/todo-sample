@@ -1,8 +1,8 @@
-import * as S from "@effect-ts-app/core/Schema"
+import * as MO from "@effect-ts-app/core/Schema"
 
 import { UserId } from "./ids"
 
-export const userId = S.Constructor.for(UserId)
-export const userIdUnsafe = userId["|>"](S.unsafe)
+export const userId = MO.Constructor.for(UserId)
+export const userIdUnsafe = userId["|>"](MO.unsafe)
 
 export * from "@effect-ts-app/core/test.helpers"

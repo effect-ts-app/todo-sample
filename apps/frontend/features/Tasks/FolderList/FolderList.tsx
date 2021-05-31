@@ -1,5 +1,5 @@
 /* eslint-disable react/display-name */
-import * as S from "@effect-ts-app/core/Schema"
+import * as MO from "@effect-ts-app/core/Schema"
 import * as O from "@effect-ts/core/Option"
 import { Box, List, ListItem, ListItemIcon, ListItemText } from "@material-ui/core"
 import Balance from "@material-ui/icons/AccountBalance"
@@ -55,7 +55,7 @@ function TLG(g: Todo.TaskListGroup) {
                     >
                       <TaskListEntry
                         {...l}
-                        title={("| -- " + l.title) as S.ReasonableString}
+                        title={("| -- " + l.title) as MO.ReasonableString}
                       />
                     </Box>
                   )}

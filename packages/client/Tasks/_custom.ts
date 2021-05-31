@@ -4,7 +4,7 @@ import * as T from "@effect-ts/core/Effect"
 import { flow } from "@effect-ts/core/Function"
 import { Has } from "@effect-ts/core/Has"
 import * as H from "@effect-ts-app/core/http/http-client"
-import * as S from "@effect-ts-app/core/Schema"
+import * as MO from "@effect-ts-app/core/Schema"
 import {
   Parser,
   ReqRes,
@@ -32,12 +32,12 @@ FUTURE:
 
 const mksearchWithFields = () => {
   const h = Ts.Search
-  const res = h.Response ?? S.Void
+  const res = h.Response ?? MO.Void
 
-  const Request = S.extractRequest(h)
+  const Request = MO.extractRequest(h)
 
   const b = Object.assign({}, h, { Request })
-  //export function makeAdapter<Props extends S.PropertyRecord>(props: Props) {
+  //export function makeAdapter<Props extends MO.PropertyRecord>(props: Props) {
   type Props = typeof TaskView.Model.Api.props
   function a<Key extends keyof Props>(
     req: Ts.Search.default & {
@@ -46,7 +46,7 @@ const mksearchWithFields = () => {
   ): T.Effect<
     H.RequestEnv & Has<ApiConfig>,
     ResponseError | H.HttpError<string>,
-    S.ParsedShapeOf<S.Adapted<Props, Key>>
+    MO.ParsedShapeOf<MO.Adapted<Props, Key>>
   >
   function a(
     req: Ts.Search.default
@@ -63,7 +63,7 @@ const mksearchWithFields = () => {
       // T.chain(
       //   // @ts-expect-error doc
       //   flow(
-      //     (res.Parser ?? S.Parser.for(res))["|>"](S.condemnFail),
+      //     (res.Parser ?? MO.Parser.for(res))["|>"](MO.condemnFail),
       //     // @ts-expect-error doc
       //     mapResponseErrorS
       //   )
@@ -130,12 +130,12 @@ function fetchApi3S<RequestA, RequestE, ResponseE = unknown, ResponseA = void>(
   },
   adapt?: any
 ) {
-  const Res = (Response ? S.extractSchema(Response) : S.Void) as ReqRes<
+  const Res = (Response ? MO.extractSchema(Response) : MO.Void) as ReqRes<
     ResponseE,
     ResponseA
   >
   const encodeRequest = Request.Encoder
   const decodeResponse = (u: any, res: any) =>
-    Parser.for(adapt ? adapt(res) : Res)["|>"](S.condemn)(u)
+    Parser.for(adapt ? adapt(res) : Res)["|>"](MO.condemn)(u)
   return fetchApi2S(encodeRequest, decodeResponse)(Request.method, Request.path)
 }

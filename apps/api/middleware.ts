@@ -92,10 +92,10 @@ export function demandLoggedIn<
     //   ...handler,
     //   Request: class extends handler.Request {
     //     static Headers = (handler.Request.Headers
-    //       ? handler.Request.Headers["|>"](S.intersect(AuthHeaders))
-    //       : AuthHeaders) as S.ReqRes<
+    //       ? handler.Request.Headers["|>"](MO.intersect(AuthHeaders))
+    //       : AuthHeaders) as MO.ReqRes<
     //       Record<string, string>,
-    //       HeaderA & S.ParsedShapeOf<typeof AuthHeaders>
+    //       HeaderA & MO.ParsedShapeOf<typeof AuthHeaders>
     //     >
     //   },
     // },

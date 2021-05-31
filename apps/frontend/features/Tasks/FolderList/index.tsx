@@ -1,4 +1,4 @@
-import * as S from "@effect-ts-app/core/Schema"
+import * as MO from "@effect-ts-app/core/Schema"
 import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as O from "@effect-ts/core/Option"
 import { datumEither } from "@nll/datum"
@@ -52,14 +52,14 @@ const FolderListView = ({ category }: { category: O.Option<Todo.Category> }) => 
           A.map(
             ({ slug, tasks }) =>
               new TaskListView({
-                title: utils.capitalize(slug) as S.ReasonableString,
+                title: utils.capitalize(slug) as MO.ReasonableString,
                 slug,
                 count: tasks.length,
               })
           )
         ),
         new TaskListView({
-          title: "Tasks" as S.ReasonableString,
+          title: "Tasks" as MO.ReasonableString,
           slug: "tasks",
           count: unfilteredTasks["|>"](filterByCategory("inbox")).length,
         }),

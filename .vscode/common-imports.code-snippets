@@ -7,11 +7,11 @@
         "description": "Set as S"
     },
     "Schema": {
-        "prefix": "+SC",
+        "prefix": "+MO",
         "body": [
-            "import * as S from \"@effect-ts-app/core/Schema\""
+            "import * as MO from \"@effect-ts-app/core/Schema\""
         ],
-        "description": "Schema as S"
+        "description": "Schema as MO"
     },
     "EffectOption": {
         "prefix": "+EO",
@@ -40,13 +40,6 @@
             "import * as Ord from \"@effect-ts/core/Ord\""
         ],
         "description": "Order as Ord"
-    },
-    "Model": {
-        "prefix": "+MO",
-        "body": [
-            "import * as MO from \"@effect-ts-app/core/Schema\""
-        ],
-        "description": "Schema as MO"
     },
     "Effect": {
         "prefix": "+T",
