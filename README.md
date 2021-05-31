@@ -20,7 +20,7 @@ TODO: Implement a Layer to demo replacing for example the persistence mechanism.
 ## Getting Started
 
 From repo root:
-- `git submodule init`
+- `git submodule update --init --recursive`
 - `yarn`
 - `yarn libs-fix` - this installs some npm bins to libs, do **not** run `yarn` inside the libs folder!
 - `yarn dev`
