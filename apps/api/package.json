@@ -4,6 +4,17 @@
     "main": "index.ts",
     "license": "MIT",
     "private": true,
+    "scripts": {
+        "circular": "madge --circular --ts-config ./tsconfig.json --extensions ts ./",
+        "compile": "tsc --noEmit",
+        "lint": "eslint .",
+        "prettier": "prettier \"**/*.ts\"",
+        "autofix": "yarn lint --fix && yarn prettier --write",
+        "test": "jest",
+        "testsuite": "yarn compile && yarn lint && yarn test && yarn circular",
+        "dev": "AUTH_DISABLED=true NODE_ENV=development nodemon --watch . --watch ../../packages --exec yarn esr ./start-server.ts",
+        "start": "ts-node ./start-server.ts"
+    },
     "dependencies": {
         "@babel/node": "^7.14.2",
         "@effect-ts-app/core": "*",
@@ -26,17 +37,6 @@
         "redoc": "^2.0.0-rc.53",
         "redoc-express": "^1.0.0",
         "swagger-ui-express": "^4.1.6"
-    },
-    "scripts": {
-        "circular": "madge --circular --ts-config ./tsconfig.json --extensions ts ./",
-        "compile": "tsc --noEmit",
-        "lint": "eslint .",
-        "prettier": "prettier \"**/*.ts\"",
-        "autofix": "yarn lint --fix && yarn prettier --write",
-        "test": "jest",
-        "testsuite": "yarn compile && yarn lint && yarn test && yarn circular",
-        "dev": "AUTH_DISABLED=true NODE_ENV=development nodemon --watch . --watch ../../packages --exec yarn esr ./start-server.ts",
-        "start": "ts-node ./start-server.ts"
     },
     "devDependencies": {
         "@types/body-parser": "^1.19.0",
