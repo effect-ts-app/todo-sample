@@ -5,6 +5,7 @@
             "dom",
             "esnext"
         ],
+        "removeComments": true,
         "baseUrl": "./",
         "paths": {
             "@effect-ts-app/core/*": [

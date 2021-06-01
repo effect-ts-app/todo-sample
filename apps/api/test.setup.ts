@@ -2,12 +2,25 @@
 import { pipe } from "@effect-ts/core"
 import * as T from "@effect-ts/core/Effect"
 import * as L from "@effect-ts/core/Effect/Layer"
+import * as Ex from "@effect-ts/express"
 
 import { LiveConfig } from "@/_services/Config"
-import { startTestServer } from "@/start-test-server"
+import { TodoContext } from "@/services"
+
+import { app } from "./app"
 
 const PORT = getRandomInt(33111, 39999)
 const ADDR = "127.0.0.1"
+
+const program = pipe(app, T.zipRight(T.never))
+
+export function startTestServer(host: string, port: number) {
+  return pipe(
+    program,
+    T.provideSomeLayer(Ex.LiveExpress(host, port)),
+    T.provideSomeLayer(TodoContext.MockTodoContext)
+  )
+}
 
 export function managedServer() {
   const managedServer = L.fromRawManaged(

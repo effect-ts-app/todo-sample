@@ -6,6 +6,7 @@
             "dom.iterable",
             "esnext"
         ],
+        "removeComments": true,
         "paths": {
             "@effect-ts-app/core/*": [
                 "../../libs/packages/core/*"
