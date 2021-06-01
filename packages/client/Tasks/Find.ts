@@ -1,9 +1,15 @@
-import { Get, namedC, nullable, ParsedShapeOf, prop } from "@effect-ts-app/core/Schema"
+import {
+  Get,
+  nullable,
+  ParsedShapeOf,
+  prop,
+  useClassNameForSchema,
+} from "@effect-ts-app/core/Schema"
 import { TaskId } from "@effect-ts-demo/todo-types"
 
 import { TaskView } from "./views"
 
-@namedC
+@useClassNameForSchema
 export default class FindTask extends Get("/tasks/:id")<FindTask>()({
   id: prop(TaskId),
 }) {}

@@ -7,11 +7,11 @@ import {
   defaultProp,
   Email,
   Model,
-  namedC,
   partialConstructor,
   PhoneNumber,
   prop,
   reasonableString,
+  useClassNameForSchema,
 } from "@effect-ts-app/core/Schema"
 import { reverseCurriedMagix, uncurriedMagix } from "@effect-ts-app/core/utils"
 
@@ -28,7 +28,7 @@ export class UserTask extends Model<UserTask>()({
   ...allWithDefault(EditablePersonalTaskProps),
 }) {}
 
-@namedC
+@useClassNameForSchema
 export class User extends Model<User>()({
   id: prop(UserId),
   email: prop(Email),

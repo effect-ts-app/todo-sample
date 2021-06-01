@@ -1,4 +1,4 @@
-import { metaC, namedC, Patch, prop } from "@effect-ts-app/core/Schema"
+import { metaC, Patch, prop, useClassNameForSchema } from "@effect-ts-app/core/Schema"
 import {
   OptionalEditablePersonalTaskProps,
   OptionalEditableTaskProps,
@@ -9,7 +9,7 @@ import {
   description: "You can optionally update selected fields of the Task",
   summary: "Update a Task", // no shit.
 })
-@namedC
+@useClassNameForSchema
 export default class UpdateTask extends Patch("/tasks/:id")<UpdateTask>()({
   id: prop(TaskId),
   ...OptionalEditableTaskProps.Api.props,

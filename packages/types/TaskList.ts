@@ -4,18 +4,18 @@ import {
   include,
   literal,
   Model,
-  namedC,
   ParsedShapeOf,
   prop,
   reasonableString,
   union,
+  useClassNameForSchema,
   withDefault,
 } from "@effect-ts-app/core/Schema"
 
 import { TaskId, TaskListId, UserId } from "./ids"
 import type { User } from "./User"
 
-@namedC
+@useClassNameForSchema
 export class Membership extends Model<Membership>()({
   id: prop(UserId),
   name: prop(reasonableString),
@@ -29,7 +29,7 @@ export const EditableTaskListProps = {
   title: prop(reasonableString),
 }
 
-@namedC
+@useClassNameForSchema
 export class TaskList extends Model<TaskList>()({
   _tag: prop(literal("TaskList")),
   id: defaultProp(TaskListId),
@@ -45,7 +45,7 @@ export const EditableTaskListGroupProps = {
   lists: prop(array(TaskListId)),
 }
 
-@namedC
+@useClassNameForSchema
 export class TaskListGroup extends Model<TaskListGroup>()({
   _tag: prop(literal("TaskListGroup")),
   id: defaultProp(TaskListId),

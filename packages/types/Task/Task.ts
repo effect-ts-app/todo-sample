@@ -21,7 +21,6 @@ import {
   makeUnorderedStringSet,
   Model,
   ModelSpecial,
-  namedC,
   nonEmptyString,
   nullable,
   onConstruct,
@@ -30,6 +29,7 @@ import {
   prop,
   props,
   reasonableString,
+  useClassNameForSchema,
 } from "@effect-ts-app/core/Schema"
 import { curriedMagix, uncurriedMagix } from "@effect-ts-app/core/utils"
 
@@ -37,7 +37,7 @@ import { TaskId, TaskListIdU, UserId } from "../ids"
 import { TaskAudit, TaskCreated } from "./audit"
 import { Attachment } from "./shared"
 
-@namedC
+@useClassNameForSchema
 export class Step extends Model<Step>()({
   title: prop(reasonableString),
   completed: defaultProp(bool),

@@ -1,7 +1,7 @@
-import { namedC, Post, prop } from "@effect-ts-app/core/Schema"
+import { Post, prop, useClassNameForSchema } from "@effect-ts-app/core/Schema"
 import { TaskListId, UserId } from "@effect-ts-demo/todo-types"
 
-@namedC
+@useClassNameForSchema
 export default class AddTaskListMember extends Post(
   "/lists/:id/members"
 )<AddTaskListMember>()({

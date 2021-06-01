@@ -5,17 +5,17 @@ import {
   literal,
   Model,
   named,
-  namedC,
   nullable,
   ParsedShapeOf,
   prop,
   props,
   reasonableString,
   union,
+  useClassNameForSchema,
 } from "@effect-ts-app/core/Schema"
 import { TaskId, TaskListId, User } from "@effect-ts-demo/todo-types"
 
-@namedC
+@useClassNameForSchema
 export default class GetMe extends Get("/me")<GetMe>()() {}
 
 const TaskListEntryProps = props({
@@ -23,7 +23,7 @@ const TaskListEntryProps = props({
   order: prop(array(TaskId)),
 })
 
-@namedC
+@useClassNameForSchema
 export class TaskListEntry extends Model<TaskListEntry>()({
   _tag: prop(literal("TaskList")),
   title: prop(reasonableString),
@@ -32,7 +32,7 @@ export class TaskListEntry extends Model<TaskListEntry>()({
 }) {}
 
 // TaskListEntryGroups contains tasklists
-@namedC
+@useClassNameForSchema
 export class TaskListEntryGroup extends Model<TaskListEntryGroup>()({
   _tag: prop(literal("TaskListGroup")),
   id: prop(TaskListId),

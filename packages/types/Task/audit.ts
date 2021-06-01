@@ -3,12 +3,12 @@ import {
   defaultProp,
   literal,
   Model,
-  namedC,
   ParsedShapeOf,
   partialConstructor_,
   positiveInt,
   prop,
   union,
+  useClassNameForSchema,
   UUID,
 } from "@effect-ts-app/core/Schema"
 import { reverseCurriedMagix } from "@effect-ts-app/core/utils"
@@ -25,12 +25,12 @@ export function AuditProps<T extends string>(tag: T) {
   }
 }
 
-@namedC
+@useClassNameForSchema
 export class TaskCreated extends Model<TaskCreated>()({
   ...AuditProps("TaskCreated"),
 }) {}
 
-@namedC
+@useClassNameForSchema
 export class TaskFileAdded extends Model<TaskFileAdded>()({
   ...AuditProps("TaskFileAdded"),
   fileName: prop(FileName),
@@ -40,7 +40,7 @@ export class TaskFileAdded extends Model<TaskFileAdded>()({
   )
 }
 
-@namedC
+@useClassNameForSchema
 export class TaskStepsAdded extends Model<TaskStepsAdded>()({
   ...AuditProps("TaskStepsAdded"),
   stepCount: prop(positiveInt),

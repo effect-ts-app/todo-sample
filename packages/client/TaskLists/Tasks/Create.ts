@@ -1,8 +1,8 @@
-import { namedC, Post } from "@effect-ts-app/core/Schema"
+import { Post, useClassNameForSchema } from "@effect-ts-app/core/Schema"
 
 import CreateTaskOriginal, { Response } from "../../Tasks/Create"
 
-@namedC
+@useClassNameForSchema
 export default class CreateTask extends Post("/lists/:listId/tasks")<CreateTask>()(
   CreateTaskOriginal.Model.Api.props
 ) {}

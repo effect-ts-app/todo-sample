@@ -1,7 +1,7 @@
-import { array, namedC, Post, prop } from "@effect-ts-app/core/Schema"
+import { array, Post, prop, useClassNameForSchema } from "@effect-ts-app/core/Schema"
 import { TaskId, TaskListIdU } from "@effect-ts-demo/todo-types"
 
-@namedC
+@useClassNameForSchema
 export default class UpdateTaskListOrder extends Post(
   "/lists/:id/order"
 )<UpdateTaskListOrder>()({

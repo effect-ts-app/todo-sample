@@ -11,11 +11,11 @@ import {
   metaIdentifier,
   Model,
   named,
-  namedC,
   positiveInt,
   Post,
   prop,
   props,
+  useClassNameForSchema,
 } from "@effect-ts-app/core/Schema"
 import * as MO from "@effect-ts-app/core/Schema"
 import { typedKeysOf } from "@effect-ts-app/core/utils"
@@ -50,7 +50,7 @@ function odataProps<Keys extends string[]>(fieldNames: Keys) {
   }
 }
 
-@namedC
+@useClassNameForSchema
 export default class SearchTasks extends Post("/tasks/search")<SearchTasks>()({
   ...odataProps(selectableKeys),
 }) {}
