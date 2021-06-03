@@ -1,5 +1,5 @@
 import * as A from "@effect-ts-app/core/Array"
-import { Fiber, Semaphore } from "@effect-ts/core"
+import { Fiber, Semaphore } from "@effect-ts/core/Function"
 import * as T from "@effect-ts/core/Effect"
 import { Cause } from "@effect-ts/core/Effect/Cause"
 import * as Ex from "@effect-ts/core/Effect/Exit"

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { pipe } from "@effect-ts/core"
+import { pipe } from "@effect-ts/core/Function"
 import * as T from "@effect-ts/core/Effect"
 import { flow } from "@effect-ts/core/Function"
 import { Has } from "@effect-ts/core/Has"

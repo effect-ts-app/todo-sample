@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { pipe } from "@effect-ts/core"
 import * as T from "@effect-ts/core/Effect"
 import * as L from "@effect-ts/core/Effect/Layer"
+import { pipe } from "@effect-ts/core/Function"
 import * as Ex from "@effect-ts/express"
 
 import { LiveConfig } from "@/_services/Config"

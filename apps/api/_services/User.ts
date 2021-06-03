@@ -1,5 +1,5 @@
-import { Has } from "@effect-ts/core"
 import * as L from "@effect-ts/core/Effect/Layer"
+import * as Has from "@effect-ts/core/Has"
 import { pipe } from "@effect-ts-app/core/Function"
 import * as MO from "@effect-ts-app/core/Schema"
 import { jwt } from "@effect-ts-app/infra/express/schema/jwt"

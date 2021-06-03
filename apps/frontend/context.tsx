@@ -1,5 +1,5 @@
 import * as HF from "@effect-ts-app/core/http/http-client-fetch"
-import { Fiber, pipe } from "@effect-ts/core"
+import { Fiber, pipe } from "@effect-ts/core/Function"
 import * as T from "@effect-ts/core/Effect"
 import { pretty } from "@effect-ts/core/Effect/Cause"
 import * as L from "@effect-ts/core/Effect/Layer"
