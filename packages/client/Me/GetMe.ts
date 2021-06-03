@@ -1,7 +1,6 @@
 import {
   array,
   Get,
-  include,
   literal,
   Model,
   named,
@@ -47,7 +46,7 @@ export const TaskListEntryOrGroup = union({
 export type TaskListEntryOrGroup = ParsedShapeOf<typeof TaskListEntryOrGroup>
 
 export class Response extends Model<Response>("Me")({
-  ...include(User.Model.Api.props)(({ email, inboxOrder, name, phoneNumber }) => ({
+  ...User.include(({ email, inboxOrder, name, phoneNumber }) => ({
     name,
     email,
     phoneNumber,

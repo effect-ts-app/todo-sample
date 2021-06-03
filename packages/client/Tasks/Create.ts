@@ -1,6 +1,5 @@
 import {
   date,
-  include,
   Model,
   nullable,
   Post,
@@ -11,7 +10,7 @@ import { Task, TaskId } from "@effect-ts-demo/todo-types"
 
 @useClassNameForSchema
 export default class CreateTask extends Post("/tasks")<CreateTask>()({
-  ...include(Task.Model.Api.props)(({ isFavorite, listId, title }) => ({
+  ...Task.include(({ isFavorite, listId, title }) => ({
     listId,
     title,
     isFavorite,
