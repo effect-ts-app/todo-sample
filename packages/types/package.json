@@ -6,7 +6,7 @@
     "private": true,
     "dependencies": {
         "@effect-ts-app/core": "*",
-        "@effect-ts/core": "^0.40.0",
+        "@effect-ts/core": "^0.40.1",
         "@effect-ts/monocle": "^0.33.0",
         "@effect-ts/schema": "^0.8.1",
         "uuid": "^8.3.2"

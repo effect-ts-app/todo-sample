@@ -21,7 +21,7 @@
         "@effect-ts-app/infra": "*",
         "@effect-ts-demo/todo-client": "*",
         "@effect-ts-demo/todo-types": "*",
-        "@effect-ts/core": "^0.40.0",
+        "@effect-ts/core": "^0.40.1",
         "@effect-ts/express": "^0.20.0",
         "@effect-ts/monocle": "^0.33.0",
         "@effect-ts/morphic": "^0.36.0",
