@@ -6,6 +6,7 @@
         "@auth0/nextjs-auth0": "^1.4.0",
         "@babel/core": "7.14.3",
         "@effect-ts-app/core": "*",
+        "@effect-ts-app/react": "*",
         "@effect-ts-demo/todo-client": "*",
         "@effect-ts-demo/todo-types": "*",
         "@effect-ts/core": "^0.40.1",
