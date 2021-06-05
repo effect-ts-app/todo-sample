@@ -1,8 +1,7 @@
 import * as HF from "@effect-ts-app/core/http/http-client-fetch"
-import { makeApp } from "@effect-ts-app/react/context"
+import { GetProvider, makeApp } from "@effect-ts-app/react/context"
 import * as T from "@effect-ts/core/Effect"
 import * as Fiber from "@effect-ts/core/Effect/Fiber"
-import * as L from "@effect-ts/core/Effect/Layer"
 import { Semaphore } from "@effect-ts/system/Semaphore"
 import { datumEither } from "@nll/datum"
 import React, { createContext, useContext, useMemo } from "react"
@@ -12,7 +11,6 @@ import { TodoClient } from "@/index"
 export function makeLayers(config: TodoClient.ApiConfig) {
   return TodoClient.LiveApiConfig(config)[">+>"](HF.Client(fetch))
 }
-type GetProvider<P> = P extends L.Layer<unknown, unknown, infer TP> ? TP : never
 export type Env = GetProvider<ReturnType<typeof makeLayers>>
 export type ProvidedEnv = T.DefaultEnv & Env
 
