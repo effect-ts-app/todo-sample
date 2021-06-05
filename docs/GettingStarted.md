@@ -145,6 +145,14 @@ E.g think of connections to caches or databases.
 
 TODO
 
+## Samples
+
+- https://github.com/effect-ts-app/boilerplates/blob/master/api/start-server.ts#L25
+- https://github.com/effect-ts-app/todo-sample/blob/master/apps/api/start-server.ts#L28
+- https://github.com/Matechs-Garage/workshop-facile-final-kata/blob/master/day-4/src/index.ts
+- https://github.com/Matechs-Garage/mars-rover-kata/blob/master/src/index.ts
+- https://github.com/Matechs-Garage/next-effect-ts/blob/main/src/Server.tsx
+
 ## Schema
 
 TODO
