@@ -6,10 +6,11 @@ import LocalizationProvider from "@material-ui/lab/LocalizationProvider"
 import { StylesProvider } from "@material-ui/styles"
 import { useRouter } from "next/router"
 import NProgress from "nprogress"
-import React, { useEffect } from "react"
+import React, { useEffect, useMemo } from "react"
 
 import GlobalStyle from "@/GlobalStyle"
-import { LiveFetchContext, LiveServiceContext } from "@/context"
+import { useConfig } from "@/config"
+import { LiveFetchContext, LiveServiceContext, makeLayers } from "@/context"
 
 import "nprogress/nprogress.css"
 
@@ -47,13 +48,30 @@ function MyApp({ Component, pageProps }: any) {
     }
   }, [])
 
+  const cfg = useConfig()
+  //   const { user } = useUser()
+  const config = useMemo(
+    () => ({
+      ...cfg,
+      userProfileHeader: JSON.stringify({
+        sub:
+          (typeof sessionStorage !== "undefined" &&
+            sessionStorage.getItem("user-id")) ||
+          "0",
+      }),
+    }),
+    [cfg]
+  )
+
+  const env = useMemo(() => makeLayers(config), [config])
+
   return (
     <StyledEngineProvider injectFirst>
       <StylesProvider injectFirst>
         <ThemeProvider theme={theme}>
           <LocalizationProvider dateAdapter={AdapterDateFns}>
             <UserProvider user={user}>
-              <LiveServiceContext>
+              <LiveServiceContext env={env}>
                 <LiveFetchContext>
                   <GlobalStyle />
                   <Component {...pageProps} />
