@@ -92,19 +92,22 @@ TODO: combining multiple Layers (`L.All`, `>>>`, `<<<`, `+++`, `<+<`, `>+>`)
 
 Now you can run the program!
 
-## Roots
+## Runtimes
 
-## General
+These will run your code, and may provide default environments applicable to the runtime target.
 
-### Run in background
+### Default
+
+Provides default `Clock` and `Random` services.
+
+Run in Background
 ```ts
 import * as T from "@effect-ts/core/Effect"
 
 T.run(program)
 ```
 
-### Run to promise
-
+Run to Promise
 ```ts
 import * as T from "@effect-ts/core/Effect"
 
@@ -121,14 +124,19 @@ N.runMain(program)
 
 ### Tests
 
-TODO
+Provides additional test environment services, e.g to fast forward time.
+
 `J.runTime`
+
+
+TODO
 
 
 ### React
 
+`ServiceContext`
+
 TODO
-ServiceProvider
 
 ## Managed Services
 
@@ -136,7 +144,6 @@ These provide the ability to bracket, open a resource, use the resource, and clo
 E.g think of connections to caches or databases.
 
 TODO
-
 
 ## Schema
 
