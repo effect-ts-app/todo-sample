@@ -6,41 +6,39 @@ Creating, managing and using dependencies, running programs and providing the re
 
 ## Defining a Service
 
-### Tag (Identifier + Interface)
+### Explicit Definition
 
-Interface defined up front.
+
+Interface defined up front:
 
 ```ts
 import * as Has from "@effect-ts/core/Has"
 
+// Tag (Identifier + Interface)
 export interface MyService {
   add: (a: number, b: number) => number
 }
 export const MyService = Has.tag<MyService>()
-```
 
-### Implementation
-
-```ts
+// Implementation
 const makeMyServiceImplementation (): MyService => ({
   add: (a, b) => a + b
 })
 ```
 
-### Shortcut
-
-Relying on the return type shape of the MyService constructor function.
+Relying on the return type shape of the MyService constructor function:
 
 ```ts
 import * as Has from "@effect-ts/core/Has"
 
+// Implementation
 const makeMyServiceImplementation () => ({
   add: (a, b) => a + b
 })
 
+// Tag (Identifier + Interface)
 export interface MyService
   extends ReturnType<typeof makeServiceImplementation> {}
-
 export const MyService = Has.tag<MyService>()
 ```
 
@@ -49,13 +47,12 @@ export const MyService = Has.tag<MyService>()
 ```ts
 import * as L from "@effect-ts/core/Layer"
 
-export const MyServiceLive = L.fromFrunction(makeMyServiceImplementation)
+export const MyServiceLive = L.fromFunction(makeMyServiceImplementation)
 ```
 
 ### Using a Service
 
-Generator approach
-
+Generator approach:
 ```ts
 import * as T from "@effect-ts/core/Effect"
 
@@ -66,7 +63,7 @@ const program: T.Effect<Has<MyService>, never, number> = T.gen(function* ($) {
 })
 ```
 
-Accessor approach
+Accessor approach:
 ```ts
 import * as T from "@effect-ts/core/Effect"
 
@@ -88,9 +85,9 @@ const program = pipe(
 )
 ```
 
-TODO: combining multiple Layers (`L.All`, `>>>`, `<<<`, `+++`, `<+<`, `>+>`)
-
 Now you can run the program!
+
+TODO: combining multiple Layers (`L.All`, `>>>`, `<<<`, `+++`, `<+<`, `>+>`)
 
 ## Runtimes
 
