@@ -57,14 +57,14 @@ export const Task = memo(function ({
   const isRefreshingTask = datumEither.isRefresh(findResult)
   const isUpdatingTask = datumEither.isPending(updateResult) || isRefreshingTask
 
-  const { runPromise } = useServiceContext()
+  const { runPromiseExit } = useServiceContext()
 
   const toggleFavorite = withLoading(
-    () => toggleTaskFavorite["|>"](runPromise),
+    () => toggleTaskFavorite["|>"](runPromiseExit),
     isUpdatingTask
   )
   const toggleChecked = withLoading(
-    () => toggleTaskChecked["|>"](runPromise),
+    () => toggleTaskChecked["|>"](runPromiseExit),
     isUpdatingTask
   )
   return (

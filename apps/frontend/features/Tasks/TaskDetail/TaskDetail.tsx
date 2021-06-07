@@ -233,7 +233,7 @@ export const TaskDetail = memo(function ({
 })
 
 function useFuncs(t: Todo.Task) {
-  const { runPromise } = useServiceContext()
+  const { runPromiseExit } = useServiceContext()
   const [removeResult, removeTask] = useRemoveTask()
   const {
     addNewTaskStep,
@@ -269,36 +269,42 @@ function useFuncs(t: Todo.Task) {
               )
             )
           ),
-          runPromise
+          runPromiseExit
         ),
       datumEither.isPending(removeResult)
     ),
-    toggleMyDay: withLoading(() => toggleTaskMyDay["|>"](runPromise), isUpdatingTask),
+    toggleMyDay: withLoading(
+      () => toggleTaskMyDay["|>"](runPromiseExit),
+      isUpdatingTask
+    ),
     toggleChecked: withLoading(
-      () => toggleTaskChecked["|>"](runPromise),
+      () => toggleTaskChecked["|>"](runPromiseExit),
       isUpdatingTask
     ),
     toggleFavorite: withLoading(
-      () => toggleTaskFavorite["|>"](runPromise),
+      () => toggleTaskFavorite["|>"](runPromiseExit),
       isUpdatingTask
     ),
     toggleStepChecked: withLoading(
-      flow(toggleTaskStepChecked, runPromise),
+      flow(toggleTaskStepChecked, runPromiseExit),
       isUpdatingTask
     ),
-    setTitle: withLoading(flow(setTitle, runPromise), isUpdatingTask),
-    setDue: withLoading(flow(setDue, runPromise), isUpdatingTask),
-    setReminder: withLoading(flow(setReminder, runPromise), isUpdatingTask),
-    editNote: withLoading(flow(editNote, runPromise), isUpdatingTask),
-    addNewStep: withLoading(flow(addNewTaskStep, T.asUnit, runPromise), isUpdatingTask),
+    setTitle: withLoading(flow(setTitle, runPromiseExit), isUpdatingTask),
+    setDue: withLoading(flow(setDue, runPromiseExit), isUpdatingTask),
+    setReminder: withLoading(flow(setReminder, runPromiseExit), isUpdatingTask),
+    editNote: withLoading(flow(editNote, runPromiseExit), isUpdatingTask),
+    addNewStep: withLoading(
+      flow(addNewTaskStep, T.asUnit, runPromiseExit),
+      isUpdatingTask
+    ),
     updateStepTitle: withLoading(
-      (s: Todo.Step) => flow(updateStepTitle(s), T.asUnit, runPromise),
+      (s: Todo.Step) => flow(updateStepTitle(s), T.asUnit, runPromiseExit),
       isUpdatingTask
     ),
     updateStepIndex: withLoading(
-      (s: Todo.Step) => flow(updateStepIndex(s), T.asUnit, runPromise),
+      (s: Todo.Step) => flow(updateStepIndex(s), T.asUnit, runPromiseExit),
       isUpdatingTask
     ),
-    removeStep: withLoading(flow(removeTaskStep, runPromise), isUpdatingTask),
+    removeStep: withLoading(flow(removeTaskStep, runPromiseExit), isUpdatingTask),
   }
 }

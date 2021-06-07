@@ -50,7 +50,7 @@ const TaskListView = memo(function ({
   // testing for multi-call relying on same network-call/cache.
   //   useTasks()
   //   useTasks()
-  const { runPromise } = useServiceContext()
+  const { runPromiseExit } = useServiceContext()
   const [newResult, addNewTask] = useNewTask(
     category,
     !isDynamicCategory && category !== "tasks"
@@ -69,12 +69,12 @@ const TaskListView = memo(function ({
           addNewTask,
           T.chain((r) => getTask(r.id)),
           EO.map((t) => setSelectedTaskId(t.id)),
-          runPromise
+          runPromiseExit
         ),
         // TODO: or refreshing
         isLoading
       ),
-    [addNewTask, getTask, isLoading, runPromise, setSelectedTaskId]
+    [addNewTask, getTask, isLoading, runPromiseExit, setSelectedTaskId]
   )
   const isRefreshing = datumEither.isRefresh(tasksResult)
   function toggleDirection(dir: Todo.OrderDir) {
