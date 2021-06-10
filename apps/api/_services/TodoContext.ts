@@ -30,6 +30,7 @@ import { handleEvents } from "@/Tasks/_events"
 import { Config } from "./Config"
 import { makeTestDataUnsafe } from "./TodoContext.testdata"
 import * as UserSVC from "./User"
+import { Chunk } from "@effect-ts/core/Collections/Immutable/Chunk"
 
 const [decodeUser, encodeUser, encodeUsersToMap] = makeCodec(User.Model)
 const [decodeTask, encodeTask, encodeTasksToMap] = makeCodec(Task.Model)
@@ -221,7 +222,7 @@ function makeTaskContext(tasks: Task[]) {
     const updateM = <R, E>(id: TaskId, mod: (a: Task) => T.Effect<R, E, Task>) =>
       pipe(get(id), T.chain(mod), T.tap(save))
 
-    const all = (userId: UserId, lists: CNK.Chunk<TaskList>) =>
+    const all = (userId: UserId, lists: Chunk<TaskList>) =>
       pipe(
         tasksRef.get,
         T.chain((tasks) =>
