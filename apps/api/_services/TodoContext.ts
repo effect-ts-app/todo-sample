@@ -1,4 +1,5 @@
 import * as CNK from "@effect-ts/core/Collections/Immutable/Chunk"
+import { Chunk } from "@effect-ts/core/Collections/Immutable/Chunk"
 import * as Map from "@effect-ts/core/Collections/Immutable/Map"
 import * as L from "@effect-ts/core/Effect/Layer"
 import * as Ref from "@effect-ts/core/Effect/Ref"
@@ -30,7 +31,6 @@ import { handleEvents } from "@/Tasks/_events"
 import { Config } from "./Config"
 import { makeTestDataUnsafe } from "./TodoContext.testdata"
 import * as UserSVC from "./User"
-import { Chunk } from "@effect-ts/core/Collections/Immutable/Chunk"
 
 const [decodeUser, encodeUser, encodeUsersToMap] = makeCodec(User.Model)
 const [decodeTask, encodeTask, encodeTasksToMap] = makeCodec(Task.Model)
