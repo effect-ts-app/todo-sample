@@ -48,8 +48,5 @@ module.exports = withTM({
             destination: `${API_ROOT}/:path*` // Proxy to Backend
         }
         ]
-  },
-  future: {
-    webpack5: true
   }
 })

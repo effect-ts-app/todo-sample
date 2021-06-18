@@ -22,7 +22,7 @@
         "@effect-ts-demo/todo-client": "*",
         "@effect-ts-demo/todo-types": "*",
         "@effect-ts/core": "^0.40.4",
-        "@effect-ts/express": "^0.20.1",
+        "@effect-ts/express": "^0.20.2",
         "@effect-ts/monocle": "^0.34.0",
         "@effect-ts/morphic": "^0.37.0",
         "@effect-ts/node": "^0.26.0",

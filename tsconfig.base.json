@@ -22,7 +22,7 @@
         "resolveJsonModule": true,
         "moduleResolution": "node",
         "downlevelIteration": true,
-        "strictOptionalProperties": false
+        "suppressImplicitAnyIndexErrors": true
     },
     // NEW: Options for file/directory watching
     "watchOptions": {
