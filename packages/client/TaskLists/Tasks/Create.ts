@@ -1,9 +1,9 @@
 import { Post, useClassNameForSchema } from "@effect-ts-app/core/Schema"
 
-import CreateTaskOriginal, { Response } from "../../Tasks/Create"
+import { CreateTaskRequest as CreateTaskOriginal, Response } from "../../Tasks/Create"
 
 @useClassNameForSchema
-export default class CreateTask extends Post("/lists/:listId/tasks")<CreateTask>()(
+export class CreateTaskRequest extends Post("/lists/:listId/tasks")<CreateTaskRequest>()(
   CreateTaskOriginal.Model.Api.props
 ) {}
 

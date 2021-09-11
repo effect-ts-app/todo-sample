@@ -10,7 +10,7 @@ import {
 import { TaskView } from "./views"
 
 @useClassNameForSchema
-export default class GetTasks extends Get("/tasks")<GetTasks>()() {}
+export class GetTasksRequest extends Get("/tasks")<GetTasksRequest>()() {}
 
 @metaC({ description: "A list of Tasks" })
 export class Response extends Model<Response>()({

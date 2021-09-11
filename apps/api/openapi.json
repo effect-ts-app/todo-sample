@@ -28,7 +28,7 @@
         "tags": [
           "Me"
         ],
-        "operationId": "GetMe",
+        "operationId": "GetMeRequest",
         "parameters": [],
         "responses": {
           "200": {
@@ -52,7 +52,7 @@
         "tags": [
           "Tasks"
         ],
-        "operationId": "SearchTasks",
+        "operationId": "SearchTasksRequest",
         "parameters": [],
         "requestBody": {
           "content": {
@@ -138,7 +138,7 @@
         "tags": [
           "Tasks"
         ],
-        "operationId": "GetTasks",
+        "operationId": "GetTasksRequest",
         "parameters": [],
         "responses": {
           "200": {
@@ -172,7 +172,7 @@
         "tags": [
           "Tasks"
         ],
-        "operationId": "CreateTask",
+        "operationId": "CreateTaskRequest",
         "parameters": [],
         "requestBody": {
           "content": {
@@ -249,7 +249,7 @@
         "tags": [
           "Tasks"
         ],
-        "operationId": "FindTask",
+        "operationId": "FindTaskRequest",
         "parameters": [
           {
             "name": "id",
@@ -284,7 +284,7 @@
         ],
         "description": "You can optionally update selected fields of the Task",
         "summary": "Update a Task",
-        "operationId": "UpdateTask",
+        "operationId": "UpdateTaskRequest",
         "parameters": [
           {
             "name": "id",
@@ -379,102 +379,14 @@
           }
         },
         "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "noRef": true,
-                  "title": "UpdateTask",
-                  "description": "You can optionally update selected fields of the Task",
-                  "summary": "Update a Task",
-                  "properties": {
-                    "title": {
-                      "minLength": 1,
-                      "maxLength": 255,
-                      "type": "string"
-                    },
-                    "completed": {
-                      "format": "date-time",
-                      "type": "string",
-                      "nullable": true
-                    },
-                    "isFavorite": {
-                      "type": "boolean"
-                    },
-                    "due": {
-                      "format": "date-time",
-                      "type": "string",
-                      "nullable": true
-                    },
-                    "note": {
-                      "minLength": 1,
-                      "maxLength": 2047,
-                      "type": "string",
-                      "nullable": true
-                    },
-                    "steps": {
-                      "items": {
-                        "$ref": "#/components/schemas/Step"
-                      },
-                      "type": "array"
-                    },
-                    "assignedTo": {
-                      "minLength": 1,
-                      "type": "string",
-                      "nullable": true
-                    },
-                    "attachment": {
-                      "properties": {
-                        "fileName": {
-                          "minLength": 1,
-                          "maxLength": 255,
-                          "type": "string"
-                        },
-                        "mimetype": {
-                          "minLength": 1,
-                          "maxLength": 255,
-                          "type": "string"
-                        },
-                        "url": {
-                          "minLength": 1,
-                          "maxLength": 2047,
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "fileName",
-                        "mimetype",
-                        "url"
-                      ],
-                      "type": "object",
-                      "nullable": true
-                    },
-                    "myDay": {
-                      "format": "date-time",
-                      "type": "string",
-                      "nullable": true
-                    },
-                    "reminder": {
-                      "format": "date-time",
-                      "type": "string",
-                      "nullable": true
-                    },
-                    "id": {
-                      "format": "uuid",
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "id"
-                  ],
-                  "type": "object"
-                }
-              }
-            }
+          "204": {
+            "description": "Empty"
           },
           "400": {
             "description": "ValidationError"
+          },
+          "404": {
+            "description": "NotFoundError"
           }
         }
       },
@@ -482,7 +394,7 @@
         "tags": [
           "Tasks"
         ],
-        "operationId": "RemoveTask",
+        "operationId": "RemoveTaskRequest",
         "parameters": [
           {
             "name": "id",
@@ -495,29 +407,14 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "noRef": true,
-                  "title": "RemoveTask",
-                  "properties": {
-                    "id": {
-                      "format": "uuid",
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "id"
-                  ],
-                  "type": "object"
-                }
-              }
-            }
+          "204": {
+            "description": "Empty"
           },
           "400": {
             "description": "ValidationError"
+          },
+          "404": {
+            "description": "NotFoundError"
           }
         }
       }
@@ -527,7 +424,7 @@
         "tags": [
           "Lists"
         ],
-        "operationId": "CreateTask2",
+        "operationId": "CreateTaskRequest2",
         "parameters": [
           {
             "name": "listId",
@@ -609,7 +506,7 @@
         "tags": [
           "Lists"
         ],
-        "operationId": "UpdateTaskList",
+        "operationId": "UpdateTaskListRequest",
         "parameters": [
           {
             "name": "id",
@@ -638,34 +535,14 @@
           }
         },
         "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "noRef": true,
-                  "title": "UpdateTaskList",
-                  "properties": {
-                    "title": {
-                      "minLength": 1,
-                      "maxLength": 255,
-                      "type": "string"
-                    },
-                    "id": {
-                      "format": "uuid",
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "id"
-                  ],
-                  "type": "object"
-                }
-              }
-            }
+          "204": {
+            "description": "Empty"
           },
           "400": {
             "description": "ValidationError"
+          },
+          "404": {
+            "description": "NotFoundError"
           }
         }
       },
@@ -673,7 +550,7 @@
         "tags": [
           "Lists"
         ],
-        "operationId": "RemoveTaskList",
+        "operationId": "RemoveTaskListRequest",
         "parameters": [
           {
             "name": "id",
@@ -686,29 +563,14 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "noRef": true,
-                  "title": "RemoveTaskList",
-                  "properties": {
-                    "id": {
-                      "format": "uuid",
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "id"
-                  ],
-                  "type": "object"
-                }
-              }
-            }
+          "204": {
+            "description": "Empty"
           },
           "400": {
             "description": "ValidationError"
+          },
+          "404": {
+            "description": "NotFoundError"
           }
         }
       }
@@ -718,7 +580,7 @@
         "tags": [
           "Lists"
         ],
-        "operationId": "UpdateTaskListOrder",
+        "operationId": "UpdateTaskListOrderRequest",
         "parameters": [
           {
             "name": "id",
@@ -762,47 +624,14 @@
           }
         },
         "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "noRef": true,
-                  "title": "UpdateTaskListOrder",
-                  "properties": {
-                    "order": {
-                      "items": {
-                        "format": "uuid",
-                        "type": "string"
-                      },
-                      "type": "array"
-                    },
-                    "id": {
-                      "oneOf": [
-                        {
-                          "format": "uuid",
-                          "type": "string"
-                        },
-                        {
-                          "enum": [
-                            "inbox"
-                          ],
-                          "type": "string"
-                        }
-                      ]
-                    }
-                  },
-                  "required": [
-                    "order",
-                    "id"
-                  ],
-                  "type": "object"
-                }
-              }
-            }
+          "204": {
+            "description": "Empty"
           },
           "400": {
             "description": "ValidationError"
+          },
+          "404": {
+            "description": "NotFoundError"
           }
         }
       }
@@ -812,7 +641,7 @@
         "tags": [
           "Lists"
         ],
-        "operationId": "AddTaskListMember",
+        "operationId": "AddTaskListMemberRequest",
         "parameters": [
           {
             "name": "id",
@@ -843,34 +672,14 @@
           }
         },
         "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "noRef": true,
-                  "title": "AddTaskListMember",
-                  "properties": {
-                    "memberId": {
-                      "minLength": 1,
-                      "type": "string"
-                    },
-                    "id": {
-                      "format": "uuid",
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "memberId",
-                    "id"
-                  ],
-                  "type": "object"
-                }
-              }
-            }
+          "204": {
+            "description": "Empty"
           },
           "400": {
             "description": "ValidationError"
+          },
+          "404": {
+            "description": "NotFoundError"
           }
         }
       }
@@ -880,7 +689,7 @@
         "tags": [
           "Lists"
         ],
-        "operationId": "RemoveTaskListMember",
+        "operationId": "RemoveTaskListMemberRequest",
         "parameters": [
           {
             "name": "id",
@@ -902,34 +711,14 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "noRef": true,
-                  "title": "RemoveTaskListMember",
-                  "properties": {
-                    "id": {
-                      "format": "uuid",
-                      "type": "string"
-                    },
-                    "memberId": {
-                      "minLength": 1,
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "id",
-                    "memberId"
-                  ],
-                  "type": "object"
-                }
-              }
-            }
+          "204": {
+            "description": "Empty"
           },
           "400": {
             "description": "ValidationError"
+          },
+          "404": {
+            "description": "NotFoundError"
           }
         }
       }
@@ -939,7 +728,7 @@
         "tags": [
           "Groups"
         ],
-        "operationId": "UpdateTaskListGroup",
+        "operationId": "UpdateTaskListGroupRequest",
         "parameters": [
           {
             "name": "id",
@@ -975,41 +764,14 @@
           }
         },
         "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "noRef": true,
-                  "title": "UpdateTaskListGroup",
-                  "properties": {
-                    "title": {
-                      "minLength": 1,
-                      "maxLength": 255,
-                      "type": "string"
-                    },
-                    "lists": {
-                      "items": {
-                        "format": "uuid",
-                        "type": "string"
-                      },
-                      "type": "array"
-                    },
-                    "id": {
-                      "format": "uuid",
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "id"
-                  ],
-                  "type": "object"
-                }
-              }
-            }
+          "204": {
+            "description": "Empty"
           },
           "400": {
             "description": "ValidationError"
+          },
+          "404": {
+            "description": "NotFoundError"
           }
         }
       }

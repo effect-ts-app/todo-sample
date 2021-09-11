@@ -1,8 +1,6 @@
 const withTM = require('next-transpile-modules')([
     'fp-ts',
     '@nll/datum',
-    '@effect-ts-app/core',
-    '@effect-ts-app/react',
     '@effect-ts-demo/todo-client',
     '@effect-ts-demo/todo-types'
 ]);

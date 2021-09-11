@@ -1,8 +1,8 @@
 import * as MO from "@effect-ts-app/core/Schema"
 import { constant } from "@effect-ts/core/Function"
-import { Box, IconButton, TextField, TextFieldProps } from "@mui/material"
-import Star from "@mui/icons-material/StarOutline"
 import StarBorder from "@mui/icons-material/StarBorder"
+import Star from "@mui/icons-material/StarOutline"
+import { Box, IconButton, TextField, TextFieldProps } from "@mui/material"
 import React, { useState, useRef, useEffect, MouseEventHandler } from "react"
 import styled, { css } from "styled-components"
 

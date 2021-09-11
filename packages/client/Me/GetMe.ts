@@ -15,7 +15,7 @@ import {
 import { TaskId, TaskListId, User } from "@effect-ts-demo/todo-types"
 
 @useClassNameForSchema
-export default class GetMe extends Get("/me")<GetMe>()() {}
+export class GetMeRequest extends Get("/me")<GetMeRequest>()() {}
 
 const TaskListEntryProps = props({
   id: prop(TaskListId),

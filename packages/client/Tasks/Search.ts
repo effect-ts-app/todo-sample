@@ -51,7 +51,7 @@ function odataProps<Keys extends string[]>(fieldNames: Keys) {
 }
 
 @useClassNameForSchema
-export default class SearchTasks extends Post("/tasks/search")<SearchTasks>()({
+export class SearchTasksRequest extends Post("/tasks/search")<SearchTasksRequest>()({
   ...odataProps(selectableKeys),
 }) {}
 

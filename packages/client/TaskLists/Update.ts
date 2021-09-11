@@ -7,7 +7,7 @@ import {
 import { EditableTaskListProps, TaskListId } from "@effect-ts-demo/todo-types"
 
 @useClassNameForSchema
-export default class UpdateTaskList extends Patch("/lists/:id")<UpdateTaskList>()({
+export class UpdateTaskListRequest extends Patch("/lists/:id")<UpdateTaskListRequest>()({
   id: prop(TaskListId),
   ...makeOptional(EditableTaskListProps),
 }) {}

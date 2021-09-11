@@ -10,7 +10,7 @@ import { TaskId } from "@effect-ts-demo/todo-types"
 import { TaskView } from "./views"
 
 @useClassNameForSchema
-export default class FindTask extends Get("/tasks/:id")<FindTask>()({
+export class FindTaskRequest extends Get("/tasks/:id")<FindTaskRequest>()({
   id: prop(TaskId),
 }) {}
 

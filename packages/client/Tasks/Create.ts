@@ -9,7 +9,7 @@ import {
 import { Task, TaskId } from "@effect-ts-demo/todo-types"
 
 @useClassNameForSchema
-export default class CreateTask extends Post("/tasks")<CreateTask>()({
+export class CreateTaskRequest extends Post("/tasks")<CreateTaskRequest>()({
   ...Task.include(({ isFavorite, listId, title }) => ({
     listId,
     title,

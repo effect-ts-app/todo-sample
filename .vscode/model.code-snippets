@@ -10,7 +10,7 @@
     "GetRequest": {
         "prefix": "gr",
         "body": [
-            "export default class Request extends Get(\"/$1\")<Request>()({$2}) {}",
+            "export class Request extends Get(\"/$1\")<Request>()({$2}) {}",
             ""
         ],
         "description": "Defines a GetRequest signature"
@@ -18,7 +18,7 @@
     "DeleteRequest": {
         "prefix": "dr",
         "body": [
-            "export default class Request extends Delete(\"/$1\")<Request>()({$2}) {}",
+            "export class Request extends Delete(\"/$1\")<Request>()({$2}) {}",
             ""
         ],
         "description": "Defines a DeleteRequest signature"
@@ -26,7 +26,7 @@
     "PatchRequest": {
         "prefix": "par",
         "body": [
-            "export default class Request extends Patch(\"/$1\")<Request>()({$2}) {}",
+            "export class Request extends Patch(\"/$1\")<Request>()({$2}) {}",
             ""
         ],
         "description": "Defines a PatchRequest signature"
@@ -34,7 +34,7 @@
     "PutRequest": {
         "prefix": "pur",
         "body": [
-            "export default class Request extends Put(\"/$1\")<Request>()({$2}) {}",
+            "export class Request extends Put(\"/$1\")<Request>()({$2}) {}",
             ""
         ],
         "description": "Defines a PutRequest signature"

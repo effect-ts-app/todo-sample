@@ -12,7 +12,7 @@ We're taking an iterative approach, where we define the Request and Response cla
 1. Create a file under [apps/api/Tasks](../apps/api/Tasks)/Create.ts
 2. Create a `Request` class:
 ```ts
-export default class Create extends Post("/tasks")<Create>()({
+export class CreateRequest extends Post("/tasks")<Create>()({
   listId: prop(TaskListIdU),
   title: prop(nonEmptyString),
   isFavorite: prop(bool),
