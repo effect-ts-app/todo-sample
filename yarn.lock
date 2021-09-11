@@ -1187,11 +1187,6 @@
   resolved "https://registry.yarnpkg.com/@effect-ts/react/-/react-0.3.1.tgz#8ee02d0a4a9bf79102b30a0099bf85d6929ec199"
   integrity sha512-VCsdjDU9Wx5qoRJoIqeha+MOwSA6xbYOe4nn4IElc5aCw5bdtktiGyAaJ5+4q1zRi2/07LK7NDSQ/BGd5NWBOA==
 
-"@effect-ts/schema@^0.10.0":
-  version "0.10.0"
-  resolved "https://registry.yarnpkg.com/@effect-ts/schema/-/schema-0.10.0.tgz#bd493f7daef57ef50960a664daab85f534b6e2ea"
-  integrity sha512-OI0s6QdcNBHnYF8p+X5zoH6Ek4ih5BU0CZHidwPhZKefToECnaRfeMGtlxra33BSMeSLVdQfRBkoVMYHqPNdEA==
-
 "@effect-ts/system@^0.40.9":
   version "0.40.9"
   resolved "https://registry.yarnpkg.com/@effect-ts/system/-/system-0.40.9.tgz#190cf896d4f6c5128769552c5977091c7369dfc8"
@@ -2247,13 +2242,6 @@
     npmlog "^4.1.2"
     write-file-atomic "^3.0.3"
 
-"@material-ui/icons@next":
-  version "5.0.0-beta.5"
-  resolved "https://registry.yarnpkg.com/@material-ui/icons/-/icons-5.0.0-beta.5.tgz#54295b9aa120910c88900e3d08082b7acbeb73c0"
-  integrity sha512-C2KHSf8mvDn22rzsV0UfsJyBYI3Nt/LItcKPJBAG9kgqdBHAuLMH2lfKmdMuX55qd8O+NO5rM7aIHdYQRjfcMQ==
-  dependencies:
-    "@babel/runtime" "^7.14.8"
-
 "@mui/core@5.0.0-alpha.46":
   version "5.0.0-alpha.46"
   resolved "https://registry.yarnpkg.com/@mui/core/-/core-5.0.0-alpha.46.tgz#f4c0e5b2ad346e31e74bb96b684f6734b55cc9e6"
@@ -2265,6 +2253,13 @@
     clsx "^1.1.1"
     prop-types "^15.7.2"
     react-is "^17.0.2"
+
+"@mui/icons-material@next":
+  version "5.0.0-rc.1"
+  resolved "https://registry.yarnpkg.com/@mui/icons-material/-/icons-material-5.0.0-rc.1.tgz#ffb5ec5195d2bf8105da6a78b7d6b9fc195c8511"
+  integrity sha512-w9tfGQaND221fkPaCp70gHg/8f4mk1RYx22YBLtV4wV0SLoI3d4+41DRrqTxeyKB1WIxETDVxaAqeBthrXM6hg==
+  dependencies:
+    "@babel/runtime" "^7.14.8"
 
 "@mui/lab@next":
   version "5.0.0-alpha.46"

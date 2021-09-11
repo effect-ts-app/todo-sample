@@ -204,7 +204,7 @@
                   "myDay": {
                     "format": "date-time",
                     "type": "string",
-                    "optionFromNull": true
+                    "nullable": true
                   }
                 },
                 "required": [
@@ -268,7 +268,7 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Task",
-                  "optionFromNull": true
+                  "nullable": true
                 }
               }
             }
@@ -309,7 +309,7 @@
                   "completed": {
                     "format": "date-time",
                     "type": "string",
-                    "optionFromNull": true
+                    "nullable": true
                   },
                   "isFavorite": {
                     "type": "boolean"
@@ -317,13 +317,13 @@
                   "due": {
                     "format": "date-time",
                     "type": "string",
-                    "optionFromNull": true
+                    "nullable": true
                   },
                   "note": {
                     "minLength": 1,
                     "maxLength": 2047,
                     "type": "string",
-                    "optionFromNull": true
+                    "nullable": true
                   },
                   "steps": {
                     "items": {
@@ -334,7 +334,7 @@
                   "assignedTo": {
                     "minLength": 1,
                     "type": "string",
-                    "optionFromNull": true
+                    "nullable": true
                   },
                   "attachment": {
                     "properties": {
@@ -360,17 +360,17 @@
                       "url"
                     ],
                     "type": "object",
-                    "optionFromNull": true
+                    "nullable": true
                   },
                   "myDay": {
                     "format": "date-time",
                     "type": "string",
-                    "optionFromNull": true
+                    "nullable": true
                   },
                   "reminder": {
                     "format": "date-time",
                     "type": "string",
-                    "optionFromNull": true
+                    "nullable": true
                   }
                 },
                 "type": "object"
@@ -379,14 +379,102 @@
           }
         },
         "responses": {
-          "204": {
-            "description": "Empty"
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "noRef": true,
+                  "title": "UpdateTask",
+                  "description": "You can optionally update selected fields of the Task",
+                  "summary": "Update a Task",
+                  "properties": {
+                    "title": {
+                      "minLength": 1,
+                      "maxLength": 255,
+                      "type": "string"
+                    },
+                    "completed": {
+                      "format": "date-time",
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "isFavorite": {
+                      "type": "boolean"
+                    },
+                    "due": {
+                      "format": "date-time",
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "note": {
+                      "minLength": 1,
+                      "maxLength": 2047,
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "steps": {
+                      "items": {
+                        "$ref": "#/components/schemas/Step"
+                      },
+                      "type": "array"
+                    },
+                    "assignedTo": {
+                      "minLength": 1,
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "attachment": {
+                      "properties": {
+                        "fileName": {
+                          "minLength": 1,
+                          "maxLength": 255,
+                          "type": "string"
+                        },
+                        "mimetype": {
+                          "minLength": 1,
+                          "maxLength": 255,
+                          "type": "string"
+                        },
+                        "url": {
+                          "minLength": 1,
+                          "maxLength": 2047,
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "fileName",
+                        "mimetype",
+                        "url"
+                      ],
+                      "type": "object",
+                      "nullable": true
+                    },
+                    "myDay": {
+                      "format": "date-time",
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "reminder": {
+                      "format": "date-time",
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "id": {
+                      "format": "uuid",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ],
+                  "type": "object"
+                }
+              }
+            }
           },
           "400": {
             "description": "ValidationError"
-          },
-          "404": {
-            "description": "NotFoundError"
           }
         }
       },
@@ -407,14 +495,29 @@
           }
         ],
         "responses": {
-          "204": {
-            "description": "Empty"
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "noRef": true,
+                  "title": "RemoveTask",
+                  "properties": {
+                    "id": {
+                      "format": "uuid",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ],
+                  "type": "object"
+                }
+              }
+            }
           },
           "400": {
             "description": "ValidationError"
-          },
-          "404": {
-            "description": "NotFoundError"
           }
         }
       }
@@ -462,7 +565,7 @@
                   "myDay": {
                     "format": "date-time",
                     "type": "string",
-                    "optionFromNull": true
+                    "nullable": true
                   }
                 },
                 "required": [
@@ -535,14 +638,34 @@
           }
         },
         "responses": {
-          "204": {
-            "description": "Empty"
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "noRef": true,
+                  "title": "UpdateTaskList",
+                  "properties": {
+                    "title": {
+                      "minLength": 1,
+                      "maxLength": 255,
+                      "type": "string"
+                    },
+                    "id": {
+                      "format": "uuid",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ],
+                  "type": "object"
+                }
+              }
+            }
           },
           "400": {
             "description": "ValidationError"
-          },
-          "404": {
-            "description": "NotFoundError"
           }
         }
       },
@@ -563,14 +686,29 @@
           }
         ],
         "responses": {
-          "204": {
-            "description": "Empty"
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "noRef": true,
+                  "title": "RemoveTaskList",
+                  "properties": {
+                    "id": {
+                      "format": "uuid",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ],
+                  "type": "object"
+                }
+              }
+            }
           },
           "400": {
             "description": "ValidationError"
-          },
-          "404": {
-            "description": "NotFoundError"
           }
         }
       }
@@ -624,14 +762,47 @@
           }
         },
         "responses": {
-          "204": {
-            "description": "Empty"
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "noRef": true,
+                  "title": "UpdateTaskListOrder",
+                  "properties": {
+                    "order": {
+                      "items": {
+                        "format": "uuid",
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "id": {
+                      "oneOf": [
+                        {
+                          "format": "uuid",
+                          "type": "string"
+                        },
+                        {
+                          "enum": [
+                            "inbox"
+                          ],
+                          "type": "string"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "order",
+                    "id"
+                  ],
+                  "type": "object"
+                }
+              }
+            }
           },
           "400": {
             "description": "ValidationError"
-          },
-          "404": {
-            "description": "NotFoundError"
           }
         }
       }
@@ -672,14 +843,34 @@
           }
         },
         "responses": {
-          "204": {
-            "description": "Empty"
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "noRef": true,
+                  "title": "AddTaskListMember",
+                  "properties": {
+                    "memberId": {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "id": {
+                      "format": "uuid",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "memberId",
+                    "id"
+                  ],
+                  "type": "object"
+                }
+              }
+            }
           },
           "400": {
             "description": "ValidationError"
-          },
-          "404": {
-            "description": "NotFoundError"
           }
         }
       }
@@ -711,14 +902,34 @@
           }
         ],
         "responses": {
-          "204": {
-            "description": "Empty"
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "noRef": true,
+                  "title": "RemoveTaskListMember",
+                  "properties": {
+                    "id": {
+                      "format": "uuid",
+                      "type": "string"
+                    },
+                    "memberId": {
+                      "minLength": 1,
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "memberId"
+                  ],
+                  "type": "object"
+                }
+              }
+            }
           },
           "400": {
             "description": "ValidationError"
-          },
-          "404": {
-            "description": "NotFoundError"
           }
         }
       }
@@ -764,14 +975,41 @@
           }
         },
         "responses": {
-          "204": {
-            "description": "Empty"
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "noRef": true,
+                  "title": "UpdateTaskListGroup",
+                  "properties": {
+                    "title": {
+                      "minLength": 1,
+                      "maxLength": 255,
+                      "type": "string"
+                    },
+                    "lists": {
+                      "items": {
+                        "format": "uuid",
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "id": {
+                      "format": "uuid",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ],
+                  "type": "object"
+                }
+              }
+            }
           },
           "400": {
             "description": "ValidationError"
-          },
-          "404": {
-            "description": "NotFoundError"
           }
         }
       }
@@ -803,7 +1041,7 @@
           "parentListId": {
             "format": "uuid",
             "type": "string",
-            "optionFromNull": true
+            "nullable": true
           },
           "id": {
             "format": "uuid",
@@ -1052,7 +1290,7 @@
           "assignedTo": {
             "minLength": 1,
             "type": "string",
-            "optionFromNull": true
+            "nullable": true
           },
           "attachment": {
             "properties": {
@@ -1078,23 +1316,23 @@
               "url"
             ],
             "type": "object",
-            "optionFromNull": true
+            "nullable": true
           },
           "completed": {
             "format": "date-time",
             "type": "string",
-            "optionFromNull": true
+            "nullable": true
           },
           "due": {
             "format": "date-time",
             "type": "string",
-            "optionFromNull": true
+            "nullable": true
           },
           "note": {
             "minLength": 1,
             "maxLength": 2047,
             "type": "string",
-            "optionFromNull": true
+            "nullable": true
           },
           "isFavorite": {
             "type": "boolean"
@@ -1108,12 +1346,12 @@
           "myDay": {
             "format": "date-time",
             "type": "string",
-            "optionFromNull": true
+            "nullable": true
           },
           "reminder": {
             "format": "date-time",
             "type": "string",
-            "optionFromNull": true
+            "nullable": true
           }
         },
         "type": "object"
@@ -1175,7 +1413,7 @@
           "assignedTo": {
             "minLength": 1,
             "type": "string",
-            "optionFromNull": true
+            "nullable": true
           },
           "attachment": {
             "properties": {
@@ -1201,23 +1439,23 @@
               "url"
             ],
             "type": "object",
-            "optionFromNull": true
+            "nullable": true
           },
           "completed": {
             "format": "date-time",
             "type": "string",
-            "optionFromNull": true
+            "nullable": true
           },
           "due": {
             "format": "date-time",
             "type": "string",
-            "optionFromNull": true
+            "nullable": true
           },
           "note": {
             "minLength": 1,
             "maxLength": 2047,
             "type": "string",
-            "optionFromNull": true
+            "nullable": true
           },
           "isFavorite": {
             "type": "boolean"
@@ -1231,12 +1469,12 @@
           "myDay": {
             "format": "date-time",
             "type": "string",
-            "optionFromNull": true
+            "nullable": true
           },
           "reminder": {
             "format": "date-time",
             "type": "string",
-            "optionFromNull": true
+            "nullable": true
           }
         },
         "required": [

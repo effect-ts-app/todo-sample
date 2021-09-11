@@ -1,5 +1,5 @@
 import * as O from "@effect-ts-app/core/Option"
-import { ReasonableString } from "@effect-ts-app/core/schema"
+import { ReasonableString } from "@effect-ts-app/core/Schema"
 import { UserId } from "@effect-ts-demo/todo-types"
 
 import { TaskCreated } from "./audit"
