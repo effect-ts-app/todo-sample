@@ -39,7 +39,7 @@ const mksearchWithFields = () => {
   //export function makeAdapter<Props extends MO.PropertyRecord>(props: Props) {
   type Props = typeof TaskView.Model.Api.props
   function a<Key extends keyof Props>(
-    req: Ts.Search.default & {
+    req: Ts.Search.SearchTasksRequest & {
       $select: readonly Key[] // TODO:
     }
   ): T.Effect<
@@ -48,7 +48,7 @@ const mksearchWithFields = () => {
     MO.ParsedShapeOf<MO.Adapted<Props, Key>>
   >
   function a(
-    req: Ts.Search.default
+    req: Ts.Search.SearchTasksRequest
   ): T.Effect<
     H.RequestEnv & Has<ApiConfig>,
     ResponseError | H.HttpError<string>,

@@ -75,12 +75,12 @@ export class ResponseOpenApi extends Model<ResponseOpenApi>()({
 
 export function makeAdapter<Props extends MO.PropertyRecord>(props: Props) {
   function a<Key extends keyof Props>(
-    req: SearchTasks & {
+    req: SearchTasksRequest & {
       fields: readonly Key[]
     }
   ): Adapted<Props, Key>
-  function a(req: SearchTasks): typeof Response // todo
-  function a(req: SearchTasks): any {
+  function a(req: SearchTasksRequest): typeof Response // todo
+  function a(req: SearchTasksRequest): any {
     return req.$select ? adaptRes(props)(req.$select) : Response.Model
   }
 

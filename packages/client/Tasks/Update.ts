@@ -10,7 +10,7 @@ import {
   summary: "Update a Task", // no shit.
 })
 @useClassNameForSchema
-export class UpdateTaskRequest extends Patch("/tasks/:id")<UpdateTask>()({
+export class UpdateTaskRequest extends Patch("/tasks/:id")<UpdateTaskRequest>()({
   id: prop(TaskId),
   ...OptionalEditableTaskProps.Api.props,
   ...OptionalEditablePersonalTaskProps.Api.props,
