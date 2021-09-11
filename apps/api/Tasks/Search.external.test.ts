@@ -3,9 +3,9 @@ import * as T from "@effect-ts/core/Effect"
 import * as L from "@effect-ts/core/Effect/Layer"
 import * as Test from "@effect-ts/jest/Test"
 import * as HF from "@effect-ts-app/core/http/http-client-fetch"
+import { PositiveInt } from "@effect-ts-app/core/Schema"
 import { LiveApiConfig } from "@effect-ts-demo/todo-client/config"
 import { searchWithFields } from "@effect-ts-demo/todo-client/Tasks/_custom"
-import { positiveIntUnsafe } from "@effect-ts-demo/todo-client/test.helpers"
 import fetch from "cross-fetch"
 
 import { managedServer } from "@/test.setup"
@@ -36,7 +36,7 @@ it("works with partial call", () =>
   T.gen(function* ($) {
     const req = {
       $select: ["id", "title"] as const,
-      $skip: positiveIntUnsafe(10),
+      $skip: PositiveInt.unsafe(10),
       $count: true,
     }
 

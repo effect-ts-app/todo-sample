@@ -6,7 +6,7 @@ import {
   Model,
   ParsedShapeOf,
   prop,
-  reasonableString,
+  ReasonableString,
   union,
   useClassNameForSchema,
   withDefault,
@@ -18,7 +18,7 @@ import type { User } from "./User"
 @useClassNameForSchema
 export class Membership extends Model<Membership>()({
   id: prop(UserId),
-  name: prop(reasonableString),
+  name: prop(ReasonableString),
 }) {
   static fromUser(user: User) {
     return new Membership({ id: user.id, name: user.name })
@@ -26,7 +26,7 @@ export class Membership extends Model<Membership>()({
 }
 
 export const EditableTaskListProps = {
-  title: prop(reasonableString),
+  title: prop(ReasonableString),
 }
 
 @useClassNameForSchema
@@ -41,7 +41,7 @@ export class TaskList extends Model<TaskList>()({
 }) {}
 
 export const EditableTaskListGroupProps = {
-  title: prop(reasonableString),
+  title: prop(ReasonableString),
   lists: prop(array(TaskListId)),
 }
 

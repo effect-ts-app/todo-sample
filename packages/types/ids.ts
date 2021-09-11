@@ -1,4 +1,5 @@
 import {
+  extendWithUtils,
   literal,
   nonEmptyString,
   ParsedShapeOf,
@@ -6,7 +7,7 @@ import {
   UUID,
 } from "@effect-ts-app/core/Schema"
 
-export const UserId = nonEmptyString
+export const UserId = extendWithUtils(nonEmptyString)
 export type UserId = ParsedShapeOf<typeof UserId>
 
 export const TaskId = UUID

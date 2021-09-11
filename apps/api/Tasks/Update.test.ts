@@ -2,11 +2,12 @@
 import * as T from "@effect-ts/core/Effect"
 import * as Test from "@effect-ts/jest/Test"
 import * as O from "@effect-ts-app/core/Option"
+import { LongString, ReasonableString } from "@effect-ts-app/core/Schema"
 import { User } from "@effect-ts-demo/todo-types/"
 import { TaskAudits } from "@effect-ts-demo/todo-types/Task"
 import { Attachment } from "@effect-ts-demo/todo-types/Task/shared"
 
-import { longStringUnsafe, reasonableStringUnsafe, testUser } from "@/test.helpers"
+import { testUser } from "@/test.helpers"
 
 import { updateTask } from "./Update"
 
@@ -15,14 +16,14 @@ const { it } = Test.runtime()
 const user = testUser()
 const initialTask = user["|>"](
   User.createTask({
-    title: reasonableStringUnsafe("hi"),
+    title: ReasonableString.unsafe("hi"),
   })
 )
 
 it("changes the provided props", () =>
   T.succeedWith(() => {
     const [task, events] = initialTask["|>"](
-      updateTask({ title: reasonableStringUnsafe("ho") }, user.id)
+      updateTask({ title: ReasonableString.unsafe("ho") }, user.id)
     )
 
     expect(task.title).not.toBe(initialTask.title)
@@ -72,9 +73,9 @@ it("adds reminder to user", () =>
 it("adds an Audit on file attachment added", () =>
   T.succeedWith(() => {
     const a = new Attachment({
-      fileName: reasonableStringUnsafe("abc.gif"),
-      url: longStringUnsafe("http://alabalbla/balbla/abc.gif"),
-      mimetype: reasonableStringUnsafe("application/gif"),
+      fileName: ReasonableString.unsafe("abc.gif"),
+      url: LongString.unsafe("http://alabalbla/balbla/abc.gif"),
+      mimetype: ReasonableString.unsafe("application/gif"),
     })
 
     const [task, events] = initialTask["|>"](

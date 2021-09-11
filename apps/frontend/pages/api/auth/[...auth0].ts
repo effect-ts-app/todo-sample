@@ -17,7 +17,7 @@ export default handleAuth({
           scope: "openid offline_access profile email read:tasks", // or AUTH0_SCOPE // read:products
         },
       })
-    } catch (error) {
+    } catch (error: any) {
       res.status(error.status || 400).end(error.message)
     }
   },

@@ -1,6 +1,6 @@
 import {
   Get,
-  nullable,
+  optionFromNull,
   ParsedShapeOf,
   prop,
   useClassNameForSchema,
@@ -10,9 +10,9 @@ import { TaskId } from "@effect-ts-demo/todo-types"
 import { TaskView } from "./views"
 
 @useClassNameForSchema
-export default class FindTask extends Get("/tasks/:id")<FindTask>()({
+export class FindTaskRequest extends Get("/tasks/:id")<FindTaskRequest>()({
   id: prop(TaskId),
 }) {}
 
-export const Response = nullable(TaskView.Model)
+export const Response = optionFromNull(TaskView.Model)
 export type Response = ParsedShapeOf<typeof Response>

@@ -16,19 +16,19 @@ import {
   domainResponse,
   domainResponse2,
   include,
-  longString,
+  LongString,
   makeOptional,
   makeUnorderedStringSet,
   Model,
   ModelSpecial,
   nonEmptyString,
-  nullable,
+  optionFromNull,
   onConstruct,
   onParseOrConstruct,
   ParsedShapeOf,
   prop,
   props,
-  reasonableString,
+  ReasonableString,
   useClassNameForSchema,
 } from "@effect-ts-app/core/Schema"
 import { curriedMagix, uncurriedMagix } from "@effect-ts-app/core/utils"
@@ -39,7 +39,7 @@ import { Attachment } from "./shared"
 
 @useClassNameForSchema
 export class Step extends Model<Step>()({
-  title: prop(reasonableString),
+  title: prop(ReasonableString),
   completed: defaultProp(bool),
 }) {
   @LazyGetter()
@@ -52,16 +52,16 @@ export const CategoriesSet = makeUnorderedStringSet(nonEmptyString)
 export type CategoriesSet = ParsedShapeOf<typeof CategoriesSet>
 
 export const EditableTaskProps = {
-  title: prop(reasonableString),
-  completed: prop(nullable(date)),
+  title: prop(ReasonableString),
+  completed: prop(optionFromNull(date)),
   isFavorite: prop(bool),
 
-  due: prop(nullable(date)),
-  note: prop(nullable(longString)),
+  due: prop(optionFromNull(date)),
+  note: prop(optionFromNull(LongString)),
   steps: prop(array(Step.Model)),
-  assignedTo: prop(nullable(UserId)),
+  assignedTo: prop(optionFromNull(UserId)),
 
-  attachment: prop(nullable(Attachment.Model)),
+  attachment: prop(optionFromNull(Attachment.Model)),
 
   categories: prop(CategoriesSet),
 }
@@ -70,8 +70,8 @@ export const OptionalEditableTaskProps = props(makeOptional(EditableTaskProps))
 export type OptionalEditableTaskProps = ParsedShapeOf<typeof OptionalEditableTaskProps>
 
 export const EditablePersonalTaskProps = {
-  myDay: prop(nullable(date)),
-  reminder: prop(nullable(date)),
+  myDay: prop(optionFromNull(date)),
+  reminder: prop(optionFromNull(date)),
 }
 
 export const OptionalEditablePersonalTaskProps = props(

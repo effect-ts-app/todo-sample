@@ -9,18 +9,6 @@
         ],
         "removeComments": true,
         "paths": {
-            "@effect-ts-app/react/*": [
-                "../../libs/packages/react/*"
-            ],
-            "@effect-ts-app/react": [
-                "../../libs/packages/react"
-            ],
-            "@effect-ts-app/core/*": [
-                "../../libs/packages/core/*"
-            ],
-            "@effect-ts-app/core": [
-                "../../libs/packages/core"
-            ],
             "@effect-ts-demo/todo-client/*": [
                 "../../packages/client/*"
             ],

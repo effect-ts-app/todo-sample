@@ -4,7 +4,7 @@ import * as N from "@effect-ts/node/Runtime"
 import * as T from "@effect-ts-app/core/Effect"
 import { pipe } from "@effect-ts-app/core/Function"
 import * as HF from "@effect-ts-app/core/http/http-client-fetch"
-import { uuidUnsafe } from "@effect-ts-app/core/test.helpers"
+import { UUID } from "@effect-ts-app/core/Schema"
 import { LiveApiConfig } from "@effect-ts-demo/todo-client/config"
 import fetch from "cross-fetch"
 
@@ -16,7 +16,7 @@ function run(cmd: string, args: string[]) {
       return Tasks.all
     }
     case "findTask": {
-      return Tasks.find({ id: uuidUnsafe(args[0]) })
+      return Tasks.find({ id: UUID.unsafe(args[0]) })
     }
     default: {
       return T.succeedWith(() => "Unknown command: " + cmd)

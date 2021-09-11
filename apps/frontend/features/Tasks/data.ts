@@ -221,8 +221,8 @@ export function useTaskCommandsResolved(t: Todo.Task) {
   }
 }
 
-export const parseRS = Parser.for(MO.reasonableString)["|>"](MO.condemnFail)
-export const parseRSunsafe = Parser.for(MO.reasonableString)["|>"](MO.unsafe)
+export const parseRS = Parser.for(MO.ReasonableString)["|>"](MO.condemnFail)
+export const parseRSunsafe = Parser.for(MO.ReasonableString)["|>"](MO.unsafe)
 
 export function useTaskCommands(id: Todo.TaskId) {
   const modifyTasks = useModifyTasks()
@@ -233,7 +233,7 @@ export function useTaskCommands(id: Todo.TaskId) {
 
   const funcs = useMemo(() => {
     const refreshTask = (t: { id: Todo.TaskId }) => getTask(t.id)
-    const updateAndRefreshTask = (r: TodoClient.Tasks.Update.default) =>
+    const updateAndRefreshTask = (r: TodoClient.Tasks.Update.UpdateTaskRequest) =>
       pipe(updateTask(r), T.zipRight(refreshTask(r)))
 
     function toggleTaskChecked(t: Todo.Task) {

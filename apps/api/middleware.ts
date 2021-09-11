@@ -84,8 +84,11 @@ export function demandLoggedIn<
   BodyA,
   HeaderA,
   ReqA extends PathA & QueryA & BodyA,
-  ResA = void
->(handler: RequestHandler<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA>) {
+  ResA,
+  ResE
+>(
+  handler: RequestHandler<R, PathA, CookieA, QueryA, BodyA, HeaderA, ReqA, ResA, ResE>
+) {
   return {
     handler,
     // handler: {

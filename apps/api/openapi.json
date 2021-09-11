@@ -28,7 +28,7 @@
         "tags": [
           "Me"
         ],
-        "operationId": "GetMe",
+        "operationId": "GetMeRequest",
         "parameters": [],
         "responses": {
           "200": {
@@ -52,7 +52,7 @@
         "tags": [
           "Tasks"
         ],
-        "operationId": "SearchTasks",
+        "operationId": "SearchTasksRequest",
         "parameters": [],
         "requestBody": {
           "content": {
@@ -138,7 +138,7 @@
         "tags": [
           "Tasks"
         ],
-        "operationId": "GetTasks",
+        "operationId": "GetTasksRequest",
         "parameters": [],
         "responses": {
           "200": {
@@ -172,7 +172,7 @@
         "tags": [
           "Tasks"
         ],
-        "operationId": "CreateTask",
+        "operationId": "CreateTaskRequest",
         "parameters": [],
         "requestBody": {
           "content": {
@@ -249,7 +249,7 @@
         "tags": [
           "Tasks"
         ],
-        "operationId": "FindTask",
+        "operationId": "FindTaskRequest",
         "parameters": [
           {
             "name": "id",
@@ -284,7 +284,7 @@
         ],
         "description": "You can optionally update selected fields of the Task",
         "summary": "Update a Task",
-        "operationId": "UpdateTask",
+        "operationId": "UpdateTaskRequest",
         "parameters": [
           {
             "name": "id",
@@ -394,7 +394,7 @@
         "tags": [
           "Tasks"
         ],
-        "operationId": "RemoveTask",
+        "operationId": "RemoveTaskRequest",
         "parameters": [
           {
             "name": "id",
@@ -424,7 +424,7 @@
         "tags": [
           "Lists"
         ],
-        "operationId": "CreateTask2",
+        "operationId": "CreateTaskRequest2",
         "parameters": [
           {
             "name": "listId",
@@ -506,7 +506,7 @@
         "tags": [
           "Lists"
         ],
-        "operationId": "UpdateTaskList",
+        "operationId": "UpdateTaskListRequest",
         "parameters": [
           {
             "name": "id",
@@ -550,7 +550,7 @@
         "tags": [
           "Lists"
         ],
-        "operationId": "RemoveTaskList",
+        "operationId": "RemoveTaskListRequest",
         "parameters": [
           {
             "name": "id",
@@ -580,7 +580,7 @@
         "tags": [
           "Lists"
         ],
-        "operationId": "UpdateTaskListOrder",
+        "operationId": "UpdateTaskListOrderRequest",
         "parameters": [
           {
             "name": "id",
@@ -641,7 +641,7 @@
         "tags": [
           "Lists"
         ],
-        "operationId": "AddTaskListMember",
+        "operationId": "AddTaskListMemberRequest",
         "parameters": [
           {
             "name": "id",
@@ -689,7 +689,7 @@
         "tags": [
           "Lists"
         ],
-        "operationId": "RemoveTaskListMember",
+        "operationId": "RemoveTaskListMemberRequest",
         "parameters": [
           {
             "name": "id",
@@ -728,7 +728,7 @@
         "tags": [
           "Groups"
         ],
-        "operationId": "UpdateTaskListGroup",
+        "operationId": "UpdateTaskListGroupRequest",
         "parameters": [
           {
             "name": "id",
