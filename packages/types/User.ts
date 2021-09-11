@@ -10,7 +10,7 @@ import {
   partialConstructor,
   PhoneNumber,
   prop,
-  reasonableString,
+  ReasonableString,
   useClassNameForSchema,
 } from "@effect-ts-app/core/Schema"
 import { reverseCurriedMagix, uncurriedMagix } from "@effect-ts-app/core/utils"
@@ -32,7 +32,7 @@ export class UserTask extends Model<UserTask>()({
 export class User extends Model<User>()({
   id: prop(UserId),
   email: prop(Email),
-  name: prop(reasonableString),
+  name: prop(ReasonableString),
   phoneNumber: prop(PhoneNumber),
 
   inboxOrder: defaultProp(array(TaskId)),

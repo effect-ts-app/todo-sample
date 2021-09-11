@@ -1,6 +1,6 @@
 import {
   Get,
-  nullable,
+  optionFromNull,
   ParsedShapeOf,
   prop,
   useClassNameForSchema,
@@ -14,5 +14,5 @@ export default class FindTask extends Get("/tasks/:id")<FindTask>()({
   id: prop(TaskId),
 }) {}
 
-export const Response = nullable(TaskView.Model)
+export const Response = optionFromNull(TaskView.Model)
 export type Response = ParsedShapeOf<typeof Response>

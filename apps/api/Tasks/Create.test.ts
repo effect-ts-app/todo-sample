@@ -4,7 +4,7 @@ import * as Test from "@effect-ts/jest/Test"
 import * as O from "@effect-ts-app/core/Option"
 import { TaskAudits, TaskEvents } from "@effect-ts-demo/todo-types/Task"
 
-import { reasonableStringUnsafe, testUser } from "@/test.helpers"
+import { testUser } from "@/test.helpers"
 
 import { createTask_ } from "./Create"
 
@@ -18,7 +18,7 @@ it("returns domain events", () =>
       listId: "inbox",
       myDay: O.none,
       isFavorite: false,
-      title: reasonableStringUnsafe("Test task"),
+      title: ReasonableString.unsafe("Test task"),
     })
 
     expect(events).toEqual([
@@ -32,7 +32,7 @@ it("adds an Audit on creation", () =>
       listId: "inbox",
       myDay: O.none,
       isFavorite: false,
-      title: reasonableStringUnsafe("Test task"),
+      title: ReasonableString.unsafe("Test task"),
     })
 
     expect(task.auditLog[0]).toEqual(

@@ -1,7 +1,7 @@
 import {
   date,
   Model,
-  nullable,
+  optionFromNull,
   Post,
   prop,
   useClassNameForSchema,
@@ -15,7 +15,7 @@ export default class CreateTask extends Post("/tasks")<CreateTask>()({
     title,
     isFavorite,
   })),
-  myDay: prop(nullable(date)),
+  myDay: prop(optionFromNull(date)),
 }) {}
 
 export class Response extends Model<Response>()({ id: prop(TaskId) }) {}

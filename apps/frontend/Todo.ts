@@ -14,7 +14,7 @@ import {
   string,
   These,
   union,
-  reasonableString,
+  ReasonableString,
   parseStringE,
   leafE,
   ReasonableString,
@@ -91,7 +91,7 @@ export class Task extends Todo.Task {
 
 export class TaskList extends Model<TaskList>()({
   id: prop(TaskListId),
-  title: prop(reasonableString),
+  title: prop(ReasonableString),
   order: prop(array(TaskId)),
   count: prop(number),
   _tag: prop(literal("TaskList")),
@@ -99,13 +99,13 @@ export class TaskList extends Model<TaskList>()({
 
 export class TaskListGroup extends Model<TaskListGroup>()({
   id: prop(TaskListId),
-  title: prop(reasonableString),
+  title: prop(ReasonableString),
   lists: prop(array(TaskList.Model)),
   _tag: prop(literal("TaskListGroup")),
 }) {}
 
 export class TaskListView extends Model<TaskListView>()({
-  title: prop(reasonableString),
+  title: prop(ReasonableString),
   count: prop(number),
   slug: prop(string),
   _tag: prop(literal("TaskListView")),
@@ -209,7 +209,7 @@ function isSameDay(today: Date) {
 
 export const emptyTasks = [] as readonly Todo.Task[]
 
-export const Category = reasonableString
+export const Category = ReasonableString
 export type Category = ReasonableString
 
 export * from "@effect-ts-demo/todo-client/types"

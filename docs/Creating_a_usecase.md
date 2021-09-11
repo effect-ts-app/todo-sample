@@ -16,7 +16,7 @@ export default class Create extends Post("/tasks")<Create>()({
   listId: prop(TaskListIdU),
   title: prop(nonEmptyString),
   isFavorite: prop(bool),
-  myDay: prop(nullable(date)),
+  myDay: prop(optionFromNull(date)),
 }) {}
 ```
 3. Create a `Response` class, if the Response is something else than `void`:

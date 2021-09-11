@@ -2,17 +2,10 @@ import * as A from "@effect-ts/core/Collections/Immutable/Array"
 import * as T from "@effect-ts/core/Effect"
 import { flow, pipe } from "@effect-ts/core/Function"
 import * as O from "@effect-ts/core/Option"
-import {
-  Box,
-  Button,
-  Checkbox,
-  IconButton,
-  TextField,
-  Typography,
-} from "@material-ui/core"
-import ArrowRight from "@material-ui/icons/ArrowRight"
-import Remove from "@material-ui/icons/Remove"
 import { DatePicker, DateTimePicker } from "@material-ui/lab"
+import { Box, Button, Checkbox, IconButton, TextField, Typography } from "@mui/material"
+import ArrowRight from "@mui/material-icons/ArrowRight"
+import Remove from "@mui/material-icons/Remove"
 import { datumEither } from "@nll/datum"
 import React from "react"
 import { Droppable, DragDropContext } from "react-beautiful-dnd"

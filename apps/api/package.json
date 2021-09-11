@@ -16,31 +16,31 @@
         "start": "ts-node ./start-server.ts"
     },
     "dependencies": {
-        "@babel/node": "^7.14.5",
+        "@babel/node": "^7.15.4",
         "@effect-ts-app/core": "*",
         "@effect-ts-app/infra": "*",
         "@effect-ts-demo/todo-client": "*",
         "@effect-ts-demo/todo-types": "*",
-        "@effect-ts/core": "^0.40.4",
-        "@effect-ts/express": "^0.20.2",
-        "@effect-ts/monocle": "^0.34.0",
-        "@effect-ts/morphic": "^0.37.0",
-        "@effect-ts/node": "^0.26.0",
-        "@effect-ts/schema": "^0.8.2",
+        "@effect-ts/core": "^0.43.9",
+        "@effect-ts/express": "^0.20.3",
+        "@effect-ts/monocle": "^0.35.0",
+        "@effect-ts/morphic": "^0.37.1",
+        "@effect-ts/node": "^0.28.1",
+        "@effect-ts/schema": "^0.10.0",
         "body-parser": "^1.19.0",
         "cors": "^2.8.5",
         "express": "^4.17.1",
-        "express-jwt": "^6.0.0",
+        "express-jwt": "^6.1.0",
         "express-jwt-authz": "^2.4.1",
-        "jwks-rsa": "^2.0.3",
+        "jwks-rsa": "^2.0.4",
         "jwt-decode": "^3.1.2",
-        "redoc": "^2.0.0-rc.54",
+        "redoc": "^2.0.0-rc.56",
         "redoc-express": "^1.0.0",
         "swagger-ui-express": "^4.1.6"
     },
     "devDependencies": {
-        "@types/body-parser": "^1.19.0",
-        "@types/cors": "^2.8.10",
-        "@types/express": "^4.17.12"
+        "@types/body-parser": "^1.19.1",
+        "@types/cors": "^2.8.12",
+        "@types/express": "^4.17.13"
     }
 }

@@ -221,8 +221,8 @@ export function useTaskCommandsResolved(t: Todo.Task) {
   }
 }
 
-export const parseRS = Parser.for(MO.reasonableString)["|>"](MO.condemnFail)
-export const parseRSunsafe = Parser.for(MO.reasonableString)["|>"](MO.unsafe)
+export const parseRS = Parser.for(MO.ReasonableString)["|>"](MO.condemnFail)
+export const parseRSunsafe = Parser.for(MO.ReasonableString)["|>"](MO.unsafe)
 
 export function useTaskCommands(id: Todo.TaskId) {
   const modifyTasks = useModifyTasks()

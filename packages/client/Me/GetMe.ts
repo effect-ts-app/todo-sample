@@ -4,11 +4,11 @@ import {
   literal,
   Model,
   named,
-  nullable,
+  optionFromNull,
   ParsedShapeOf,
   prop,
   props,
-  reasonableString,
+  ReasonableString,
   union,
   useClassNameForSchema,
 } from "@effect-ts-app/core/Schema"
@@ -25,8 +25,8 @@ const TaskListEntryProps = props({
 @useClassNameForSchema
 export class TaskListEntry extends Model<TaskListEntry>()({
   _tag: prop(literal("TaskList")),
-  title: prop(reasonableString),
-  parentListId: prop(nullable(TaskListId)),
+  title: prop(ReasonableString),
+  parentListId: prop(optionFromNull(TaskListId)),
   ...TaskListEntryProps.props,
 }) {}
 
@@ -35,7 +35,7 @@ export class TaskListEntry extends Model<TaskListEntry>()({
 export class TaskListEntryGroup extends Model<TaskListEntryGroup>()({
   _tag: prop(literal("TaskListGroup")),
   id: prop(TaskListId),
-  title: prop(reasonableString),
+  title: prop(ReasonableString),
   lists: prop(array(TaskListId)),
 }) {}
 

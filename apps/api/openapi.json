@@ -204,7 +204,7 @@
                   "myDay": {
                     "format": "date-time",
                     "type": "string",
-                    "nullable": true
+                    "optionFromNull": true
                   }
                 },
                 "required": [
@@ -268,7 +268,7 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Task",
-                  "nullable": true
+                  "optionFromNull": true
                 }
               }
             }
@@ -309,7 +309,7 @@
                   "completed": {
                     "format": "date-time",
                     "type": "string",
-                    "nullable": true
+                    "optionFromNull": true
                   },
                   "isFavorite": {
                     "type": "boolean"
@@ -317,13 +317,13 @@
                   "due": {
                     "format": "date-time",
                     "type": "string",
-                    "nullable": true
+                    "optionFromNull": true
                   },
                   "note": {
                     "minLength": 1,
                     "maxLength": 2047,
                     "type": "string",
-                    "nullable": true
+                    "optionFromNull": true
                   },
                   "steps": {
                     "items": {
@@ -334,7 +334,7 @@
                   "assignedTo": {
                     "minLength": 1,
                     "type": "string",
-                    "nullable": true
+                    "optionFromNull": true
                   },
                   "attachment": {
                     "properties": {
@@ -360,17 +360,17 @@
                       "url"
                     ],
                     "type": "object",
-                    "nullable": true
+                    "optionFromNull": true
                   },
                   "myDay": {
                     "format": "date-time",
                     "type": "string",
-                    "nullable": true
+                    "optionFromNull": true
                   },
                   "reminder": {
                     "format": "date-time",
                     "type": "string",
-                    "nullable": true
+                    "optionFromNull": true
                   }
                 },
                 "type": "object"
@@ -462,7 +462,7 @@
                   "myDay": {
                     "format": "date-time",
                     "type": "string",
-                    "nullable": true
+                    "optionFromNull": true
                   }
                 },
                 "required": [
@@ -803,7 +803,7 @@
           "parentListId": {
             "format": "uuid",
             "type": "string",
-            "nullable": true
+            "optionFromNull": true
           },
           "id": {
             "format": "uuid",
@@ -1052,7 +1052,7 @@
           "assignedTo": {
             "minLength": 1,
             "type": "string",
-            "nullable": true
+            "optionFromNull": true
           },
           "attachment": {
             "properties": {
@@ -1078,23 +1078,23 @@
               "url"
             ],
             "type": "object",
-            "nullable": true
+            "optionFromNull": true
           },
           "completed": {
             "format": "date-time",
             "type": "string",
-            "nullable": true
+            "optionFromNull": true
           },
           "due": {
             "format": "date-time",
             "type": "string",
-            "nullable": true
+            "optionFromNull": true
           },
           "note": {
             "minLength": 1,
             "maxLength": 2047,
             "type": "string",
-            "nullable": true
+            "optionFromNull": true
           },
           "isFavorite": {
             "type": "boolean"
@@ -1108,12 +1108,12 @@
           "myDay": {
             "format": "date-time",
             "type": "string",
-            "nullable": true
+            "optionFromNull": true
           },
           "reminder": {
             "format": "date-time",
             "type": "string",
-            "nullable": true
+            "optionFromNull": true
           }
         },
         "type": "object"
@@ -1175,7 +1175,7 @@
           "assignedTo": {
             "minLength": 1,
             "type": "string",
-            "nullable": true
+            "optionFromNull": true
           },
           "attachment": {
             "properties": {
@@ -1201,23 +1201,23 @@
               "url"
             ],
             "type": "object",
-            "nullable": true
+            "optionFromNull": true
           },
           "completed": {
             "format": "date-time",
             "type": "string",
-            "nullable": true
+            "optionFromNull": true
           },
           "due": {
             "format": "date-time",
             "type": "string",
-            "nullable": true
+            "optionFromNull": true
           },
           "note": {
             "minLength": 1,
             "maxLength": 2047,
             "type": "string",
-            "nullable": true
+            "optionFromNull": true
           },
           "isFavorite": {
             "type": "boolean"
@@ -1231,12 +1231,12 @@
           "myDay": {
             "format": "date-time",
             "type": "string",
-            "nullable": true
+            "optionFromNull": true
           },
           "reminder": {
             "format": "date-time",
             "type": "string",
-            "nullable": true
+            "optionFromNull": true
           }
         },
         "required": [

@@ -3,7 +3,7 @@ import {
   date,
   literal,
   Model,
-  nullable,
+  optionFromNull,
   ParsedShapeOf,
   prop,
   union,
@@ -22,7 +22,7 @@ export class TaskCreated extends Model<TaskCreated>()({
   ...DomainEventProps("TaskCreated"),
   taskId: prop(TaskId),
   userId: prop(UserId),
-  myDay: prop(nullable(date)),
+  myDay: prop(optionFromNull(date)),
 }) {}
 
 export class TaskUpdated extends Model<TaskUpdated>()({

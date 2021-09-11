@@ -1,6 +1,6 @@
 import * as A from "@effect-ts-app/core/Array"
 import * as O from "@effect-ts/core/Option"
-import { Typography } from "@material-ui/core"
+import { Typography } from "@mui/material"
 import React, { useEffect, useState } from "react"
 import { Droppable, DragDropContext } from "react-beautiful-dnd"
 import styled from "styled-components"
