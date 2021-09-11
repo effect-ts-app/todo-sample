@@ -3,7 +3,8 @@
 import { flow } from "@effect-ts/core/Function"
 import { Lens } from "@effect-ts/monocle"
 import * as O from "@effect-ts-app/core/Option"
-import { Membership, Step, Task, User } from "@effect-ts-demo/todo-types"
+import { Email, PhoneNumber, ReasonableString } from "@effect-ts-app/core/schema"
+import { Membership, Step, Task, User, UserId } from "@effect-ts-demo/todo-types"
 
 import { Config } from "./Config"
 
