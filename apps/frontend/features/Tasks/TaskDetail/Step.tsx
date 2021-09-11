@@ -1,5 +1,5 @@
 import { Box, Checkbox, IconButton } from "@mui/material"
-import Remove from "@mui/material-icons/Remove"
+import Remove from "@material-ui/icons/Remove"
 import React from "react"
 import { Draggable } from "react-beautiful-dnd"
 

@@ -24,8 +24,7 @@
         "testsuite": "ultra -r yarn testsuite",
         "up": "ultra -r --root ncu -u --packageFile package.json -x @types/node",
         "pub": "yarn lerna publish --no-private",
-        "client": "cd packages/client && yarn client",
-        "libs-fix": "mkdir -p libs/node_modules/.bin && cd libs/node_modules/.bin && ln -s ../../../node_modules/.bin/* ."
+        "client": "cd packages/client && yarn client"
     },
     "resolutions": {
         "typescript": "^4.4.3"

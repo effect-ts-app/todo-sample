@@ -1,7 +1,7 @@
 import { useUser } from "@auth0/nextjs-auth0"
 import * as O from "@effect-ts/core/Option"
 import { Box, Link, Typography } from "@mui/material"
-import ArrowLeft from "@mui/material-icons/ArrowLeft"
+import ArrowLeft from "@material-ui/icons/ArrowLeft"
 import RouterLink from "next/link"
 import React, { useState } from "react"
 

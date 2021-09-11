@@ -17,7 +17,6 @@ import {
   ReasonableString,
   parseStringE,
   leafE,
-  ReasonableString,
   lensFromProps,
 } from "@effect-ts-app/core/Schema"
 import * as Todo from "@effect-ts-demo/todo-client/types"

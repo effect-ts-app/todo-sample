@@ -1,6 +1,6 @@
 import { UserProvider } from "@auth0/nextjs-auth0"
-import AdapterDateFns from "@material-ui/lab/AdapterDateFns"
-import LocalizationProvider from "@material-ui/lab/LocalizationProvider"
+import AdapterDateFns from "@mui/lab/AdapterDateFns"
+import LocalizationProvider from "@mui/lab/LocalizationProvider"
 import { StyledEngineProvider, useMediaQuery } from "@mui/material"
 import { createTheme, ThemeProvider } from "@mui/material/styles"
 import { StylesProvider } from "@mui/styles"

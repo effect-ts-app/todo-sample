@@ -5,7 +5,7 @@
   "license": "MIT",
   "private": true,
   "dependencies": {
-    "@effect-ts-app/core": "*",
+    "@effect-ts-app/core": "^0.36.3",
     "@effect-ts-demo/todo-types": "*",
     "@effect-ts/core": "^0.43.9",
     "@effect-ts/monocle": "^0.35.0",

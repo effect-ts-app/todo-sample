@@ -17,8 +17,8 @@
     },
     "dependencies": {
         "@babel/node": "^7.15.4",
-        "@effect-ts-app/core": "*",
-        "@effect-ts-app/infra": "*",
+        "@effect-ts-app/core": "^0.36.3",
+        "@effect-ts-app/infra": "^0.36.3",
         "@effect-ts-demo/todo-client": "*",
         "@effect-ts-demo/todo-types": "*",
         "@effect-ts/core": "^0.43.9",
