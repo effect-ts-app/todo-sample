@@ -1,6 +1,5 @@
 {
     "typescript.tsdk": "./node_modules/typescript/lib",
-    "typescript.tsserver.experimental.enableProjectDiagnostics": true,
     "eslint.workingDirectories": [
         {
             "pattern": "apps/*"
