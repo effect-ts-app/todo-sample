@@ -1,6 +1,6 @@
 import * as O from "@effect-ts/core/Option"
-import { IconButton, Menu, MenuItem } from "@mui/material"
 import OpenMenu from "@mui/icons-material/Menu"
+import { IconButton, Menu, MenuItem } from "@mui/material"
 import React from "react"
 
 import { memo } from "@/data"
